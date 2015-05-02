@@ -1,5 +1,4 @@
 'use strict';
-
 var Dom = require('./dom');
 
 function ET(options) {

@@ -3,10 +3,12 @@
 var path = require('path');
 var gulp = require('gulp');;
 var del = require('del');
-var sequence   = require('gulp-sequence');
-var js = require('./gulp/gulp-require')
+var $ = require('gulp-load-plugins')();
+var js = require('./gulp/gulp-require');
 var et = require('./gulp/gulp-et');
-var es5 = require('./gulp/gulp-es5')
+var es5 = require('./gulp/gulp-es5');
+
+console.log($);
 
 gulp.task('clean', function() {
   del(['public/src/**', 'es5/**']);
@@ -19,6 +21,12 @@ gulp.task('js', function() {
   .pipe(js().on('error', console.log))
   .pipe(es5().on('error', console.log))
   .pipe(gulp.dest('public/src'));
+});
+
+gulp.task('jshint', function () {
+  return gulp.src('src/**/*.js')
+    .pipe($.jshint())
+    .pipe($.jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('html', function() {
@@ -76,9 +84,9 @@ gulp.task('es5', function(){
   .pipe(gulp.dest('es5'));
 });
 
-gulp.task('watch', sequence(['watch-js', 'watch-html', 'watch-es5']));
+gulp.task('watch', $.sequence(['watch-js', 'watch-html', 'watch-es5']));
 // gulp.task('default', sequence('clean', 'js', 'html', 'es5'));
-gulp.task('default', sequence('clean', 'js', 'es5'));
+gulp.task('default', $.sequence('clean', 'jshint', 'js', 'es5'));
 
 
 

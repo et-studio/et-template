@@ -1,3 +1,4 @@
+'use strict';
 var _ = require('underscore');
 var base = require('./base');
 
@@ -8,7 +9,7 @@ module.exports = _.extend({}, base, {
     re.push(`${this.getFrontSpaces()}${this.getLine()}`);
     return re;
   },
-  deliverFlagList: function(options){
+  deliverFlagList: function(){
     var re = [];
     var lineId = `${this.compilerGet('lineConcat')}${this.id}`;
     var attributeId = this.compilerGet('attributeId');
@@ -26,8 +27,8 @@ module.exports = _.extend({}, base, {
   },
   deliverUpdateList: function(){
     var re = [''];
-    var source = this.source;
-    var isRoot = this.checkRoot();
+    // var source = this.source;
+    // var isRoot = this.checkRoot();
     var line = `${this.compilerGet('elementLine')}${this.id}`;
     var dom = `${this.compilerGet('elementDom')}${this.id}`;
     // var tmpDom = `$tmp_${this.id}`;
@@ -90,17 +91,17 @@ module.exports = _.extend({}, base, {
     re = re.concat(this.scanRootList());
     return re;
   },
-  getFlagList: function(options){// flag the dom for ET
+  getFlagList: function(){// flag the dom for ET
     var re = [];
     re = re.concat(this.scanFlagList());
     return re;
   },
-  getUpdateList: function(options){// update string list
+  getUpdateList: function(){// update string list
     var re = [];
     re = re.concat(this.scanUpdateList());
     return re;
   },
-  getUpdateArguments: function(options){// arguments of update function
+  getUpdateArguments: function(){// arguments of update function
     var re =['it'];
     return re;
   }

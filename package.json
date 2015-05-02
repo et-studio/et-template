@@ -12,8 +12,11 @@
     "del": "^1.1.1",
     "esformatter": "^0.6.1",
     "gulp": "^3.8.11",
+    "gulp-jshint": "^1.10.0",
+    "gulp-load-plugins": "^0.10.0",
     "gulp-sequence": "^0.3.2",
     "gulp-util": "^3.0.4",
+    "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.1",
     "through2": "^0.6.3"
   },

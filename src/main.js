@@ -1,4 +1,5 @@
 // ignore
+'use strict';
 require.config({
   paths: {
     jquery: '../bower_components/jquery/dist/jquery',
@@ -7,7 +8,7 @@ require.config({
     template: './html/expect',
     dep: './dep'
   }
-})
+});
 
 require([
   'dep',
@@ -16,5 +17,5 @@ require([
   'jquery'
 ], function () {
 
-})
+});
 

@@ -1,6 +1,5 @@
-// base 接口对象，为dom定义基本的接口函数
-
 'use strict';
+// base 接口对象，为dom定义基本的接口函数
 
 var _ = require('underscore');
 var FUNCTION_CONCAT = 'Template_';
@@ -12,7 +11,8 @@ var ELEMENT_DOM = '$dom_';
 
 module.exports = {
   initCompiler: function initCompiler(options) {
-    if (options) options = {};
+    var attribute;
+    options = options || {};
     this.compilerSave('functionConcat', options.compilerConcat || FUNCTION_CONCAT);
     this.compilerSave('spaceSize', options.spaceSize || SPACE_SIZE);
     this.compilerSave('lineConcat', options.lineConcat || LINE_CONCAT);
@@ -26,17 +26,21 @@ module.exports = {
   },
   // add namespace to avoid attribute covered.
   compilerSave: function compilerSave(key, value) {
-    if (!this.compilerData) this.compilerData = {};
+    if (!this.compilerData) {
+      this.compilerData = {};
+    }
     this.compilerData[key] = value;
     return this;
   },
   compilerGet: function compilerGet(key) {
-    if (!this.compilerData) this.compilerData = {};
+    if (!this.compilerData) {
+      this.compilerData = {};
+    }
     return this.compilerData[key];
   },
   // compile the dom to ET class
   compile: function compile(options) {
-    if (!options) options = {};
+    options = options || {};
     var _options = _.extend({}, options, {
       isInit: true,
       root: this
@@ -76,8 +80,8 @@ module.exports = {
       re.push('');
       // save last
       re.push('this.last = {');
-      for (var i = 0; i < updateArguments.length; i++) {
-        var key = updateArguments[i];
+      for (var j = 0; j < updateArguments.length; j++) {
+        var key = updateArguments[j];
         re.push('' + key + ': ' + key);
       }
       re.push('}');
@@ -100,7 +104,9 @@ module.exports = {
   getFrontSpaces: function getFrontSpaces() {
     var num = this.compilerGet('spaceSize');
     var n = this.depth || 0;
-    if (this.type === 'et') n += 1;
+    if (this.type === 'et') {
+      n += 1;
+    }
     num = num * n || 0;
 
     var re = '';
@@ -178,22 +184,22 @@ module.exports = {
 
   // start: functions should be override
   isNewTemplate: false,
-  deliverRootList: function deliverRootList(options) {
+  deliverRootList: function deliverRootList() {
     var re = [];
     re = re.concat(this.getRootList());
     return re;
   },
-  deliverFlagList: function deliverFlagList(options) {
+  deliverFlagList: function deliverFlagList() {
     var re = [];
     re = re.concat(this.getFlagList());
     return re;
   },
-  deliverUpdateList: function deliverUpdateList(options) {
+  deliverUpdateList: function deliverUpdateList() {
     var re = [];
     re = re.concat(this.getUpdateList());
     return re;
   },
-  getRootList: function getRootList(options) {
+  getRootList: function getRootList() {
     // for root string
     var re = [];
     var source = this.source;
@@ -206,19 +212,19 @@ module.exports = {
     }
     return re;
   },
-  getFlagList: function getFlagList(options) {
+  getFlagList: function getFlagList() {
     // flag the dom for ET
     var re = [];
     re = re.concat(this.scanFlagList());
     return re;
   },
-  getUpdateList: function getUpdateList(options) {
+  getUpdateList: function getUpdateList() {
     // update string list
     var re = [];
     re = re.concat(this.scanUpdateList());
     return re;
   },
-  getUpdateArguments: function getUpdateArguments(options) {
+  getUpdateArguments: function getUpdateArguments() {
     // arguments of update function
     var re = ['it'];
     return re;

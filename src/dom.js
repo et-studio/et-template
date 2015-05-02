@@ -1,3 +1,4 @@
+'use strict';
 /**
 Dom 类 模拟dom的树形结构
   id                 # 唯一id
@@ -18,14 +19,16 @@ Dom 类 模拟dom的树形结构
 **/
 
 var _ = require('underscore');
-var compilers = require('./compilers/index')
+var compilers = require('./compilers/index');
 
 var ID_CONCATE = 'ET';
 var BEGIN_TAG_REG = /<(\w+)[\S\s]*?>|\[(#\w*)[\S\s]*?\]/;
 var END_TAG_REG = /<\/(\w+)?>|\[\/(#\w*)?\]/;
 
-function Dom(str, parent, options){
-  if(!options) options = {};
+function Dom(str, parent, options) {
+  if(!options) {
+    options = {};
+  }
 
   this.id = _.uniqueId(ID_CONCATE);
   this.parent = parent;
@@ -50,7 +53,7 @@ Dom.prototype = {
       children: '',
       endTag: '',
       text: ''
-    }
+    };
     var list = (!!isSingle) ? [] : this.split(str);
     var match = BEGIN_TAG_REG.exec(str);
     if(list.length > 1){
@@ -67,30 +70,33 @@ Dom.prototype = {
     }
     return re;
   },
-  parseDomList: function(str, tag){ // 把一个dom字符串解析成 [begin, children, end]
+  parseDomList: function(str, tag) { // 把一个dom字符串解析成 [begin, children, end]
     var re = [];
     var isEtDom = tag.indexOf('#') === 0;
     var beginReg, endReg, beginMatch, endMatch;
-    if(!str) str = "";
-    else str = str.trim();
+    if(!str) {
+      str = '';
+    }else {
+      str = str.trim();
+    }
 
-    if(isEtDom){
+    if(isEtDom) {
       beginReg = new RegExp(`^\\[${tag}[\\S\\s]*?\\]`);
       endReg = new RegExp(`\\[\\/${tag}\\]$`);
-    }else{
+    }else {
       beginReg = new RegExp(`^<${tag}[\\S\\s]*?>`);
       endReg = new RegExp(`<\\/${tag}>$`);
     }
-    if(!(beginMatch = beginReg.exec(str)) || !(endMatch = endReg.exec(str))){
+    if(!(beginMatch = beginReg.exec(str)) || !(endMatch = endReg.exec(str))) {
       this.throwError(str);
     }
     re.push(beginMatch[0]);
     re.push(str.replace(beginReg, '').replace(endReg, ''));
     re.push(endMatch[0]);
-    return re
+    return re;
   },
-  calculateType: function(source){
-    var re = 'root'
+  calculateType: function(source) {
+    var re = 'root';
     if(source.text){
       re = 'text';
     }else if(source.tag.indexOf('#') === 0){
@@ -98,64 +104,74 @@ Dom.prototype = {
     }else if(source.tag){
       re = 'html';
     }
-    return re
+    return re;
   },
-  calculateDepth: function(parent, type){
-    var parentDepth = (parent && parent.depth) || 0
+  calculateDepth: function(parent, type) {
+    var parentDepth = (parent && parent.depth) || 0;
     var increment = (type === 'html' || type === 'text') ? 1 : 0;
     return  parentDepth + increment;
   },
   createChildren: function(str){
-    if(!str) str = '';
+    str = str || '';
     var list = this.split(str);
     for(var i = 0 ; i < list.length ; i++){
       var tmp = list[i];
-      if(tmp) this.children.push(new Dom(tmp, this, {isSingle: true}));
+      if(tmp) {
+        this.children.push(new Dom(tmp, this, {isSingle: true}));
+      }
     }
-    return this
+    return this;
   },
-  split: function(str){ // 拆分函数，把str拆成dom数组
-    if(!str) str = '';
-    var list = [];
-    while(str = str.trim()){
-      var halves = this.splitHalves(str);
-      if(halves[0]) list.push(halves[0]);
+  split: function(str) { // 拆分函数，把str拆成dom数组
+    var list, halves;
+    str = str || '';
+    list = [];
+    str = str.trim();
+    while(str) {
+      halves = this.splitHalves(str);
+      if(halves[0]) {
+        list.push(halves[0]);
+      }
       str = halves[1];
     }
-    return list
+    return list;
   },
-  splitHalves: function(str){ // 拆分函数 把str的第一个dom单元拆出来
-    if(!str) str = '';
-    var re = [];
+  splitHalves: function(str) { // 拆分函数 把str的第一个dom单元拆出来
+    str = str || '';
+    var re = [], position, count, first, rest, index;
     var match = BEGIN_TAG_REG.exec(str);
-    if(!match){
+    if(!match) {
       re.push(str);
       re.push('');
-    }else if((index = match.index) !== 0){
+    }else if((index = match.index) !== 0) {
       re.push(str.substring(0, index));
       re.push(str.substring(index));
-    }else{
-      var count = 0, first = '', rest = str;
-      while(rest){
+    }else {
+      count = 0;
+      first = '';
+      rest = str;
+      while(rest) {
         var beginMatch = BEGIN_TAG_REG.exec(rest);
         var endMatch = END_TAG_REG.exec(rest);
-        if((beginMatch && !endMatch) || (beginMatch && endMatch && beginMatch.index < endMatch.index)){ // 先遇见开始标签
+        if((beginMatch && !endMatch) || (beginMatch && endMatch && beginMatch.index < endMatch.index)) { // 先遇见开始标签
           count++;
-          var position = beginMatch.index + beginMatch[0].length;
+          position = beginMatch.index + beginMatch[0].length;
           first = first + rest.substring(0, position);
           rest = rest.substring(position);
-        }else if((!beginMatch && endMatch) || (beginMatch && endMatch && beginMatch.index > endMatch.index)){ // 先遇见结束标签
+        }else if((!beginMatch && endMatch) || (beginMatch && endMatch && beginMatch.index > endMatch.index)) { // 先遇见结束标签
           count--;
-          var position = endMatch.index + endMatch[0].length;
+          position = endMatch.index + endMatch[0].length;
           first = first + rest.substring(0, position);
           rest = rest.substring(position);
           if(count === 0){
-            if(match[1] !== endMatch[1] || match[2] !== endMatch[2]) this.throwError(str);
+            if(match[1] !== endMatch[1] || match[2] !== endMatch[2]) {
+              this.throwError(str);
+            }
             break;
           }
-        }else{ // 其他
-          first += rest
-          rest = ''
+        }else { // 其他
+          first += rest;
+          rest = '';
         }
       }
       if(count !== 0) {
@@ -165,14 +181,15 @@ Dom.prototype = {
 
     re.push(first);
     re.push(rest);
-    return re
+    return re;
   },
   throwError: function(str) { // 抛出错误异常
-    if(!str) str = 'html';
+    if(!str) {
+      str = 'html';
+    }
     throw new Error(`Format of ${str} string is wrong.`);
   }
   // end: 解析link对象函数
-}
+};
 
-module.exports = Dom
-
+module.exports = Dom;

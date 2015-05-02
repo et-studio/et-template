@@ -1,3 +1,4 @@
+'use strict';
 // base 接口对象，为dom定义基本的接口函数
 
 var _ = require('underscore');
@@ -10,35 +11,40 @@ var ELEMENT_DOM = '$dom_';
 
 module.exports = {
   initCompiler: function(options){
-    if(options) options = {};
+    var attribute;
+    options = options || {};
     this.compilerSave('functionConcat', options.compilerConcat || FUNCTION_CONCAT);
     this.compilerSave('spaceSize', options.spaceSize || SPACE_SIZE);
     this.compilerSave('lineConcat', options.lineConcat || LINE_CONCAT);
-    this.compilerSave('elementLine', options.elementLine || ELEMENT_LINE)
-    this.compilerSave('elementDom', options.elementDom || ELEMENT_DOM)
+    this.compilerSave('elementLine', options.elementLine || ELEMENT_LINE);
+    this.compilerSave('elementDom', options.elementDom || ELEMENT_DOM);
     var attributeId = ATTRIBUTE_ID;
-    if(options.attributeId){
+    if(options.attributeId) {
       attribute = options.attributeId.toString().toLowerCase();
     }
     this.compilerSave('attributeId', attributeId);
   },
   // add namespace to avoid attribute covered.
   compilerSave: function(key, value){
-    if(!this.compilerData) this.compilerData = {};
+    if(!this.compilerData) {
+      this.compilerData = {};
+    }
     this.compilerData[key] = value;
     return this;
   },
   compilerGet: function(key){
-    if(!this.compilerData) this.compilerData = {};
+    if(!this.compilerData) {
+      this.compilerData = {};
+    }
     return this.compilerData[key];
   },
   // compile the dom to ET class
   compile: function(options){
-    if(!options) options = {};
+    options = options || {};
     var _options = _.extend({}, options, {
       isInit: true,
       root: this
-    })
+    });
     var re = [''];
     var name = this.getTemplateName();
 
@@ -74,8 +80,8 @@ module.exports = {
       re.push('');
       // save last
       re.push('this.last = {');
-      for(var i = 0 ; i < updateArguments.length ; i++){
-        var key = updateArguments[i];
+      for(var j = 0 ; j < updateArguments.length ; j++){
+        var key = updateArguments[j];
         re.push(`${key}: ${key}`);
       }
       re.push('}');
@@ -98,7 +104,9 @@ module.exports = {
   getFrontSpaces: function(){
     var num = this.compilerGet('spaceSize');
     var n = this.depth || 0;
-    if(this.type === 'et') n += 1;
+    if(this.type === 'et') {
+      n += 1;
+    }
     num = num * n || 0;
 
     var re = '';
@@ -114,9 +122,10 @@ module.exports = {
   },
   checkRoot: function(){
     var parent = this.parent;
-    while(parent && !parent.isNewTemplate){
-      if(parent.type === 'html')
+    while(parent && !parent.isNewTemplate) {
+      if(parent.type === 'html') {
         return false;
+      }
     }
     return true;
   },
@@ -175,22 +184,22 @@ module.exports = {
 
   // start: functions should be override
   isNewTemplate: false,
-  deliverRootList: function(options){
+  deliverRootList: function(){
     var re = [];
     re = re.concat(this.getRootList());
     return re;
   },
-  deliverFlagList: function(options){
+  deliverFlagList: function(){
     var re = [];
     re = re.concat(this.getFlagList());
     return re;
   },
-  deliverUpdateList: function(options){
+  deliverUpdateList: function(){
     var re = [];
     re = re.concat(this.getUpdateList());
     return re;
   },
-  getRootList: function(options){// for root string
+  getRootList: function(){// for root string
     var re = [];
     var source = this.source;
     if(source.tag){
@@ -202,19 +211,19 @@ module.exports = {
     }
     return re;
   },
-  getFlagList: function(options){// flag the dom for ET
+  getFlagList: function(){// flag the dom for ET
     var re = [];
     re = re.concat(this.scanFlagList());
     return re;
   },
-  getUpdateList: function(options){// update string list
+  getUpdateList: function(){// update string list
     var re = [];
     re = re.concat(this.scanUpdateList());
     return re;
   },
-  getUpdateArguments: function(options){// arguments of update function
+  getUpdateArguments: function(){// arguments of update function
     var re =['it'];
     return re;
   }
   // end: functions should be override
-}
+};

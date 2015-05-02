@@ -1,5 +1,4 @@
 'use strict';
-
 var compilers = {};
 var baseCompiler = require('./base');
 var textCompiler = require('./text');
@@ -10,8 +9,8 @@ compilers['#for'] = require('./for');
 
 module.exports = {
   getCompiler: function getCompiler(source) {
-    if (!source) source = {
-      origin: str,
+    source = source || {
+      origin: '',
       tag: '',
       beginTag: '',
       children: '',
@@ -25,7 +24,9 @@ module.exports = {
     } else {
       compiler = compilers[source.tag];
     }
-    if (!compiler) compiler = baseCompiler;
+    if (!compiler) {
+      compiler = baseCompiler;
+    }
     return compiler;
   }
 };

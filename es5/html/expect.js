@@ -1,12 +1,15 @@
 'use strict';
-
 var _ = require('underscore');
 var dep = require('dep');
-module.exports = Template_ET_0;
 
 function Template_ET_0(options) {
   this.init(options);
 }
+
+function Template_ET_3(options) {
+  this.init(options);
+}
+
 _.extend(Template_ET_0.prototype, dep, {
   createElments: function createElments() {
     var roots = this.roots;
@@ -28,20 +31,21 @@ _.extend(Template_ET_0.prototype, dep, {
     roots.push('et_6');
   },
   update: function update(it) {
-    var last = this.last;
     var doms = this.doms;
     var records = this.records;
+    var et_3;
 
     if (it.isTrue) {
-      var et_3 = doms.et_3;
+      et_3 = doms.et_3;
       if (records.et_3 !== 0) {
         // 这个数字是遍历的index
         var line_3 = doms.line_3;
         records.et_3 = 0;
-        if (!et_3) doms.et_3 = et_3 = new Template_ET_3(this.options);
+        if (!et_3) {
+          doms.et_3 = et_3 = new Template_ET_3(this.options);
+        }
 
         et_3.update(it);
-        var t = et_3.get();
         line_3.before(et_3.get());
         et_3.activate();
 
@@ -51,7 +55,7 @@ _.extend(Template_ET_0.prototype, dep, {
         et_3.update(it);
       }
     } else {
-      var et_3 = doms.et_3;
+      et_3 = doms.et_3;
       if (et_3 && records.et_3 !== 1) {
         records.et_3 = 1;
         et_3.detach();
@@ -76,9 +80,6 @@ _.extend(Template_ET_0.prototype, dep, {
   }
 });
 
-function Template_ET_3(options) {
-  this.init(options);
-}
 _.extend(Template_ET_3.prototype, dep, {
   createElments: function createElments() {
     var roots = this.roots;
@@ -89,3 +90,5 @@ _.extend(Template_ET_3.prototype, dep, {
     roots.push('et_4');
   }
 });
+
+module.exports = Template_ET_0;
