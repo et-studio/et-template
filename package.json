@@ -1,0 +1,28 @@
+{
+  "name": "et",
+  "version": "1.0.0",
+  "description": "A template for web.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:suyu34/et.git"
+  },
+  "devDependencies": {
+    "babel": "^5.2.6",
+    "del": "^1.1.1",
+    "esformatter": "^0.6.1",
+    "gulp": "^3.8.11",
+    "gulp-sequence": "^0.3.2",
+    "gulp-util": "^3.0.4",
+    "mocha": "^2.2.1",
+    "through2": "^0.6.3"
+  },
+  "keywords": [
+    "template"
+  ],
+  "author": "suyu34",
+  "license": "MIT",
+  "dependencies": {
+    "underscore": "^1.8.3"
+  }
+}
