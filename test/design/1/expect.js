@@ -2,7 +2,7 @@
 var _ = require('underscore');
 var dep = require('dep');
 
-function Template_ET_0(options) {
+function Template_ET_0(options){
   this.init(options);
 }
 
@@ -11,7 +11,7 @@ function Template_ET_3(options) {
 }
 
 _.extend(Template_ET_0.prototype, dep, {
-  createElments: function createElments() {
+  createElments: function(){
     var roots = this.roots;
     var doms = this.doms;
 
@@ -22,7 +22,7 @@ _.extend(Template_ET_0.prototype, dep, {
     var line_3 = $('<span>line</span>');
     doms.line_3 = line_3;
     roots.push('line_3');
-    var et_3 = null;
+    var et_3 =  null;
     doms.et_3 = et_3;
     roots.push('et_3');
 
@@ -30,18 +30,17 @@ _.extend(Template_ET_0.prototype, dep, {
     doms.et_6 = et_6;
     roots.push('et_6');
   },
-  update: function update(it) {
+  update: function(it){
     var doms = this.doms;
     var records = this.records;
     var et_3;
 
-    if (it.isTrue) {
+    if(it.isTrue) {
       et_3 = doms.et_3;
-      if (records.et_3 !== 0) {
-        // 这个数字是遍历的index
+      if(records.et_3 !== 0) { // 这个数字是遍历的index
         var line_3 = doms.line_3;
         records.et_3 = 0;
-        if (!et_3) {
+        if(!et_3) {
           doms.et_3 = et_3 = new Template_ET_3(this.options);
         }
 
@@ -51,12 +50,12 @@ _.extend(Template_ET_0.prototype, dep, {
 
         // 当发生root节点变化的时候$root失效
         this.clearRoot();
-      } else {
+      }else{
         et_3.update(it);
       }
-    } else {
+    }else{
       et_3 = doms.et_3;
-      if (et_3 && records.et_3 !== 1) {
+      if(et_3 && records.et_3 !== 1){
         records.et_3 = 1;
         et_3.detach();
       }
@@ -67,12 +66,12 @@ _.extend(Template_ET_0.prototype, dep, {
     };
     return this;
   },
-  checkInsert: function checkInsert(it) {
+  checkInsert: function(it){
     // 检测是否产生dom的插入，通常在update函数之前调用
     var re = false;
     var records = this.records;
 
-    if (it.isTrue && records.et_3 !== 0) {
+    if(it.isTrue && records.et_3 !== 0){
       re = true;
     }
 
@@ -81,7 +80,7 @@ _.extend(Template_ET_0.prototype, dep, {
 });
 
 _.extend(Template_ET_3.prototype, dep, {
-  createElments: function createElments() {
+  createElments: function(){
     var roots = this.roots;
     var doms = this.doms;
 

@@ -118,7 +118,9 @@ Dom.prototype = {
     for (var i = 0; i < list.length; i++) {
       var tmp = list[i];
       if (tmp) {
-        this.children.push(new Dom(tmp, this, { isSingle: true }));
+        this.children.push(new Dom(tmp, this, {
+          isSingle: true
+        }));
       }
     }
     return this;
@@ -142,11 +144,11 @@ Dom.prototype = {
     // 拆分函数 把str的第一个dom单元拆出来
     str = str || '';
     var re = [],
-        position,
-        count,
-        first,
-        rest,
-        index;
+      position,
+      count,
+      first,
+      rest,
+      index;
     var match = BEGIN_TAG_REG.exec(str);
     if (!match) {
       re.push(str);
@@ -201,7 +203,7 @@ Dom.prototype = {
     }
     throw new Error('Format of ' + str + ' string is wrong.');
   }
-  // end: 解析link对象函数
+// end: 解析link对象函数
 };
 
 module.exports = Dom;

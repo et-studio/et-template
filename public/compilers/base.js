@@ -229,5 +229,5 @@ module.exports = {
     var re = ['it'];
     return re;
   }
-  // end: functions should be override
+// end: functions should be override
 };

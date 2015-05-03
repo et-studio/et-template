@@ -1,2 +1,2 @@
-var ET = require('./es5/src/et');
+var ET = require('./public/et');
 module.exports = ET;
