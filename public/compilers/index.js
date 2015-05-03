@@ -10,13 +10,13 @@ compilers['#for'] = require('./for');
 module.exports = {
   getCompiler: function getCompiler(source) {
     source = source || {
-      origin: '',
-      tag: '',
-      beginTag: '',
-      children: '',
-      endTag: '',
-      text: ''
-    };
+        origin: '',
+        tag: '',
+        beginTag: '',
+        children: '',
+        endTag: '',
+        text: ''
+      };
     var compiler = null;
 
     if (!source.tag) {

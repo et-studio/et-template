@@ -3,7 +3,6 @@
 var through = require('through2');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
-var esformatter = require('esformatter');
 
 // consts
 var PLUGIN_NAME = 'gulp-require';
@@ -20,9 +19,8 @@ function Compile(options) {
     var contents = file.contents.toString();
     try {
       if(!REG.test(contents)){
-        contents = '"use strict";\ndefine(function(require, exports, module){\n' + contents + '\n});';
+        contents = '\'use strict\';\ndefine(function(require, exports, module){\n' + contents + '\n});';
       }
-      // contents = esformatter.format(contents, options);
     } catch (e) {
       return next(new PluginError(PLUGIN_NAME, 'Require compile Error: Source file "' + file.path + '"'));
     }

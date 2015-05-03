@@ -1,8 +1,5 @@
 'use strict';
-// module.exports = Dep;
 
-// function Dep(){};
-// Dep.prototype =
 module.exports = {
   state: 'heathy', // [heathy, detach, remove, destory]
   isET: true,

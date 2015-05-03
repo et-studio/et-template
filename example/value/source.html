@@ -1,6 +1,6 @@
 <div>
-  [#while item~index in it, 'id']
+  [#for item~index in it, 'id']
 		<div>It is {{= item.name }}.</div>
-	[/#while]
+	[/#for]
 	<!--<div id="" style="display:none;"></div> 这里会生成一个div来作为dom插入时的标记位置。-->
 </div>
