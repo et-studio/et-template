@@ -44,7 +44,8 @@ var parserUtil = {
   }
 };
 
-function autoMachine(oldstate) {
+
+function stateMachine(oldstate) {
   var newState;
   switch(oldstate) {
     case 'stringNode-1':
@@ -62,11 +63,12 @@ function autoMachine(oldstate) {
   }
 }
 
-function stateMachine(token, pos) {
+
+function autoMachine(token, pos) {
   var prestate, util, _state;
   state = state || 'stringNode';
   prestate = (pos === -1)? _state + pos: _state + '0' + pos;
-  _state = autoMachine(prestate);
+  _state = stateMachine(prestate);
   util = parserUtil[_state];
   util(token);
   // switch(pos) {
@@ -111,4 +113,8 @@ function Parser(str) {
 }
 
 
+<<<<<<< HEAD
 module.exports = Parser;
+=======
+module.exports = Parser;
+>>>>>>> Init parser.js.
