@@ -1,9 +1,8 @@
 'use strcit';
 
-var $           = require('gulp-load-plugins')();
-var path        = require('path');
-var del         = require('del');
-var js          = require('../middleware/gulp-require');
+var $    = require('gulp-load-plugins')();
+var del  = require('del');
+var js   = require('../middleware/gulp-require');
 
 var destDir = 'test/src';
 var srcDir = 'src';
