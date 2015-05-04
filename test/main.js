@@ -8,7 +8,7 @@ require.config({
     // 资源文件夹
     template: './src/template',
     compilers: './src/compilers',
-    test: './test',
+    spec: './spec',
     // 资源文件
     dom: './src/dom',
     dep: './src/dep'
@@ -16,7 +16,7 @@ require.config({
 })
 
 require([
-  'test/index',
+  'spec/index',
   'chai',
   'mocha',
   'dep',
