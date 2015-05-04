@@ -44,7 +44,7 @@ var parserUtil = {
   }
 };
 
-function stateMachine(oldstate) {
+function autoMachine(oldstate) {
   var newState;
   switch(oldstate) {
     case 'stringNode-1':
@@ -62,11 +62,11 @@ function stateMachine(oldstate) {
   }
 }
 
-function autoMachine(token, pos) {
+function stateMachine(token, pos) {
   var prestate, util, _state;
   state = state || 'stringNode';
   prestate = (pos === -1)? _state + pos: _state + '0' + pos;
-  _state = stateMachine(prestate);
+  _state = autoMachine(prestate);
   util = parserUtil[_state];
   util(token);
   // switch(pos) {
