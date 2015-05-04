@@ -12,19 +12,24 @@ exports.register = function(gulp){
   var destDir = 'test/src';
 
   gulp.task('watch-js', function() {
+    $.livereload.listen(); // 需要使用浏览器的livereload插件并且开启时才能生效
     return gulp.src(srcDir + '/**/*.js')
-    .pipe($.watch(srcDir + '/**/*.js', function(file){
-      prefix = new Date().toTimeString().substr(0, 8);
-      console.log(`[${prefix}] ${path.relative(rootDir, file.path)}`);
-    }))
+    .pipe($.watch(srcDir + '/**/*.js'))
     .pipe($.jshint())
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe(js())
     .pipe($.babel())
     .pipe($.esformatter())
-    .pipe(gulp.dest(destDir));
+    .pipe(gulp.dest(destDir))
+    .pipe($.livereload());
   });
 
-  gulp.task('watch', ['watch-js']);
+  gulp.task('watch-test', function() {
+    return gulp.src('test/spec/**/*.js')
+    .pipe($.watch('test/spec/**/*.js'))
+    .pipe($.livereload());
+  });
+
+  gulp.task('watch', ['watch-js', 'watch-test']);
 }
 

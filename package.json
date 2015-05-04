@@ -14,12 +14,14 @@
     "gulp-babel": "^5.1.0",
     "gulp-esformatter": "^3.0.0",
     "gulp-jshint": "^1.10.0",
+    "gulp-livereload": "^3.8.0",
     "gulp-load-plugins": "^0.10.0",
     "gulp-sequence": "^0.3.2",
     "gulp-util": "^3.0.4",
     "gulp-watch": "^4.2.4",
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.1",
+    "require-dir": "^0.3.0",
     "through2": "^0.6.3"
   },
   "keywords": [

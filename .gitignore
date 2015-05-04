@@ -16,7 +16,6 @@ logs
 tmp
 
 node_modules
-public/bower_components
 test/bower_components
 test/src
 test/template

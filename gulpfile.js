@@ -1,15 +1,10 @@
 'use strict';
 
 var gulp = require('gulp');
+var requireDir = require('require-dir');
 
-var dev = require('./gulp/tasks/develop');
-dev.register(gulp);
-
-var build = require('./gulp/tasks/build');
-build.register(gulp);
-
-var watch = require('./gulp/tasks/watch');
-watch.register(gulp);
-
-var test = require('./gulp/tasks/test');
-test.register(gulp);
+var tasks = requireDir('gulp/tasks');
+for(var key in tasks){
+  var item = tasks[key];
+  item.register(gulp);
+}
