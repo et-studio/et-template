@@ -64,5 +64,18 @@ $root ->  $('<div>1</div><div class="et-line"></div><div>3</div>')
 * src     es6开发时资源文件
 * test    测试资源
 
+###2015-05-04
+>
+commit by Brooklyn
+>
+初始化了parser.js，用于将HTML字符串编译成为一个树形的对象，其中包含用ECMAScript DOM API 创建的Node节点实例。
+初步的想法是使用一个自动机(Auto Machine)和一个有限状态机(State Machine)来将整个字符串Parser成树。其中流程如下：
+>
+* Parser的main function扫描字符串，产生token传入状态机
+* 状态机将token与终结符号表对比，产生一个**编译时状态**(parsing state)，并将其输入自动机
+* 自动机根据编译时状态产生一个新的**编译前状态**(pre parser state)返回给状态机
+* 状态机根据这个**编译前状态**(pre parser state)去找到相应的工具方法，并将token传给工具方法处理，这个**编译前状态**(pre parser state)会一直保存作为下次状态机产生新的编译时状态(parsing state)的依据
+* 主程序循环第一步直到字符串扫描完毕
+
 
 
