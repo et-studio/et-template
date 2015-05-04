@@ -1,7 +1,7 @@
 'use strcit';
 
-var $           = require('gulp-load-plugins')();
-var del         = require('del');
+var $   = require('gulp-load-plugins')();
+var del = require('del')
 
 var destDir = 'public';
 var srcDir = 'src';

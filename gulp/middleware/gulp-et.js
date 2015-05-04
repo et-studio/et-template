@@ -3,8 +3,7 @@
 var through = require('through2');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
-var ET = require('../../src/et');
-var et = new ET();
+var et = require('../../src/et');
 
 // consts
 var PLUGIN_NAME = 'gulp-et';
@@ -22,10 +21,7 @@ function compile(options) {
     if (!file.isBuffer()) return next();
     var contents = file.contents.toString();
     try {
-      contents = et.compile(contents, options);
-      if(!REG.test(contents)){
-        contents = 'define(function(require, exports, module){\n' + contents + '\n});';
-      }
+      contents = et(contents, options);
     } catch (e) {
       console.log(e.toString());
       return next(new PluginError(PLUGIN_NAME, 'ET compile Error: Source file "' + file.path + '"'));
