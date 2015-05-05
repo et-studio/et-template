@@ -77,5 +77,10 @@ commit by Brooklyn
 * 状态机根据这个**编译前状态**(pre parser state)去找到相应的工具方法，并将token传给工具方法处理，这个**编译前状态**(pre parser state)会一直保存作为下次状态机产生新的编译时状态(parsing state)的依据
 * 主程序循环第一步直到字符串扫描完毕
 
+### 2015-05-05
 
+>
+commit by Brooklyn
 
+>
+今天对parser进行了进一步的思考，parser应该是作为一个node组件的形式存在，在编译的过程中产生的表达式要调用I/O方法写入目标文件。如果仅仅是将DOM树映射到一个document API表，也会导致在运行时造成效率损失。
