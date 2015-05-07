@@ -21,10 +21,10 @@ require.config({
 require([
   location.pathname + 'test.js',
   'chai',
+  'jquery',
   'mocha',
   'dep',
   'dom',
-  // 'jquery',
   'underscore',
   'bootstrap',
   'bootstrap-material-design/dist/js/material',
