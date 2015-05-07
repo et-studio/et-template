@@ -1,103 +1,139 @@
 'use strict';
 
-module.exports = {
-  state: 'heathy', // [heathy, detach, remove, destory]
-  isET: true,
-  init: function(options) {
-    this.options = options || {};
-    this.roots = [];
-    this.doms = {};
-    this.last = null;
-    this.records = {};
-    this.createElments();
-    this.bindEvents();
-  },
-  createElments: function() {
-
-  },
-  update: function(it) {
-    this.last = {
-      it: it
-    };
-    return this;
-  },
-  get: function() {
-    var $re = this.$root;
-    if(!$re){
-      $re = $('');
-      var list = this.roots || [];
-      for(var i = 0; i < list.length; i++){
-        var id = list[i];
-        var dom = this.doms[id]; // null，element，ET
-        if(dom && dom.isET && dom.state === 'heathy'){
-          $re = $re.add(dom.get());
-        }else if(dom){
-          $re = $re.add(dom);
-        }
-      }
-      this.$root = $re;
-    }
-    return $re;
-  },
-  clearRoot: function() {
-    this.$root = null;
-  },
-  getRootDoms: function() {
-    var re = [];
-    var list = this.roots || [];
-    for(var i = 0; i < list.length; i++){
-      var id = list[i];
-      var dom = this.doms[id]; // null，element，ET
-      if(dom){
-        re.push(dom);
-      }
-    }
-    return re;
-  },
-  bindEvents: function() {
-    var events = this.options.events || {};
-    var list = this.getRootDoms();
-    for(var key in events){
-      var callBack = events[key];
-      var match = key.match(/^(\S+)\s*(.*)$/);
-      if(match && typeof callBack === 'function'){
-        for(var i = 0; i < list.length; i++){
-          var item = list[i];
-          if(!item.isET){
-            item.on(match[1], match[2], callBack);
+(function(root) {
+  var LOOP = function() {};
+  var util = {
+    extend: function() {
+      var len = arguments.length;
+      if(len <= 1) {
+        return arguments[0];
+      }else{
+        var re = arguments[0] || {};
+        for(var i = 1 ; i < len ; i++) {
+          var item = arguments[i];
+          for(var key in item) {
+            re[key] = item[key];
           }
         }
+        return re;
+      }
+    },
+    createElement: function(tag) {
+      return document.createElement(tag);
+    },
+    createTextNode: function(text) {
+      return document.createTextNode(text);
+    },
+    remove: function(element, isKeeyData) {
+      if(element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+      if(!isKeeyData) {
+        element.removeEventListener();
+      }
+    },
+    text: function(element, text) {
+      element.textContent = text;
+    },
+    setAttribute: function(element, attrName, attrValue) {
+      element.setAttribute(attrName, attrValue);
+    },
+    removeAttribute: function(element, attrName) {
+      element.removeAttribute(attrName);
+    },
+    appendChild: function(elementA, elementB) {
+      elementA.appendChild(elementB);
+    },
+    before: function(elementA, elementB) {
+      if(elementA.parentNode) {
+        elementA.parentNode.insertBefore(elementB, elementA);
+      }
+    },
+    append: function(elementA, elementB) {
+      elementA.appendChild(elementB);
+    },
+    after: function(elementA, elementB) {
+      if(elementA.parentNode) {
+        elementA.parentNode.insertBefore(elementB, elementA.nextSibling);
       }
     }
-    return this;
-  },
-  activate: function() {
-    this.state = 'heathy';
-  },
-  detach: function() {
-    var list = this.getRootDoms();
-    for(var i = 0; i < list.length; i++){
-      list[i].detach();
-    }
-    this.state = 'detach';
-    return this;
-  },
-  remove: function() {
-    var list = this.getRootDoms();
-    for(var i = 0 ;i < list.length; i++){
-      list[i].remove();
-    }
-    this.state = 'remove';
-    return this;
-  },
-  destroy: function() {
-    this.remove();
-    for(var key in this){
-      if(typeof this[key] !== 'function'){
-        this[key] = null;
+  };
+  var _prototype = {
+    isET: true,
+    init: function(options) {
+      this.options = options || {};
+      this.roots = []; // 记录哪些对象是 root 对象
+      this.doms = {};  // 记录所有的节点对象
+      this.last = {};  // 记录上一次判断是什么值，用于差异更新
+      this.createElments();
+    },
+    get: function() {
+      // 每次进行 get 都会进行 dom 组合应该少用
+      var list = this.roots;
+      if(list.length === 1){
+
+      } else {
+
       }
+      var re = document.createDocumentFragment();
+
+      for(var i = 0, len = list.length ; i < len ; i++ ) {
+        var item = list[i];
+        if(item && item.isET) {
+          util.append(re, item.get());
+        }else if(item) {
+          util.append(re, item);
+        }
+      }
+      return re;
+    },
+    createElments: function() {},
+    update: function() {},
+    remove: function() {
+      // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
+      var list = this.roots;
+      for(var i = 0 , len = list.length ; i < len; i++) {
+        var item = list[i];
+        if(item && item.isET) {
+          item.remove();
+        }else if(item) {
+          // 移除节点对象
+          util.remove(item, true);
+        }
+      }
+      return this;
+    },
+    destroy: function() {
+      // 销毁对象，解绑所有事件，相当于 jQuery 中的 remove
+      var list = this.roots;
+      for(var i = 0 , len = list.length ; i < len ; i++) {
+        var item = list[i];
+        if(item && item.isET) {
+          item.destroy();
+        }else if(item) {
+          // 销毁节点对象
+          util.remove(item, false);
+        }
+      }
+      // 销毁所有的属性
+      for(var key in this) {
+        if(typeof this[key] !== 'function') {
+          if(typeof this[key].destroy === 'function') {
+            this[key].destroy();
+          }
+          // 设置所有对象为 null
+          this[key] = null;
+        }else {
+          // 设置所有函数为空函数
+          this[key] = LOOP;
+        }
+      }
+      return this;
     }
-    this.state = 'destroy';
-    return this;
-  }
-};
+  };
+
+  root._et = {
+    util: util,
+    _prototype: _prototype
+  };
+})(window);

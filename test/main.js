@@ -5,8 +5,10 @@ require.config({
     underscore: './bower_components/underscore/underscore',
     mocha: './bower_components/mocha/mocha',
     chai: './bower_components/chai/chai',
+    bootstrap: './bower_components/bootstrap/dist/js/bootstrap',
+    'bootstrap-material-design': './bower_components/bootstrap-material-design',
     // 资源文件夹
-    template: './src/template',
+    template: './template',
     compilers: './src/compilers',
     spec: './spec',
     // 资源文件
@@ -15,25 +17,32 @@ require.config({
   }
 })
 
+
 require([
-  'spec/index',
+  location.pathname + 'test.js',
   'chai',
   'mocha',
   'dep',
   'dom',
-  'jquery',
-  'underscore'
-], function (testIndex, chai) {
-  mocha.setup('bdd');
+  // 'jquery',
+  'underscore',
+  'bootstrap',
+  'bootstrap-material-design/dist/js/material',
+  'bootstrap-material-design/dist/js/ripples'
+], function (test, chai) {
+  if(location.pathname !== '/') {
+    mocha.setup('bdd');
 
-  window.assert = chai.assert;
-  window.expect = chai.expect;
-  window.should = chai.should();
+    window.assert = chai.assert;
+    window.expect = chai.expect;
+    window.should = chai.should();
 
-  // 注册测试
-  testIndex.register();
+    // 注册测试
+    test.register();
 
-  // 运行测试
-  mocha.run();
+    // 运行测试
+    mocha.run();
+  }
+
 })
 

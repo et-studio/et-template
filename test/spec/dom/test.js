@@ -1,7 +1,7 @@
 'use strict';
 define(function (require, exports, module) {
+  var Dom = require('dom');
   exports.register = function(){
-    var Dom = require('dom');
 
     describe('One trim', function(){
       var str = '<a>123</a>\n';
@@ -191,17 +191,17 @@ define(function (require, exports, module) {
     })
 
     describe('More labels dom', function(){
-      var str = `
-        [#if it.type == "123"]
-          123
-        [/#if]
-        [/#elseif xxxxxxx]
-          elseif
-        [/#elseif]
-        [#else]
-          else
-        [/#else]
-      `;
+      var str = '\
+        [#if it.type == "123"]\
+          123\
+        [/#if]\
+        [/#elseif xxxxxxx]\
+          elseif\
+        [/#elseif]\
+        [#else]\
+          else\
+        [/#else]\
+      ';
       var dom = new Dom(str);
 
       it('source.origin', function(){
