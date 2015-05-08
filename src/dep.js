@@ -1,3 +1,4 @@
+// ignore
 'use strict';
 
 (function(root) {
@@ -65,29 +66,34 @@
       this.roots = []; // 记录哪些对象是 root 对象
       this.doms = {};  // 记录所有的节点对象
       this.last = {};  // 记录上一次判断是什么值，用于差异更新
-      this.createElments();
+      this.createElements();
     },
     get: function() {
-      // 每次进行 get 都会进行 dom 组合应该少用
+      // 每次进行 get 都会进行 dom 组合  应该少用
       var list = this.roots;
       if(list.length === 1){
-
-      } else {
-
-      }
-      var re = document.createDocumentFragment();
-
-      for(var i = 0, len = list.length ; i < len ; i++ ) {
-        var item = list[i];
-        if(item && item.isET) {
-          util.append(re, item.get());
-        }else if(item) {
-          util.append(re, item);
+        var tmp = list[0];
+        if(tmp && tmp.isET) {
+          return tmp.get();
+        }else if(tmp) {
+          return tmp;
+        }else {
+          return document.createDocumentFragment();
         }
+      } else {
+        var re = document.createDocumentFragment();
+        for(var i = 0, len = list.length ; i < len ; i++ ) {
+          var item = list[i];
+          if(item && item.isET) {
+            util.append(re, item.get());
+          }else if(item) {
+            util.append(re, item);
+          }
+        }
+        return re;
       }
-      return re;
     },
-    createElments: function() {},
+    createElements: function() {},
     update: function() {},
     remove: function() {
       // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach

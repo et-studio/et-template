@@ -40,6 +40,15 @@ module.exports = {
   },
   // compile the dom to ET class
   compile: function(options){
+    // var list = [];
+    // 1. init actions
+    // 2. delare all templates should be created
+    // 3. define module
+    // 4. init current template
+    // 3.   init current node
+    // 4.   init children node
+    // 5. init other templates
+
     options = options || {};
     var _options = _.extend({}, options, {
       isInit: true,
