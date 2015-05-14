@@ -233,6 +233,11 @@ util.extend(Template3.prototype, _prototype, {
     et6.className = 'popover-content';
     doms.et6 = et6;
     util.appendChild(et3, et6);
+
+    var et7 = util.createElement('div');
+    et7.className = 'arrow';
+    doms.et7 = et7;
+    util.appendChild(et3, et7);
   },
   update: function(it, item, index, item2, index2){
     var roots = this.roots;

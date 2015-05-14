@@ -22,6 +22,6 @@ exports.register = function(gulp){
     .pipe(gulp.dest(destDir));
   });
 
-  gulp.task('dev', $.sequence(['dev-clean', 'dev-js']));
+  gulp.task('dev', $.sequence('dev-clean', 'dev-js'));
   gulp.task('default', ['dev']);
 }

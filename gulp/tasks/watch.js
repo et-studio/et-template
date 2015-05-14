@@ -3,6 +3,7 @@
 var $    = require('gulp-load-plugins')();
 var path = require('path');
 var js   = require('../middleware/gulp-require');
+var json = require('../middleware/gulp-require-json')
 
 var rootDir = path.resolve(__dirname, '../..');
 
@@ -19,17 +20,33 @@ exports.register = function(gulp){
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe(js())
     .pipe($.babel())
+    // .pipe($.esformatter())
+    .pipe(gulp.dest(destDir))
+    .pipe($.livereload());
+  });
+
+  gulp.task('watch-json', function() {
+    return gulp.src(srcDir + '/**/*.json')
+    .pipe($.watch(srcDir + '/**/*.json'))
+    .pipe(json())
+    .pipe($.babel())
     .pipe($.esformatter())
     .pipe(gulp.dest(destDir))
     .pipe($.livereload());
   });
 
   gulp.task('watch-test', function() {
-    return gulp.src('test/spec/**/*.js')
-    .pipe($.watch('test/spec/**/*.js'))
+    var watchList = [
+      'test/spec/**/*.js',
+      'test/spec/**/*.html',
+      'test/main.js',
+      'test/index.html',
+      '']
+    return gulp.src(watchList)
+    .pipe($.watch(watchList))
     .pipe($.livereload());
   });
 
-  gulp.task('watch', ['watch-js', 'watch-test']);
+  gulp.task('watch', ['watch-js', 'watch-json','watch-test']);
 }
 
