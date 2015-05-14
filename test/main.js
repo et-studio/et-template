@@ -6,14 +6,15 @@ require.config({
     mocha: './bower_components/mocha/mocha',
     chai: './bower_components/chai/chai',
     bootstrap: './bower_components/bootstrap/dist/js/bootstrap',
-    'bootstrap-material-design': './bower_components/bootstrap-material-design',
     // 资源文件夹
     template: './template',
     compilers: './src/compilers',
+    config: './src/config',
     spec: './spec',
     // 资源文件
+    compiler: './src/compiler',
     dom: './src/dom',
-    dep: './src/dep'
+    et: './src/et'
   }
 })
 
@@ -23,12 +24,10 @@ require([
   'chai',
   'jquery',
   'mocha',
-  'dep',
-  'dom',
+  './src/et',
+  './src/dependence',
   'underscore',
   'bootstrap',
-  'bootstrap-material-design/dist/js/material',
-  'bootstrap-material-design/dist/js/ripples'
 ], function (test, chai) {
   if(location.pathname !== '/') {
     mocha.setup('bdd');
