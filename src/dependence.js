@@ -1,7 +1,14 @@
 // ignore
 'use strict';
+(function (global, factory) {
 
-(function(root) {
+  if ( typeof module === 'object' && typeof module.exports === 'object' ) {
+    module.exports = factory();
+  } else {
+    global._et = factory();
+  }
+
+})(window, function factory() {
   var LOOP = function() {};
   var util = {
     extend: function() {
@@ -137,9 +144,8 @@
       return this;
     }
   };
-
-  root._et = {
+  return {
     util: util,
     _prototype: _prototype
   };
-})(window);
+});

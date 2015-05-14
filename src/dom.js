@@ -19,7 +19,6 @@ Dom 类 模拟dom的树形结构
 **/
 
 var _ = require('underscore');
-var compilers = require('./compilers/index');
 
 var ID_CONCATE = 'ET';
 var BEGIN_TAG_REG = /<(\w+)[\S\s]*?>|\[(#\w*)[\S\s]*?\]/;
@@ -39,9 +38,6 @@ function Dom(str, parent, options) {
   this.depth = this.calculateDepth(this.parent, this.type);
   this.createChildren(this.source.children);
 
-  // init compiler
-  _.extend(this, compilers.getCompiler(this.source));
-  this.initCompiler(options);
 }
 Dom.prototype = {
   // start: 解析link对象函数
