@@ -22,7 +22,8 @@
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.1",
     "require-dir": "^0.3.0",
-    "through2": "^0.6.3"
+    "through2": "^0.6.3",
+    "browser-sync": "^1.8.2"
   },
   "keywords": [
     "template"
