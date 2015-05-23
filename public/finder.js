@@ -10,24 +10,24 @@ extenders['#else'] = require('./extenders/else');
 extenders['#for'] = require('./extenders/for');
 
 module.exports = {
-  findExtender: function findExtender(dom, id, options) {
-    var Constructor, nodeName;
+  findExtender: function findExtender(dom) {
+    var extender, nodeName;
 
     nodeName = dom.nodeName || '';
     nodeName = nodeName.toLowerCase();
 
     if (nodeName === '--') {
-      Constructor = extenders._comment;
+      extender = extenders._comment;
     } else if (dom.textContent) {
-      Constructor = extenders._text;
+      extender = extenders._text;
     } else {
-      Constructor = extenders[nodeName];
+      extender = extenders[nodeName];
     }
 
-    if (!Constructor) {
-      Constructor = extenders._element;
+    if (!extender) {
+      extender = extenders._element;
     }
 
-    return new Constructor(dom, id, options);
+    return extender;
   }
 };

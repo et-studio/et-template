@@ -1,8 +1,8 @@
-'use strcit';
+'use strict';
 
-var $    = require('gulp-load-plugins')();
+var p    = require('gulp-load-plugins')();
 var del  = require('del');
-var js   = require('../middleware/gulp-require');
+var wrap = require('../middleware/gulp-require');
 
 var destDir = 'test/src';
 var srcDir = 'src';
@@ -13,15 +13,27 @@ exports.register = function(gulp){
   });
 
   gulp.task('dev-js', function() {
-    return gulp.src([srcDir + '/**/*.js'])
-    .pipe($.jshint())
-    .pipe($.jshint.reporter('jshint-stylish'))
-    .pipe(js())
-    .pipe($.babel())
-    .pipe($.esformatter())
+    return gulp.src([
+      srcDir + '/**/*.js',
+      '!' + srcDir + '/templates/*.js'
+    ])
+    .pipe(p.jshint())
+    .pipe(p.jshint.reporter('jshint-stylish'))
+    .pipe(wrap())
+    .pipe(p.babel())
+    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir));
   });
 
-  gulp.task('dev', $.sequence('dev-clean', 'dev-js'));
+  gulp.task('dev-json', function() {
+    return gulp.src(srcDir + '/**/*.json')
+    .pipe(wrap())
+    .pipe(p.babel())
+    .pipe(p.esformatter())
+    .pipe(gulp.dest(destDir))
+    .pipe(p.livereload());
+  });
+
+  gulp.task('dev', p.sequence('dev-clean', 'dev-js', 'dev-json'));
   gulp.task('default', ['dev']);
-}
+};

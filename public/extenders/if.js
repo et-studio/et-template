@@ -2,21 +2,14 @@
 var _ = require('underscore');
 var _prototype = require('./prototype');
 
-function Constructor(dom, id, options) {
-  this.init(dom, id, options);
-}
-_.extend(Constructor.prototype, _prototype, {
-  isNewTemplate: true,
-
-  compileCreate: function compileCreate() {
+module.exports = _.extend({}, _prototype, {
+  isNewTemplate: false,
+  deliverCreate: function compileCreate() {
     var re = [];
     return re;
   },
-
-  compileUpdate: function compileUpdate() {
+  deliverUpdate: function compileUpdate() {
     var re = [];
     return re;
   }
 });
-
-module.exports = Constructor;

@@ -1,15 +1,15 @@
-var browserSync = require('browser-sync');
-var reload = browserSync.reload;
+'use strict';
 
+var browserSync = require('browser-sync');
 exports.register = function(gulp){
   gulp.task('serve', function () {
     browserSync({
       notify: false,
       port: 9002,
       server: {
-        baseDir: ['test'],
+        baseDir: ['test', 'node_modules'],
         routes: {}
       }
     });
   });
-}
+};

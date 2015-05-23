@@ -1,33 +1,57 @@
 'use strict';
 
 var through = require('through2');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
 
-// consts
-var PLUGIN_NAME = 'gulp-require';
-var REG = /^define|^\/\/\signore/;
+var handlers = {
+  'js': function(file) {
+    var str = file.contents.toString();
+    var list = [];
+    list.push('\'use strict\';');
+    list.push('define(function(require, exports, module){');
+    list.push(str);
+    list.push('});');
 
-// exporting the plugin main function
-module.exports = Compile;
+    file.contents = new Buffer(list.join('\n'));
+    return file;
+  },
+  'json': function(file) {
+    var str = file.contents.toString();
+    var list = [];
+    list.push('\'use strict\';');
+    list.push('define(function(require, exports, module){');
+    list.push('module.exports = ' + str);
+    list.push('});');
 
-// plugin level function (dealing with files)
-function Compile(options) {
-  // creating a stream through which each file will pass
-  return through.obj(function(file, enc, next) {
-    if (!file.isBuffer()) return next();
-    var contents = file.contents.toString();
-    try {
-      if(!REG.test(contents)){
-        contents = '\'use strict\';\ndefine(function(require, exports, module){\n' + contents + '\n});';
-      }
-    } catch (e) {
-      return next(new PluginError(PLUGIN_NAME, 'Require compile Error: Source file "' + file.path + '"'));
+    file.path = file.path + '.js';
+    file.contents = new Buffer(list.join('\n'));
+    return file;
+  }
+};
+
+function Compile() {
+  var outputStream =  through.obj(function(file, enc, next) {
+    if (!file.isBuffer()) {
+      return next();
     }
-    file.contents = new Buffer(contents);
-    // make sure the file goes through the next gulp plugin
+
+    var matches, extname, handler;
+
+    matches = file.path.match(/\.([\w_-]*?)$/i);
+    extname = matches[1];
+    if (extname) {
+      extname = extname.toString().toLowerCase();
+      handler = handlers[extname];
+    }
+
+    if (handler) {
+      file = handler(file);
+    }
+
     this.push(file);
-    // tell the stream engine that we are done with this file
     next();
   });
+
+  return outputStream;
 }
+
+module.exports = Compile;

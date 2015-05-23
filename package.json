@@ -8,6 +8,9 @@
     "url": "git@github.com:suyu34/et.git"
   },
   "devDependencies": {
+    "babel": "^5.4.2",
+    "babel-core": "^5.4.2",
+    "browser-sync": "^2.7.3",
     "del": "^1.1.1",
     "esformatter": "^0.6.1",
     "gulp": "^3.8.11",
@@ -22,8 +25,7 @@
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.1",
     "require-dir": "^0.3.0",
-    "through2": "^0.6.3",
-    "browser-sync": "^1.8.2"
+    "through2": "^0.6.3"
   },
   "keywords": [
     "template"

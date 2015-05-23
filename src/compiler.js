@@ -2,24 +2,29 @@
 
 var _ = require('underscore');
 var finder = require('./finder');
+var CWorker = require('./worker');
 
-var DEFAULTS = require('./config/defaults.json');
-var DEFAULTS_MIN = require('./config/defaults.min.json');
+var CONFIG = {
+  'templateFunctionPrefix': 'Template',
+  'spilitMark': '_',
+
+  'doms.idPrefix': 'et',
+  'doms.lineSuffix': 'line'
+};
 
 /**
  * Dom 的结构
- *  - nodeName        {Sting}
+ *  - nodeName        {String}
  *  - children        {Array[Dom]}
  *  - expressions     {Array[String]} 在属性上面的表达式数组
  *  - parent          {Dom}
- *  - previousSibling {previousSibling}
- *  - nextSibling     {nextSibling}
- *  - attributes      {Map<String: String>}
+ *  - previousSibling {Dom}
+ *  - nextSibling     {Dom}
+ *  - attributes      {Map<String, String>}
  *  - textContent     {String}
- *  - isClose         {Boolean}  是否是闭合标签
  */
 module.exports = {
-  getList: function(dom) {
+  getList: function getList(dom) {
     var re = [];
     var scan = function scan(current) {
       var children, i, len;
@@ -34,28 +39,58 @@ module.exports = {
     scan(dom);
     return re;
   },
-  extendDom: function extend (dom, options) {
-    var doms, i, len, current, extender, id;
-
-    if (options && options.isCompress) {
-      options = _.extend(DEFAULTS_MIN, options);
-    } else {
-      options = _.extend(DEFAULTS, options);
-    }
+  extendDom: function extendDom(dom, options) {
+    var doms, i, len, current, extender;
 
     doms = this.getList(dom);
     for (i = 0, len = doms.length; i < len; i++){
       current = doms[i];
-      id = `${options.domsIdPrefix}${i}`;
+      current.id = `${options['doms.idPrefix']}${i}`;
+      current.templateName = `${options.templateFunctionPrefix}${options.spilitMark}${current.id}`;
 
-      extender = finder.findExtender(current, id, options);
+      extender = finder.findExtender(current, options);
       _.extend(current, extender);
+    }
+
+    for (i = 0, len = doms.length; i < len; i++){
+      // after the tree is ready init all doms
+      current = doms[i];
+      current.init();
     }
     return dom;
   },
-  compile: function(dom, options) {
+  compile: function compile(dom, options) {
+    var worker, delareString, extendString, newDoms, i, domItem;
+
+    options = _.extend(CONFIG, options);
     this.extendDom(dom, options);
-    return dom.compile();
+    worker = new CWorker(options);
+    newDoms = dom.getNewTemplateDoms();
+
+    delareString = '';
+    for(i = 0; i < newDoms.length; i++) {
+      domItem = newDoms[i];
+      delareString += worker.delare({
+        templateName: domItem.templateName
+      }, options);
+    }
+
+    extendString = '';
+    for(i = 0; i < newDoms.length; i++) {
+      domItem = newDoms[i];
+      delareString += worker.extend({
+        templateName: domItem.templateName,
+        args: domItem.getArguments(),
+        createString: domItem.getCreateString(),
+        updateString: domItem.getUpdateString()
+      }, options);
+    }
+
+    return worker.compile({
+      templateName: dom.templateName,
+      delareString: delareString,
+      extendString: extendString,
+      moduleId: options.moduleId
+    }, options);
   }
 };
-

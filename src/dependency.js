@@ -1,14 +1,17 @@
-// ignore
 'use strict';
+
 (function(global, factory) {
 
   if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = factory();
+    define('_et', function(require, module, exports) {
+      module.exports = factory();
+    });
   } else {
     global._et = factory();
   }
 })(window, function factory() {
   var LOOP = function LOOP() {};
+
   var util = {
     extend: function extend() {
       var len = arguments.length;
@@ -99,7 +102,7 @@
         return re;
       }
     },
-    createElements: function createElements() {},
+    create: function create() {},
     update: function update() {},
     remove: function remove() {
       // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
@@ -143,6 +146,7 @@
       return this;
     }
   };
+
   return {
     util: util,
     _prototype: _prototype

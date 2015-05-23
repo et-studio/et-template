@@ -1,7 +1,7 @@
-'use strcit';
+'use strict';
 
-var $   = require('gulp-load-plugins')();
-var del = require('del')
+var p   = require('gulp-load-plugins')();
+var del = require('del');
 
 var destDir = 'public';
 var srcDir = 'src';
@@ -12,16 +12,20 @@ exports.register = function(gulp){
   });
 
   gulp.task('build-js', function() {
-    return gulp.src([srcDir + '/**/*.js'])
-    .pipe($.babel())
-    .pipe($.esformatter())
+    return gulp.src([
+      srcDir + '/**/*.js',
+      '!' + srcDir + '/templates/*.js'
+    ])
+    .pipe(p.babel())
+    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir));
   });
 
   gulp.task('build-json', function() {
     return gulp.src([srcDir + '/**/*.json'])
+    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir));
   });
 
-  gulp.task('build', $.sequence('build-clean', 'build-js', 'build-json'));
-}
+  gulp.task('build', p.sequence('build-clean', 'build-js', 'build-json'));
+};

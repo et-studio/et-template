@@ -1,11 +1,7 @@
-'use strcit';
+'use strict';
 
-var $    = require('gulp-load-plugins')();
-var path = require('path');
-var js   = require('../middleware/gulp-require');
-var json = require('../middleware/gulp-require-json')
-
-var rootDir = path.resolve(__dirname, '../..');
+var p      = require('gulp-load-plugins')();
+var wrap   = require('../middleware/gulp-require');
 
 exports.register = function(gulp){
 
@@ -13,26 +9,38 @@ exports.register = function(gulp){
   var destDir = 'test/src';
 
   gulp.task('watch-js', function() {
-    $.livereload.listen(); // 需要使用浏览器的livereload插件并且开启时才能生效
-    return gulp.src(srcDir + '/**/*.js')
-    .pipe($.watch(srcDir + '/**/*.js'))
-    .pipe($.jshint())
-    .pipe($.jshint.reporter('jshint-stylish'))
-    .pipe(js())
-    .pipe($.babel())
-    // .pipe($.esformatter())
+    p.livereload.listen(); // 需要使用浏览器的livereload插件并且开启时才能生效
+    return p.watch([
+      srcDir + '/**/*.js',
+      '!' + srcDir + '/templates/*.js'
+    ])
+    .pipe(p.jshint())
+    .pipe(p.jshint.reporter('jshint-stylish'))
+    .pipe(wrap())
+    .pipe(p.babel())
+    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir))
-    .pipe($.livereload());
+    .pipe(p.livereload());
   });
 
   gulp.task('watch-json', function() {
-    return gulp.src(srcDir + '/**/*.json')
-    .pipe($.watch(srcDir + '/**/*.json'))
-    .pipe(json())
-    .pipe($.babel())
-    .pipe($.esformatter())
+    return p.watch([
+      srcDir + '/**/*.json'
+    ])
+    .pipe(wrap())
+    .pipe(p.babel())
+    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir))
-    .pipe($.livereload());
+    .pipe(p.livereload());
+  });
+
+  gulp.task('watch-test-es6', function() {
+    return p.watch([
+      'test/spec-es6/**/*.js'
+    ])
+    .pipe(p.babel())
+    .pipe(gulp.dest('test/spec'))
+    .pipe(p.livereload());
   });
 
   gulp.task('watch-test', function() {
@@ -40,13 +48,19 @@ exports.register = function(gulp){
       'test/spec/**/*.js',
       'test/spec/**/*.html',
       'test/main.js',
-      'test/index.html',
-      '']
-    return gulp.src(watchList)
-    .pipe($.watch(watchList))
-    .pipe($.livereload());
+      'test/index.html'
+    ];
+    return p.watch(watchList)
+    .pipe(p.livereload());
   });
 
-  gulp.task('watch', ['watch-js', 'watch-json','watch-test']);
-}
+  gulp.task('test-es6', function() {
+    return gulp.src([
+      'test/spec-es6/**/*.js'
+    ])
+    .pipe(p.babel())
+    .pipe(gulp.dest('test/spec'));
+  });
 
+  gulp.task('watch', ['dev', 'test-es6' ,'watch-js', 'watch-json', 'watch-test-es6', 'watch-test']);
+};
