@@ -1,3 +1,3 @@
-function ${it.templateName}(options) {
-  this.init(options);
-}
+    function ${it.templateName}(options) {
+      this.init(options);
+    }

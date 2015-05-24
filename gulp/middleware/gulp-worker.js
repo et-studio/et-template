@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var through = require('through2');
 
-var TEMPLATES_NAME = ['cmd', 'delare', 'extend', 'global', 'umd', 'amd', 'common'];
+var TEMPLATES_NAME = ['cmd', 'delare', 'extend', 'global', 'umd', 'amd', 'common', 'create', 'update'];
 
 // function transformES6String(str) {
 //   str = '\'' + str + '\'';
@@ -36,7 +36,7 @@ function replace(str) {
   for ( i = 0; i < TEMPLATES_NAME.length; i++) {
     name = TEMPLATES_NAME[i];
     reg = new RegExp('\\/\\/ @start: ' + name + '[\\s\\S]*?\\@end: ' + name, 'g');
-    str = str.replace(reg, '// @start: ' + name + '\nreturn \`\n' + config[name] + '\`;\n// @end: ' + name);
+    str = str.replace(reg, '// @start: ' + name + '\nreturn \`\n' + config[name] + '    \`;\n    // @end: ' + name);
   }
   return str;
 }

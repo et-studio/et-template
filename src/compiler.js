@@ -7,32 +7,40 @@ var CWorker = require('./worker');
 var CONFIG = {
   'templateFunctionPrefix': 'Template',
   'spilitMark': '_',
-
-  'doms.idPrefix': 'et',
-  'doms.lineSuffix': 'line'
+  'lineSuffix': 'line',
+  'idPrefix': 'et',
+  'valuePrefix': 'value'
 };
 
 /**
  * Dom 的结构
  *  - nodeName        {String}
  *  - children        {Array[Dom]}
- *  - expressions     {Array[String]} 在属性上面的表达式数组
+ *  - expressions     {Array[Expression]} 在属性上面的表达式数组
  *  - parent          {Dom}
  *  - previousSibling {Dom}
  *  - nextSibling     {Dom}
  *  - attributes      {Map<String, String>}
  *  - textContent     {String}
+ *
+ * Expression
+ *  - condition       {String} 触发条件，如果没有条件就认为一直有
+ *  - attributes      {Map<String, String>}
  */
 module.exports = {
   getList: function getList(dom) {
     var re = [];
     var scan = function scan(current) {
-      var children, i, len;
+      var children, i, len, child;
       if (current) {
         re.push(current);
         children = current.children || [];
         for (i = 0, len = children.length ; i < len ; i++){
-          scan(children[i]);
+          child = children[i];
+          if (!child.parent) {
+            child.parent = current;
+          }
+          scan(child);
         }
       }
     };
@@ -45,8 +53,9 @@ module.exports = {
     doms = this.getList(dom);
     for (i = 0, len = doms.length; i < len; i++){
       current = doms[i];
-      current.id = `${options['doms.idPrefix']}${i}`;
+      current.id = `${options.idPrefix}${i}`;
       current.templateName = `${options.templateFunctionPrefix}${options.spilitMark}${current.id}`;
+      current.options = options;
 
       extender = finder.findExtender(current, options);
       _.extend(current, extender);

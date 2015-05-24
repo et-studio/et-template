@@ -31,13 +31,13 @@ module.exports = {
   },
   getArguments: function getArguments () {
     var re = ['it'];
+
     var lastRoot = this.getLastRoot();
-    if (lastRoot === this) {
-      if (this.args) {
-        re = re.concat(lastRoot.args);
-      }
-    } else {
-      re = re.concat(lastRoot.getArguments());
+    if (lastRoot && lastRoot.args) {
+      re = re.concat(lastRoot.args);
+    }
+    if (this.args) {
+      re = re.concat(this.args);
     }
     return re;
   },
@@ -50,6 +50,9 @@ module.exports = {
     for(i = 0, len = children.length; i < len; i++) {
       child = children[i];
       re = re.concat(child.deliverCreate());
+      if (!child.isNewTemplate) {
+        re = re.concat(child.getCreateDeliverys());
+      }
     }
 
     return re;
@@ -62,6 +65,9 @@ module.exports = {
     for(i = 0, len = children.length; i < len; i++) {
       child = children[i];
       re = re.concat(child.deliverUpdate());
+      if (!child.isNewTemplate) {
+        re = re.concat(child.getUpdateDeliverys());
+      }
     }
 
     return re;
@@ -70,7 +76,7 @@ module.exports = {
   checkRoot: function checkRoot () {
     var current = this.parent;
     while (current && !current.isNewTemplate) {
-      if (current.nodeName.indexOf('#') !== 0) {
+      if (current.nodeName && current.nodeName.indexOf('#') !== 0) {
         return false;
       }
       current = current.parent;
@@ -100,14 +106,17 @@ module.exports = {
     return doms;
   },
   getLastRoot: function getLastRoot () {
-    var current = this;
-    while (current.parent) {
-      if (current.parent.isNewTemplate) {
-        return current.parent;
+    var current = this.parent;
+    while (current) {
+      if (current.isNewTemplate) {
+        return current;
+      }
+      if (!current.parent) {
+        return current;
       }
       current = current.parent;
     }
-    return current;
+    return null;
   },
   saveArgument: function saveArguments(arg) {
     if (!this.args) {
@@ -131,14 +140,30 @@ module.exports = {
     return null;
   },
 
+  getId: function getId() {
+    return this.id;
+  },
+  getLineId: function getLineId() {
+    var options = this.options;
+    return `${this.id}${options.spilitMark}${options.lineSuffix}`;
+  },
+  getValueId: function getValueId(){
+    var options = this.options;
+    if (!this.valueId) {
+      this.valueId = 0;
+    }
+    this.valueId++;
+    return `${options.valuePrefix}${options.spilitMark}${this.valueId}`;
+  },
+
   // attributes or functions could be override
   isNewTemplate: false,
   init: function init() {
   },
   deliverCreate: function compileCreate() {
-    return this.getCreateDeliverys();
+    return [];
   },
   deliverUpdate: function compileUpdate() {
-    return this.getUpdateDeliverys();
+    return [];
   }
 };

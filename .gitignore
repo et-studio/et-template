@@ -19,4 +19,5 @@ node_modules
 test/bower_components
 test/src
 test/template
-
+test/spec/compiler/settings.js
+test/spec/compiler/test.js
