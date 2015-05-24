@@ -1,7 +1,6 @@
 'use strict';
 
 (function(global, factory) {
-
   if (typeof module === 'object' && typeof module.exports === 'object') {
     define('_et', function(require, module, exports) {
       module.exports = factory();
@@ -12,7 +11,7 @@
 })(window, function factory() {
   var LOOP = function LOOP() {};
 
-  var util = {
+  var _util = {
     extend: function extend() {
       var len = arguments.length;
       if (len <= 1) {
@@ -28,11 +27,21 @@
         return re;
       }
     },
-    createElement: function createElement(tag) {
-      return document.createElement(tag);
+    createElement: function createElement(tag, attributes) {
+      var re, key;
+      re = document.createElement(tag);
+      if (attributes) {
+        for (key in attributes) {
+          this.setAttribute(re, key, attributes[key]);
+        }
+      }
+      return re;
     },
     createTextNode: function createTextNode(text) {
       return document.createTextNode(text);
+    },
+    createComment: function createComment(text) {
+      return document.createComment(text);
     },
     remove: function remove(element, isKeeyData) {
       if (element.parentNode) {
@@ -72,35 +81,29 @@
     isET: true,
     init: function init(options) {
       this.options = options || {};
-      this.roots = []; // 记录哪些对象是 root 对象
+      this.rootIds = []; //记录root的id，有排序的作用
+      this.root = {}; // 记录是root的节点对象，如果那个节点被移除应该从这里移除
       this.doms = {}; // 记录所有的节点对象
       this.last = {}; // 记录上一次判断是什么值，用于差异更新
       this.createElements();
     },
     get: function get() {
       // 每次进行 get 都会进行 dom 组合  应该少用
-      var list = this.roots;
-      if (list.length === 1) {
-        var tmp = list[0];
-        if (tmp && tmp.isET) {
-          return tmp.get();
-        } else if (tmp) {
-          return tmp;
-        } else {
-          return document.createDocumentFragment();
+      var ids, i, len, id, re, root, dom;
+
+      re = document.createDocumentFragment();
+      root = this.root;
+
+      for (i = 0, len = ids.length; i < len; i++) {
+        id = ids[i];
+        dom = root[id];
+        if (dom && dom.isET) {
+          _util.appendChild(re, dom.get());
+        } else if (dom) {
+          _util.appendChild(re, dom);
         }
-      } else {
-        var re = document.createDocumentFragment();
-        for (var i = 0, len = list.length; i < len; i++) {
-          var item = list[i];
-          if (item && item.isET) {
-            util.append(re, item.get());
-          } else if (item) {
-            util.append(re, item);
-          }
-        }
-        return re;
       }
+      return re;
     },
     create: function create() {},
     update: function update() {},
@@ -113,7 +116,7 @@
           item.remove();
         } else if (item) {
           // 移除节点对象
-          util.remove(item, true);
+          _util.remove(item, true);
         }
       }
       return this;
@@ -127,7 +130,7 @@
           item.destroy();
         } else if (item) {
           // 销毁节点对象
-          util.remove(item, false);
+          _util.remove(item, false);
         }
       }
       // 销毁所有的属性
@@ -148,7 +151,7 @@
   };
 
   return {
-    util: util,
+    _util: _util,
     _prototype: _prototype
   };
 });
