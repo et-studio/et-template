@@ -25,8 +25,11 @@
   </tbody>
 </table>
 */
+// @ignore
+'use strict';
+
 var _et = window._et;
-var util = _et.util;
+var _util = _et._util;
 var _prototype = _et._prototype;
 function Template (options) {
   this.init(options);
@@ -37,28 +40,29 @@ function Template2 (options) {
 function Template3 (options) {
   this.init(options);
 }
-util.extend(Template.prototype, _prototype, {
+_util.extend(Template.prototype, _prototype, {
   createElements: function(){
-    var roots = this.roots;
+    var root = this.root;
     var doms = this.doms;
+    var rootIds = this.rootIds;
 
-    var et1 = util.createElement('table');
+    var et1 = _util.createElement('table');
     et1.className = 'table table-striped latest-data';
     doms.et1 = et1;
-    roots[0] = et1;
+    root.et1 = et1;
+    rootIds.push('et1');
 
-    var et2 = util.createElement('tbody');
+    var et2 = _util.createElement('tbody');
     doms.et2 = et2;
-    util.appendChild(et1, et2);
+    _util.appendChild(et1, et2);
 
-    var et3_line = util.createElement('span');
+    var et3_line = _util.createElement('span');
     et3_line.style.display = 'none';
     doms.et3_line = et3_line;
-    util.appendChild(et2, et3_line);
+    _util.appendChild(et2, et3_line);
 
   },
   update: function(it){
-    var roots = this.roots;
     var doms = this.doms;
     var last = this.last;
     var et, key;
@@ -73,8 +77,8 @@ util.extend(Template.prototype, _prototype, {
       if(!et) {
         last[key] = et = new Template2();
       }
-      if(!(i < lastIndex)) { // 上次没有出现
-        util.before(line, et.get());
+      if(!lastIndex || i > lastIndex) { // 上次没有出现
+        _util.before(line, et.get());
       }
       et.update(it, item, index);
     }
@@ -87,11 +91,12 @@ util.extend(Template.prototype, _prototype, {
       }
     }
   }
-})
-util.extend(Template2.prototype, _prototype, {
+});
+_util.extend(Template2.prototype, _prototype, {
   createElements: function(){
-    var roots = this.roots;
+    var root = this.root;
     var doms = this.doms;
+    var rootIds = this.rootIds;
     /*
     <tr>
       <td class="dbname">
@@ -113,39 +118,39 @@ util.extend(Template2.prototype, _prototype, {
       {{/each}}
     </tr>
     */
-    var et1 = util.createElement('tr');
+    var et1 = _util.createElement('tr');
     doms.et1 = et1;
-    roots[0] = et1;
+    root.et1 = et1;
+    rootIds.push('et1');
 
-    var et2 = util.createElement('td');
+    var et2 = _util.createElement('td');
     et2.className = 'dbname';
     doms.et2 = et2;
-    util.appendChild(et1, et2);
+    _util.appendChild(et1, et2);
 
-    var et3 = util.createTextNode('');
+    var et3 = _util.createTextNode('');
     doms.et3 = et3;
-    util.appendChild(et2, et3);
+    _util.appendChild(et2, et3);
 
-    var et4 = util.createElement('td');
+    var et4 = _util.createElement('td');
     et4.className = 'query-count';
     doms.et4 = et4;
-    util.appendChild(et1, et4);
+    _util.appendChild(et1, et4);
 
-    var et5 = util.createElement('span');
+    var et5 = _util.createElement('span');
     doms.et5 = et5;
-    util.appendChild(et4, et5);
+    _util.appendChild(et4, et5);
 
-    var et6 = util.createTextNode('');
+    var et6 = _util.createTextNode('');
     doms.et6 = et6;
-    util.appendChild(et5, et6);
+    _util.appendChild(et5, et6);
 
-    var et7_line = util.createElement('span');
+    var et7_line = _util.createElement('span');
     et7_line.style.display = 'none';
     doms.et7_line = et7_line;
-    util.appendChild(et1, et7_line);
+    _util.appendChild(et1, et7_line);
   },
   update: function(it, item, index){
-    var roots = this.roots;
     var doms = this.doms;
     var last = this.last;
     var et;
@@ -153,7 +158,7 @@ util.extend(Template2.prototype, _prototype, {
     if(last.value_1 !== item.name) {
       last.value_1 = item.name;
       et = doms.et3;
-      util.text(et, item.name);
+      _util.text(et, item.name);
     }
 
     if(last.value_2 !== item.countClassName) {
@@ -165,7 +170,7 @@ util.extend(Template2.prototype, _prototype, {
     if(last.value_3 !== item.queries.length) {
       last.value_2 = item.queries.length;
       et = doms.et5;
-      util.text(et, item.queries.length);
+      _util.text(et, item.queries.length);
     }
 
     var i, key, len = item.topFiveQueries.length, lastIndex = last.et7_for_index, line = doms.et7_line;
@@ -178,8 +183,8 @@ util.extend(Template2.prototype, _prototype, {
       if(!et) {
         last[key] = et = new Template3();
       }
-      if(!(i < lastIndex)) { // 上次没有出现
-        util.before(line, et.get());
+      if(!lastIndex || i > lastIndex) { // 上次没有出现
+        _util.before(line, et.get());
       }
       et.update(it, item, index, item2, index2);
     }
@@ -192,12 +197,12 @@ util.extend(Template2.prototype, _prototype, {
       }
     }
   }
-})
-util.extend(Template3.prototype, _prototype, {
+});
+_util.extend(Template3.prototype, _prototype, {
   createElements: function(){
-    var roots = this.roots;
+    var root = this.root;
     var doms = this.doms;
-    var last = this.last;
+    var rootIds = this.rootIds;
     /*
     <td class="Query {{ className }}">
       {{ elapsed }}
@@ -207,40 +212,40 @@ util.extend(Template3.prototype, _prototype, {
       </div>
     </td>
     */
-    var et1 = util.createElement('td');
+    var et1 = _util.createElement('td');
     doms.et1 = et1;
-    roots[0] = et1;
+    root.et1 = et1;
+    rootIds.push('et1');
 
-    var et2 = util.createTextNode('');
+    var et2 = _util.createTextNode('');
     doms.et2 = et2;
-    util.appendChild(et1, et2);
+    _util.appendChild(et1, et2);
 
-    var et3 = util.createElement('div');
+    var et3 = _util.createElement('div');
     et3.className = 'popover left';
     doms.et3 = et3;
-    util.appendChild(et1, et3);
+    _util.appendChild(et1, et3);
 
-    var et4 = util.createElement('div');
+    var et4 = _util.createElement('div');
     et4.className = 'popover-content';
     doms.et4 = et4;
-    util.appendChild(et3, et4);
+    _util.appendChild(et3, et4);
 
-    var et5 = util.createTextNode('');
+    var et5 = _util.createTextNode('');
     doms.et5 = et5;
-    util.appendChild(et4, et5);
+    _util.appendChild(et4, et5);
 
-    var et6 = util.createElement('div');
+    var et6 = _util.createElement('div');
     et6.className = 'popover-content';
     doms.et6 = et6;
-    util.appendChild(et3, et6);
+    _util.appendChild(et3, et6);
 
-    var et7 = util.createElement('div');
+    var et7 = _util.createElement('div');
     et7.className = 'arrow';
     doms.et7 = et7;
-    util.appendChild(et3, et7);
+    _util.appendChild(et3, et7);
   },
   update: function(it, item, index, item2, index2){
-    var roots = this.roots;
     var doms = this.doms;
     var last = this.last;
     var et;
@@ -254,13 +259,13 @@ util.extend(Template3.prototype, _prototype, {
     if(last.value_2 !== item2.elapsed){
       last.value_2 = item2.elapsed;
       et = doms.et2;
-      util.text(et, item2.elapsed);
+      _util.text(et, item2.elapsed);
     }
 
     if(last.value_3 !== item2.query){
       last.value_3 = item2.query;
       et = doms.et5;
-      util.text(et, item2.query);
+      _util.text(et, item2.query);
     }
   }
-})
+});

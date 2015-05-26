@@ -1,3 +1,4 @@
+// @ignore
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ractive')) :
   typeof define === 'function' && define.amd ? define(['ractive'], factory) :

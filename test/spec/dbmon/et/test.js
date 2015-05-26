@@ -1,3 +1,4 @@
+// @ignore
 
 var content = document.getElementById('test');
 var t = new Template();
@@ -20,4 +21,3 @@ function redraw() {
   setTimeout(redraw, TIMEOUT);
 }
 redraw();
-

@@ -1,4 +1,6 @@
 /** @jsx React.DOM */
+// @ignore
+
 var Query = React.createClass({
   render: function() {
    var query = this.props.query;

@@ -1,8 +1,8 @@
 'use strict';
-
+// @ignore
 (function(global, factory) {
-  if (typeof module === 'object' && typeof module.exports === 'object') {
-    define('_et', function(require, module, exports) {
+  if (typeof define === 'function' && define.amd) {
+    define('_et', function(require, exports, module) {
       module.exports = factory();
     });
   } else {
@@ -93,6 +93,7 @@
 
       re = document.createDocumentFragment();
       root = this.root;
+      ids = this.rootIds;
 
       for (i = 0, len = ids.length; i < len; i++) {
         id = ids[i];

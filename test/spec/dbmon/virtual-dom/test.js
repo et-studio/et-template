@@ -1,3 +1,5 @@
+// @ignore
+
 var virtualDom = window.virtualDom;
 
 var h = virtualDom.h;

@@ -1,3 +1,6 @@
+'use strict';
+// @ignore
+
 function getDatabases() {
   var newData = getData();
   var databaseArray = [];

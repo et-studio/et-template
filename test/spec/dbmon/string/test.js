@@ -1,3 +1,6 @@
+'use strict';
+// @ignore
+
 function assemble(dbs){
   var str = '<table class="table table-striped latest-data"><tbody>';
   for(var i = 0, len1 = dbs.length; i < len1 ; i++) {
@@ -36,4 +39,3 @@ function redraw() {
   setTimeout(redraw, TIMEOUT);
 }
 redraw();
-

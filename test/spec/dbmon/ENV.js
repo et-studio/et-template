@@ -1,2 +1,3 @@
-var ROWS = 100;
-var TIMEOUT = 0;
+// @ignore
+window.ROWS = 100;
+window.TIMEOUT = 0;

@@ -1,5 +1,6 @@
 'use strict';
-define(function (require, exports, module) {
+
+exports.register = function(){
   var virtualDom = require('virtualDom');
 
   var h = virtualDom.h;
@@ -39,8 +40,4 @@ define(function (require, exports, module) {
     rootNode = patch(rootNode, patches);
     tree = newTree;
   }, 1000);
-
-  exports.register = function(){
-    return false;
-  };
-});
+};

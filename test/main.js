@@ -1,4 +1,5 @@
 'use strict';
+// @ignore
 
 require.config({
   paths: {
@@ -9,7 +10,7 @@ require.config({
     chai: './bower_components/chai/chai',
     virtualDom: './bower_components/virtual-dom/dist/virtual-dom',
     bootstrap: './bower_components/bootstrap/dist/js/bootstrap',
-    babel: '/babel-core/browser',
+    babel: '/node_modules/babel-core/browser',
     // 资源文件夹
     template: './template',
     compilers: './src/compilers',
@@ -17,10 +18,6 @@ require.config({
     spec: './spec',
     src: './src',
     // 资源文件
-    compiler: './src/compiler',
-    dom: './src/dom',
-    et: './src/et',
-    _et: './src/dependency'
   }
 });
 
