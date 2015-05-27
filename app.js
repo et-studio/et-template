@@ -9,11 +9,7 @@ var port = 3000;
 function getFile(path, callback) {
   fs.readFile(path, 'utf-8', function(err, content){
     if (!err && path.lastIndexOf('.js') + '.js'.length ===  path.length && content.indexOf('// @ignore') < 0) {
-      content = `
-        define(function(require, exports, module){
-          ${content}
-        });
-      `;
+      content = 'define(function(require, exports, module){\n' + content + '\n})';
       content = babel.transform(content).code;
     }
     callback(err, content);

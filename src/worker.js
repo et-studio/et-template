@@ -29,7 +29,7 @@ _.extend(Worker.prototype, {
     ;define('${it.moduleId}', function(require, exports, module){
       var _et = require('_et');
       var _util = _et._util;
-      var _prototype = _et.prototype;
+      var _prototype = _et._prototype;
 
       ${it.delareString}
 
@@ -47,7 +47,7 @@ _.extend(Worker.prototype, {
     ;define(function(require, exports, module){
       var _et = require('_et');
       var _util = _et._util;
-      var _prototype = _et.prototype;
+      var _prototype = _et._prototype;
 
       ${it.delareString}
 
@@ -64,7 +64,7 @@ _.extend(Worker.prototype, {
     return `
     var _et = require('_et');
     var _util = _et._util;
-    var _prototype = _et.prototype;
+    var _prototype = _et._prototype;
 
     ${it.delareString}
 
@@ -81,7 +81,7 @@ _.extend(Worker.prototype, {
     ;(function(global){
       var _et = global._et;
       var _util = _et._util;
-      var _prototype = _et.prototype;
+      var _prototype = _et._prototype;
 
       ${it.delareString}
 
@@ -114,7 +114,7 @@ _.extend(Worker.prototype, {
 
       var _et = require('_et');
       var _util = _et._util;
-      var _prototype = _et.prototype;
+      var _prototype = _et._prototype;
 
       ${it.delareString}
 

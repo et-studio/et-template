@@ -156,6 +156,16 @@ module.exports = {
     return `${options.valuePrefix}${options.spilitMark}${this.valueId}`;
   },
 
+  isErraticValue: function isErraticValue(str) {
+    var start = str.indexOf('{{');
+    var end = str.indexOf('}}');
+    return start >= 0 && end > start;
+  },
+  getValueString: function getValueString(str) {
+    var re = '';
+    return re;
+  },
+
   // attributes or functions could be override
   isNewTemplate: false,
   init: function init() {
