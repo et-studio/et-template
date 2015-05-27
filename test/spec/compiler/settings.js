@@ -304,41 +304,41 @@ module.exports = [
       modules: 'common'
     },
     expect: `
-    'use strict';
-    var _et = require('_et');
-    var _util = _et._util;
-    var _prototype = _et._prototype;
-    function Template_et0(options) {
-    this.init(options);
-    }
-    _util.extend(Template_et0.prototype, _prototype, {
-    create: function create() {
-      var root = this.roots;
-      var rootIds = this.rootIds;
-      var doms = this.doms;
-
-      var et1 = _util.createElement('DIV');
-      doms.et1 = et1;
-      rootIds.push('et1');
-      root.et1 = et1;
-
-      var et2 = _util.createTextNode('');
-      doms.et2 = et2;
-    },
-    update: function update(it) {
-      var root = this.root;
-      var doms = this.doms;
-      var last = this.last;
-
-      var et2 = doms.et2;
-      var tmpValue = 'aaaa' + it.src;
-      if (last.value_1 !== tmpValue) {
-        last.value_1 = tmpValue;
-        _util.text(et2, tmpValue);
+      'use strict';
+      var _et = require('_et');
+      var _util = _et._util;
+      var _prototype = _et._prototype;
+      function Template_et0(options) {
+      this.init(options);
       }
-    }
-    });
-    module.exports = Template_et0;
+      _util.extend(Template_et0.prototype, _prototype, {
+      create: function create() {
+        var root = this.roots;
+        var rootIds = this.rootIds;
+        var doms = this.doms;
+
+        var et1 = _util.createElement('DIV');
+        doms.et1 = et1;
+        rootIds.push('et1');
+        root.et1 = et1;
+
+        var et2 = _util.createTextNode('');
+        doms.et2 = et2;
+      },
+      update: function update(it) {
+        var root = this.root;
+        var doms = this.doms;
+        var last = this.last;
+
+        var et2 = doms.et2;
+        var tmpValue = 'aaaa' + it.src;
+        if (last.value_1 !== tmpValue) {
+          last.value_1 = tmpValue;
+          _util.text(et2, tmpValue);
+        }
+      }
+      });
+      module.exports = Template_et0;
     `
   },
   {
@@ -358,41 +358,41 @@ module.exports = [
       modules: 'common'
     },
     expect: `
-    'use strict';
-    var _et = require('_et');
-    var _util = _et._util;
-    var _prototype = _et._prototype;
-    function Template_et0(options) {
-    this.init(options);
-    }
-    _util.extend(Template_et0.prototype, _prototype, {
-    create: function create() {
-      var root = this.roots;
-      var rootIds = this.rootIds;
-      var doms = this.doms;
-
-      var et1 = _util.createElement('DIV');
-      doms.et1 = et1;
-      rootIds.push('et1');
-      root.et1 = et1;
-
-      var et2 = _util.createTextNode('');
-      doms.et2 = et2;
-    },
-    update: function update(it) {
-      var root = this.root;
-      var doms = this.doms;
-      var last = this.last;
-
-      var et2 = doms.et2;
-      var tmpValue = 'aaaa' + it.src;
-      if (last.value_1 !== tmpValue) {
-        last.value_1 = tmpValue;
-        _util.text(et2, tmpValue);
+      'use strict';
+      var _et = require('_et');
+      var _util = _et._util;
+      var _prototype = _et._prototype;
+      function Template_et0(options) {
+      this.init(options);
       }
-    }
-    });
-    module.exports = Template_et0;
+      _util.extend(Template_et0.prototype, _prototype, {
+      create: function create() {
+        var root = this.roots;
+        var rootIds = this.rootIds;
+        var doms = this.doms;
+
+        var et1 = _util.createElement('DIV');
+        doms.et1 = et1;
+        rootIds.push('et1');
+        root.et1 = et1;
+
+        var et2 = _util.createTextNode('');
+        doms.et2 = et2;
+      },
+      update: function update(it) {
+        var root = this.root;
+        var doms = this.doms;
+        var last = this.last;
+
+        var et2 = doms.et2;
+        var tmpValue = 'aaaa' + it.src;
+        if (last.value_1 !== tmpValue) {
+          last.value_1 = tmpValue;
+          _util.text(et2, tmpValue);
+        }
+      }
+      });
+      module.exports = Template_et0;
     `
   }
 ];
