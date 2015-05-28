@@ -26,6 +26,17 @@ var CONFIG = {
  * Expression
  *  - condition       {String} 触发条件，如果没有条件就认为一直有
  *  - attributes      {Map<String, String>}
+ *
+ * #if 节点
+ *  - condition       {String} 判断条件
+ *
+ * #elseif
+ *  - condition
+ *
+ * #for 节点
+ *  - condition
+ *  - itemName
+ *  - indexName
  */
 module.exports = {
   getList: function getList(dom) {

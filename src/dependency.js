@@ -43,6 +43,9 @@
     createComment: function createComment(text) {
       return document.createComment(text);
     },
+    createLine: function createLine(text) {
+      return this.createComment(text || 'line');
+    },
     remove: function remove(element, isKeeyData) {
       if (element.parentNode) {
         element.parentNode.removeChild(element);

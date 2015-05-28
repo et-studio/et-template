@@ -19,6 +19,13 @@ exports.register = function(){
         right = right.trim().replace(/\n{2}/g, '\n');
         console.log(left);
         console.log(right);
+        if (setting.modules === 'common') {
+          var str = `define('_test', function(require, exports, module){
+            ${left};
+          })`;
+          // window.eval(str);
+          // console.log(require('_test'));
+        }
         assert.equal(left, right);
       });
     });
