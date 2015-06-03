@@ -1,28 +1,28 @@
 'use strict';
 
-var _ = require('underscore');
+var _ = require('./util');
 
-function Worker(options) {
-  this.options = _.extend({}, options);
-  switch (options.modules) {
-    case 'amd':
-      this.compile = this.compileAMD;
-      break;
-    case 'cmd':
-      this.compile = this.compileCMD;
-      break;
-    case 'common':
-      this.compile = this.compileCommon;
-      break;
-    case 'global':
-      this.compile = this.compileGlobal;
-      break;
-    default:
-      this.compile = this.compileUMD;
+class Worker {
+  constructor(options) {
+    this.options = _.extend({}, options);
+    switch (options.modules) {
+      case 'amd':
+        this.compile = this.compileAMD;
+        break;
+      case 'cmd':
+        this.compile = this.compileCMD;
+        break;
+      case 'common':
+        this.compile = this.compileCommon;
+        break;
+      case 'global':
+        this.compile = this.compileGlobal;
+        break;
+      default:
+        this.compile = this.compileUMD;
+    }
   }
-}
-_.extend(Worker.prototype, {
-  compileAMD: function compileAMD(it) {
+  compileAMD(it) {
     //var options = this.options;
     // @start: amd
     return `
@@ -39,8 +39,8 @@ _.extend(Worker.prototype, {
     });
     `;
   // @end: amd
-  },
-  compileCMD: function compileCMD(it) {
+  }
+  compileCMD(it) {
     //var options = this.options;
     // @start: cmd
     return `
@@ -57,8 +57,8 @@ _.extend(Worker.prototype, {
     });
     `;
   // @end: cmd
-  },
-  compileCommon: function compileCommon(it) {
+  }
+  compileCommon(it) {
     //var options = this.options;
     // @start: common
     return `
@@ -73,8 +73,8 @@ _.extend(Worker.prototype, {
     module.exports = ${it.templateName};
     `;
   // @end: common
-  },
-  compileGlobal: function compileGlobal(it) {
+  }
+  compileGlobal(it) {
     //var options = this.options;
     // @start: global
     return `
@@ -91,8 +91,8 @@ _.extend(Worker.prototype, {
     })(window);
     `;
   // @end: global
-  },
-  compileUMD: function compileUMD(it) {
+  }
+  compileUMD (it) {
     //var options = this.options;
     // @start: umd
     return `
@@ -124,8 +124,8 @@ _.extend(Worker.prototype, {
     });
     `;
   // @end: umd
-  },
-  delare: function delare(it) {
+  }
+  delare(it) {
     //var options = this.options;
     // @start: delare
     return `
@@ -134,8 +134,8 @@ _.extend(Worker.prototype, {
     }
     `;
   // @end: delare
-  },
-  extend: function extend(it) {
+  }
+  extend(it) {
     //var options = this.options;
     it.createString = this.create(it);
     it.updateString = this.update(it);
@@ -153,15 +153,15 @@ _.extend(Worker.prototype, {
     });
     `;
   // @end: extend
-  },
-  create: function create(it) {
+  }
+  create(it) {
     if (!it.createString) {
       return '';
     }
     // @start: create
     return `
     create: function create(){
-      var root = this.roots;
+      var roots = this.roots;
       var rootIds = this.rootIds;
       var doms = this.doms;
 
@@ -169,15 +169,15 @@ _.extend(Worker.prototype, {
     }
     `;
   // @end: create
-  },
-  update: function update(it) {
+  }
+  update(it) {
     if (!it.updateString) {
       return '';
     }
     // @start: update
     return `
     update: function update(${it.args.join(',')}) {
-      var root = this.root;
+      var roots = this.roots;
       var doms = this.doms;
       var last = this.last;
 
@@ -186,6 +186,6 @@ _.extend(Worker.prototype, {
     `;
   // @end: update
   }
-});
+}
 
 module.exports = Worker;

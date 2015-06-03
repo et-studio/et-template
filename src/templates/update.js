@@ -1,5 +1,5 @@
     update: function update(${it.args.join(',')}) {
-      var root = this.root;
+      var roots = this.roots;
       var doms = this.doms;
       var last = this.last;
 

@@ -3,7 +3,7 @@
 var p   = require('gulp-load-plugins')();
 var del = require('del');
 
-var destDir = 'public';
+var destDir = 'es5';
 var srcDir = 'src';
 
 exports.register = function(gulp){
@@ -16,14 +16,14 @@ exports.register = function(gulp){
       srcDir + '/**/*.js',
       '!' + srcDir + '/templates/*.js'
     ])
+    .pipe(p.jshint())
+    .pipe(p.jshint.reporter('jshint-stylish'))
     .pipe(p.babel())
-    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir));
   });
 
   gulp.task('build-json', function() {
     return gulp.src([srcDir + '/**/*.json'])
-    .pipe(p.esformatter())
     .pipe(gulp.dest(destDir));
   });
 

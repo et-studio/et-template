@@ -1,16 +1,8 @@
 'use strict';
 
-var _ = require('underscore');
-var finder = require('./finder');
+var _ = require('./util');
 var CWorker = require('./worker');
-
-var CONFIG = {
-  'templateFunctionPrefix': 'Template',
-  'spilitMark': '_',
-  'lineSuffix': 'line',
-  'idPrefix': 'et',
-  'valuePrefix': 'value'
-};
+var Factory = require('./factory');
 
 /**
  * Dom 的结构
@@ -22,6 +14,7 @@ var CONFIG = {
  *  - nextSibling     {Dom}
  *  - attributes      {Map<String, String>}
  *  - textContent     {String}
+ *  - nodeType        {number} root: root dom, 1: element, 3:textNode, 8:commentNode
  *
  * Expression
  *  - condition       {String} 触发条件，如果没有条件就认为一直有
@@ -38,79 +31,84 @@ var CONFIG = {
  *  - itemName
  *  - indexName
  */
-module.exports = {
-  getList: function getList(dom) {
+class Compiler {
+  constructor(options) {
+    this.options = options;
+  }
+  getList(dom) {
     var re = [];
-    var scan = function scan(current) {
-      var children, i, len, child;
+    var scan = (current) => {
       if (current) {
         re.push(current);
-        children = current.children || [];
-        for (i = 0, len = children.length ; i < len ; i++){
-          child = children[i];
-          if (!child.parent) {
-            child.parent = current;
-          }
+        _.each(current.children, null, (child) => {
           scan(child);
-        }
+        });
       }
     };
     scan(dom);
     return re;
-  },
-  extendDom: function extendDom(dom, options) {
-    var doms, i, len, current, extender;
-
-    doms = this.getList(dom);
-    for (i = 0, len = doms.length; i < len; i++){
-      current = doms[i];
-      current.id = `${options.idPrefix}${i}`;
-      current.templateName = `${options.templateFunctionPrefix}${options.spilitMark}${current.id}`;
-      current.options = options;
-
-      extender = finder.findExtender(current, options);
-      _.extend(current, extender);
+  }
+  initAllDoms(dom) {
+    _.each(this.getList(dom), null, (dom) => {
+      if (dom && typeof dom.init === 'function') {
+        dom.init();
+      }
+    });
+  }
+  getFactory() {
+    if (!this.factory) {
+      this.factory = new Factory(this.options);
     }
-
-    for (i = 0, len = doms.length; i < len; i++){
-      // after the tree is ready init all doms
-      current = doms[i];
-      current.init();
+    return this.factory;
+  }
+  getWorker() {
+    if (!this.CWorker) {
+      this.worker = new CWorker(this.options);
     }
-    return dom;
-  },
-  compile: function compile(dom, options) {
-    var worker, delareString, extendString, newDoms, i, domItem;
+    return this.worker;
+  }
+  compile(originDom) {
+    var dom, factory, worker, newDoms, options, cOptions;
 
-    options = _.extend(CONFIG, options);
-    this.extendDom(dom, options);
-    worker = new CWorker(options);
+    factory = this.getFactory();
+    worker = this.getWorker();
+
+    options = this.options;
+    dom = factory.create(originDom);
+    this.initAllDoms(dom);
     newDoms = dom.getNewTemplateDoms();
 
-    delareString = '';
-    for(i = 0; i < newDoms.length; i++) {
-      domItem = newDoms[i];
-      delareString += worker.delare({
-        templateName: domItem.templateName
-      }, options);
-    }
-
-    extendString = '';
-    for(i = 0; i < newDoms.length; i++) {
-      domItem = newDoms[i];
-      delareString += worker.extend({
-        templateName: domItem.templateName,
-        args: domItem.getArguments(),
-        createString: domItem.getCreateString(),
-        updateString: domItem.getUpdateString()
-      }, options);
-    }
-
-    return worker.compile({
+    cOptions = {
       templateName: dom.templateName,
-      delareString: delareString,
-      extendString: extendString,
+      delareString: this.getDelareString(newDoms),
+      extendString: this.getExtendString(newDoms),
       moduleId: options.moduleId
-    }, options);
+    };
+    return worker.compile(cOptions, options);
   }
-};
+  getDelareString(newDoms) {
+    var re = '';
+    var worker = this.getWorker();
+    _.each(newDoms, null, (dom) => {
+      re += worker.delare({
+        templateName: dom.templateName
+      });
+    });
+    return re;
+  }
+  getExtendString(newDoms) {
+    var re = '';
+    var worker = this.getWorker();
+    _.each(newDoms, null, (dom) => {
+      re += worker.extend({
+        templateName: dom.templateName,
+        args: dom.getArguments(),
+        createString: dom.getCreateString(),
+        updateString: dom.getUpdateString()
+      });
+    });
+    return re;
+  }
+}
+
+module.exports = Compiler;

@@ -1,5 +1,5 @@
     create: function create(){
-      var root = this.roots;
+      var roots = this.roots;
       var rootIds = this.rootIds;
       var doms = this.doms;
 

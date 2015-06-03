@@ -1,15 +1,16 @@
 'use strict';
-var _ = require('underscore');
-var _prototype = require('./prototype');
-var valueHandler = require('./value');
 
-module.exports = _.extend({}, _prototype, {
-  deliverCreate: function compileCreate() {
+var valueHandler = require('./value');
+var Basic = require('./basic');
+
+class TextNode extends Basic {
+  deliverCreate() {
     var re = [];
     var id = this.getId();
-    var text = this.textContent;
+    var text = this.getTextContent();
+    var parentId = this.parent && this.parent.getId();
 
-    if (valueHandler.checkErraticValue(text)) {
+    if (valueHandler.isErraticValue(text)) {
       re.push(`var ${id} = _util.createTextNode('');`);
     } else {
       re.push(`var ${id} = _util.createTextNode('${text}');`);
@@ -18,17 +19,19 @@ module.exports = _.extend({}, _prototype, {
 
     if (this.checkRoot()) {
       re.push(`rootIds.push('${id}');`);
-      re.push(`root.${id} = ${id};`);
+      re.push(`roots.${id} = ${id};`);
+    } else {
+      re.push(`_util.appendChild(${parentId}, ${id});`);
     }
     return re;
-  },
-  deliverUpdate: function deliverUpdate() {
+  }
+  deliverUpdate() {
     var re = [];
     var lastRoot = this.getLastRoot();
-    var text = this.textContent;
+    var text = this.getTextContent();
     var id = this.getId();
 
-    if (valueHandler.checkErraticValue(text)) {
+    if (valueHandler.isErraticValue(text)) {
       var valueId = lastRoot.getValueId();
       var valueString = valueHandler.compileValue(text);
       re.push(`
@@ -42,4 +45,6 @@ module.exports = _.extend({}, _prototype, {
     }
     return re;
   }
-});
+}
+
+module.exports = TextNode;

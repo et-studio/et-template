@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('../util');
+
 var STATES = {
   START: 0,
   END: 1,
@@ -7,7 +9,10 @@ var STATES = {
 };
 
 module.exports = {
-  checkErraticValue: function isErraticValue(str) {
+  isErraticValue: function isErraticValue(str) {
+    if (!str) {
+      return false;
+    }
     var start = str.indexOf('{{');
     var end = str.indexOf('}}');
     return start >= 0 && end > start;
@@ -53,14 +58,13 @@ module.exports = {
     }
   },
   splitValue: function getValueList(str) {
-    var re, i, len, lastChar, char, part, state, startIndex, endIndex, tmp;
+    var re, lastChar, part, state, startIndex, endIndex, tmp;
 
     re = [];
     part = '';
     state = STATES.OTHER;
     lastChar = '';
-    for (i = 0, len = str.length; i < len; i++) {
-      char = str[i];
+    _.each(str, this, (char) => {
       part += char;
       state = this.getState(state, lastChar + char);
       if (state === STATES.END) {
@@ -81,7 +85,7 @@ module.exports = {
       } else {
         lastChar = char;
       }
-    }
+    });
     if (part) {
       re.push(`'${part}'`);
     }

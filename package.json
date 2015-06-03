@@ -8,14 +8,11 @@
     "url": "git@github.com:suyu34/et.git"
   },
   "devDependencies": {
-    "babel": "^5.4.2",
     "babel-core": "^5.4.2",
     "del": "^1.1.1",
-    "esformatter": "^0.6.1",
     "express": "^4.12.4",
     "gulp": "^3.8.11",
     "gulp-babel": "^5.1.0",
-    "gulp-esformatter": "^3.0.0",
     "gulp-jshint": "^1.10.0",
     "gulp-livereload": "^3.8.0",
     "gulp-load-plugins": "^0.10.0",
@@ -33,6 +30,6 @@
   "author": "suyu34",
   "license": "MIT",
   "dependencies": {
-    "underscore": "^1.8.3"
+    "babel": "^5.5.4"
   }
 }

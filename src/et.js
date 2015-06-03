@@ -1,9 +1,14 @@
 'use strict';
 
 var Dom = require('./dom');
-var compiler = require('./compiler');
+var Compiler = require('./compiler');
 
-module.exports = function(str, options) {
-  var dom = new Dom(str, options);
-  return compiler.compile(dom, options);
-};
+class ET {
+  constructor(str, options) {
+    var dom = new Dom(str, options);
+    var compiler = new Compiler(options);
+    return compiler.compile(dom, options);
+  }
+}
+
+module.exports = ET;

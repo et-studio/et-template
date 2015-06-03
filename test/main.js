@@ -17,7 +17,7 @@ require.config({
     config: './src/config',
     spec: './spec',
     src: './src',
-    // 资源文件
+    _et: './src/dependency'
   }
 });
 
@@ -26,9 +26,10 @@ require([
   'chai',
   'jquery',
   'mocha',
-  './src/dependency',
+  '_et',
   './src/et',
   'underscore',
+  // 'parser',
   // 'bootstrap',
   'babel'
 ], function (test, chai) {
