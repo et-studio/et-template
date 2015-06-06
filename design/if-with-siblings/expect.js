@@ -1,381 +1,81 @@
 'use strict';
-
-// umd
-;(function(global) {
-
-  function factory(util, _prototype) {
-    function Template_ET_0(options){
-      this.init(options);
-    }
-    function Template_ET_4(options) {
-      this.init(options);
-    }
-    util.extend(Template_ET_0.prototype, _prototype, {
-      createElements: function(){
-        var roots = this.roots;
-        var doms = this.doms;
-
-        var et2 = util.createElement('div');
-        doms.et2 = et2;
-        roots[0] = et2;
-
-        var et3 = util.createTextNode('It is before.');
-        doms.et3 = et3;
-        util.appendChild(et2, et3);
-
-        var et4 = null;
-        doms.et4 = et4;
-        roots[1] = et4;
-
-        var et4_line = util.createElement('span');
-        util.setAttribute(et4_line, 'style', 'display:none');
-        roots[2] = et4_line;
-        doms.et4_line = et4_line;
-
-        var et7 = util.createElement('div');
-        doms.et7 = et7;
-        roots[3] = et7;
-
-        var et8 = util.createTextNode('It is after.');
-        doms.et8 = et8;
-        util.appendChild(et7, et8);
-      },
-      update: function(it){
-        var doms = this.doms;
-        var roots = this.roots;
-        var last = this.last;
-
-        var et4 = doms.et4;
-        if(it.isTrue){
-          if(last.et4_index !== 0){
-            last.et4_index = 0;
-            if(!et4){
-              doms.et4 = et4 = new Template_ET_4();
-            }
-            util.before(doms.et4_line, et4.get());
-            roots[1] = et4;
-          }else{
-            et4.update(it);
-          }
-        }else{
-          if(last.et4_index !== 1){
-            last.et4_index = 1;
-            if(et4){
-              et4.remove();
-            }
-            roots[1] = null;
-          }
-        }
-        return this;
-      }
-    });
-    util.extend(Template_ET_4.prototype, _prototype, {
-      createElements: function(){
-        var roots = this.roots;
-        var doms = this.doms;
-
-        var et5 = util.createElement('div');
-        doms.et5 = et5;
-        roots[0] = et5;
-
-        var et6 = util.createTextNode('It is true.');
-        doms.et6 = et6;
-        util.appendChild(et5, et6);
-
-      }
-    });
-    return Template_ET_0;
-  }
-
-
-  if ( typeof module === "object" && typeof module.exports === "object" ) {
-    var _et = require('_et');
-    module.exports = factory(_et.util, _et._prototype);
-  } else {
-    var _et = root._et;
-    root.Template_ET_0 = factory(_et.util, _et._prototype);
-  }
-
-})(window);
-
-
-// cmd
-;define(function(require, exports, module) {
-  function factory(util, _prototype) {
-    function Template_ET_0(options){
-      this.init(options);
-    }
-    function Template_ET_4(options) {
-      this.init(options);
-    }
-    util.extend(Template_ET_0.prototype, _prototype, {
-      createElements: function(){
-        var roots = this.roots;
-        var doms = this.doms;
-
-        var et2 = util.createElement('div');
-        doms.et2 = et2;
-        roots[0] = et2;
-
-        var et3 = util.createTextNode('It is before.');
-        doms.et3 = et3;
-        util.appendChild(et2, et3);
-
-        var et4 = null;
-        doms.et4 = et4;
-        roots[1] = et4;
-
-        var et4_line = util.createElement('span');
-        util.setAttribute(et4_line, 'style', 'display:none');
-        roots[2] = et4_line;
-        doms.et4_line = et4_line;
-
-        var et7 = util.createElement('div');
-        doms.et7 = et7;
-        roots[3] = et7;
-
-        var et8 = util.createTextNode('It is after.');
-        doms.et8 = et8;
-        util.appendChild(et7, et8);
-      },
-      update: function(it){
-        var doms = this.doms;
-        var roots = this.roots;
-        var last = this.last;
-
-        var et4 = doms.et4;
-        if(it.isTrue){
-          if(last.et4_index !== 0){
-            last.et4_index = 0;
-            if(!et4){
-              doms.et4 = et4 = new Template_ET_4();
-            }
-            util.before(doms.et4_line, et4.get());
-            roots[1] = et4;
-          }else{
-            et4.update(it);
-          }
-        }else{
-          if(last.et4_index !== 1){
-            last.et4_index = 1;
-            if(et4){
-              et4.remove();
-            }
-            roots[1] = null;
-          }
-        }
-        return this;
-      }
-    });
-    util.extend(Template_ET_4.prototype, _prototype, {
-      createElements: function(){
-        var roots = this.roots;
-        var doms = this.doms;
-
-        var et5 = util.createElement('div');
-        doms.et5 = et5;
-        roots[0] = et5;
-
-        var et6 = util.createTextNode('It is true.');
-        doms.et6 = et6;
-        util.appendChild(et5, et6);
-
-      }
-    });
-    return Template_ET_0;
-  }
-
-  var _et = require('_et');
-  module.exports = factory(_et.util, _et.);
-})
-
-// global
-;(function(global, factory) {
-
-  if (typeof define === 'function' && define.amd) {
-    define(factory);
-  } else {
-    var _require = function(key) {
-      return global[key];
-    };
-    var _exports = {};
-    var _module = {
-      exports: _exports
-    };
-    factory(_require, _exports, _module);
-    global.Template_ET_0 = module.exports;
-  }
-})(window, function factory(require, exports, module) {
-  var _et = require('_et');
-  var util = _et.util;
-  var _prototype = _et.prototype;
-
-  function Template_ET_0(options){
-    this.init(options);
-  }
-  function Template_ET_4(options) {
-    this.init(options);
-  }
-  util.extend(Template_ET_0.prototype, _prototype, {
-    createElements: function(){
-      var roots = this.roots;
-      var doms = this.doms;
-
-      var et2 = util.createElement('div');
-      doms.et2 = et2;
-      roots[0] = et2;
-
-      var et3 = util.createTextNode('It is before.');
-      doms.et3 = et3;
-      util.appendChild(et2, et3);
-
-      var et4 = null;
-      doms.et4 = et4;
-      roots[1] = et4;
-
-      var et4_line = util.createElement('span');
-      util.setAttribute(et4_line, 'style', 'display:none');
-      roots[2] = et4_line;
-      doms.et4_line = et4_line;
-
-      var et7 = util.createElement('div');
-      doms.et7 = et7;
-      roots[3] = et7;
-
-      var et8 = util.createTextNode('It is after.');
-      doms.et8 = et8;
-      util.appendChild(et7, et8);
-    },
-    update: function(it){
-      var doms = this.doms;
-      var roots = this.roots;
-      var last = this.last;
-
-      var et4 = doms.et4;
-      if(it.isTrue){
-        if(last.et4_index !== 0){
-          last.et4_index = 0;
-          if(!et4){
-            doms.et4 = et4 = new Template_ET_4();
-          }
-          util.before(doms.et4_line, et4.get());
-          roots[1] = et4;
-        }else{
-          et4.update(it);
-        }
-      }else{
-        if(last.et4_index !== 1){
-          last.et4_index = 1;
-          if(et4){
-            et4.remove();
-          }
-          roots[1] = null;
-        }
-      }
-      return this;
-    }
-  });
-  util.extend(Template_ET_4.prototype, _prototype, {
-    createElements: function(){
-      var roots = this.roots;
-      var doms = this.doms;
-
-      var et5 = util.createElement('div');
-      doms.et5 = et5;
-      roots[0] = et5;
-
-      var et6 = util.createTextNode('It is true.');
-      doms.et6 = et6;
-      util.appendChild(et5, et6);
-
-    }
-  });
-  module.exports = Template_ET_0;
-});
-
-// commonJS
 var _et = require('_et');
-var util = _et.util;
-var _prototype = _et.prototype;
+var _util = _et._util;
+var _prototype = _et._prototype;
 
-function Template_ET_0(options){
+function Template_et0(options) {
   this.init(options);
 }
-function Template_ET_4(options) {
+function Template_et2(options) {
   this.init(options);
 }
-util.extend(Template_ET_0.prototype, _prototype, {
-  createElements: function(){
-    var roots = this.roots;
-    var doms = this.doms;
 
-    var et2 = util.createElement('div');
-    doms.et2 = et2;
-    roots[0] = et2;
+_util.extend(Template_et0.prototype, _prototype, {
+  create: function create() {
+    var _doms, _roots, _rootIds, _et, _line;
 
-    var et3 = util.createTextNode('It is before.');
-    doms.et3 = et3;
-    util.appendChild(et2, et3);
+    _doms = this.doms;
+    _roots = this.roots;
+    _rootIds = this.rootIds;
 
-    var et4 = null;
-    doms.et4 = et4;
-    roots[1] = et4;
+    _et = _util.createTextNode('It is before.');
+    _doms.et1 = _et;
+    _roots.et1 = _et;
+    _rootIds.push('et1');
 
-    var et4_line = util.createElement('span');
-    util.setAttribute(et4_line, 'style', 'display:none');
-    roots[2] = et4_line;
-    doms.et4_line = et4_line;
+    _et = null;
+    _doms.et2 = _et;
+    _roots.et2 = _et;
+    _rootIds.push('et2');
 
-    var et7 = util.createElement('div');
-    doms.et7 = et7;
-    roots[3] = et7;
-
-    var et8 = util.createTextNode('It is after.');
-    doms.et8 = et8;
-    util.appendChild(et7, et8);
+    _line = _util.createLine();
+    _doms.et2_line = _line;
+    _roots.et2_line = _line;
+    _rootIds.push('et2_line');
   },
-  update: function(it){
-    var doms = this.doms;
-    var roots = this.roots;
-    var last = this.last;
+  update: function update(it) {
+    var _doms, _roots, _last, _et, _line;
 
-    var et4 = doms.et4;
-    if(it.isTrue){
-      if(last.et4_index !== 0){
-        last.et4_index = 0;
-        if(!et4){
-          doms.et4 = et4 = new Template_ET_4();
+    _doms = this.doms;
+    _roots = this.roots;
+    _last = this.last;
+
+    _line = _doms.et2_line;
+    if (it.isNumber && it.isEven) {
+      _et = _doms.et2;
+      if (_last.value_1 !== 0) {
+        _last.value_1 = 0;
+        if (!_et) {
+          _doms.et2 = _et = new Template_et2();
         }
-        util.before(doms.et4_line, et4.get());
-        roots[1] = et4;
-      }else{
-        et4.update(it);
+        _util.before(_line, _et.get());
       }
-    }else{
-      if(last.et4_index !== 1){
-        last.et4_index = 1;
-        if(et4){
-          et4.remove();
+      _et.update(it);
+    } else {
+      if (_last.value_1 !== 1) {
+        _last.value_1 = 1;
+        _et = _doms.et2;
+        if (_et) {
+          _et.remove();
+          _roots.et2 = null;
         }
-        roots[1] = null;
       }
     }
-    return this;
   }
 });
-util.extend(Template_ET_4.prototype, _prototype, {
-  createElements: function(){
-    var roots = this.roots;
-    var doms = this.doms;
+_util.extend(Template_et2.prototype, _prototype, {
+  create: function create() {
+    var _doms, _roots, _rootIds, _et;
 
-    var et5 = util.createElement('div');
-    doms.et5 = et5;
-    roots[0] = et5;
+    _doms = this.doms;
+    _roots = this.roots;
+    _rootIds = this.rootIds;
 
-    var et6 = util.createTextNode('It is true.');
-    doms.et6 = et6;
-    util.appendChild(et5, et6);
-
+    _et = _util.createTextNode('It is number and is even');
+    _doms.et3 = _et;
+    _roots.et3 = _et;
+    _rootIds.push('et3');
   }
 });
-module.exports = Template_ET_0;
+
+module.exports = Template_et0;
