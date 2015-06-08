@@ -4,17 +4,17 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('./util');
+var _ = require('../util');
 
 var nodes = {};
-nodes._element = require('./nodes/element');
-nodes._text = require('./nodes/text');
-nodes._comment = require('./nodes/comment');
-nodes._base = require('./nodes/basic');
-nodes['#if'] = require('./nodes/if');
-nodes['#elseif'] = require('./nodes/new');
-nodes['#else'] = require('./nodes/new');
-nodes['#for'] = require('./nodes/for');
+nodes._element = require('./element');
+nodes._text = require('./text');
+nodes._comment = require('./comment');
+nodes._base = require('./basic');
+nodes['#if'] = require('./if');
+nodes['#elseif'] = require('./new');
+nodes['#else'] = require('./new');
+nodes['#for'] = require('./for');
 
 var Factory = (function () {
   function Factory() {
@@ -59,8 +59,8 @@ var Factory = (function () {
       var options = arguments[1] === undefined ? {} : arguments[1];
 
       var parent = options.parent;
-      var previousSibling = options.previousSibling;
-      var nextSibling = options.nextSibling;
+      var previous = options.previous;
+      var next = options.next;
 
       var Constructor = this.findNode(dom.nodeType, dom.nodeName);
       var re = new Constructor(dom, _.extend({}, options, { index: this.getIndex() }));
@@ -71,11 +71,11 @@ var Factory = (function () {
         }
         parent.children.push(re);
       }
-      if (previousSibling) {
-        previousSibling.nextSibling = re;
+      if (previous) {
+        previous.next = re;
       }
-      if (nextSibling) {
-        nextSibling.previousSibling = re;
+      if (next) {
+        next.previous = re;
       }
       this.createChildren(re, dom.children);
       return re;
@@ -85,13 +85,13 @@ var Factory = (function () {
     value: function createChildren(parent, children) {
       var _this = this;
 
-      var current, previousSibling;
+      var current, previous;
       _.each(children, this, function (child) {
         current = _this.create(child, {
           parent: parent,
-          previousSibling: previousSibling
+          previous: previous
         });
-        previousSibling = current;
+        previous = current;
       });
     }
   }]);

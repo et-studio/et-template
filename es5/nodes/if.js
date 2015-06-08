@@ -55,11 +55,11 @@ var IfNode = (function (_NewNode) {
     key: 'getConditionDoms',
     value: function getConditionDoms() {
       var re = [this];
-      var next = this.nextSibling;
+      var next = this.previous;
       while (next) {
         if (next.nodeName === '#elseif') {
           re.push(next);
-          next = next.nextSibling;
+          next = next.previous;
           continue;
         } else if (next.nodeName === '#else') {
           re.push(next);

@@ -6,35 +6,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _ = require('./util');
 var CWorker = require('./worker');
-var Factory = require('./factory');
-
-/**
- * Dom 的结构
- *  - nodeName        {String}
- *  - children        {Array[Dom]}
- *  - expressions     {Array[Expression]} 在属性上面的表达式数组
- *  - parent          {Dom}
- *  - previousSibling {Dom}
- *  - nextSibling     {Dom}
- *  - attributes      {Map<String, String>}
- *  - textContent     {String}
- *  - nodeType        {number} root: root dom, 1: element, 3:textNode, 8:commentNode
- *
- * Expression
- *  - condition       {String} 触发条件，如果没有条件就认为一直有
- *  - attributes      {Map<String, String>}
- *
- * #if 节点
- *  - condition       {String} 判断条件
- *
- * #elseif
- *  - condition
- *
- * #for 节点
- *  - condition
- *  - itemName
- *  - indexName
- */
+var Factory = require('./nodes/factory');
 
 var Compiler = (function () {
   function Compiler(options) {

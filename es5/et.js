@@ -1,16 +1,19 @@
 'use strict';
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var Dom = require('./dom');
+// var Parser = require('./parser')
 var Compiler = require('./compiler');
+var Formatter = require('./formatter');
 
-var ET = function ET(str, options) {
-  _classCallCheck(this, ET);
+module.exports = function (str) {
+  var options = arguments[1] === undefined ? {} : arguments[1];
 
-  var dom = new Dom(str, options);
-  var compiler = new Compiler(options);
-  return compiler.compile(dom, options);
+  // TODO: wait et-parser
+  //var parser = new Parser(options.parser);
+  //var compiler = new Compiler(options.compiler);
+  //var formatter = new Formatter(options.formatter);
+
+  //var dom = parser.parse(str);
+  //var result = compiler.compile(dom);
+  //return formatter.format(result);
+  return str;
 };
-
-module.exports = ET;

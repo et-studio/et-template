@@ -4,13 +4,13 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('./util');
-
 var Worker = (function () {
-  function Worker(options) {
+  function Worker() {
+    var options = arguments[0] === undefined ? {} : arguments[0];
+
     _classCallCheck(this, Worker);
 
-    this.options = _.extend({}, options);
+    this.options = options;
     switch (options.modules) {
       case 'amd':
         this.compile = this.compileAMD;
@@ -81,16 +81,18 @@ var Worker = (function () {
     key: 'extend',
     value: function extend(it) {
       //var options = this.options;
-      it.createString = this.create(it);
-      it.updateString = this.update(it);
-      if (!it.createString && !it.updateString) {
-        return '';
-      } else if (it.createString && it.updateString) {
-        it.createString += ',';
+      var list = [];
+      var createString = this.create(it);
+      var updateString = this.update(it);
+      if (createString) {
+        list.push(createString);
+      }
+      if (updateString) {
+        list.push(updateString);
       }
 
       // @start: extend
-      return '\n    _util.extend(' + it.templateName + '.prototype, _prototype, {\n      ' + it.createString + '\n      ' + it.updateString + '\n    });\n    ';
+      return '\n    _util.extend(' + it.templateName + '.prototype, _prototype, {\n      ' + list.join(',\n') + '\n    });\n    ';
       // @end: extend
     }
   }, {

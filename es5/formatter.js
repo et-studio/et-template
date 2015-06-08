@@ -2,8 +2,8 @@
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var Fomatter = function Fomatter() {
-  _classCallCheck(this, Fomatter);
+var Formatter = function Formatter() {
+  _classCallCheck(this, Formatter);
 };
 
-module.exports = Fomatter;
+module.exports = Formatter;
