@@ -45,7 +45,7 @@ class IfNode extends NewNode {
   }
   getConditionDoms () {
     var re = [this];
-    var next = this.previous;
+    var next = this.next;
     while (next) {
       if (next.nodeName === '#elseif') {
         re.push(next);
