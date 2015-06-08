@@ -1,10 +1,8 @@
 'use strict';
 
-var _ = require('./util');
-
 class Worker {
-  constructor(options) {
-    this.options = _.extend({}, options);
+  constructor(options = {}) {
+    this.options = options;
     switch (options.modules) {
       case 'amd':
         this.compile = this.compileAMD;
@@ -137,19 +135,20 @@ class Worker {
   }
   extend(it) {
     //var options = this.options;
-    it.createString = this.create(it);
-    it.updateString = this.update(it);
-    if (!it.createString && !it.updateString) {
-      return '';
-    } else if (it.createString && it.updateString) {
-      it.createString += ',';
+    var list = [];
+    var createString = this.create(it);
+    var updateString = this.update(it);
+    if (createString) {
+      list.push(createString);
+    }
+    if (updateString) {
+      list.push(updateString);
     }
 
     // @start: extend
     return `
     _util.extend(${it.templateName}.prototype, _prototype, {
-      ${it.createString}
-      ${it.updateString}
+      ${list.join(',\n')}
     });
     `;
   // @end: extend

@@ -6,8 +6,8 @@
  *  - children        {Array[Dom]}
  *  - expressions     {Array[Expression]} 在属性上面的表达式数组
  *  - parent          {Dom}
- *  - previousSibling {Dom}
- *  - nextSibling     {Dom}
+ *  - previous        {Dom}
+ *  - next            {Dom}
  *  - attributes      {Map<String, String>}
  *  - textContent     {String}
  *  - nodeType        {number} root: root dom, 1: element, 3:textNode, 8:commentNode
@@ -47,8 +47,8 @@ class Basic extends NodeInterface {
     this.config = CONFIG;
     this.options = options;
     this.parent = options.parent;
-    this.previousSibling = options.previousSibling;
-    this.nextSibling = options.nextSibling;
+    this.previous = options.previous;
+    this.previous = options.previous;
     if (options.children) {
       this.children = options.children;
     } else {

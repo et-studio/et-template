@@ -17,7 +17,8 @@ require.config({
     config: './src/config',
     spec: './spec',
     src: './src',
-    _et: './src/dependency'
+    _et: './src/dependency',
+    design: './design'
   }
 });
 
@@ -29,8 +30,6 @@ require([
   '_et',
   './src/et',
   'underscore',
-  // 'parser',
-  // 'bootstrap',
   'babel'
 ], function (test, chai) {
   var mocha = window.mocha;

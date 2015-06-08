@@ -5,7 +5,7 @@ var _util = _et._util;
 var _prototype = _et._prototype;
 
 function Template_et0(options) {
-this.init(options);
+  this.init(options);
 }
 
 _util.extend(Template_et0.prototype, _prototype, {

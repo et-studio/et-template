@@ -1,14 +1,17 @@
 'use strict';
 
-var Dom = require('./dom');
+// var Parser = require('./parser')
 var Compiler = require('./compiler');
+var Formatter = require('./formatter');
 
-class ET {
-  constructor(str, options) {
-    var dom = new Dom(str, options);
-    var compiler = new Compiler(options);
-    return compiler.compile(dom, options);
-  }
-}
+module.exports = (str, options = {}) => {
+  // TODO: wait et-parser
+  //var parser = new Parser(options.parser);
+  //var compiler = new Compiler(options.compiler);
+  //var formatter = new Formatter(options.formatter);
 
-module.exports = ET;
+  //var dom = parser.parse(str);
+  //var result = compiler.compile(dom);
+  //return formatter.format(result);
+  return str;
+};

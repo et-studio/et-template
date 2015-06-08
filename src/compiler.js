@@ -2,7 +2,7 @@
 
 var _ = require('./util');
 var CWorker = require('./worker');
-var Factory = require('./factory');
+var Factory = require('./nodes/factory');
 
 class Compiler {
   constructor(options) {
