@@ -60,8 +60,8 @@ _util.extend(Template_et0.prototype, _prototype, {
 
     _last.value_1 = _i;
     for (; _i < _lastLength; _i++) {
-      et = _doms['et1_' + _i];
-      et.remove();
+      _et = _doms['et1_' + _i];
+      _et.remove();
     }
 
     _lastLength = _last.value_1;
@@ -94,7 +94,7 @@ _util.extend(Template_et1.prototype, _prototype, {
     _last = this.last;
 
     _et = doms.et2;
-    var _tmp = 'it is for loop ' + index;
+    _tmp = 'it is for loop ' + index;
     if (_last.value_1 !== _tmp) {
       _last.value_1 = _tmp;
       _util.text(_et, _tmp);
