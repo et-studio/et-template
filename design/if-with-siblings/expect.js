@@ -40,9 +40,9 @@ _util.extend(Template_et0.prototype, _prototype, {
     _roots = this.roots;
     _last = this.last;
 
-    _et = _doms.et2;
     _line = _doms.et2_line;
     if (it.isNumber && it.isEven) {
+      _et = _doms.et2;
       if (_last.value_1 !== 0) {
         _last.value_1 = 0;
         if (!_et) {

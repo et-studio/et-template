@@ -3,57 +3,58 @@
 var fs = require('fs');
 var path = require('path');
 var through = require('through2');
+var gutil = require('gulp-util')
 
-var TEMPLATES_NAME = ['cmd', 'delare', 'extend', 'global', 'umd', 'amd', 'common', 'create', 'update'];
-
-// function transformES6String(str) {
-//   str = '\'' + str + '\'';
-//   str = str.replace(/\$\{([\s\S]*?)\}/g, function(match, grep){
-//     return '\' + ' + grep + ' + \'';
-//   });
-//   return str;
-// }
-
-function getConfig() {
-  var re, i, name, contents;
-
-  re = {};
-  for ( i = 0; i < TEMPLATES_NAME.length; i++) {
-    name = TEMPLATES_NAME[i];
-    contents = fs.readFileSync(path.resolve(__dirname, '../../src/templates/' + name + '.js'), {encoding: 'utf-8'});
-    //contents = transformES6String(contents);
-    //contents = contents.toString().replace(/[\r\n]/g, '');
-    //contents.toString().replace(/[\r\n]/g, '');
-    re[name] = contents;
+function handleString(method, string) {
+  var list = string.split('\n');
+  var re = [];
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    if (item.indexOf('// {{') >= 0) {
+      re.push('re = re + `');
+    } else if (item.indexOf('// }}') >= 0) {
+      re.push('`;');
+    } else {
+      re.push(item);
+    }
   }
-  return re;
-}
-
-function replace(str) {
-  var config, name, i, reg;
-
-  config = getConfig();
-  for ( i = 0; i < TEMPLATES_NAME.length; i++) {
-    name = TEMPLATES_NAME[i];
-    reg = new RegExp('\\/\\/ @start: ' + name + '[\\s\\S]*?\\@end: ' + name, 'g');
-    str = str.replace(reg, '// @start: ' + name + '\nreturn \`\n' + config[name] + '    \`;\n    // @end: ' + name);
-  }
-  return str;
+  return `
+    ${method}(it) {
+      var re = '';
+      ${re.join('\n')}
+      return re;
+    }
+  `;
 }
 
 module.exports = function() {
+  var methods = [];
   var outputStream = through.obj(function(file, enc, next) {
     if (!file.isBuffer()) {
       return next();
     }
-
     var contents = file.contents.toString();
-    contents = replace(contents);
-    file.contents = new Buffer(contents);
+    var basename = path.basename(file.path);
+    var method = basename.split('.')[0];
 
-    this.push(file);
+    methods.push(handleString(method, contents));
+    next();
+  }, function(next) {
+    var data = `
+      'use strict';
+      class Worker {
+        constructor(options) {
+          this.options = options;
+        }
+        ${methods.join('\n')}
+      }
+      module.exports = Worker;
+    `;
+    outputStream.push(new gutil.File({
+      path: 'worker.js',
+      contents: new Buffer(data)
+    }));
     next();
   });
-
   return outputStream;
 };

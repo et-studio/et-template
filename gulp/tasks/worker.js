@@ -5,7 +5,7 @@ var worker = require('../middleware/gulp-worker');
 
 exports.register = function(gulp){
   gulp.task('worker', function() {
-    return gulp.src('src/worker.js')
+    return gulp.src('src/templates/*.js')
     .pipe(worker())
     .pipe(p.esformatter())
     .pipe(gulp.dest('src'));

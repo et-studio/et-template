@@ -25,9 +25,9 @@ module.exports = [
           _rootIds = this.rootIds;
 
           var _et = _util.createElement('DIV', {'id': 'test'});
-          var _doms.et1 = _et;
-          var _roots.et1 = _et;
-          var _rootIds.push('et1');
+          _doms.et1 = _et;
+          _roots.et1 = _et;
+          _rootIds.push('et1');
         }
       });
 
@@ -77,9 +77,9 @@ module.exports = [
           var _rootIds = this.rootIds;
 
           var _et = _util.createElement('DIV');
-          var _doms.et1 = _et;
-          var _roots.et1 = _et;
-          var _rootIds.push('et1');
+          _doms.et1 = _et;
+          _roots.et1 = _et;
+          _rootIds.push('et1');
         },
         update: function update(it) {
           var _doms, _roots, _last, _et, _tmp;
