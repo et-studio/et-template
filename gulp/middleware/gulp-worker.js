@@ -42,13 +42,11 @@ module.exports = function() {
   }, function(next) {
     var data = `
       'use strict';
-      class Worker {
-        constructor(options) {
-          this.options = options;
-        }
-        ${methods.join('\n')}
+      var _ = require('./util');
+      var worker = {
+        ${methods.join(',')}
       }
-      module.exports = Worker;
+      module.exports = worker;
     `;
     outputStream.push(new gutil.File({
       path: 'worker.js',

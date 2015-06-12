@@ -2,7 +2,7 @@
 // {{
 var _line = _doms.${it.lineId};
 var _lastLength = _last.${it.valueId};
-var _list = ${it.expression};
+var _list = ${it.condition};
 var _i = 0;
 var _len = _list.length;
 for (; _i < _len; _i++) {
@@ -34,7 +34,7 @@ if (it.isRoot) {
   _et.rootIds = [];
   for (_i = 0; _i < _lastLength; _i++) {
     _et.rootIds.push('${it.id}_' + _i);
-    _et._doms['${it.id}_' + _i] = _doms['${it.id}_' + _i];
+    _et.doms['${it.id}_' + _i] = _doms['${it.id}_' + _i];
   }
   // }}
 }

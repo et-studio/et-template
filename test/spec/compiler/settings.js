@@ -2,7 +2,7 @@ module.exports = [
   {
     title: 'options.modules: common',
     dom: {
-      children: [{nodeName: 'DIV', nodeType: 1}]
+      children: [{nodeName: 'DIV', nodeType: 1, attributes: {'id': 'test'}}]
     },
     options: {
       modules: 'common'
@@ -22,7 +22,7 @@ module.exports = [
         create: function create() {
           var _doms = this.doms;
           var _roots = this.roots;
-          _rootIds = this.rootIds;
+          var _rootIds = this.rootIds;
 
           var _et = _util.createElement('DIV', {'id': 'test'});
           _doms.et1 = _et;
@@ -40,15 +40,11 @@ module.exports = [
       children: [{
         nodeName: 'DIV',
         nodeType: 1,
+        attributes: {
+          'id': 'aaa{{it.id}}bbb{{it.getSrc()}}',
+          'data-type': `{{(function(){return it.a + it.b;})()}}`
+        },
         expressions: [{
-          attributes: {
-            'id': 'aaa{{it.id}}bbb{{it.getSrc()}}'
-          }
-        },{
-          attributes: {
-            'data-type': `(function(){return it.a + it.b;})()`
-          }
-        },{
           condition: 'it.isTure',
           attributes: {
             'class': 'class-true'
@@ -82,33 +78,31 @@ module.exports = [
           _rootIds.push('et1');
         },
         update: function update(it) {
-          var _doms, _roots, _last, _et, _tmp;
-
           var _doms = this.doms;
           var _roots = this.roots;
           var _last = this.last;
 
           var _et = _doms.et1;
           var _tmp = 'aaa' + it.id + 'bbb' + it.getSrc();
-          if (_last.value_1 !== _tmp) {
-            _last.value_1 = _tmp;
+          if (_last.value_0 !== _tmp) {
+            _last.value_0 = _tmp;
             _util.setAttribute(_et, 'id', _tmp);
           }
 
           var _tmp = (function(){return it.a + it.b;})();
-          if (_last.value_2 !== _tmp) {
-            _last.value_2 = _tmp;
+          if (_last.value_1 !== _tmp) {
+            _last.value_1 = _tmp;
             _util.setAttribute(_et, 'data-type', _tmp);
           }
 
           if (it.isTure) {
-            if (_last.value_3 !== 0) {
-              _last.value_3 = 0;
+            if (_last.value_2 !== 0) {
+              _last.value_2 = 0;
               _util.setAttribute(_et, 'class', 'class-true');
             }
           } else {
-            if (_last.value_3 !== 1) {
-              _last.value_3 = 1;
+            if (_last.value_2 !== 1) {
+              _last.value_2 = 1;
               _util.removeAttribute(_et, 'class');
             }
           }
@@ -146,9 +140,9 @@ module.exports = [
 
       _util.extend(Template_et0.prototype, _prototype, {
         create: function create() {
+          var _doms = this.doms;
           var _roots = this.roots;
           var _rootIds = this.rootIds;
-          var _doms = this.doms;
 
           var _et = _util.createElement('DIV');
           _doms.et1 = _et;
@@ -166,8 +160,8 @@ module.exports = [
 
           var _et = _doms.et2;
           var _tmp = 'aaaa' + it.src;
-          if (_last.value_1 !== _tmp) {
-            _last.value_1 = _tmp;
+          if (_last.value_0 !== _tmp) {
+            _last.value_0 = _tmp;
             _util.text(_et, _tmp);
           }
         }
@@ -238,20 +232,22 @@ module.exports = [
           var _roots = this.roots;
           var _last = this.last;
 
-          var _et = _doms.et2;
           var _line = _doms.et2_line;
           if (it.isNumber && it.isEven) {
-            if (_last.value_1 !== 0) {
-              _last.value_1 = 0;
+            if (_last.value_0 !== 0) {
+              _last.value_0 = 0;
+              var _et = _doms.et2;
               if (!_et) {
                 _doms.et2 = _et = new Template_et2();
               }
               _util.before(_line, _et.get());
+              _roots.et2 = _et;
             }
-            _et.update(it);
+            _doms.et2.update(it);
           } else {
-            if (_last.value_1 !== 1) {
-              _last.value_1 = 1;
+            if (_last.value_0 !== 1) {
+              _last.value_0 = 1;
+              var _et = _doms.et2;
               if (_et) {
                 _et.remove();
                 _roots.et2 = null;
@@ -295,7 +291,7 @@ module.exports = [
       modules: 'common'
     },
     updateOptions: {
-      list: [{}, {}]
+      list: [{}, {}, {}, {}]
     },
     expect: `
       'use strict';
@@ -337,11 +333,13 @@ module.exports = [
           var _last = this.last;
 
           var _line = _doms.et1_line;
-          var _lastLength = _last.value_1;
+          var _lastLength = _last.value_0;
           var _list = it.list;
-          for (var _i = 0, _len = _list.length; _i < _len; _i++) {
+          var _i = 0;
+          var _len = _list.length;
+          for (; _i < _len; _i++) {
             var _et = _doms['et1_' + _i];
-            var _item = _list[i];
+            var _item = _list[_i];
             var index = _i;
             var item = _item;
 
@@ -354,18 +352,18 @@ module.exports = [
             _et.update(it, item, index);
           }
 
-          _last.value_1 = _i;
+          _last.value_0 = _i;
           for (; _i < _lastLength; _i++) {
             var _et = _doms['et1_' + _i];
             _et.remove();
           }
 
-          var _lastLength = _last.value_1;
+          var _lastLength = _last.value_0;
           var _et = _doms.et1;
           _et.rootIds = [];
           for (_i = 0; _i < _lastLength; _i++) {
             _et.rootIds.push('et1_' + _i);
-            _et._doms['et1_' + _i] = _doms['et1_' + _i];
+            _et.doms['et1_' + _i] = _doms['et1_' + _i];
           }
         }
       });
@@ -385,10 +383,10 @@ module.exports = [
           var _roots = this.roots;
           var _last = this.last;
 
-          var _et = doms.et2;
+          var _et = _doms.et2;
           var _tmp = 'it is for loop ' + index;
-          if (_last.value_1 !== _tmp) {
-            _last.value_1 = _tmp;
+          if (_last.value_0 !== _tmp) {
+            _last.value_0 = _tmp;
             _util.text(_et, _tmp);
           }
         }

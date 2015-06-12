@@ -1,8 +1,7 @@
 // {{
-_line = _doms.${id.lineId};
+var _line = _doms.${it.lineId};
 // }}
-for (var i = 0; i < it.doms.length; i++) {
-  var dom = it.doms[i];
+_.each(it.doms, (dom, i) => {
   var condition = '';
   if (dom.tag !== 'else') {
     condition = `(${dom.condition})`;
@@ -10,33 +9,46 @@ for (var i = 0; i < it.doms.length; i++) {
   // {{
   ${dom.tag} ${condition} {
     if (_last.${it.indexValueId} !== ${i}) {
+      _last.${it.indexValueId} = ${i};
       // }}
-      for (var j = 0; j < dom.siblings.length; j++) {
-        var sibling = dom.siblings[j];
+      if (dom.id) {
         // {{
-        var _et = doms.${sibling.id};
+        var _et = _doms.${dom.id};
+        if (!_et) {
+          _doms.${dom.id} = _et = new ${dom.templateName}();
+        }
+        _util.before(_line, _et.get());
+        // }}
+        if (it.isRoot) {
+          // {{
+          _roots.${dom.id} = _et;
+          // }}
+        }
+      }
+      _.each(dom.siblings, (sibling) => {
+        // {{
+        var _et = _doms.${sibling.id};
         if (_et) {
           _et.remove();
+          // }}
+          if (it.isRoot) {
+            // {{
+            _roots.${sibling.id} = null;
+            // }}
+          }
+          // {{
         }
         // }}
-      }
+      });
       // {{
     }
     // }}
     if (dom.id) {
       // {{
-      var _et = _doms.${dom.id};
-      if (!_et) {
-        _doms.${dom.id} = _et = new ${dom.templateName}();
-      }
-      if (_last.${it.indexValueId} !== ${i}) {
-        _util.before(_line, _et.get());
-      }
-      _et.update(${dom.args.join(',')});
+      _doms.${dom.id}.update(${dom.args.join(',')});
       // }}
     }
     // {{
-    _last.${it.indexValueId} = ${i};
   }
   // }}
-}
+});

@@ -1,43 +1,39 @@
 'use strict';
 
 class Util {
-  each(array, context, callback) {
-    var i, len;
+  each(array, callback) {
     if (!array) {
       return;
     }
-    for (i = 0, len = array.length; i < len; i++) {
-      if (context) {
-        callback.call(context, array[i], i, array);
-      } else {
-        callback(array[i], i, array);
-      }
+    for (var i = 0, len = array.length; i < len; i++) {
+      callback(array[i], i, array);
     }
   }
   _extendAB(A, B) {
-    var key;
     if (A) {
-      for (key in B) {
+      for (var key in B) {
         A[key] = B[key];
       }
     }
     return A;
   }
   extend(arg1 = {}, ...list) {
-    this.each(list, this, (item) => {
-      this._extendAB(arg1, item);
+    var self = this;
+    this.each(list, (item) => {
+      self._extendAB(arg1, item);
     });
     return arg1;
   }
-  _concatAB(arrayA, arrayB) {
-    this.each(arrayB, null, (item) => {
+  _concatAB(arrayA = [], arrayB) {
+    this.each(arrayB, (item) => {
       arrayA.push(item);
     });
     return arrayA;
   }
   concat(array, ...list) {
-    this.each(list, this, (item) => {
-      this._concatAB(array, item);
+    var self = this;
+    this.each(list, (item) => {
+      self._concatAB(array, item);
     });
     return array;
   }
@@ -47,17 +43,30 @@ class Util {
   }
   contains(array, value) {
     var re = false;
-    this.each(array, null, (item) =>{
+    this.each(array, (item) => {
       if (item === value) {
         re = true;
       }
     });
     return re;
   }
+  clearArraySpace(array) {
+    var re = [];
+    this.each(array, (item) => {
+      if (item && typeof item.trim === 'function') {
+        item = item.trim();
+      }
+      if (item) {
+        re.push(item);
+      }
+    });
+    return re;
+  }
   uniq(array) {
     var re = [];
-    this.each(array, this, (item) => {
-      if (!this.contains(re, item)) {
+    var self = this;
+    this.each(array, (item) => {
+      if (!self.contains(re, item)) {
         re.push(item);
       }
     });

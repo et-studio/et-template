@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('./util');
-var CWorker = require('./worker');
+var worker = require('./worker');
 var Factory = require('./nodes/factory');
 
 class Compiler {
@@ -13,7 +13,7 @@ class Compiler {
     var scan = (current) => {
       if (current) {
         re.push(current);
-        _.each(current.children, null, (child) => {
+        _.each(current.children, (child) => {
           scan(child);
         });
       }
@@ -22,7 +22,7 @@ class Compiler {
     return re;
   }
   initAllDoms(dom) {
-    _.each(this.getList(dom), null, (dom) => {
+    _.each(this.getList(dom), (dom) => {
       if (dom && typeof dom.init === 'function') {
         dom.init();
       }
@@ -34,53 +34,32 @@ class Compiler {
     }
     return this.factory;
   }
-  getWorker() {
-    if (!this.CWorker) {
-      this.worker = new CWorker(this.options);
-    }
-    return this.worker;
-  }
-  compile(originDom) {
-    var dom, factory, worker, newDoms, options, cOptions;
-
-    factory = this.getFactory();
-    worker = this.getWorker();
-
-    options = this.options;
-    dom = factory.create(originDom);
-    this.initAllDoms(dom);
-    newDoms = dom.getNewTemplateDoms();
-
-    cOptions = {
-      templateName: dom.templateName,
-      delareString: this.getDelareString(newDoms),
-      extendString: this.getExtendString(newDoms),
-      moduleId: options.moduleId
+  pickData(root) {
+    var newDoms = root.getNewTemplateDoms();
+    var re = {
+      templateName: root.getTemplateName(),
+      hasFor: false,
+      newDoms: []
     };
-    return worker.compile(cOptions, options);
-  }
-  getDelareString(newDoms) {
-    var re = '';
-    var worker = this.getWorker();
-    _.each(newDoms, null, (dom) => {
-      re += worker.delare({
-        templateName: dom.templateName
+    _.each(newDoms, (dom) => {
+      if (dom.nodeName === '#for') {
+        re.hasFor = true;
+      }
+      re.newDoms.push({
+        templateName: dom.getTemplateName(),
+        createList: dom.getCreateList(),
+        updateList: dom.getUpdateList(),
+        args: dom.getArguments()
       });
     });
     return re;
   }
-  getExtendString(newDoms) {
-    var re = '';
-    var worker = this.getWorker();
-    _.each(newDoms, null, (dom) => {
-      re += worker.extend({
-        templateName: dom.templateName,
-        args: dom.getArguments(),
-        createString: dom.getCreateString(),
-        updateString: dom.getUpdateString()
-      });
-    });
-    return re;
+  compile(origin) {
+    var factory = this.getFactory();
+    var dom = factory.create(origin);
+    this.initAllDoms(dom);
+    var it = this.pickData(dom);
+    return worker.template(it);
   }
 }
 

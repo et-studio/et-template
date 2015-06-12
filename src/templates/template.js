@@ -1,4 +1,10 @@
 
+// {{
+var _et = require('_et');
+var _util = _et._util;
+var _prototype = _et._prototype;
+// }}
+
 if (it.hasFor) {
   // {{
   function Template_for(options) {
@@ -6,23 +12,24 @@ if (it.hasFor) {
   }
   // }}
 }
-for (var i = 0; i < it.newDoms.length; i++) {
-  var dom = it.newDoms[i];
+_.each(it.newDoms, (dom) => {
   // {{
   function ${dom.templateName}(options) {
     this.init(options);
   }
   // }}
-}
+});
 
 if (it.hasFor) {
   // {{
   _util.extend(Template_for.prototype, _prototype);
   // }}
 }
-for (var i = 0; i < it.newDoms.length; i++) {
-  var dom = it.newDoms[i];
-  if (dom.createList.length && dom.updateList.length) {
+_.each(it.newDoms, (dom) => {
+  if (!dom.createList.length && dom.updateList.length) {
+    throw new Error('If dom has updateList, it must have createList.');
+  }
+  if (dom.createList.length || dom.updateList.length) {
     // {{
     _util.extend(${dom.templateName}.prototype, _prototype, {
       create: function create() {
@@ -44,10 +51,10 @@ for (var i = 0; i < it.newDoms.length; i++) {
       // }}
       }
     // {{
-    }
+    });
     // }}
   }
-}
+});
 
 // {{
 module.exports = ${it.templateName};

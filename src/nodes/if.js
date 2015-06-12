@@ -2,92 +2,65 @@
 
 var _ = require('../util');
 var NewNode = require('./new');
+var worker = require('../worker');
 
 class IfNode extends NewNode {
   deliverUpdate () {
-    var re = [];
-    var hasElse = false;
-    var doms = this.getConditionDoms();
     var lastRoot = this.getLastRoot();
-    var valueId = lastRoot.getValueId();
-    var lineId = this.getLineId();
-
-    re.push(`var $line = doms.${lineId};`);
-    _.each(doms, this, (dom, i) => {
-      var removeList = this.getRemoveList(doms, dom);
-      var tag = this.getTag(dom.nodeName);
-      var condition = dom.condition?`(${dom.condition})`:'';
-      var id = dom.getId();
-      var args = dom.getArguments();
-
-      re.push(`${tag} ${condition} {
-          var et = doms.${id};
-          if (last.${valueId} !== ${i}) {
-            last.${valueId} = ${i};
-            if (!et) {
-              doms.${id} = et = new ${dom.templateName}();
-            }
-            _util.before($line, et.get());
-
-            ${removeList.join('')}
-          }
-          et.update(${args.join(',')});
-        }`);
-
-      if (tag === 'else') {
-        hasElse = true;
-      }
-    });
-    if (!hasElse) {
-      this.pushDefaultElse(re, doms, valueId);
+    var it = {
+      id: this.getId(),
+      lineId: this.getLineId(),
+      isRoot: this.checkRoot(),
+      indexValueId: lastRoot.getValueId(),
+      doms: this.getConditionDoms()
     }
-    return re;
+    return [worker.updateIf(it)];
   }
   getConditionDoms () {
-    var re = [this];
-    var next = this.next;
-    while (next) {
-      if (next.nodeName === '#elseif') {
-        re.push(next);
-        next = next.previous;
-        continue;
-      } else if (next.nodeName === '#else') {
-        re.push(next);
+    var re = [this.translateDom(this)];
+
+    var hasElse = false;
+    var next = this;
+    while (next = next.next) {
+      if (next.nodeName === '#elseif' || next.nodeName === '#else') {
+        re.push(this.translateDom(next));
       }
-      break;
+      if (next.nodeName === '#else') {
+        hasElse = true;
+      }
+      if (next.nodeName !== '#elseif') {
+        break;
+      }
     }
-    return re;
-  }
-  pushDefaultElse(list, doms, valueId) {
-    var removeList = this.getRemoveList(doms, null);
-    var lastStr = list.pop();
-    if (!lastStr) {
-      throw new Error('there should has condition string.');
+    if (!hasElse) {
+      var defaultElse = {tag: 'else', isDefaultElse: true};
+      defaultElse.siblings = _.concat([], re);
+      re.push(defaultElse);
     }
-    lastStr = `${lastStr} else {
-      if (last.${valueId} !== ${doms.length}) {
-        last.${valueId} = ${doms.length};
-        ${removeList.join('')}
-      }
-    }`;
-    list.push(lastStr);
-    return list;
-  }
-  getRemoveList(doms, current) {
-    var re = [];
-    _.each(doms, null, (dom) => {
-      var id = dom.getId();
-      var currentId = current && current.getId();
-      if (dom !== current && id !== currentId) {
-        re.push(`
-          var et = doms.${id};
-          if (et) {
-            et.remove();
-          }
-        `);
-      }
+
+    var self = this;
+    _.each(re, (dom) => {
+      dom.siblings = self.pickSiblings(re, dom);
     });
     return re;
+  }
+  translateDom(dom) {
+    return {
+      id: dom.getId(),
+      templateName: dom.getTemplateName(),
+      args: dom.getArguments(),
+      tag: this.getTag(dom.nodeName),
+      condition: dom.condition
+    }
+  }
+  pickSiblings(doms, current) {
+    var siblings = [];
+    _.each(doms, (dom) => {
+      if (dom.id && dom.id !== current.id) {
+        siblings.push(dom);
+      }
+    });
+    return siblings;
   }
   getTag(nodeName) {
     switch (nodeName) {
@@ -95,10 +68,8 @@ class IfNode extends NewNode {
         return 'if';
       case '#elseif':
         return 'else if';
-      case '#else':
-        return 'else';
       default:
-        throw new Error(`Can't recognize ${nodeName} in if condition.`);
+        return 'else';
     }
   }
 }

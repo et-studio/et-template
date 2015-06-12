@@ -6,8 +6,8 @@ _doms.${it.lineId} = _line;
 
 if (it.isRoot) {
   // {{
-  _rootIds.push('${it.lineId}');
   _roots.${it.lineId} = _line;
+  _rootIds.push('${it.lineId}');
   // }}
 } else {
   // {{

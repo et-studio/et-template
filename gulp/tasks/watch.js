@@ -17,6 +17,16 @@ exports.register = function(gulp){
     .pipe(p.jshint.reporter('jshint-stylish'));
   });
 
+  gulp.task('test', function() {
+    p.livereload.listen(); // 需要使用浏览器的livereload插件并且开启时才能生效
+    return gulp.src([
+      'src/**/*.js',
+      '!src/templates/*.js'
+    ])
+    .pipe(p.jshint())
+    .pipe(p.jshint.reporter('jshint-stylish'));
+  });
+
   gulp.task('watch-lr', function() {
     p.livereload.listen(); // 需要使用浏览器的livereload插件并且开启时才能生效
     return p.watch([

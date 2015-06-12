@@ -1,66 +1,70 @@
 'use strict';
 
-var NewNode = require('./new');
+var Basic = require('./basic');
+var worker = require('../worker');
 
-class ForNode extends NewNode {
+var defaults = {
+  itemName: 'item',
+  indexName: 'i',
+  lengthName: 'len'
+}
+
+class ForNode extends Basic {
   constructor(dom, options) {
     super(dom, options);
 
-    if (!this.itemName) {
-      throw new Error('there must have itemName in #for.');
-    }
-    this.saveArgument(dom.itemName);
-
-    if (this.indexName) {
-      this.saveArgument(this.indexName);
-    } else {
-      this.indexName = 'i';
+    if (!this.expression && !this.condition) {
+      throw new Error('there must have list expression in #for.');
     }
 
-    if (this.lengthName) {
-      this.saveArgument(this.lengthName);
-    } else {
-      this.lengthName = 'len';
+    for (var key in defaults) {
+      if (dom[key]) {
+        this.saveArgument(dom[key]);
+      }
     }
   }
-  deliverUpdate() {
+  get isNewTemplate () {
+    return true;
+  }
+  deliverCreate () {
+    var it = {
+      id: this.getId(),
+      isRoot: this.checkRoot(),
+      lineId: this.getLineId(),
+      parentId: this.getParentId()
+    }
     var re = [];
-    var lastRoot = this.getLastRoot();
-    var itemName = this.itemName;
-    var indexName = this.indexName;
-    var lengthName = this.lengthName;
-    var condition = this.condition;
-
-    var args = this.getArguments();
-    var id = this.getId();
-    var lineId = this.getLineId();
-    var valueId = lastRoot.getValueId();
-    
-    re.push(`
-      var $line = doms.${lineId};
-      var lastLength = last.${valueId};
-      var list = ${condition};
-      var ${indexName} = 0;
-      var ${lengthName} = list.length;
-      var item, et;
-      for (; ${indexName} < ${lengthName}; ${indexName}++) {
-        ${itemName} = list[${indexName}];
-        et = doms['${id}_' + ${indexName}];
-        if (!et) {
-          doms['${id}_' + ${indexName}] = et = new ${this.templateName}();
-        }
-        if (!lastLength || lastLength < ${indexName}) {
-          _util.before($line, et.get());
-        }
-        et.update(${args.join(',')});
-      }
-      last.${valueId} = ${indexName};
-      for (; ${indexName} < lastLength; ${indexName}++) {
-        et = doms['${id}_' + ${indexName}];
-        et.remove();
-      }
-    `);
+    re.push(worker.createFor(it));
+    re.push(worker.createLine(it));
     return re;
+  }
+  deliverUpdate() {
+    var it = {
+      id: this.getId(),
+      parentId: this.getParentId(),
+      lineId: this.getLineId(),
+      isRoot: this.checkRoot(),
+      valueId: this.getRootValueId(),
+      args: this.getArguments(),
+      expression: this.getExpression(),
+      templateName: this.getTemplateName(),
+      indexName: this.getIndexName(),
+      itemName: this.getItemName(),
+      condition: this.condition
+    }
+    return [worker.updateFor(it)];
+  }
+  getExpression() {
+    return this.expression || this.condition;
+  }
+  getItemName() {
+    return this.itemName || defaults.itemName;
+  }
+  getLengthName() {
+    return this.lengthName || defaults.lengthName;
+  }
+  getIndexName() {
+    return this.indexName || defaults.indexName;
   }
 }
 

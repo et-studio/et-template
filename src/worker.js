@@ -1,9 +1,7 @@
 
 'use strict';
-class Worker {
-  constructor(options) {
-    this.options = options;
-  }
+var _ = require('./util');
+var worker = {
 
   createComment(it) {
     var re = '';
@@ -15,8 +13,8 @@ _doms.${it.id} = _et;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.id}');
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
 `;
     } else {
       re = re + `
@@ -25,10 +23,8 @@ _doms.${it.id} = _et;
     }
 
     return re;
-  }
-
-
-  createDom(it) {
+  },
+  createElement(it) {
     var re = '';
 
     if (it.attributes) {
@@ -37,7 +33,7 @@ _doms.${it.id} = _et;
 `;
     } else {
       re = re + `
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}'});
+  var _et = _util.createElement('${it.nodeName.toUpperCase()}');
 `;
     }
 
@@ -47,8 +43,8 @@ _doms.${it.id} = _et;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.id}');
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
 `;
     } else {
       re = re + `
@@ -57,28 +53,24 @@ _doms.${it.id} = _et;
     }
 
     return re;
-  }
-
-
+  },
   createFor(it) {
     var re = '';
 
     re = re + `
-var _et = new Template_for;
+var _et = new Template_for();
 _doms.${it.id} = _et;
 `;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.id}');
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
 `;
     }
 
     return re;
-  }
-
-
+  },
   createLine(it) {
     var re = '';
 
@@ -89,8 +81,8 @@ _doms.${it.lineId} = _line;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.lineId}');
   _roots.${it.lineId} = _line;
+  _rootIds.push('${it.lineId}');
 `;
     } else {
       re = re + `
@@ -99,9 +91,7 @@ _doms.${it.lineId} = _line;
     }
 
     return re;
-  }
-
-
+  },
   createNull(it) {
     var re = '';
 
@@ -112,27 +102,25 @@ _doms.${it.id} = _et;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.id}');
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
 `;
     }
 
     return re;
-  }
-
-
+  },
   createText(it) {
     var re = '';
 
     re = re + `
-var _et = _util.createTextNode('${it.textContent}');
+var _et = _util.createTextNode('${it.text}');
 _doms.${it.id} = _et;
 `;
 
     if (it.isRoot) {
       re = re + `
-  _rootIds.push('${it.id}');
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
 `;
     } else {
       re = re + `
@@ -141,11 +129,15 @@ _doms.${it.id} = _et;
     }
 
     return re;
-  }
-
-
+  },
   template(it) {
     var re = '';
+
+    re = re + `
+var _et = require('_et');
+var _util = _et._util;
+var _prototype = _et._prototype;
+`;
 
     if (it.hasFor) {
       re = re + `
@@ -154,23 +146,24 @@ _doms.${it.id} = _et;
   }
 `;
     }
-    for (var i = 0; i < it.newDoms.length; i++) {
-      var dom = it.newDoms[i];
+    _.each(it.newDoms, (dom) => {
       re = re + `
   function ${dom.templateName}(options) {
     this.init(options);
   }
 `;
-    }
+    });
 
     if (it.hasFor) {
       re = re + `
   _util.extend(Template_for.prototype, _prototype);
 `;
     }
-    for (var i = 0; i < it.newDoms.length; i++) {
-      var dom = it.newDoms[i];
-      if (dom.createList.length && dom.updateList.length) {
+    _.each(it.newDoms, (dom) => {
+      if (!dom.createList.length && dom.updateList.length) {
+        throw new Error('If dom has updateList, it must have createList.');
+      }
+      if (dom.createList.length || dom.updateList.length) {
         re = re + `
     _util.extend(${dom.templateName}.prototype, _prototype, {
       create: function create() {
@@ -192,93 +185,90 @@ _doms.${it.id} = _et;
 `;
         }
         re = re + `
-    }
+    });
 `;
       }
-    }
+    });
 
     re = re + `
 module.exports = ${it.templateName};
 `;
 
     return re;
-  }
-
-
+  },
   updateAttributes(it) {
     var re = '';
 
-    for (var i = 0; i < it.expressions.length; i++) {
-      var expression = it.expressions[i];
-      if (expression.condition) {
+    if (it.erraticAttributes.length || it.expressions.length) {
+      re = re + `
+  var _et = _doms.${it.id};
+`;
+      _.each(it.erraticAttributes, (attr) => {
+        if (attr.isErratic) {
+          re = re + `
+      var _tmp = ${attr.valueString};
+      if (_last.${attr.valueId} !== _tmp) {
+        _last.${attr.valueId} = _tmp;
+        _util.setAttribute(_et, '${attr.key}', _tmp);
+      }
+`;
+        }
+      });
+
+      _.each(it.expressions, (expression) => {
         re = re + `
-    if (${expression.condition}) {
+    if (${expression.condition || false}) {
       if (_last.${expression.valueId} !== 0) {
         _last.${expression.valueId} = 0;
 `;
-        for (var i = 0; i < expression.attributes.length; i++) {
-          var attr1 = expression.attributes[i];
-          if (attr1.isErratic) {
+        _.each(expression.attributes, (attr) => {
+          if (!attr.isErratic) {
             re = re + `
-            var _tmp = ${attr1.valueString};
-            if (_last.${attr1.valueId} !== _tmp) {
-              _last.${attr1.valueId} = _tmp;
-              _util.setAttribute(_doms.${it.id}, '${attr1.key}', _tmp);
-            }
-`;
-          } else {
-            re = re + `
-            _util.removeAttribute(_doms.${it.id}, '${attr1.key}', '${attr1.value}');
+            _util.setAttribute(_et, '${attr.key}', '${attr.value}');
 `;
           }
-        }
+        });
         re = re + `
       }
+`;
+        _.each(expression.attributes, (attr) => {
+          if (attr.isErratic) {
+            re = re + `
+          var _tmp = ${attr.valueString};
+          if (_last.${attr.valueId} !== _tmp) {
+            _last.${attr.valueId} = _tmp;
+            _util.setAttribute(_et, '${attr.key}', _tmp);
+          }
+`;
+          }
+        });
+        re = re + `
     } else {
       if (_last.${expression.valueId} !== 1) {
         _last.${expression.valueId} = 1;
 `;
-        for (var i = 0; i < expression.attributes.length; i++) {
-          var attr2 = expression.attributes[i];
+        _.each(expression.attributes, (attr) => {
           re = re + `
-          _util.removeAttribute(_doms.${it.id}, '${attr2.key}');
+          _util.removeAttribute(_et, '${attr.key}');
 `;
-        }
+        });
         re = re + `
       }
     }
 `;
-      } else {
-        for (var i = 0; i < expression.attributes.length; i++) {
-          var attr3 = expression.attributes[i];
-          if (attr3.isErratic) {
-            re = re + `
-        var _tmp = ${attr3.valueString};
-        if (_last.${attr3.valueId} !== _tmp) {
-          _last.${attr3.valueId} = _tmp;
-          _util.setAttribute(_doms.${it.id}, '${attr3.key}', _tmp);
-        }
-`;
-          } else {
-            re = re + `
-        _util.removeAttribute(_doms.${it.id}, '${attr3.key}', '${attr3.value}');
-`;
-          }
-        }
-      }
+      });
+
     }
 
     return re;
-  }
-
-
+  },
   updateFor(it) {
     var re = '';
 
     re = re + `
 var _line = _doms.${it.lineId};
 var _lastLength = _last.${it.valueId};
-var _list = ${it.expression};
+var _list = ${it.condition};
 var _i = 0;
 var _len = _list.length;
 for (; _i < _len; _i++) {
@@ -310,22 +300,19 @@ for (; _i < _lastLength; _i++) {
   _et.rootIds = [];
   for (_i = 0; _i < _lastLength; _i++) {
     _et.rootIds.push('${it.id}_' + _i);
-    _et._doms['${it.id}_' + _i] = _doms['${it.id}_' + _i];
+    _et.doms['${it.id}_' + _i] = _doms['${it.id}_' + _i];
   }
 `;
     }
 
     return re;
-  }
-
-
+  },
   updateIf(it) {
     var re = '';
     re = re + `
-_line = _doms.${id.lineId};
+var _line = _doms.${it.lineId};
 `;
-    for (var i = 0; i < it.doms.length; i++) {
-      var dom = it.doms[i];
+    _.each(it.doms, (dom, i) => {
       var condition = '';
       if (dom.tag !== 'else') {
         condition = `(${dom.condition})`;
@@ -333,41 +320,52 @@ _line = _doms.${id.lineId};
       re = re + `
   ${dom.tag} ${condition} {
     if (_last.${it.indexValueId} !== ${i}) {
+      _last.${it.indexValueId} = ${i};
 `;
-      for (var j = 0; j < dom.siblings.length; j++) {
-        var sibling = dom.siblings[j];
+      if (dom.id) {
         re = re + `
-        var _et = doms.${sibling.id};
+        var _et = _doms.${dom.id};
+        if (!_et) {
+          _doms.${dom.id} = _et = new ${dom.templateName}();
+        }
+        _util.before(_line, _et.get());
+`;
+        if (it.isRoot) {
+          re = re + `
+          _roots.${dom.id} = _et;
+`;
+        }
+      }
+      _.each(dom.siblings, (sibling) => {
+        re = re + `
+        var _et = _doms.${sibling.id};
         if (_et) {
           _et.remove();
+`;
+        if (it.isRoot) {
+          re = re + `
+            _roots.${sibling.id} = null;
+`;
+        }
+        re = re + `
         }
 `;
-      }
+      });
       re = re + `
     }
 `;
       if (dom.id) {
         re = re + `
-      var _et = _doms.${dom.id};
-      if (!_et) {
-        _doms.${dom.id} = _et = new ${dom.templateName}();
-      }
-      if (_last.${it.indexValueId} !== ${i}) {
-        _util.before(_line, _et.get());
-      }
-      _et.update(${dom.args.join(',')});
+      _doms.${dom.id}.update(${dom.args.join(',')});
 `;
       }
       re = re + `
-    _last.${it.indexValueId} = ${i};
   }
 `;
-    }
+    });
 
     return re;
-  }
-
-
+  },
   updateText(it) {
     var re = '';
 
@@ -384,4 +382,4 @@ if (_last.${it.valueId} !== _tmp) {
   }
 
 }
-module.exports = Worker;
+module.exports = worker;

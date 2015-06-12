@@ -64,9 +64,10 @@ module.exports = {
     part = '';
     state = STATES.OTHER;
     lastChar = '';
-    _.each(str, this, (char) => {
+    var self = this;
+    _.each(str, (char) => {
       part += char;
-      state = this.getState(state, lastChar + char);
+      state = self.getState(state, lastChar + char);
       if (state === STATES.END) {
         startIndex = part.lastIndexOf('{{');
         endIndex = part.lastIndexOf('}}');

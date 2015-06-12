@@ -1,24 +1,17 @@
 'use strict';
 
 var Basic = require('./basic');
+var worker = require('../worker');
 
 class Comment extends Basic {
   deliverCreate() {
-    var re = [''];
-    var id = this.getId();
-    var text = this.textContent;
-    var parentId = this.getParentId();
-
-    re.push(`var ${id} = _util.createComment('${text}');`);
-    re.push(`doms.${id} = ${id}`);
-
-    if (this.checkRoot()) {
-      re.push(`rootIds.push('${id}');`);
-      re.push(`roots.${id} = ${id}`);
-    } else {
-      re.push(`_util.appendChild(${parentId}, ${id});`);
+    var it = {
+      id: this.getId(),
+      isRoot: this.checkRoot(),
+      parentId: this.getParentId(),
+      text: this.textContent || ''
     }
-    return re;
+    return [worker.createComment(it)];
   }
 }
 

@@ -3,115 +3,83 @@
 var _ = require('../util');
 var valueHandler = require('./value');
 var Basic = require('./basic');
+var worker = require('../worker');
 
 class Element extends Basic {
   deliverCreate() {
-    var re = [''];
-    var attributes = this.attributes;
-    var nodeName = this.getNodeName();
-    var id = this.getId();
-    var parentId = this.getParentId();
-
-    if (!nodeName) {
-      throw new Error('The nodeName of dom is not found.');
+    var it = {
+      id: this.getId(),
+      isRoot: this.checkRoot(),
+      parentId: this.getParentId(),
+      nodeName: this.getNodeName(),
+      attributes: this.getAttributesMap()
     }
-
-    if (!attributes || _.isEmpty(attributes)) {
-      re.push(`var ${id} = _util.createElement('${nodeName}');`);
+    return [worker.createElement(it)];
+  }
+  getAttributesMap() {
+    var re = {};
+    var isEmpty = true;
+    var attrs = this.attributes;
+    for (var key in attrs) {
+      var value = attrs[key];
+      if (!valueHandler.isErraticValue(value)) {
+        re[key] = value;
+        isEmpty = false;
+      }
+    }
+    if (isEmpty) {
+      return null;
     } else {
-      re.push(`var ${id} = _util.createElement('${nodeName}', ${JSON.stringify(attributes)});`);
+      return re;
     }
-    re.push(`doms.${id} = ${id};`);
-
-    if (this.checkRoot()) {
-      re.push(`rootIds.push('${id}');`);
-      re.push(`roots.${id} = ${id};`);
-    } else {
-      re.push(`_util.appendChild(${parentId}, ${id});`);
-    }
-    return re;
   }
   deliverUpdate() {
-    var re = [''];
-    var id = this.getId();
-    var expressions = this.expressions || [];
-    var lastRoot = this.getLastRoot();
-
-    if (!lastRoot) {
-      throw new Error('Could not found the root dom.');
+    var it = {
+      id: this.getId(),
+      erraticAttributes: this.getErraticAttributes(),
+      expressions: this.translateExpressions()
     }
-
-    if (expressions.length) {
-      re.push(`var ${id} = doms.${id};`);
-      _.each(expressions, this, (expression) => {
-        var set, valueId;
-
-        set = this.getListSet(expression.attributes, id, lastRoot);
-        if (expression.condition) {
-          // 处理带条件的属性
-          valueId = lastRoot.getValueId();
-          re.push(`
-            if (${expression.condition}) {
-              ${this.assembleSetString(valueId, 0, set.setList)}
-              ${set.updateList.join('\n')}
-            } else {
-              if (last.${valueId} !== 1) {
-                last.${valueId} = 1;
-                ${set.removeList.join('\n')}
-              }
-            }
-          `);
-        } else {
-          _.concat(re, set.updateList);
-        }
-      });
-    }
-    return re;
+    return [worker.updateAttributes(it)];
   }
-  assembleSetString(valueId, valueIndex, setList) {
-    var re = '';
-    if (setList.length) {
-      return `if (last.${valueId} !== ${valueIndex}){
-        last.${valueId} = ${valueIndex};
-        ${setList.join('\n')}
-      }`;
-    }
-    return re;
-  }
-  getListSet(attributes, id, lastRoot) {
-    var setList, updateList, removeList, valueId, attrValue, valueString, key;
-
-    setList = [];
-    updateList = [];
-    removeList = [];
-    
-    for (key in attributes) {
-      attrValue = attributes[key];
-      if (valueHandler.isErraticValue(attrValue)) {
-        valueId = lastRoot.getValueId();
-        valueString = valueHandler.compileValue(attrValue);
-        updateList.push(`
-          var tmpValue = ${valueString};
-          if (last.${valueId} !== tmpValue) {
-            last.${valueId} = tmpValue;
-            _util.setAttribute(${id}, '${key}', tmpValue);
-          }
-        `);
-      } else {
-        setList.push(`
-          _util.setAttribute(${id}, '${key}', '${attrValue}');
-        `);
+  getErraticAttributes() {
+    var attrs = this.attributes;
+    var erracticMap = {};
+    for (var key in attrs) {
+      var value = attrs[key];
+      if (valueHandler.isErraticValue(value)) {
+        erracticMap[key] = value;
       }
-      removeList.push(`
-        _util.removeAttribute(${id}, '${key}');
-      `);
     }
-
-    return {
-      setList: setList,
-      updateList: updateList,
-      removeList: removeList
-    };
+    return this.translateAttributesToExpressions(erracticMap);
+  }
+  translateExpressions() {
+    var re = [];
+    var self = this;
+    _.each(this.expressions, (expression) => {
+      re.push({
+        condition: expression.condition,
+        valueId: self.getRootValueId(),
+        attributes: self.translateAttributesToExpressions(expression.attributes)
+      })
+    });
+    return re;
+  }
+  translateAttributesToExpressions(attrs) {
+    var re = [];
+    for (var key in attrs) {
+      var value = attrs[key];
+      var tmp = {
+        key: key,
+        isErratic: valueHandler.isErraticValue(value),
+        value: value,
+        valueString: valueHandler.compileValue(value)
+      }
+      if (tmp.isErratic) {
+        tmp.valueId = this.getRootValueId();
+      }
+      re.push(tmp);
+    }
+    return re;
   }
 }
 

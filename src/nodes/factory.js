@@ -67,8 +67,9 @@ class Factory {
   }
   createChildren(parent, children) {
     var current, previous;
-    _.each(children, this, (child) => {
-      current = this.create(child, {
+    var self = this;
+    _.each(children, (child) => {
+      current = self.create(child, {
         parent: parent,
         previous: previous
       });

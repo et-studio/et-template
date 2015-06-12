@@ -13,7 +13,7 @@
  *  - nodeType        {number} root: root dom, 1: element, 3:textNode, 8:commentNode
  *
  * Expression
- *  - condition       {String} 触发条件，如果没有条件就认为一直有
+ *  - condition       {String} 属性显示条件
  *  - attributes      {Map<String, String>}
  *
  * #if 节点
@@ -23,7 +23,7 @@
  *  - condition
  *
  * #for 节点
- *  - condition
+ *  - expression
  *  - itemName
  *  - indexName
  */
@@ -31,34 +31,17 @@
 var NodeInterface = require('../interfaces/getter-cache');
 var _ = require('../util');
 
-var CONFIG = {
-  'templateFunctionPrefix': 'Template',
-  'spilitMark': '_',
-  'lineSuffix': 'line',
-  'idPrefix': 'et',
-  'valuePrefix': 'value'
-};
-
 class Basic extends NodeInterface {
-  constructor(dom, options) {
+  constructor(dom, options = {}) {
     super(dom, options);
 
     _.extend(this, dom);
-    this.config = CONFIG;
+    this._index = options.index;
     this.options = options;
     this.parent = options.parent;
     this.previous = options.previous;
-    this.previous = options.previous;
-    if (options.children) {
-      this.children = options.children;
-    } else {
-      this.children = [];
-    }
-
-    var config = this.config;
-    this.id = `${config.idPrefix}${options.index}`;
-    this.templateName = `${config.templateFunctionPrefix}${config.spilitMark}${this.id}`;
-
+    this.next = options.next;
+    this.children = options.children || [];
   }
   getNewTemplateDoms() {
     var re, cacheKey, cacheValue;
@@ -69,7 +52,7 @@ class Basic extends NodeInterface {
       re = cacheValue;
     } else {
       re = [this];
-      _.each(this.getPosterity(), null, (dom) => {
+      _.each(this.getPosterity(), (dom) => {
         if (dom && dom.isNewTemplate) {
           re.push(dom);
         }
@@ -78,11 +61,25 @@ class Basic extends NodeInterface {
     }
     return re;
   }
-  getCreateString() {
-    return this.getCreateDeliverys().join('\n');
+  getCreateList() {
+    var re = [];
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverCreate());
+      if (!child.isNewTemplate) {
+        _.concat(re, child.getCreateList());
+      }
+    });
+    return _.clearArraySpace(re);
   }
-  getUpdateString() {
-    return this.getUpdateDeliverys().join('\n');
+  getUpdateList() {
+    var re = [];
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverUpdate());
+      if (!child.isNewTemplate) {
+        _.concat(re, child.getUpdateList());
+      }
+    });
+    return _.clearArraySpace(re);
   }
   getArguments() {
     var re = ['it'];
@@ -97,26 +94,6 @@ class Basic extends NodeInterface {
     return _.uniq(re);
   }
 
-  getCreateDeliverys() {
-    var re = [];
-    _.each(this.children, null, (child) => {
-      _.concat(re, child.deliverCreate());
-      if (!child.isNewTemplate) {
-        _.concat(re, child.getCreateDeliverys());
-      }
-    });
-    return re;
-  }
-  getUpdateDeliverys() {
-    var re = [];
-    _.each(this.children, null, (child) => {
-      _.concat(re, child.deliverUpdate());
-      if (!child.isNewTemplate) {
-        _.concat(re, child.getUpdateDeliverys());
-      }
-    });
-    return re;
-  }
   checkRoot() {
     var parent = this.parent;
     // 当不存在nodeType的时候也认为是root
