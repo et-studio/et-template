@@ -2,7 +2,7 @@
 
 // var Parser = require('./parser')
 var Compiler = require('./compiler');
-var Formatter = require('./formatter');
+var formatter = require('./formatter');
 
 module.exports = (str, options = {}) => {
   // TODO: wait et-parser

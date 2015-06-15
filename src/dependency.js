@@ -23,7 +23,7 @@ var _util = {
     re = document.createElement(tag);
     if (attributes) {
       for (key in attributes) {
-        this.setAttribute(re, key, attributes[key]);
+        _util.setAttribute(re, key, attributes[key]);
       }
     }
     return re;
@@ -35,7 +35,7 @@ var _util = {
     return document.createComment(text);
   },
   createLine: function createLine(text) {
-    return this.createComment(text || 'line');
+    return _util.createComment(text || 'line');
   },
   remove: function remove(element, isKeeyData) {
     if (element.parentNode) {
