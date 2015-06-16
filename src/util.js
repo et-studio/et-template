@@ -6,7 +6,10 @@ class Util {
       return;
     }
     for (var i = 0, len = array.length; i < len; i++) {
-      callback(array[i], i, array);
+      var re = callback(array[i], i, array);
+      if (re === false) {
+        break;
+      }
     }
   }
   _extendAB(A, B) {

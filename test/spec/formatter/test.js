@@ -16,7 +16,7 @@ exports.register = function(){
         left = formatter.format(left);
         var right = setting.expect;
 
-        console.log(left);
+        //console.log(left);
         left = babel.transform(left).code;
         left = left.trim().replace(/\n{2}/g, '\n');
         right = babel.transform(right).code;
