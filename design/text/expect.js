@@ -4,39 +4,41 @@ var _et = require('_et');
 var _util = _et._util;
 var _prototype = _et._prototype;
 
+var _util_extend = _util.extend;
+var _util_createElement = _util.createElement;
+var _util_createTextNode = _util.createTextNode;
+var _util_appendChild = _util.appendChild;
+var _util_text = _util.text;
+
 function Template_et0(options) {
   this.init(options);
 }
 
-_util.extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_et0.prototype, _prototype, {
   create: function create() {
-    var _doms, _roots, _rootIds, _et;
+    var _doms = this.doms;
+    var _roots = this.roots;
+    var _rootIds = this.rootIds;
 
-    _roots = this.roots;
-    _rootIds = this.rootIds;
-    _doms = this.doms;
-
-    _et = _util.createElement('DIV');
+    var _et = _util_createElement('DIV');
     _doms.et1 = _et;
     _roots.et1 = _et;
     _rootIds.push('et1');
 
-    _et = _util.createTextNode('');
+    var _et = _util_createTextNode('');
     _doms.et2 = _et;
-    _util.appendChild(_doms.et1, _et);
+    _util_appendChild(_doms.et1, _et);
   },
   update: function update(it) {
-    var _doms, _roots, _last, _et, _tmp;
+    var _doms = this.doms;
+    var _roots = this.roots;
+    var _last = this.last;
 
-    _doms = this.doms;
-    _roots = this.roots;
-    _last = this.last;
-
-    _et = _doms.et2;
-    _tmp = 'aaaa' + it.src;
-    if (_last.value_1 !== _tmp) {
-      _last.value_1 = _tmp;
-      _util.text(_et, _tmp);
+    var _et = _doms.et2;
+    var _tmp = 'aaaa' + it.src;
+    if (_last.value_0 !== _tmp) {
+      _last.value_0 = _tmp;
+      _util_text(_et, _tmp);
     }
   }
 });

@@ -9,7 +9,7 @@ class Comment extends Basic {
       id: this.getId(),
       isRoot: this.checkRoot(),
       parentId: this.getParentId(),
-      text: this.textContent || ''
+      text: this.getTextContent()
     }
     return [worker.createComment(it)];
   }

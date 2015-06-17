@@ -94,6 +94,24 @@ class Basic extends NodeInterface {
     return _.uniq(re);
   }
 
+  getPosterity() {
+    var cacheKey = 'getPosterity';
+    var cacheValue = this.getCache(cacheKey);
+    if (cacheValue) {
+      return cacheValue;
+    }
+
+    var doms = [];
+    _.each(this.children, (child) => {
+      if (child) {
+        doms.push(child);
+        _.concat(doms, child.getPosterity());
+      }
+    });
+
+    this.saveCache(cacheKey, doms);
+    return doms;
+  }
   checkRoot() {
     var parent = this.parent;
     // 当不存在nodeType的时候也认为是root

@@ -6,8 +6,7 @@ class Util {
       return;
     }
     for (var i = 0, len = array.length; i < len; i++) {
-      var re = callback(array[i], i, array);
-      if (re === false) {
+      if (callback(array[i], i, array) === false) {
         break;
       }
     }

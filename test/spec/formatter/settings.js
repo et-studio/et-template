@@ -23,13 +23,11 @@ module.exports = [
 
       _util_extend(Template_et0.prototype, _prototype, {
         create: function create() {
-          var _doms, _roots, _rootIds, _et;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _rootIds = this.rootIds;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _rootIds = this.rootIds;
-
-          _et = _util_createElement('DIV', {'id': 'test'});
+          var _et = _util_createElement('DIV', {'id': 'test'});
           _doms.et1 = _et;
           _roots.et1 = _et;
           _rootIds.push('et1');
@@ -78,32 +76,28 @@ module.exports = [
 
       _util_extend(Template_et0.prototype, _prototype, {
         create: function create() {
-          var _doms, _roots, _rootIds, _et;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _rootIds = this.rootIds;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _rootIds = this.rootIds;
-
-          _et = _util_createElement('DIV');
+          var _et = _util_createElement('DIV');
           _doms.et1 = _et;
           _roots.et1 = _et;
           _rootIds.push('et1');
         },
         update: function update(it) {
-          var _doms, roots, _last, _et, _tmp;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _last = this.last;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _last = this.last;
-
-          _et = _doms.et1;
-          _tmp = 'aaa' + it.id + 'bbb' + it.getSrc();
+          var _et = _doms.et1;
+          var _tmp = 'aaa' + it.id + 'bbb' + it.getSrc();
           if (_last.value_0 !== _tmp) {
             _last.value_0 = _tmp;
             _util_setAttribute(_et, 'id', _tmp);
           }
 
-          _tmp = (function(){return it.a + it.b;})();
+          var _tmp = (function(){return it.a + it.b;})();
           if (_last.value_1 !== _tmp) {
             _last.value_1 = _tmp;
             _util_setAttribute(_et, 'data-type', _tmp);
@@ -160,30 +154,26 @@ module.exports = [
 
       _util_extend(Template_et0.prototype, _prototype, {
         create: function create() {
-          var _doms, _roots, _rootIds, _et;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _rootIds = this.rootIds;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _rootIds = this.rootIds;
-
-          _et = _util_createElement('DIV');
+          var _et = _util_createElement('DIV');
           _doms.et1 = _et;
           _roots.et1 = _et;
           _rootIds.push('et1');
 
-          _et = _util_createTextNode('');
+          var _et = _util_createTextNode('');
           _doms.et2 = _et;
           _util_appendChild(_doms.et1, _et);
         },
         update: function update(it) {
-          var _doms, _roots, _last, _et, _tmp;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _last = this.last;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _last = this.last;
-
-          _et = _doms.et2;
-          _tmp = 'aaaa' + it.src;
+          var _et = _doms.et2;
+          var _tmp = 'aaaa' + it.src;
           if (_last.value_0 !== _tmp) {
             _last.value_0 = _tmp;
             _util_text(_et, _tmp);
@@ -348,39 +338,35 @@ module.exports = [
       _util_extend(Template_for.prototype, _prototype);
       _util_extend(Template_et0.prototype, _prototype, {
         create: function create() {
-          var _doms, _roots, _rootIds, _et, _line;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _rootIds = this.rootIds;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _rootIds = this.rootIds;
-
-          _et = new Template_for();
+          var _et = new Template_for();
           _doms.et1 = _et;
           _roots.et1 = _et;
           _rootIds.push('et1');
 
-          _line = _util_createLine();
+          var _line = _util_createLine();
           _doms.et1_line = _line;
           _roots.et1_line = _line;
           _rootIds.push('et1_line');
         },
         update: function update(it) {
-          var _doms, _roots, _last, _line, _lastLength, _list, _i, _len, _et, _item, index, item;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _last = this.last;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _last = this.last;
-
-          _line = _doms.et1_line;
-          _lastLength = _last.value_0;
-          _list = it.list;
-          _i = 0;
-          _len = _list.length;
+          var _line = _doms.et1_line;
+          var _lastLength = _last.value_0;
+          var _list = it.list;
+          var _i = 0;
+          var _len = _list.length;
           for (; _i < _len; _i++) {
-            _et = _doms['et1_' + _i];
-            _item = _list[_i];
-            index = _i;
-            item = _item;
+            var _et = _doms['et1_' + _i];
+            var _item = _list[_i];
+            var index = _i;
+            var item = _item;
 
             if (!_et) {
               _doms['et1_' + _i] = _et = new Template_et1();
@@ -393,12 +379,12 @@ module.exports = [
 
           _last.value_0 = _i;
           for (; _i < _lastLength; _i++) {
-            _et = _doms['et1_' + _i];
+            var _et = _doms['et1_' + _i];
             _et.remove();
           }
 
-          _lastLength = _last.value_0;
-          _et = _doms.et1;
+          var _lastLength = _last.value_0;
+          var _et = _doms.et1;
           _et.rootIds = [];
           for (_i = 0; _i < _lastLength; _i++) {
             _et.rootIds.push('et1_' + _i);
@@ -408,26 +394,22 @@ module.exports = [
       });
       _util_extend(Template_et1.prototype, _prototype, {
         create: function create() {
-          var _doms, _roots, _rootIds, _et;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _rootIds = this.rootIds;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _rootIds = this.rootIds;
-
-          _et = _util_createTextNode('');
+          var _et = _util_createTextNode('');
           _doms.et2 = _et;
           _roots.et2 = _et;
           _rootIds.push('et2');
         },
         update: function update(it, item, index) {
-          var _doms, _roots, _last, _et, _tmp;
+          var _doms = this.doms;
+          var _roots = this.roots;
+          var _last = this.last;
 
-          _doms = this.doms;
-          _roots = this.roots;
-          _last = this.last;
-
-          _et = _doms.et2;
-          _tmp = 'it is for loop ' + index;
+          var _et = _doms.et2;
+          var _tmp = 'it is for loop ' + index;
           if (_last.value_0 !== _tmp) {
             _last.value_0 = _tmp;
             _util_text(_et, _tmp);

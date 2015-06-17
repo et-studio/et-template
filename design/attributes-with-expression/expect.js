@@ -4,52 +4,53 @@ var _et = require('_et');
 var _util = _et._util;
 var _prototype = _et._prototype;
 
+var _util_extend = _util.extend;
+var _util_createElement = _util.createElement;
+var _util_setAttribute = _util.setAttribute;
+var _util_removeAttribute = _util.removeAttribute;
+
 function Template_et0(options) {
   this.init(options);
 }
 
-_util.extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_et0.prototype, _prototype, {
   create: function create() {
-    var _doms, _roots, _rootIds, _et;
+    var _doms = this.doms;
+    var _roots = this.roots;
+    var _rootIds = this.rootIds;
 
-    _doms = this.doms;
-    _roots = this.roots;
-    _rootIds = this.rootIds;
-
-    _et = _util.createElement('DIV');
+    var _et = _util_createElement('DIV');
     _doms.et1 = _et;
     _roots.et1 = _et;
     _rootIds.push('et1');
   },
   update: function update(it) {
-    var _doms, _roots, _last, _et, _tmp;
+    var _doms = this.doms;
+    var _roots = this.roots;
+    var _last = this.last;
 
-    _doms = this.doms;
-    _roots = this.roots;
-    _last = this.last;
-
-    _et = _doms.et1;
-    _tmp = 'aaa' + it.id + 'bbb' + it.getSrc();
-    if (_last.value_1 !== _tmp) {
-      _last.value_1 = _tmp;
-      _util.setAttribute(_et, 'id', _tmp);
+    var _et = _doms.et1;
+    var _tmp = 'aaa' + it.id + 'bbb' + it.getSrc();
+    if (_last.value_0 !== _tmp) {
+      _last.value_0 = _tmp;
+      _util_setAttribute(_et, 'id', _tmp);
     }
 
-    _tmp = (function(){return it.a + it.b;})();
-    if (_last.value_2 !== _tmp) {
-      _last.value_2 = _tmp;
-      _util.setAttribute(_et, 'data-type', _tmp);
+    var _tmp = (function(){return it.a + it.b;})();
+    if (_last.value_1 !== _tmp) {
+      _last.value_1 = _tmp;
+      _util_setAttribute(_et, 'data-type', _tmp);
     }
 
     if (it.isTure) {
-      if (_last.value_3 !== 0) {
-        _last.value_3 = 0;
-        _util.setAttribute(_et, 'class', 'class-true');
+      if (_last.value_2 !== 0) {
+        _last.value_2 = 0;
+        _util_setAttribute(_et, 'class', 'class-true');
       }
     } else {
-      if (_last.value_3 !== 1) {
-        _last.value_3 = 1;
-        _util.removeAttribute(_et, 'class');
+      if (_last.value_2 !== 1) {
+        _last.value_2 = 1;
+        _util_removeAttribute(_et, 'class');
       }
     }
   }

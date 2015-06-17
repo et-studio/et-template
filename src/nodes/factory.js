@@ -26,8 +26,8 @@ class Factory {
       nodeName = nodeName.toLowerCase();
     }
 
-    if (!nodeType || nodeType === 'root') {
-      re = nodes._base;
+    if (nodeType === 1) {
+      re = nodes._element;
     } else if (nodeType === 3) {
       re = nodes._text;
     } else if (nodeType === 8) {
@@ -37,7 +37,7 @@ class Factory {
     }
 
     if (!re) {
-      re = nodes._element;
+      re = nodes._base;
     }
 
     return re;

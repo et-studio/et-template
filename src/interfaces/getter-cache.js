@@ -40,25 +40,7 @@ class Getter extends Cache {
     return this.nodeName && this.nodeName.toUpperCase();
   }
   getTextContent() {
-    return this.textContent || this.content;
-  }
-  getPosterity() {
-    var cacheKey = 'getPosterity';
-    var cacheValue = this.getCache(cacheKey);
-    if (cacheValue) {
-      return cacheValue;
-    }
-
-    var doms = [];
-    _.each(this.children, (child) => {
-      if (child) {
-        doms.push(child);
-        _.concat(doms, child.getPosterity());
-      }
-    });
-
-    this.saveCache(cacheKey, doms);
-    return doms;
+    return this.textContent || this.content || '';
   }
   getRootValueId() {
     var lastRoot = this.getLastRoot();
