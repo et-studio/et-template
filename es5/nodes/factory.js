@@ -37,8 +37,8 @@ var Factory = (function () {
         nodeName = nodeName.toLowerCase();
       }
 
-      if (!nodeType || nodeType === 'root') {
-        re = nodes._base;
+      if (nodeType === 1) {
+        re = nodes._element;
       } else if (nodeType === 3) {
         re = nodes._text;
       } else if (nodeType === 8) {
@@ -48,7 +48,7 @@ var Factory = (function () {
       }
 
       if (!re) {
-        re = nodes._element;
+        re = nodes._base;
       }
 
       return re;
@@ -83,11 +83,10 @@ var Factory = (function () {
   }, {
     key: 'createChildren',
     value: function createChildren(parent, children) {
-      var _this = this;
-
       var current, previous;
-      _.each(children, this, function (child) {
-        current = _this.create(child, {
+      var self = this;
+      _.each(children, function (child) {
+        current = self.create(child, {
           parent: parent,
           previous: previous
         });

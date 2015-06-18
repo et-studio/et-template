@@ -7,6 +7,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var Basic = require('./basic');
+var worker = require('../worker');
 
 var Comment = (function (_Basic) {
   function Comment() {
@@ -22,21 +23,13 @@ var Comment = (function (_Basic) {
   _createClass(Comment, [{
     key: 'deliverCreate',
     value: function deliverCreate() {
-      var re = [''];
-      var id = this.getId();
-      var text = this.textContent;
-      var parentId = this.getParentId();
-
-      re.push('var ' + id + ' = _util.createComment(\'' + text + '\');');
-      re.push('doms.' + id + ' = ' + id);
-
-      if (this.checkRoot()) {
-        re.push('rootIds.push(\'' + id + '\');');
-        re.push('roots.' + id + ' = ' + id);
-      } else {
-        re.push('_util.appendChild(' + parentId + ', ' + id + ');');
-      }
-      return re;
+      var it = {
+        id: this.getId(),
+        isRoot: this.checkRoot(),
+        parentId: this.getParentId(),
+        text: this.getTextContent()
+      };
+      return [worker.createComment(it)];
     }
   }]);
 

@@ -8,6 +8,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var valueHandler = require('./value');
 var Basic = require('./basic');
+var worker = require('../worker');
 
 var TextNode = (function (_Basic) {
   function TextNode() {
@@ -23,40 +24,36 @@ var TextNode = (function (_Basic) {
   _createClass(TextNode, [{
     key: 'deliverCreate',
     value: function deliverCreate() {
-      var re = [];
-      var id = this.getId();
       var text = this.getTextContent();
-      var parentId = this.parent && this.parent.getId();
-
       if (valueHandler.isErraticValue(text)) {
-        re.push('var ' + id + ' = _util.createTextNode(\'\');');
-      } else {
-        re.push('var ' + id + ' = _util.createTextNode(\'' + text + '\');');
+        text = '';
       }
-      re.push('doms.' + id + ' = ' + id + ';');
-
-      if (this.checkRoot()) {
-        re.push('rootIds.push(\'' + id + '\');');
-        re.push('roots.' + id + ' = ' + id + ';');
-      } else {
-        re.push('_util.appendChild(' + parentId + ', ' + id + ');');
-      }
-      return re;
+      var it = {
+        id: this.getId(),
+        isRoot: this.checkRoot(),
+        lineId: this.getLineId(),
+        parentId: this.getParentId(),
+        text: text
+      };
+      return [worker.createText(it)];
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var re = [];
-      var lastRoot = this.getLastRoot();
       var text = this.getTextContent();
-      var id = this.getId();
-
       if (valueHandler.isErraticValue(text)) {
-        var valueId = lastRoot.getValueId();
-        var valueString = valueHandler.compileValue(text);
-        re.push('\n        var ' + id + ' = doms.' + id + ';\n        var tmpValue = ' + valueString + ';\n        if (last.' + valueId + ' !== tmpValue) {\n          last.' + valueId + ' = tmpValue;\n          _util.text(' + id + ', tmpValue);\n        }\n      ');
+        var it = {
+          id: this.getId(),
+          isRoot: this.checkRoot(),
+          lineId: this.getLineId(),
+          parentId: this.getParentId(),
+          valueId: this.getRootValueId(),
+          valueString: valueHandler.compileValue(text)
+        };
+        return [worker.updateText(it)];
+      } else {
+        return [];
       }
-      return re;
     }
   }]);
 

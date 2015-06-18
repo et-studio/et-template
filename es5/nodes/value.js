@@ -2,10 +2,33 @@
 
 var _ = require('../util');
 
-var STATES = {
-  START: 0,
-  END: 1,
-  OTHER: 2
+var states = ['string', 'start', 'expression', 'end'];
+var symbols = ['{{', '}}'];
+
+var machine = {
+  switchState: function switchState(state, symbol) {
+    var stateIndex = states.indexOf(state);
+    var symbolIndex = symbols.indexOf(symbol);
+    switch (stateIndex) {
+      case 0:
+        if (symbolIndex === 0) {
+          return states[1];
+        } else {
+          return states[0];
+        }
+      case 1:
+      case 2:
+        if (symbolIndex === 1) {
+          return states[3];
+        } else {
+          return states[2];
+        }
+      case 3:
+        return states[0];
+      default:
+        throw new Error('Unexpected state.');
+    }
+  }
 };
 
 module.exports = {
@@ -14,90 +37,56 @@ module.exports = {
       return false;
     }
     var start = str.indexOf('{{');
-    var end = str.indexOf('}}');
+    var end = str.lastIndexOf('}}');
     return start >= 0 && end > start;
   },
-  handleStart: function handleStart(lastState) {
-    switch (lastState) {
-      case STATES.START:
-        return STATES.START;
-      case STATES.END:
-        throw new Error('lastState could not be end');
-      default:
-        return STATES.START;
-    }
-  },
-  handleEnd: function handleEnd(lastState) {
-    switch (lastState) {
-      case STATES.START:
-        return STATES.END;
-      case STATES.END:
-        throw new Error('lastState could not be end');
-      default:
-        return STATES.OTHER;
-    }
-  },
-  handleOther: function handleOther(lastState) {
-    switch (lastState) {
-      case STATES.START:
-        return STATES.START;
-      case STATES.END:
-        throw new Error('lastState could not be end');
-      default:
-        return STATES.OTHER;
-    }
-  },
-  getState: function getState(lastState, str) {
-    switch (str) {
-      case '{{':
-        return this.handleStart(lastState);
-      case '}}':
-        return this.handleEnd(lastState);
-      default:
-        return this.handleOther(lastState);
-    }
-  },
-  splitValue: function getValueList(str) {
-    var _this = this;
-
-    var re, lastChar, part, state, startIndex, endIndex, tmp;
-
-    re = [];
-    part = '';
-    state = STATES.OTHER;
-    lastChar = '';
-    _.each(str, this, function (char) {
-      part += char;
-      state = _this.getState(state, lastChar + char);
-      if (state === STATES.END) {
-        startIndex = part.lastIndexOf('{{');
-        endIndex = part.lastIndexOf('}}');
-
-        tmp = part.substring(0, startIndex);
-        if (tmp) {
-          re.push('\'' + tmp + '\'');
-        }
-        tmp = part.substring(startIndex + 2, endIndex);
-        if (tmp) {
-          re.push(tmp);
-        }
-        lastChar = '';
-        part = '';
-        state = STATES.OTHER;
-      } else {
-        lastChar = char;
+  getSymbol: function getSymbol(str, index) {
+    var re = '';
+    _.each(symbols, function (symbol) {
+      var tmp = str.substr(index, symbol.length);
+      if (tmp === symbol) {
+        re = symbol;
+        return false;
       }
     });
-    if (part) {
-      re.push('\'' + part + '\'');
+    if (!re) {
+      re = str[index];
     }
     return re;
+  },
+  pushStr: function pushStr(list, str, isExpression) {
+    if (str && isExpression) {
+      list.push(str);
+    } else if (str) {
+      list.push('\'' + str + '\'');
+    }
   },
   compileValue: function compileValue(str) {
     // 'xxx{{it.getSrc()}}bbb{{it.src2}}'
     // ('xxx' + it.getSrc() + 'bbb' + it.src2)
-    var list = this.splitValue(str);
-    var re = list.join('+');
-    return '(' + re + ')';
+    var list = [];
+    var tmp = '';
+    var state = 'string';
+    for (var i = 0, len = str.length; i < len;) {
+      var symbol = this.getSymbol(str, i);
+      state = machine.switchState(state, symbol);
+      switch (state) {
+        case 'string':
+        case 'expression':
+          tmp += symbol;
+          break;
+        case 'start':
+          this.pushStr(list, tmp);
+          tmp = '';
+          break;
+        case 'end':
+          this.pushStr(list, tmp, true);
+          tmp = '';
+          break;
+      }
+      i += symbol.length;
+    }
+    this.pushStr(list, tmp);
+    return '(' + list.join(' + ') + ')';
   }
 };

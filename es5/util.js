@@ -11,25 +11,21 @@ var Util = (function () {
 
   _createClass(Util, [{
     key: 'each',
-    value: function each(array, context, callback) {
-      var i, len;
+    value: function each(array, callback) {
       if (!array) {
         return;
       }
-      for (i = 0, len = array.length; i < len; i++) {
-        if (context) {
-          callback.call(context, array[i], i, array);
-        } else {
-          callback(array[i], i, array);
+      for (var i = 0, len = array.length; i < len; i++) {
+        if (callback(array[i], i, array) === false) {
+          break;
         }
       }
     }
   }, {
     key: '_extendAB',
     value: function _extendAB(A, B) {
-      var key;
       if (A) {
-        for (key in B) {
+        for (var key in B) {
           A[key] = B[key];
         }
       }
@@ -38,23 +34,24 @@ var Util = (function () {
   }, {
     key: 'extend',
     value: function extend() {
-      var _this = this;
-
       for (var _len = arguments.length, list = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         list[_key - 1] = arguments[_key];
       }
 
       var arg1 = arguments[0] === undefined ? {} : arguments[0];
 
-      this.each(list, this, function (item) {
-        _this._extendAB(arg1, item);
+      var self = this;
+      this.each(list, function (item) {
+        self._extendAB(arg1, item);
       });
       return arg1;
     }
   }, {
     key: '_concatAB',
     value: function _concatAB(arrayA, arrayB) {
-      this.each(arrayB, null, function (item) {
+      if (arrayA === undefined) arrayA = [];
+
+      this.each(arrayB, function (item) {
         arrayA.push(item);
       });
       return arrayA;
@@ -62,14 +59,13 @@ var Util = (function () {
   }, {
     key: 'concat',
     value: function concat(array) {
-      var _this2 = this;
-
       for (var _len2 = arguments.length, list = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         list[_key2 - 1] = arguments[_key2];
       }
 
-      this.each(list, this, function (item) {
-        _this2._concatAB(array, item);
+      var self = this;
+      this.each(list, function (item) {
+        self._concatAB(array, item);
       });
       return array;
     }
@@ -83,7 +79,7 @@ var Util = (function () {
     key: 'contains',
     value: function contains(array, value) {
       var re = false;
-      this.each(array, null, function (item) {
+      this.each(array, function (item) {
         if (item === value) {
           re = true;
         }
@@ -91,13 +87,26 @@ var Util = (function () {
       return re;
     }
   }, {
+    key: 'clearArraySpace',
+    value: function clearArraySpace(array) {
+      var re = [];
+      this.each(array, function (item) {
+        if (item && typeof item.trim === 'function') {
+          item = item.trim();
+        }
+        if (item) {
+          re.push(item);
+        }
+      });
+      return re;
+    }
+  }, {
     key: 'uniq',
     value: function uniq(array) {
-      var _this3 = this;
-
       var re = [];
-      this.each(array, this, function (item) {
-        if (!_this3.contains(re, item)) {
+      var self = this;
+      this.each(array, function (item) {
+        if (!self.contains(re, item)) {
           re.push(item);
         }
       });

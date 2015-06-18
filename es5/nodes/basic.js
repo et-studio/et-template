@@ -2,7 +2,7 @@
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -21,7 +21,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
  *  - nodeType        {number} root: root dom, 1: element, 3:textNode, 8:commentNode
  *
  * Expression
- *  - condition       {String} 触发条件，如果没有条件就认为一直有
+ *  - condition       {String} 属性显示条件
  *  - attributes      {Map<String, String>}
  *
  * #if 节点
@@ -31,43 +31,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
  *  - condition
  *
  * #for 节点
- *  - condition
+ *  - expression
  *  - itemName
  *  - indexName
  */
 
-var NodeInterface = require('../interfaces/getter-cache');
+var NodeInterface = require('../interfaces/getter');
 var _ = require('../util');
 
-var CONFIG = {
-  'templateFunctionPrefix': 'Template',
-  'spilitMark': '_',
-  'lineSuffix': 'line',
-  'idPrefix': 'et',
-  'valuePrefix': 'value'
-};
-
 var Basic = (function (_NodeInterface) {
-  function Basic(dom, options) {
+  function Basic(dom) {
+    var options = arguments[1] === undefined ? {} : arguments[1];
+
     _classCallCheck(this, Basic);
 
     _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, dom, options);
 
     _.extend(this, dom);
-    this.config = CONFIG;
+    this._index = options.index;
     this.options = options;
     this.parent = options.parent;
     this.previous = options.previous;
-    this.previous = options.previous;
-    if (options.children) {
-      this.children = options.children;
-    } else {
-      this.children = [];
-    }
-
-    var config = this.config;
-    this.id = '' + config.idPrefix + '' + options.index;
-    this.templateName = '' + config.templateFunctionPrefix + '' + config.spilitMark + '' + this.id;
+    this.next = options.next;
+    this.children = options.children || [];
   }
 
   _inherits(Basic, _NodeInterface);
@@ -75,32 +61,37 @@ var Basic = (function (_NodeInterface) {
   _createClass(Basic, [{
     key: 'getNewTemplateDoms',
     value: function getNewTemplateDoms() {
-      var re, cacheKey, cacheValue;
-
-      cacheKey = 'getNewTemplateDoms';
-      cacheValue = this.getCache(cacheKey);
-      if (cacheValue) {
-        re = cacheValue;
-      } else {
-        re = [this];
-        _.each(this.getPosterity(), null, function (dom) {
-          if (dom && dom.isNewTemplate) {
-            re.push(dom);
-          }
-        });
-        this.saveCache(cacheKey, re);
-      }
+      var re = [this];
+      _.each(this.getPosterity(), function (dom) {
+        if (dom && dom.isNewTemplate) {
+          re.push(dom);
+        }
+      });
       return re;
     }
   }, {
-    key: 'getCreateString',
-    value: function getCreateString() {
-      return this.getCreateDeliverys().join('\n');
+    key: 'getCreateList',
+    value: function getCreateList() {
+      var re = [];
+      _.each(this.children, function (child) {
+        _.concat(re, child.deliverCreate());
+        if (!child.isNewTemplate) {
+          _.concat(re, child.getCreateList());
+        }
+      });
+      return _.clearArraySpace(re);
     }
   }, {
-    key: 'getUpdateString',
-    value: function getUpdateString() {
-      return this.getUpdateDeliverys().join('\n');
+    key: 'getUpdateList',
+    value: function getUpdateList() {
+      var re = [];
+      _.each(this.children, function (child) {
+        _.concat(re, child.deliverUpdate());
+        if (!child.isNewTemplate) {
+          _.concat(re, child.getUpdateList());
+        }
+      });
+      return _.clearArraySpace(re);
     }
   }, {
     key: 'getArguments',
@@ -117,28 +108,16 @@ var Basic = (function (_NodeInterface) {
       return _.uniq(re);
     }
   }, {
-    key: 'getCreateDeliverys',
-    value: function getCreateDeliverys() {
-      var re = [];
-      _.each(this.children, null, function (child) {
-        _.concat(re, child.deliverCreate());
-        if (!child.isNewTemplate) {
-          _.concat(re, child.getCreateDeliverys());
+    key: 'getPosterity',
+    value: function getPosterity() {
+      var doms = [];
+      _.each(this.children, function (child) {
+        if (child) {
+          doms.push(child);
+          _.concat(doms, child.getPosterity());
         }
       });
-      return re;
-    }
-  }, {
-    key: 'getUpdateDeliverys',
-    value: function getUpdateDeliverys() {
-      var re = [];
-      _.each(this.children, null, function (child) {
-        _.concat(re, child.deliverUpdate());
-        if (!child.isNewTemplate) {
-          _.concat(re, child.getUpdateDeliverys());
-        }
-      });
-      return re;
+      return doms;
     }
   }, {
     key: 'checkRoot',

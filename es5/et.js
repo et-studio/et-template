@@ -1,19 +1,33 @@
 'use strict';
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
 // var Parser = require('./parser')
 var Compiler = require('./compiler');
-var Formatter = require('./formatter');
+var formatter = require('./formatter');
 
-module.exports = function (str) {
-  var options = arguments[1] === undefined ? {} : arguments[1];
+var ET = (function () {
+  function ET(options) {
+    _classCallCheck(this, ET);
 
-  // TODO: wait et-parser
-  //var parser = new Parser(options.parser);
-  //var compiler = new Compiler(options.compiler);
-  //var formatter = new Formatter(options.formatter);
+    this.options = options;
+    // TODO: wait et-parser
+    // this.parser = new Parser(options);
+    this.compiler = new Compiler(options);
+  }
 
-  //var dom = parser.parse(str);
-  //var result = compiler.compile(dom);
-  //return formatter.format(result);
-  return str;
-};
+  _createClass(ET, [{
+    key: 'compile',
+    value: function compile(str) {
+      var dom = {};
+      var result = this.compiler.compile(dom);
+      return formatter.format(result);
+    }
+  }]);
+
+  return ET;
+})();
+
+module.exports = ET;

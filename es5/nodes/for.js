@@ -8,55 +8,94 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var NewNode = require('./new');
+var Basic = require('./basic');
+var worker = require('../worker');
 
-var ForNode = (function (_NewNode) {
+var defaults = {
+  itemName: 'item',
+  indexName: 'i',
+  lengthName: 'len'
+};
+
+var ForNode = (function (_Basic) {
   function ForNode(dom, options) {
     _classCallCheck(this, ForNode);
 
     _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, dom, options);
 
-    if (!this.itemName) {
-      throw new Error('there must have itemName in #for.');
-    }
-    this.saveArgument(dom.itemName);
-
-    if (this.indexName) {
-      this.saveArgument(this.indexName);
-    } else {
-      this.indexName = 'i';
+    if (!this.expression && !this.condition) {
+      throw new Error('there must have list expression in #for.');
     }
 
-    if (this.lengthName) {
-      this.saveArgument(this.lengthName);
-    } else {
-      this.lengthName = 'len';
+    for (var key in defaults) {
+      if (dom[key]) {
+        this.saveArgument(dom[key]);
+      }
     }
   }
 
-  _inherits(ForNode, _NewNode);
+  _inherits(ForNode, _Basic);
 
   _createClass(ForNode, [{
+    key: 'deliverCreate',
+    value: function deliverCreate() {
+      var it = {
+        id: this.getId(),
+        isRoot: this.checkRoot(),
+        lineId: this.getLineId(),
+        parentId: this.getParentId()
+      };
+      var re = [];
+      re.push(worker.createFor(it));
+      re.push(worker.createLine(it));
+      return re;
+    }
+  }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var re = [];
-      var lastRoot = this.getLastRoot();
-      var itemName = this.itemName;
-      var indexName = this.indexName;
-      var lengthName = this.lengthName;
-      var condition = this.condition;
-
-      var args = this.getArguments();
-      var id = this.getId();
-      var lineId = this.getLineId();
-      var valueId = lastRoot.getValueId();
-
-      re.push('\n      var $line = doms.' + lineId + ';\n      var lastLength = last.' + valueId + ';\n      var list = ' + condition + ';\n      var ' + indexName + ' = 0;\n      var ' + lengthName + ' = list.length;\n      var item, et;\n      for (; ' + indexName + ' < ' + lengthName + '; ' + indexName + '++) {\n        ' + itemName + ' = list[' + indexName + '];\n        et = doms[\'' + id + '_\' + ' + indexName + '];\n        if (!et) {\n          doms[\'' + id + '_\' + ' + indexName + '] = et = new ' + this.templateName + '();\n        }\n        if (!lastLength || lastLength < ' + indexName + ') {\n          _util.before($line, et.get());\n        }\n        et.update(' + args.join(',') + ');\n      }\n      last.' + valueId + ' = ' + indexName + ';\n      for (; ' + indexName + ' < lastLength; ' + indexName + '++) {\n        et = doms[\'' + id + '_\' + ' + indexName + '];\n        et.remove();\n      }\n    ');
-      return re;
+      var it = {
+        id: this.getId(),
+        parentId: this.getParentId(),
+        lineId: this.getLineId(),
+        isRoot: this.checkRoot(),
+        valueId: this.getRootValueId(),
+        args: this.getArguments(),
+        expression: this.getExpression(),
+        templateName: this.getTemplateName(),
+        indexName: this.getIndexName(),
+        itemName: this.getItemName(),
+        condition: this.condition
+      };
+      return [worker.updateFor(it)];
+    }
+  }, {
+    key: 'getExpression',
+    value: function getExpression() {
+      return this.expression || this.condition;
+    }
+  }, {
+    key: 'getItemName',
+    value: function getItemName() {
+      return this.itemName || defaults.itemName;
+    }
+  }, {
+    key: 'getLengthName',
+    value: function getLengthName() {
+      return this.lengthName || defaults.lengthName;
+    }
+  }, {
+    key: 'getIndexName',
+    value: function getIndexName() {
+      return this.indexName || defaults.indexName;
+    }
+  }, {
+    key: 'isNewTemplate',
+    get: function () {
+      return true;
     }
   }]);
 
   return ForNode;
-})(NewNode);
+})(Basic);
 
 module.exports = ForNode;

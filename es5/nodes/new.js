@@ -7,6 +7,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var Basic = require('./basic');
+var worker = require('../worker');
 
 var NewNode = (function (_Basic) {
   function NewNode() {
@@ -22,27 +23,15 @@ var NewNode = (function (_Basic) {
   _createClass(NewNode, [{
     key: 'deliverCreate',
     value: function deliverCreate() {
-      var re = [''];
-      var id = this.getId();
-      var lineId = this.getLineId();
-      var parentId = this.getParentId();
-
-      re.push('var ' + id + ' = null;');
-      re.push('doms.' + id + ' = ' + id + ';');
-      if (this.checkRoot()) {
-        re.push('rootIds.push(\'' + id + '\');');
-        re.push('roots.' + id + ' = ' + id + ';');
-      }
-
-      re.push('');
-      re.push('var ' + lineId + ' = _util.createLine();');
-      re.push('doms.' + lineId + ' = ' + lineId + ';');
-      if (this.checkRoot()) {
-        re.push('rootIds.push(\'' + lineId + '\');');
-        re.push('roots.' + lineId + ' = ' + lineId + ';');
-      } else {
-        re.push('_util.appendChild(' + parentId + ', ' + lineId + ');');
-      }
+      var it = {
+        id: this.getId(),
+        isRoot: this.checkRoot(),
+        lineId: this.getLineId(),
+        parentId: this.getParentId()
+      };
+      var re = [];
+      re.push(worker.createNull(it));
+      re.push(worker.createLine(it));
       return re;
     }
   }, {

@@ -2,7 +2,7 @@
   "name": "et",
   "version": "1.0.0",
   "description": "A template for web.",
-  "main": "index.js",
+  "main": "./es5/et.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:suyu34/et.git"

@@ -8,6 +8,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var _ = require('../util');
 var NewNode = require('./new');
+var worker = require('../worker');
 
 var IfNode = (function (_NewNode) {
   function IfNode() {
@@ -23,75 +24,67 @@ var IfNode = (function (_NewNode) {
   _createClass(IfNode, [{
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var _this = this;
-
-      var re = [];
-      var hasElse = false;
-      var doms = this.getConditionDoms();
       var lastRoot = this.getLastRoot();
-      var valueId = lastRoot.getValueId();
-      var lineId = this.getLineId();
-
-      re.push('var $line = doms.' + lineId + ';');
-      _.each(doms, this, function (dom, i) {
-        var removeList = _this.getRemoveList(doms, dom);
-        var tag = _this.getTag(dom.nodeName);
-        var condition = dom.condition ? '(' + dom.condition + ')' : '';
-        var id = dom.getId();
-        var args = dom.getArguments();
-
-        re.push('' + tag + ' ' + condition + ' {\n          var et = doms.' + id + ';\n          if (last.' + valueId + ' !== ' + i + ') {\n            last.' + valueId + ' = ' + i + ';\n            if (!et) {\n              doms.' + id + ' = et = new ' + dom.templateName + '();\n            }\n            _util.before($line, et.get());\n\n            ' + removeList.join('') + '\n          }\n          et.update(' + args.join(',') + ');\n        }');
-
-        if (tag === 'else') {
-          hasElse = true;
-        }
-      });
-      if (!hasElse) {
-        this.pushDefaultElse(re, doms, valueId);
-      }
-      return re;
+      var it = {
+        id: this.getId(),
+        lineId: this.getLineId(),
+        isRoot: this.checkRoot(),
+        indexValueId: lastRoot.getValueId(),
+        doms: this.getConditionDoms()
+      };
+      return [worker.updateIf(it)];
     }
   }, {
     key: 'getConditionDoms',
     value: function getConditionDoms() {
-      var re = [this];
-      var next = this.previous;
-      while (next) {
-        if (next.nodeName === '#elseif') {
-          re.push(next);
-          next = next.previous;
-          continue;
-        } else if (next.nodeName === '#else') {
-          re.push(next);
+      var re = [this.translateDom(this)];
+
+      var hasElse = false;
+      var next = this;
+      while (next = next.next) {
+        if (next.nodeName === '#elseif' || next.nodeName === '#else') {
+          re.push(this.translateDom(next));
         }
-        break;
-      }
-      return re;
-    }
-  }, {
-    key: 'pushDefaultElse',
-    value: function pushDefaultElse(list, doms, valueId) {
-      var removeList = this.getRemoveList(doms, null);
-      var lastStr = list.pop();
-      if (!lastStr) {
-        throw new Error('there should has condition string.');
-      }
-      lastStr = '' + lastStr + ' else {\n      if (last.' + valueId + ' !== ' + doms.length + ') {\n        last.' + valueId + ' = ' + doms.length + ';\n        ' + removeList.join('') + '\n      }\n    }';
-      list.push(lastStr);
-      return list;
-    }
-  }, {
-    key: 'getRemoveList',
-    value: function getRemoveList(doms, current) {
-      var re = [];
-      _.each(doms, null, function (dom) {
-        var id = dom.getId();
-        var currentId = current && current.getId();
-        if (dom !== current && id !== currentId) {
-          re.push('\n          var et = doms.' + id + ';\n          if (et) {\n            et.remove();\n          }\n        ');
+        if (next.nodeName === '#else') {
+          hasElse = true;
         }
+        if (next.nodeName !== '#elseif') {
+          break;
+        }
+      }
+      if (!hasElse) {
+        var defaultElse = { tag: 'else', isDefaultElse: true };
+        defaultElse.siblings = _.concat([], re);
+        re.push(defaultElse);
+      }
+
+      var self = this;
+      _.each(re, function (dom) {
+        dom.siblings = self.pickSiblings(re, dom);
       });
       return re;
+    }
+  }, {
+    key: 'translateDom',
+    value: function translateDom(dom) {
+      return {
+        id: dom.getId(),
+        templateName: dom.getTemplateName(),
+        args: dom.getArguments(),
+        tag: this.getTag(dom.nodeName),
+        condition: dom.condition
+      };
+    }
+  }, {
+    key: 'pickSiblings',
+    value: function pickSiblings(doms, current) {
+      var siblings = [];
+      _.each(doms, function (dom) {
+        if (dom.id && dom.id !== current.id) {
+          siblings.push(dom);
+        }
+      });
+      return siblings;
     }
   }, {
     key: 'getTag',
@@ -101,10 +94,8 @@ var IfNode = (function (_NewNode) {
           return 'if';
         case '#elseif':
           return 'else if';
-        case '#else':
-          return 'else';
         default:
-          throw new Error('Can\'t recognize ' + nodeName + ' in if condition.');
+          return 'else';
       }
     }
   }]);
