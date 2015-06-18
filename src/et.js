@@ -4,14 +4,21 @@
 var Compiler = require('./compiler');
 var formatter = require('./formatter');
 
-module.exports = (str, options = {}) => {
-  // TODO: wait et-parser
-  //var parser = new Parser(options.parser);
-  //var compiler = new Compiler(options.compiler);
-  //var formatter = new Formatter(options.formatter);
+class ET {
+  constructor (options) {
+    this.options = options;
+    // TODO: wait et-parser
+    // this.parser = new Parser(options);
+    this.compiler = new Compiler(options);
+  }
+  compile (str) {
+    var dom = {} ;
+    return this.compileDom(dom);
+  }
+  compileDom (dom) {
+    var result = this.compiler.compile(dom);
+    return formatter.format(result);
+  }
+}
 
-  //var dom = parser.parse(str);
-  //var result = compiler.compile(dom);
-  //return formatter.format(result);
-  return str;
-};
+module.exports = ET;

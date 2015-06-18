@@ -1,6 +1,7 @@
 'use strict';
 
-var p   = require('gulp-load-plugins')();
+var sequence = require('gulp-sequence');
+var babel = require('gulp-babel');
 var del = require('del');
 
 var destDir = 'es5';
@@ -16,9 +17,7 @@ exports.register = function(gulp){
       srcDir + '/**/*.js',
       '!' + srcDir + '/templates/*.js'
     ])
-    .pipe(p.jshint())
-    .pipe(p.jshint.reporter('jshint-stylish'))
-    .pipe(p.babel())
+    .pipe(babel())
     .pipe(gulp.dest(destDir));
   });
 
@@ -27,5 +26,5 @@ exports.register = function(gulp){
     .pipe(gulp.dest(destDir));
   });
 
-  gulp.task('build', p.sequence('build-clean', 'build-js', 'build-json'));
+  gulp.task('build', sequence('build-clean', 'build-js', 'build-json'));
 };

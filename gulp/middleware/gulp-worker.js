@@ -3,7 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 var through = require('through2');
-var gutil = require('gulp-util')
+var gutil = require('gulp-util');
 
 function handleString(method, string) {
   var list = string.split('\n');

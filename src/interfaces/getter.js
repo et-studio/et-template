@@ -1,6 +1,5 @@
 'use strict';
 
-var Cache = require('./cache');
 var _ = require('../util');
 var config = {
   "templateFunctionPrefix": "Template",
@@ -10,7 +9,10 @@ var config = {
   "valuePrefix": "value"
 };
 
-class Getter extends Cache {
+class Getter {
+  constructor () {
+    this.valueId = 0;
+  }
   getId() {
     if (this._index >= 0) {
       return `${config.idPrefix}${this._index}`;
@@ -27,9 +29,6 @@ class Getter extends Cache {
     return `${id}${config.spilitMark}${config.lineSuffix}`;
   }
   getValueId() {
-    if (this.valueId == null) {
-      this.valueId = 0;
-    }
     var valueId = this.valueId++;
     return `${config.valuePrefix}${config.spilitMark}${valueId}`;
   }

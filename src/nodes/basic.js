@@ -28,7 +28,7 @@
  *  - indexName
  */
 
-var NodeInterface = require('../interfaces/getter-cache');
+var NodeInterface = require('../interfaces/getter');
 var _ = require('../util');
 
 class Basic extends NodeInterface {
@@ -44,21 +44,12 @@ class Basic extends NodeInterface {
     this.children = options.children || [];
   }
   getNewTemplateDoms() {
-    var re, cacheKey, cacheValue;
-
-    cacheKey = 'getNewTemplateDoms';
-    cacheValue = this.getCache(cacheKey);
-    if (cacheValue) {
-      re = cacheValue;
-    } else {
-      re = [this];
-      _.each(this.getPosterity(), (dom) => {
-        if (dom && dom.isNewTemplate) {
-          re.push(dom);
-        }
-      });
-      this.saveCache(cacheKey, re);
-    }
+    var re = [this];
+    _.each(this.getPosterity(), (dom) => {
+      if (dom && dom.isNewTemplate) {
+        re.push(dom);
+      }
+    });
     return re;
   }
   getCreateList() {
@@ -95,12 +86,6 @@ class Basic extends NodeInterface {
   }
 
   getPosterity() {
-    var cacheKey = 'getPosterity';
-    var cacheValue = this.getCache(cacheKey);
-    if (cacheValue) {
-      return cacheValue;
-    }
-
     var doms = [];
     _.each(this.children, (child) => {
       if (child) {
@@ -108,8 +93,6 @@ class Basic extends NodeInterface {
         _.concat(doms, child.getPosterity());
       }
     });
-
-    this.saveCache(cacheKey, doms);
     return doms;
   }
   checkRoot() {
