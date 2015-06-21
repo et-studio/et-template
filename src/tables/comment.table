@@ -1,0 +1,6 @@
+
+       | start  | header | text | end
+------ | -----  | ----   | ---- | ----
+'<!--' | header |        | text |
+'-->'  |        |        | end  |
+       |        | text   | text |

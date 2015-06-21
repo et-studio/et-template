@@ -3,79 +3,74 @@
 var _ = require('../util');
 
 var nodes = {};
-nodes._element   = require('./element');
-nodes._text  = require('./text');
-nodes._comment   = require('./comment');
-nodes._base   = require('./basic');
-nodes['#if']     = require('./if');
-nodes['#elseif'] = require('./new');
-nodes['#else']   = require('./new');
-nodes['#for']    = require('./for');
+nodes._element = require('./element');
+nodes._text = require('./text');
+nodes._comment = require('./comment');
+nodes._base = require('./basic');
+nodes['#if'] = require('./if');
+nodes['#elseif'] = require('./elseif');
+nodes['#else'] = require('./else');
+nodes['#for'] = require('./for');
 
 class Factory {
-  constructor() {
-    this.index = 0;
-  }
-  getIndex() {
-    return this.index++;
-  }
-  findNode(nodeType, nodeName) {
-    var re;
-
-    if (nodeName) {
-      nodeName = nodeName.toLowerCase();
-    }
-
-    if (nodeType === 1) {
-      re = nodes._element;
-    } else if (nodeType === 3) {
-      re = nodes._text;
-    } else if (nodeType === 8) {
-      re = nodes._comment;
-    } else {
-      re = nodes[nodeName];
-    }
-
-    if (!re) {
-      re = nodes._base;
-    }
-
-    return re;
-  }
-  create(dom, options = {}) {
+  /**
+   * options
+   * - index
+   * - parent
+   * - previous
+   * - expressions
+   * - lineNumber
+   */
+  create(source, options = {}) {
     var parent = options.parent;
     var previous = options.previous;
-    var next = options.next;
 
-    var Constructor = this.findNode(dom.nodeType, dom.nodeName);
-    var re = new Constructor(dom, _.extend({}, options, {index: this.getIndex()}));
+    var Constructor = this.findConstuctor(source);
+    var node = new Constructor(source, options);
 
     if (parent) {
-      if (!parent.children) {
-        parent.children = [];
-      }
-      parent.children.push(re);
+      parent.children.push(node);
     }
     if (previous) {
-      previous.next = re;
+      previous.next = node;
     }
-    if (next) {
-      next.previous = re;
-    }
-    this.createChildren(re, dom.children);
-    return re;
+    return node;
   }
-  createChildren(parent, children) {
-    var current, previous;
-    var self = this;
-    _.each(children, (child) => {
-      current = self.create(child, {
-        parent: parent,
-        previous: previous
-      });
-      previous = current;
-    });
+  getNodeName(source) {
+    if (!source) {
+      return '';
+    } else if (source.indexOf('<!--') === 0) {
+      return '!--';
+    } else if (source.indexOf('<') === 0) {
+      var regHtml = /^<(\S*)[ >]/;
+      return regHtml.exec(source)[1] || '';
+    } else if (source.indexOf('[') === 0) {
+      var regET = /^\[(\S*)[ \]]/;
+      return regET.exec(source)[1] || '';
+    }
+    return '';
+  }
+  findConstuctor(source) {
+    var nodeName = this.getNodeName(source).toLowerCase();
+    var Constructor = null;
+
+    if (!source) {
+      Constructor = nodes._base;
+    } else if (!nodeName) {
+      Constructor = nodes._text;
+    } else if (nodeName === '!--') {
+      Constructor = nodes._comment;
+    } else if (nodeName.indexOf('#') === 0) {
+      Constructor = nodes[nodeName];
+    } else {
+      Constructor = nodes._element;
+    }
+
+    if (!Constructor) {
+      Constructor = nodes._base;
+    }
+    return Constructor;
   }
 }
 
-module.exports = Factory;
+module.exports = new Factory();

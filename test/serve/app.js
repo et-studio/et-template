@@ -1,9 +1,10 @@
 'use strict';
 
+var rootDir = process.cwd();
 var express = require('express');
 var fs = require('fs');
 var babel = require('babel');
-var et = require('../../es5/et');
+var et = require(`${rootDir}/es5/et`);
 
 var app = express();
 var port = 3000;

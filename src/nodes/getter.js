@@ -10,7 +10,7 @@ var config = {
 };
 
 class Getter {
-  constructor () {
+  constructor() {
     this.valueId = 0;
   }
   getId() {
@@ -19,6 +19,9 @@ class Getter {
     } else {
       return null;
     }
+  }
+  getLineNumber() {
+    return this._lineNumber;
   }
   getTemplateName() {
     var id = this.getId();

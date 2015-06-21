@@ -1,11 +1,78 @@
 'use strict';
 
 var _ = require('../util');
-var NewNode = require('./new');
 var worker = require('../worker');
+var NewNode = require('./new');
+var Machine = require('../machine');
+
+// @tableStart: condition
+var conditionTableOptions = {
+  states: ['start', 'name', 'condition'],
+  symbols: ['[', ' '],
+  table: [
+    {
+      '0': 'start',
+      '1': '',
+      '-1': 'name'
+    },
+    {
+      '0': '',
+      '1': 'condition',
+      '-1': 'name'
+    },
+    {
+      '0': 'condition',
+      '1': 'condition',
+      '-1': 'condition'
+    }
+  ]
+};
+// @tableEnd
+
+var conditionMachine = new Machine(conditionTableOptions);
 
 class IfNode extends NewNode {
-  deliverUpdate () {
+  parseSource(source) {
+    var self = this;
+
+    var nodeName = '';
+    var condition = '';
+    var lastToken = '';
+    conditionMachine.each(source, (state, token) => {
+      lastToken = token;
+      switch (state) {
+        case 'start':
+          break;
+        case 'name':
+          nodeName += token;
+          break;
+        case 'condition':
+          condition += token;
+          break;
+        default:
+          self.throwError();
+      }
+    });
+    if (lastToken !== ']') {
+      self.throwError();
+    }
+    if (nodeName.toLowerCase() !== '#if') {
+      self.throwError();
+    }
+    condition = condition.substr(0, condition.length - 1);
+    condition = condition.trim();
+    if (!condition) {
+      self.throwError();
+    }
+
+    this.nodeName = nodeName.toLowerCase();
+    this.condition = condition;
+  }
+  throwError(code) {
+    var line = this.getLineNumber();
+    throw new Error(`Unrecognized #if at line: ${line}.`);
+  }
+  deliverUpdate() {
     var lastRoot = this.getLastRoot();
     var it = {
       id: this.getId(),
@@ -16,7 +83,7 @@ class IfNode extends NewNode {
     }
     return [worker.updateIf(it)];
   }
-  getConditionDoms () {
+  getConditionDoms() {
     var re = [this.translateDom(this)];
 
     var hasElse = false;
@@ -33,7 +100,10 @@ class IfNode extends NewNode {
       }
     }
     if (!hasElse) {
-      var defaultElse = {tag: 'else', isDefaultElse: true};
+      var defaultElse = {
+        tag: 'else',
+        isDefaultElse: true
+      };
       defaultElse.siblings = _.concat([], re);
       re.push(defaultElse);
     }

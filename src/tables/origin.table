@@ -1,0 +1,17 @@
+
+      | text        | tagEnd     | closeEnd   | tagStart | tag        | strEnd     | str{{  | str\'  | str\"  | closeStart | close
+----- | ----------- | ---------  | -------    | -------- | ---------  | ------     | ------ | ------ | ------ | ---------- | -----
+'</'  | closeStart  | closeStart | closeStart | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'<'   | tagStart    | tagStart   | tagStart   | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'>'   | tagEnd      | tagEnd     | tagEnd     | tag      | tagEnd     | tagEnd     | str{{  | str\'  | str\"  | close      | closeEnd
+'[/#' | closeStart  | closeStart | closeStart | tag      | closeStart | closeStart | str{{  | str\'  | str\"  | close      | close
+'[#'  | tagStart    | tagStart   | tagStart   | tag      | tagStart   | tagStart   | str{{  | str\'  | str\"  | close      | close
+']'   | text        | text       | text       | tag      | tagEnd     | tagEnd     | str{{  | str\'  | str\"  | close      | closeEnd
+'{{'  | text        | text       | text       | tag      | str{{      | str{{      | str{{  | str\'  | str\"  | close      | close
+'}}'  | text        | text       | text       | tag      | tag        | tag        | strEnd | str\'  | str\"  | close      | close
+'\\\''| text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'\''  | text        | text       | text       | tag      | str\'      | str\'      | str{{  | strEnd | str\"  | close      | close
+'\\"' | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'"'   | text        | text       | text       | tag      | str\"      | str\"      | str{{  | str\'  | strEnd | close      | close
+' '   | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+      | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close

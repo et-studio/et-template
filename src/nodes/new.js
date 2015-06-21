@@ -4,10 +4,10 @@ var Basic = require('./basic');
 var worker = require('../worker');
 
 class NewNode extends Basic {
-  get isNewTemplate () {
+  get isNewTemplate() {
     return true;
   }
-  deliverCreate () {
+  deliverCreate() {
     var it = {
       id: this.getId(),
       isRoot: this.checkRoot(),

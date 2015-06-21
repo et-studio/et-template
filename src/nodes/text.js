@@ -5,6 +5,13 @@ var Basic = require('./basic');
 var worker = require('../worker');
 
 class TextNode extends Basic {
+  constructor(source, options = {}) {
+    super(source, options);
+    this.nodeType = 3;
+  }
+  parseSource(source) {
+    this.textContent = source;
+  }
   deliverCreate() {
     var text = this.getTextContent();
     if (valueHandler.isErraticValue(text)) {

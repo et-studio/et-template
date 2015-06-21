@@ -1,5 +1,24 @@
 'use strict';
 
+var privateUtil = {
+  extendAB(A, B) {
+    if (A) {
+      for (var key in B) {
+        A[key] = B[key];
+      }
+    }
+    return A;
+  },
+  concatAB(arrayA = [], arrayB) {
+    if (arrayB && typeof arrayB.forEach === 'function') {
+      arrayB.forEach((item) => {
+        arrayA.push(item);
+      });
+    }
+    return arrayA;
+  }
+}
+
 class Util {
   each(array, callback) {
     if (!array) {
@@ -11,35 +30,22 @@ class Util {
       }
     }
   }
-  _extendAB(A, B) {
-    if (A) {
-      for (var key in B) {
-        A[key] = B[key];
-      }
-    }
-    return A;
-  }
   extend(arg1 = {}, ...list) {
-    var self = this;
     this.each(list, (item) => {
-      self._extendAB(arg1, item);
+      privateUtil.extendAB(arg1, item);
     });
     return arg1;
   }
-  _concatAB(arrayA = [], arrayB) {
-    this.each(arrayB, (item) => {
-      arrayA.push(item);
-    });
-    return arrayA;
-  }
   concat(array, ...list) {
-    var self = this;
     this.each(list, (item) => {
-      self._concatAB(array, item);
+      privateUtil.concatAB(array, item);
     });
     return array;
   }
   isEmpty(obj) {
+    if (!obj) {
+      return true;
+    }
     var keys = Object.keys(obj);
     return keys.length === 0;
   }
@@ -48,6 +54,7 @@ class Util {
     this.each(array, (item) => {
       if (item === value) {
         re = true;
+        return false;
       }
     });
     return re;

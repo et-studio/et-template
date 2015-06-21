@@ -28,20 +28,23 @@
  *  - indexName
  */
 
-var NodeInterface = require('../interfaces/getter');
+var NodeInterface = require('./getter');
 var _ = require('../util');
 
 class Basic extends NodeInterface {
-  constructor(dom, options = {}) {
-    super(dom, options);
+  constructor(source, options = {}) {
+    super(source, options);
 
-    _.extend(this, dom);
+    this._source = source;
+    this._lineNumber = options.lineNumber;
     this._index = options.index;
-    this.options = options;
+    this.args = [];
+    this.nodeType = 'ET';
     this.parent = options.parent;
     this.previous = options.previous;
-    this.next = options.next;
-    this.children = options.children || [];
+    this.next = null;
+    this.children = [];
+    this.parseSource(source);
   }
   getNewTemplateDoms() {
     var re = [this];
@@ -104,21 +107,30 @@ class Basic extends NodeInterface {
       return false;
     }
   }
-  saveArgument(arg) {
-    if (!this.args) {
-      this.args = [];
-    }
-    this.args.push(arg);
+  saveArgument(...list) {
+    var args = this.args;
+    _.each(list, (str) => {
+      if (str) {
+        args.push(str);
+      }
+    });
     return this;
+  }
+  initAll() {
+    this.init();
+    _.each(this.child, (child) => {
+      child.initAll();
+    });
   }
 
   // attributes or functions could be override
-  get isNewTemplate(){
+  get isNewTemplate() {
     return false;
   }
   init() {
     return this;
   }
+  parseSource(source) {}
   deliverCreate() {
     return [];
   }

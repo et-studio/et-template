@@ -5,35 +5,6 @@ var worker = require('./worker');
 var Factory = require('./nodes/factory');
 
 class Compiler {
-  constructor(options) {
-    this.options = options;
-  }
-  getList(dom) {
-    var re = [];
-    var scan = (current) => {
-      if (current) {
-        re.push(current);
-        _.each(current.children, (child) => {
-          scan(child);
-        });
-      }
-    };
-    scan(dom);
-    return re;
-  }
-  initAllDoms(dom) {
-    _.each(this.getList(dom), (dom) => {
-      if (dom && typeof dom.init === 'function') {
-        dom.init();
-      }
-    });
-  }
-  getFactory() {
-    if (!this.factory) {
-      this.factory = new Factory(this.options);
-    }
-    return this.factory;
-  }
   pickData(root) {
     var newDoms = root.getNewTemplateDoms();
     var re = {
@@ -54,10 +25,7 @@ class Compiler {
     });
     return re;
   }
-  compile(origin) {
-    var factory = this.getFactory();
-    var dom = factory.create(origin);
-    this.initAllDoms(dom);
+  compile(dom) {
     var it = this.pickData(dom);
     return worker.template(it);
   }
