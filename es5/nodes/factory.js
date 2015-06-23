@@ -12,90 +12,85 @@ nodes._text = require('./text');
 nodes._comment = require('./comment');
 nodes._base = require('./basic');
 nodes['#if'] = require('./if');
-nodes['#elseif'] = require('./new');
-nodes['#else'] = require('./new');
+nodes['#elseif'] = require('./elseif');
+nodes['#else'] = require('./else');
 nodes['#for'] = require('./for');
 
 var Factory = (function () {
   function Factory() {
     _classCallCheck(this, Factory);
-
-    this.index = 0;
   }
 
   _createClass(Factory, [{
-    key: 'getIndex',
-    value: function getIndex() {
-      return this.index++;
-    }
-  }, {
-    key: 'findNode',
-    value: function findNode(nodeType, nodeName) {
-      var re;
-
-      if (nodeName) {
-        nodeName = nodeName.toLowerCase();
-      }
-
-      if (nodeType === 1) {
-        re = nodes._element;
-      } else if (nodeType === 3) {
-        re = nodes._text;
-      } else if (nodeType === 8) {
-        re = nodes._comment;
-      } else {
-        re = nodes[nodeName];
-      }
-
-      if (!re) {
-        re = nodes._base;
-      }
-
-      return re;
-    }
-  }, {
     key: 'create',
-    value: function create(dom) {
+
+    /**
+     * options
+     * - index
+     * - parent
+     * - previous
+     * - expressions
+     * - lineNumber
+     */
+    value: function create(source) {
       var options = arguments[1] === undefined ? {} : arguments[1];
 
       var parent = options.parent;
       var previous = options.previous;
-      var next = options.next;
 
-      var Constructor = this.findNode(dom.nodeType, dom.nodeName);
-      var re = new Constructor(dom, _.extend({}, options, { index: this.getIndex() }));
+      var Constructor = this.findConstuctor(source);
+      var node = new Constructor(source, options);
 
       if (parent) {
-        if (!parent.children) {
-          parent.children = [];
-        }
-        parent.children.push(re);
+        parent.children.push(node);
       }
       if (previous) {
-        previous.next = re;
+        previous.next = node;
       }
-      if (next) {
-        next.previous = re;
-      }
-      this.createChildren(re, dom.children);
-      return re;
+      return node;
     }
   }, {
-    key: 'createChildren',
-    value: function createChildren(parent, children) {
-      var current, previous;
-      var self = this;
-      _.each(children, function (child) {
-        current = self.create(child, {
-          parent: parent,
-          previous: previous
-        });
-        previous = current;
-      });
+    key: 'getNodeName',
+    value: function getNodeName(source) {
+      if (!source) {
+        return '';
+      } else if (source.indexOf('<!--') === 0) {
+        return '!--';
+      } else if (source.indexOf('<') === 0) {
+        var regHtml = /^<(\S*)[ >]/;
+        return regHtml.exec(source)[1] || '';
+      } else if (source.indexOf('[') === 0) {
+        var regET = /^\[(\S*)[ \]]/;
+        return regET.exec(source)[1] || '';
+      }
+      return '';
+    }
+  }, {
+    key: 'findConstuctor',
+    value: function findConstuctor(source) {
+      var nodeName = this.getNodeName(source).toLowerCase();
+      var Constructor = null;
+
+      if (!source) {
+        Constructor = nodes._base;
+      } else if (!nodeName) {
+        Constructor = nodes._text;
+      } else if (nodeName === '!--') {
+        Constructor = nodes._comment;
+      } else if (nodeName.indexOf('#') === 0) {
+        Constructor = nodes[nodeName];
+      } else {
+        Constructor = nodes._element;
+      }
+
+      if (!Constructor) {
+        Constructor = nodes._base;
+      }
+      return Constructor;
     }
   }]);
 
   return Factory;
 })();
 
-module.exports = Factory;
+module.exports = new Factory();

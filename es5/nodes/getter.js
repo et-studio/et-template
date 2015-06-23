@@ -30,6 +30,11 @@ var Getter = (function () {
       }
     }
   }, {
+    key: 'getLineNumber',
+    value: function getLineNumber() {
+      return this._lineNumber;
+    }
+  }, {
     key: 'getTemplateName',
     value: function getTemplateName() {
       var id = this.getId();

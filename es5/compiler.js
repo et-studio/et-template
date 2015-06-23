@@ -9,45 +9,11 @@ var worker = require('./worker');
 var Factory = require('./nodes/factory');
 
 var Compiler = (function () {
-  function Compiler(options) {
+  function Compiler() {
     _classCallCheck(this, Compiler);
-
-    this.options = options;
   }
 
   _createClass(Compiler, [{
-    key: 'getList',
-    value: function getList(dom) {
-      var re = [];
-      var scan = function scan(current) {
-        if (current) {
-          re.push(current);
-          _.each(current.children, function (child) {
-            scan(child);
-          });
-        }
-      };
-      scan(dom);
-      return re;
-    }
-  }, {
-    key: 'initAllDoms',
-    value: function initAllDoms(dom) {
-      _.each(this.getList(dom), function (dom) {
-        if (dom && typeof dom.init === 'function') {
-          dom.init();
-        }
-      });
-    }
-  }, {
-    key: 'getFactory',
-    value: function getFactory() {
-      if (!this.factory) {
-        this.factory = new Factory(this.options);
-      }
-      return this.factory;
-    }
-  }, {
     key: 'pickData',
     value: function pickData(root) {
       var newDoms = root.getNewTemplateDoms();
@@ -71,10 +37,7 @@ var Compiler = (function () {
     }
   }, {
     key: 'compile',
-    value: function compile(origin) {
-      var factory = this.getFactory();
-      var dom = factory.create(origin);
-      this.initAllDoms(dom);
+    value: function compile(dom) {
       var it = this.pickData(dom);
       return worker.template(it);
     }

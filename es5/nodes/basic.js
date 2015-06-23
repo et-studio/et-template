@@ -36,24 +36,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
  *  - indexName
  */
 
-var NodeInterface = require('../interfaces/getter');
+var NodeInterface = require('./getter');
 var _ = require('../util');
 
 var Basic = (function (_NodeInterface) {
-  function Basic(dom) {
+  function Basic(source) {
     var options = arguments[1] === undefined ? {} : arguments[1];
 
     _classCallCheck(this, Basic);
 
-    _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, dom, options);
+    _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, source, options);
 
-    _.extend(this, dom);
+    this._source = source;
+    this._lineNumber = options.lineNumber;
     this._index = options.index;
-    this.options = options;
+    this.args = [];
+    this.nodeType = 'ET';
     this.parent = options.parent;
     this.previous = options.previous;
-    this.next = options.next;
-    this.children = options.children || [];
+    this.next = null;
+    this.children = [];
+    this.parseSource(source);
   }
 
   _inherits(Basic, _NodeInterface);
@@ -132,18 +135,35 @@ var Basic = (function (_NodeInterface) {
     }
   }, {
     key: 'saveArgument',
-    value: function saveArgument(arg) {
-      if (!this.args) {
-        this.args = [];
+    value: function saveArgument() {
+      for (var _len = arguments.length, list = Array(_len), _key = 0; _key < _len; _key++) {
+        list[_key] = arguments[_key];
       }
-      this.args.push(arg);
+
+      var args = this.args;
+      _.each(list, function (str) {
+        if (str) {
+          args.push(str);
+        }
+      });
       return this;
+    }
+  }, {
+    key: 'initAll',
+    value: function initAll() {
+      this.init();
+      _.each(this.child, function (child) {
+        child.initAll();
+      });
     }
   }, {
     key: 'init',
     value: function init() {
       return this;
     }
+  }, {
+    key: 'parseSource',
+    value: function parseSource(source) {}
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {

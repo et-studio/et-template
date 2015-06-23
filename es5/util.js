@@ -4,6 +4,27 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var privateUtil = {
+  extendAB: function extendAB(A, B) {
+    if (A) {
+      for (var key in B) {
+        A[key] = B[key];
+      }
+    }
+    return A;
+  },
+  concatAB: function concatAB(arrayA, arrayB) {
+    if (arrayA === undefined) arrayA = [];
+
+    if (arrayB && typeof arrayB.forEach === 'function') {
+      arrayB.forEach(function (item) {
+        arrayA.push(item);
+      });
+    }
+    return arrayA;
+  }
+};
+
 var Util = (function () {
   function Util() {
     _classCallCheck(this, Util);
@@ -22,16 +43,6 @@ var Util = (function () {
       }
     }
   }, {
-    key: '_extendAB',
-    value: function _extendAB(A, B) {
-      if (A) {
-        for (var key in B) {
-          A[key] = B[key];
-        }
-      }
-      return A;
-    }
-  }, {
     key: 'extend',
     value: function extend() {
       for (var _len = arguments.length, list = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -40,21 +51,10 @@ var Util = (function () {
 
       var arg1 = arguments[0] === undefined ? {} : arguments[0];
 
-      var self = this;
       this.each(list, function (item) {
-        self._extendAB(arg1, item);
+        privateUtil.extendAB(arg1, item);
       });
       return arg1;
-    }
-  }, {
-    key: '_concatAB',
-    value: function _concatAB(arrayA, arrayB) {
-      if (arrayA === undefined) arrayA = [];
-
-      this.each(arrayB, function (item) {
-        arrayA.push(item);
-      });
-      return arrayA;
     }
   }, {
     key: 'concat',
@@ -63,15 +63,17 @@ var Util = (function () {
         list[_key2 - 1] = arguments[_key2];
       }
 
-      var self = this;
       this.each(list, function (item) {
-        self._concatAB(array, item);
+        privateUtil.concatAB(array, item);
       });
       return array;
     }
   }, {
     key: 'isEmpty',
     value: function isEmpty(obj) {
+      if (!obj) {
+        return true;
+      }
       var keys = Object.keys(obj);
       return keys.length === 0;
     }
@@ -82,6 +84,7 @@ var Util = (function () {
       this.each(array, function (item) {
         if (item === value) {
           re = true;
+          return false;
         }
       });
       return re;

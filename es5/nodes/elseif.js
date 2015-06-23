@@ -70,7 +70,7 @@ var IfNode = (function (_NewNode) {
       if (lastToken !== ']') {
         self.throwError();
       }
-      if (nodeName.toLowerCase() !== '#if') {
+      if (nodeName.toLowerCase() !== '#elseif') {
         self.throwError();
       }
       condition = condition.substr(0, condition.length - 1);
@@ -86,87 +86,7 @@ var IfNode = (function (_NewNode) {
     key: 'throwError',
     value: function throwError(code) {
       var line = this.getLineNumber();
-      throw new Error('Unrecognized #if at line: ' + line + '.');
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var lastRoot = this.getLastRoot();
-      var it = {
-        id: this.getId(),
-        lineId: this.getLineId(),
-        isRoot: this.checkRoot(),
-        indexValueId: lastRoot.getValueId(),
-        doms: this.getConditionDoms()
-      };
-      return [worker.updateIf(it)];
-    }
-  }, {
-    key: 'getConditionDoms',
-    value: function getConditionDoms() {
-      var re = [this.translateDom(this)];
-
-      var hasElse = false;
-      var next = this;
-      while (next = next.next) {
-        if (next.nodeName === '#elseif' || next.nodeName === '#else') {
-          re.push(this.translateDom(next));
-        }
-        if (next.nodeName === '#else') {
-          hasElse = true;
-        }
-        if (next.nodeName !== '#elseif') {
-          break;
-        }
-      }
-      if (!hasElse) {
-        var defaultElse = {
-          tag: 'else',
-          isDefaultElse: true
-        };
-        defaultElse.siblings = _.concat([], re);
-        re.push(defaultElse);
-      }
-
-      var self = this;
-      _.each(re, function (dom) {
-        dom.siblings = self.pickSiblings(re, dom);
-      });
-      return re;
-    }
-  }, {
-    key: 'translateDom',
-    value: function translateDom(dom) {
-      return {
-        id: dom.getId(),
-        templateName: dom.getTemplateName(),
-        args: dom.getArguments(),
-        tag: this.getTag(dom.nodeName),
-        condition: dom.condition
-      };
-    }
-  }, {
-    key: 'pickSiblings',
-    value: function pickSiblings(doms, current) {
-      var siblings = [];
-      _.each(doms, function (dom) {
-        if (dom.id && dom.id !== current.id) {
-          siblings.push(dom);
-        }
-      });
-      return siblings;
-    }
-  }, {
-    key: 'getTag',
-    value: function getTag(nodeName) {
-      switch (nodeName) {
-        case '#if':
-          return 'if';
-        case '#elseif':
-          return 'else if';
-        default:
-          return 'else';
-      }
+      throw new Error('Unrecognized #elseif at line: ' + line + '.');
     }
   }]);
 

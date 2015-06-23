@@ -4,8 +4,9 @@ var rootDir = process.cwd();
 var express = require('express');
 var fs = require('fs');
 var babel = require('babel');
-var et = require(`${rootDir}/es5/et`);
+var ET = require(`${rootDir}/es5/et`);
 
+var et = new ET();
 var app = express();
 var port = 3000;
 
@@ -65,7 +66,13 @@ var _ = {
       if (err) {
         return callback(err);
       }
-      callback(null, et(content));
+      content = ''
+        + 'define(function(require, exports, module){\n'
+        +   'module.exports =`' + et.translate(content) + '`'
+        + '});';
+      content = babel.transform(content).code;
+      
+      callback(null, content);
     });
   }
 }
