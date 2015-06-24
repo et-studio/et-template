@@ -4,9 +4,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('./util');
-var Machine = require('./machine');
-
 // @tableStart: format
 var formatTableOptions = {
   states: ['header', 'body', 'methodName', 'methodEnd'],
@@ -35,16 +32,19 @@ var formatTableOptions = {
 };
 // @tableEnd
 
-var formatterMachine = new Machine(formatTableOptions);
+var Machine = require('./machine');
+var _ = require('../util');
 
-var Formatter = (function () {
-  function Formatter() {
-    _classCallCheck(this, Formatter);
+var formatMachine = new Machine(formatTableOptions);
+
+var FormatParser = (function () {
+  function FormatParser() {
+    _classCallCheck(this, FormatParser);
   }
 
-  _createClass(Formatter, [{
-    key: 'format',
-    value: function format(str) {
+  _createClass(FormatParser, [{
+    key: 'parse',
+    value: function parse(str) {
       var _this = this;
 
       var header = '';
@@ -52,7 +52,7 @@ var Formatter = (function () {
       var body = '';
 
       var tmp = '';
-      formatterMachine.each(str, function (state, token) {
+      formatMachine.each(str, function (state, token) {
         switch (state) {
           case 'header':
             header += token;
@@ -94,7 +94,7 @@ var Formatter = (function () {
     }
   }]);
 
-  return Formatter;
+  return FormatParser;
 })();
 
-module.exports = new Formatter();
+module.exports = new FormatParser();

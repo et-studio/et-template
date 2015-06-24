@@ -60,23 +60,22 @@ module.exports = [
     html: '[#if it.isTrue]It is true.[#elseif it.elseTrue]It is elseTrue.[#else]It is else.[/#if]',
     expect: {
       children: [{
-        nodeType: 'ET',
         nodeName: '#if',
         condition: 'it.isTrue',
         children: [{
           nodeType: 3,
           textContent: 'It is true.'
-        }, {
-          nodeType: 'ET',
-          nodeName: '#elseif',
-          condition: 'it.elseTrue',
-        }, {
+        }]
+      }, {
+        nodeName: '#elseif',
+        condition: 'it.elseTrue',
+        children: [{
           nodeType: 3,
           textContent: 'It is elseTrue.'
-        }, {
-          nodeType: 'ET',
-          nodeName: '#else',
-        }, {
+        }]
+      }, {
+        nodeName: '#else',
+        children: [{
           nodeType: 3,
           textContent: 'It is else.'
         }]
@@ -104,5 +103,25 @@ module.exports = [
     title: 'error test',
     html: '<div id="{{it.id}}" [#if it.isTrue]class="test" </div>123456',
     expect: {}
+  },
+  {
+    title: 'test1',
+    html: `<div id="aaa{{it.id}}bbb{{it.getSrc()}}" data-type="{{(function(){return it.a + it.b;})()}}" [#if it.isTrue]class="class-true"[/#if]></div>`,
+    expect: {
+      children: [{
+        nodeType: 1,
+        nodeName: 'DIV',
+        attributes: {
+          'id': 'aaa{{it.id}}bbb{{it.getSrc()}}',
+          'data-type': '{{(function(){return it.a + it.b;})()}}'
+        },
+        expressions: [{
+          condition: 'it.isTrue',
+          attributes: {
+            'class': 'class-true'
+          }
+        }]
+      }]
+    }
   }
 ];

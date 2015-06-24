@@ -2,7 +2,7 @@
 
 var Parser = require('./parser')
 var Compiler = require('./compiler');
-var formatter = require('./formatter');
+var formatter = require('./parsers/format');
 
 class ET {
   constructor(options = {}) {
@@ -22,7 +22,7 @@ class ET {
     return this.compiler.compile(dom);
   }
   format(str) {
-    return formatter.format(str);
+    return formatter.parse(str);
   }
 }
 

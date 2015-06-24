@@ -19,12 +19,9 @@ var _util = {
     }
   },
   createElement: function createElement(tag, attributes) {
-    var re, key;
-    re = document.createElement(tag);
-    if (attributes) {
-      for (key in attributes) {
-        _util.setAttribute(re, key, attributes[key]);
-      }
+    var re = document.createElement(tag);
+    for (var key in attributes) {
+      _util.setAttribute(re, key, attributes[key]);
     }
     return re;
   },
@@ -80,15 +77,13 @@ var _prototype = {
   },
   get: function get() {
     // 每次进行 get 都会进行 dom 组合  应该少用
-    var ids, i, len, id, re, roots, dom;
+    var re = document.createDocumentFragment();
+    var roots = this.roots;
+    var ids = this.rootIds;
 
-    re = document.createDocumentFragment();
-    roots = this.roots;
-    ids = this.rootIds;
-
-    for (i = 0, len = ids.length; i < len; i++) {
-      id = ids[i];
-      dom = roots[id];
+    for (var i = 0, len = ids.length; i < len; i++) {
+      var id = ids[i];
+      var dom = roots[id];
       if (dom && dom.isET) {
         _util.appendChild(re, dom.get());
       } else if (dom) {
@@ -101,11 +96,9 @@ var _prototype = {
   update: function update() {},
   remove: function remove() {
     // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
-    var list, item, i, len;
-
-    list = this.roots;
-    for (i = 0, len = list.length; i < len; i++) {
-      item = list[i];
+    var list = this.roots;
+    for (var i = 0, len = list.length; i < len; i++) {
+      var item = list[i];
       if (item && item.isET) {
         item.remove();
       } else if (item) {
@@ -115,35 +108,35 @@ var _prototype = {
     }
     return this;
   },
-  destroy: function destroy() {
-    // 销毁对象，解绑所有事件，相当于 jQuery 中的 remove
-    var list, item, i, len;
 
-    list = this.roots;
-    for (i = 0, len = list.length; i < len; i++) {
-      item = list[i];
+  destroy: function destroy() {
+    this._destroyDoms();
+    this._destroyAttributes();
+    return null;
+  },
+  _destroyDoms: function destroyChidren() {
+    var list = this.doms;
+    for (var i = 0, len = list.length; i < len; i++) {
+      var item = list[i];
       if (item && item.isET) {
         item.destroy();
       } else if (item) {
-        // 销毁节点对象
         _util.remove(item, false);
       }
     }
-    // 销毁所有的属性
+  },
+  _destroyAttributes: function destroyAttributes() {
     for (var key in this) {
-      item = this[key];
+      var item = this[key];
       if (typeof item !== 'function') {
         if (item && typeof item.destroy === 'function') {
           item.destroy();
         }
-        // 设置所有对象为 null
         this[key] = null;
       } else {
-        // 设置所有函数为空函数
         this[key] = LOOP;
       }
     }
-    return this;
   }
 };
 

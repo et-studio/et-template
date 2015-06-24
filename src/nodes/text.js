@@ -1,8 +1,8 @@
 'use strict';
 
-var valueHandler = require('./value');
 var Basic = require('./basic');
 var worker = require('../worker');
+var valueParser = require('../parsers/value');
 
 class TextNode extends Basic {
   constructor(source, options = {}) {
@@ -14,7 +14,7 @@ class TextNode extends Basic {
   }
   deliverCreate() {
     var text = this.getTextContent();
-    if (valueHandler.isErraticValue(text)) {
+    if (this.isErraticValue(text)) {
       text = '';
     }
     var it = {
@@ -28,14 +28,14 @@ class TextNode extends Basic {
   }
   deliverUpdate() {
     var text = this.getTextContent();
-    if (valueHandler.isErraticValue(text)) {
+    if (this.isErraticValue(text)) {
       var it = {
         id: this.getId(),
         isRoot: this.checkRoot(),
         lineId: this.getLineId(),
         parentId: this.getParentId(),
         valueId: this.getRootValueId(),
-        valueString: valueHandler.compileValue(text)
+        valueString: valueParser.parse(text)
       }
       return [worker.updateText(it)];
     } else {

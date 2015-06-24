@@ -6,32 +6,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
+var NewNode = require('./new');
 var _ = require('../util');
 var worker = require('../worker');
-var NewNode = require('./new');
-var Machine = require('../machine');
-
-// @tableStart: condition
-var conditionTableOptions = {
-  states: ['start', 'name', 'condition'],
-  symbols: ['[', ' '],
-  table: [{
-    '0': 'start',
-    '1': '',
-    '-1': 'name'
-  }, {
-    '0': '',
-    '1': 'condition',
-    '-1': 'name'
-  }, {
-    '0': 'condition',
-    '1': 'condition',
-    '-1': 'condition'
-  }]
-};
-// @tableEnd
-
-var conditionMachine = new Machine(conditionTableOptions);
+var conditionParser = require('../parsers/condition');
 
 var IfNode = (function (_NewNode) {
   function IfNode() {
@@ -47,46 +25,34 @@ var IfNode = (function (_NewNode) {
   _createClass(IfNode, [{
     key: 'parseSource',
     value: function parseSource(source) {
-      var self = this;
-
-      var nodeName = '';
-      var condition = '';
-      var lastToken = '';
-      conditionMachine.each(source, function (state, token) {
-        lastToken = token;
-        switch (state) {
-          case 'start':
-            break;
-          case 'name':
-            nodeName += token;
-            break;
-          case 'condition':
-            condition += token;
-            break;
-          default:
-            self.throwError();
-        }
+      var tmp = conditionParser.parse(source, {
+        expectNodeName: '#if'
       });
-      if (lastToken !== ']') {
-        self.throwError();
-      }
-      if (nodeName.toLowerCase() !== '#if') {
-        self.throwError();
-      }
-      condition = condition.substr(0, condition.length - 1);
-      condition = condition.trim();
-      if (!condition) {
-        self.throwError();
-      }
-
-      this.nodeName = nodeName.toLowerCase();
-      this.condition = condition;
+      this.nodeName = tmp.nodeName;
+      this.condition = tmp.condition;
     }
   }, {
-    key: 'throwError',
-    value: function throwError(code) {
-      var line = this.getLineNumber();
-      throw new Error('Unrecognized #if at line: ' + line + '.');
+    key: 'addSilbling',
+    value: function addSilbling(node) {
+      var parent = this.parent;
+      var last = parent.children;
+    }
+  }, {
+    key: 'init',
+    value: function init() {
+      // 调整elseif 和 else的树形关系
+      var children = this.children;
+      this.children = [];
+
+      var currentNode = this;
+      _.each(children, function (child) {
+        if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+          currentNode.after(child);
+          currentNode = child;
+        } else {
+          currentNode.appendChild(child);
+        }
+      });
     }
   }, {
     key: 'deliverUpdate',

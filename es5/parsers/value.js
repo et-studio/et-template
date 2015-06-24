@@ -4,10 +4,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('../util');
-var Machine = require('../machine');
-
-// @tableMark: value
+// @tableStart: value
 var valueTableOptions = {
   states: ['string', 'start', 'expression', 'end'],
   symbols: ['{{', '}}'],
@@ -31,39 +28,21 @@ var valueTableOptions = {
 };
 // @tableEnd
 
+var Machine = require('./machine');
+var _ = require('../util');
+
 var valueMachine = new Machine(valueTableOptions);
 
-var ValueHandler = (function () {
-  function ValueHandler() {
-    _classCallCheck(this, ValueHandler);
+var ValueParser = (function () {
+  function ValueParser() {
+    _classCallCheck(this, ValueParser);
   }
 
-  _createClass(ValueHandler, [{
-    key: 'isErraticValue',
-    value: function isErraticValue(str) {
-      if (!str) {
-        return false;
-      }
-      var start = str.indexOf('{{');
-      var end = str.lastIndexOf('}}');
-      return start >= 0 && end > start;
-    }
-  }, {
-    key: 'pushStr',
-    value: function pushStr(list, str, isExpression) {
-      if (str && isExpression) {
-        list.push(str);
-      } else if (str) {
-        list.push('\'' + str + '\'');
-      }
-    }
-  }, {
-    key: 'compileValue',
-    value: function compileValue(str) {
+  _createClass(ValueParser, [{
+    key: 'parse',
+    value: function parse(str) {
       var _this = this;
 
-      // 'xxx{{it.getSrc()}}bbb{{it.src2}}'
-      // ('xxx' + it.getSrc() + 'bbb' + it.src2)
       var list = [];
       var tmp = '';
 
@@ -86,9 +65,18 @@ var ValueHandler = (function () {
       this.pushStr(list, tmp);
       return '(' + list.join(' + ') + ')';
     }
+  }, {
+    key: 'pushStr',
+    value: function pushStr(list, str, isExpression) {
+      if (str && isExpression) {
+        list.push(str);
+      } else if (str) {
+        list.push('\'' + str + '\'');
+      }
+    }
   }]);
 
-  return ValueHandler;
+  return ValueParser;
 })();
 
-module.exports = new ValueHandler();
+module.exports = new ValueParser();

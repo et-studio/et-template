@@ -6,7 +6,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Parser = require('./parser');
 var Compiler = require('./compiler');
-var formatter = require('./formatter');
+var formatter = require('./parsers/format');
 
 var ET = (function () {
   function ET() {
@@ -39,7 +39,7 @@ var ET = (function () {
   }, {
     key: 'format',
     value: function format(str) {
-      return formatter.format(str);
+      return formatter.parse(str);
     }
   }]);
 

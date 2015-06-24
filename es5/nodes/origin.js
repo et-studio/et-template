@@ -13,7 +13,8 @@ var OriginNode = (function () {
 
     _classCallCheck(this, OriginNode);
 
-    this.lineNumber = options.lineNumber;
+    this.rowNumber = options.rowNumber;
+    this.colNumber = options.colNumber;
     this.isClosed = false;
     this.source = source.trim();
     this.parent = parent;

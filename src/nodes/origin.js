@@ -2,7 +2,8 @@ var _ = require('../util');
 
 class OriginNode {
   constructor(parent, source = '', options = {}) {
-    this.lineNumber = options.lineNumber;
+    this.rowNumber = options.rowNumber;
+    this.colNumber = options.colNumber;
     this.isClosed = false;
     this.source = source.trim();
     this.parent = parent;

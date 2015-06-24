@@ -42,7 +42,7 @@ _util_extend(Template_et0.prototype, _prototype, {
       _util_setAttribute(_et, 'data-type', _tmp);
     }
 
-    if (it.isTure) {
+    if (it.isTrue) {
       if (_last.value_2 !== 0) {
         _last.value_2 = 0;
         _util_setAttribute(_et, 'class', 'class-true');

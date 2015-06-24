@@ -66,7 +66,6 @@ module.exports = [
     title: 'error test',
     html: '<div id="{{it.id}}" [#if it.isTrue]class="test" </div>123456',
     expect: {
-      source: '',
       children: [{
         source: '<div id="{{it.id}}" ',
         children: [{
@@ -76,6 +75,21 @@ module.exports = [
         }]
       }, {
         source: '123456'
+      }]
+    }
+  },
+  {
+    title: 'test1',
+    html: `<div id="aaa{{it.id}}bbb{{it.getSrc()}}" data-type="{{(function(){return it.a + it.b;})()}}" [#if it.isTrue]class="class-true"[/#if]></div>`,
+    expect: {
+      children: [{
+        source: `<div id="aaa{{it.id}}bbb{{it.getSrc()}}" data-type="{{(function(){return it.a + it.b;})()}}" >`,
+        expressions: [{
+          source: '[#if it.isTrue]',
+          children: [{
+            source: 'class="class-true"'
+          }]
+        }]
       }]
     }
   }

@@ -8,172 +8,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _ = require('../util');
 var Basic = require('./basic');
-var Machine = require('../machine');
-var valueHandler = require('./value');
+
+var _ = require('../util');
 var worker = require('../worker');
-
-// @tableStart: element
-var elementTableOptions = {
-  states: ['start', 'name', 'scan', 'key', 'valueStart', 'value', 'value\'', 'value"', '_str', 'valueStr', 'end'],
-  symbols: ['<', '>', '\\"', '"', '\\\'', '\'', '=', ' ', '{{', '}}'],
-  table: [{
-    '0': 'start',
-    '1': '',
-    '2': '',
-    '3': '',
-    '4': '',
-    '5': '',
-    '6': '',
-    '7': '',
-    '8': '',
-    '9': '',
-    '-1': 'name'
-  }, {
-    '0': '',
-    '1': 'end',
-    '2': '',
-    '3': '',
-    '4': '',
-    '5': '',
-    '6': '',
-    '7': 'scan',
-    '8': '',
-    '9': '',
-    '-1': 'name'
-  }, {
-    '0': '',
-    '1': 'end',
-    '2': '',
-    '3': '',
-    '4': '',
-    '5': '',
-    '6': 'valueStart',
-    '7': 'scan',
-    '8': '',
-    '9': '',
-    '-1': 'key'
-  }, {
-    '0': '',
-    '1': '',
-    '2': '',
-    '3': '',
-    '4': '',
-    '5': '',
-    '6': 'valueStart',
-    '7': '',
-    '8': '',
-    '9': '',
-    '-1': 'key'
-  }, {
-    '0': '',
-    '1': '',
-    '2': '',
-    '3': 'value"',
-    '4': '',
-    '5': 'value\'',
-    '6': '',
-    '7': 'valueStart',
-    '8': 'valueStr',
-    '9': '',
-    '-1': 'value'
-  }, {
-    '0': 'value',
-    '1': 'end',
-    '2': 'value',
-    '3': 'value',
-    '4': 'value',
-    '5': 'value',
-    '6': 'value',
-    '7': 'scan',
-    '8': '_str',
-    '9': 'value',
-    '-1': 'value'
-  }, {
-    '0': 'value\'',
-    '1': 'value\'',
-    '2': 'value\'',
-    '3': 'value\'',
-    '4': 'value\'',
-    '5': 'scan',
-    '6': 'value\'',
-    '7': 'value\'',
-    '8': '_str',
-    '9': 'value\'',
-    '-1': 'value\''
-  }, {
-    '0': 'value"',
-    '1': 'value"',
-    '2': 'value"',
-    '3': 'scan',
-    '4': 'value"',
-    '5': 'value"',
-    '6': 'value"',
-    '7': 'value"',
-    '8': '_str',
-    '9': 'value"',
-    '-1': 'value"'
-  }, {
-    '0': '_str',
-    '1': '_str',
-    '2': '_str',
-    '3': '_str',
-    '4': '_str',
-    '5': '_str',
-    '6': '_str',
-    '7': '_str',
-    '8': '_str',
-    '9': '_last',
-    '-1': '_str'
-  }, {
-    '0': 'valueStr',
-    '1': 'valueStr',
-    '2': 'valueStr',
-    '3': 'valueStr',
-    '4': 'valueStr',
-    '5': 'valueStr',
-    '6': 'valueStr',
-    '7': 'valueStr',
-    '8': 'valueStr',
-    '9': 'value',
-    '-1': 'valueStr'
-  }, {
-    '0': '',
-    '1': '',
-    '2': '',
-    '3': '',
-    '4': '',
-    '5': '',
-    '6': '',
-    '7': '',
-    '8': '',
-    '9': '',
-    '-1': ''
-  }]
-};
-// @tableStart: condition
-var conditionTableOptions = {
-  states: ['start', 'name', 'condition'],
-  symbols: ['[', ' '],
-  table: [{
-    '0': 'start',
-    '1': '',
-    '-1': 'name'
-  }, {
-    '0': '',
-    '1': 'condition',
-    '-1': 'name'
-  }, {
-    '0': 'condition',
-    '1': 'condition',
-    '-1': 'condition'
-  }]
-};
-// @tableEnd
-
-var elementMachine = new Machine(elementTableOptions);
-var conditionMachine = new Machine(conditionTableOptions);
+var elementParser = require('../parsers/element');
+var valueParser = require('../parsers/value');
+var conditionParser = require('../parsers/condition');
 
 var Element = (function (_Basic) {
   function Element(source) {
@@ -182,8 +23,9 @@ var Element = (function (_Basic) {
     _classCallCheck(this, Element);
 
     _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, source, options);
-    this.parseExpresions(options.expressions);
     this.nodeType = 1;
+    this.expressions = [];
+    this.parseExpresions(options.expressions);
   }
 
   _inherits(Element, _Basic);
@@ -191,7 +33,7 @@ var Element = (function (_Basic) {
   _createClass(Element, [{
     key: 'parseSource',
     value: function parseSource(source) {
-      var tinyNode = this.translateSource(source);
+      var tinyNode = elementParser.parse(source);
       this.attributes = tinyNode.attributes;
       this.nodeName = tinyNode.nodeName;
     }
@@ -201,179 +43,19 @@ var Element = (function (_Basic) {
       var newExpressions = [];
       var self = this;
       _.each(expressions, function (expression) {
-        var result = {};
-
-        if (!expression || !expression.children || expression.children.length !== 1) {
-          self.throwError();
-        }
         var child = expression.children[0];
-        if (child.children.length !== 0) {
-          self.throwError();
-        }
-        var source = child.source;
-        if (source) {
-          var tinyNode = self.translateSource('<div ' + source + '>');
-          result.attributes = tinyNode.attributes;
-        }
+        var source = child && child.source || '';
+        var tinyNode = elementParser.parse('<div ' + source + '>');
+        var conditionNode = conditionParser.parse(expression.source);
 
-        if (_.isEmpty(result.attributes)) {
-          return;
+        if (!_.isEmpty(tinyNode.attributes)) {
+          newExpressions.push({
+            condition: conditionNode.condition,
+            attributes: tinyNode.attributes
+          });
         }
-
-        var nodeName = '';
-        var condition = '';
-        var lastToken = '';
-        conditionMachine.each(expression.source, function (state, token) {
-          lastToken = token;
-          switch (state) {
-            case 'start':
-              break;
-            case 'name':
-              nodeName += token;
-              break;
-            case 'condition':
-              condition += token;
-              break;
-            default:
-              self.throwError();
-          }
-        });
-        if (lastToken !== ']') {
-          self.throwError();
-        }
-        if (nodeName.toLowerCase() !== '#if') {
-          self.throwError();
-        }
-        condition = condition.substr(0, condition.length - 1);
-        condition = condition.trim();
-        if (!condition) {
-          self.throwError();
-        }
-        result.condition = condition;
-
-        newExpressions.push(result);
       });
       this.expressions = newExpressions;
-    }
-  }, {
-    key: 'translateSource',
-    value: function translateSource(source) {
-      var self = this;
-      var lastState;
-
-      var attrs = [];
-      var attrKey = '';
-      var attrValue = '';
-      var str = '';
-      var nodeName = '';
-      elementMachine.each(source, function (state, token) {
-        lastState = state;
-        switch (state) {
-          case 'start':
-          case 'end':
-            break;
-          case 'name':
-            nodeName += token;
-            break;
-          case 'scan':
-            if (attrKey) {
-              attrs.push({
-                key: attrKey
-              });
-              attrKey = '';
-            }
-            if (attrValue) {
-              var attr = attrs.pop();
-              if (!attr || !attr.key || attr.value) {
-                self.throwError();
-              }
-              attr.value = attrValue;
-              attrs.push(attr);
-              attrValue = '';
-            }
-            break;
-          case 'key':
-            attrKey += token;
-            break;
-          case 'valueStart':
-            if (attrKey) {
-              attrs.push({
-                key: attrKey
-              });
-              attrKey = '';
-            }
-            break;
-          case 'value':
-            if (str) {
-              attrValue += str;
-              str = '';
-            }
-            attrValue += token;
-            break;
-          case 'value\'':
-            if (str) {
-              attrValue += str;
-              str = '';
-            }
-            attrValue += token;
-            if (attrValue.indexOf('\'') === 0) {
-              attrValue = attrValue.substr(1);
-            }
-            break;
-          case 'value"':
-            if (str) {
-              attrValue += str;
-              str = '';
-            }
-            attrValue += token;
-            if (attrValue.indexOf('"') === 0) {
-              attrValue = attrValue.substr(1);
-            }
-            break;
-          case 'valueStr':
-          case '_str':
-            str += token;
-            break;
-          default:
-            self.throwError(state);
-        }
-      });
-      if (lastState !== 'end') {
-        self.throwError();
-      }
-      if (attrKey) {
-        attrs.push({
-          key: attrKey
-        });
-        attrKey = '';
-      }
-      if (attrValue) {
-        var attr = attrs.pop();
-        if (!attr || !attr.key || attr.value) {
-          self.throwError();
-        }
-        attr.value = attrValue;
-        attrs.push(attr);
-      }
-
-      var attrMap = {};
-      attrs.forEach(function (attr) {
-        if (!attr.key) {
-          self.throwError();
-        }
-        attrMap[attr.key] = attr.value || '';
-      });
-
-      return {
-        nodeName: nodeName.toUpperCase(),
-        attributes: attrMap
-      };
-    }
-  }, {
-    key: 'throwError',
-    value: function throwError(code) {
-      var line = this.getLineNumber();
-      throw new Error('Unrecognized element format at line: ' + line + '.');
     }
   }, {
     key: 'deliverCreate',
@@ -395,7 +77,7 @@ var Element = (function (_Basic) {
       var attrs = this.attributes;
       for (var key in attrs) {
         var value = attrs[key];
-        if (!valueHandler.isErraticValue(value)) {
+        if (!this.isErraticValue(value)) {
           re[key] = value;
           isEmpty = false;
         }
@@ -423,7 +105,7 @@ var Element = (function (_Basic) {
       var erracticMap = {};
       for (var key in attrs) {
         var value = attrs[key];
-        if (valueHandler.isErraticValue(value)) {
+        if (this.isErraticValue(value)) {
           erracticMap[key] = value;
         }
       }
@@ -451,9 +133,9 @@ var Element = (function (_Basic) {
         var value = attrs[key];
         var tmp = {
           key: key,
-          isErratic: valueHandler.isErraticValue(value),
+          isErratic: this.isErraticValue(value),
           value: value,
-          valueString: valueHandler.compileValue(value)
+          valueString: valueParser.parse(value)
         };
         if (tmp.isErratic) {
           tmp.valueId = this.getRootValueId();

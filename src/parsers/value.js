@@ -1,9 +1,6 @@
 'use strict';
 
-var _ = require('../util');
-var Machine = require('../machine');
-
-// @tableMark: value
+// @tableStart: value
 var valueTableOptions = {
   states: ['string', 'start', 'expression', 'end'],
   symbols: ['{{', '}}'],
@@ -32,27 +29,13 @@ var valueTableOptions = {
 };
 // @tableEnd
 
+var Machine = require('./machine');
+var _ = require('../util');
+
 var valueMachine = new Machine(valueTableOptions);
 
-class ValueHandler {
-  isErraticValue(str) {
-    if (!str) {
-      return false;
-    }
-    var start = str.indexOf('{{');
-    var end = str.lastIndexOf('}}');
-    return start >= 0 && end > start;
-  }
-  pushStr(list, str, isExpression) {
-    if (str && isExpression) {
-      list.push(str);
-    } else if (str) {
-      list.push(`'${str}'`);
-    }
-  }
-  compileValue(str) {
-    // 'xxx{{it.getSrc()}}bbb{{it.src2}}'
-    // ('xxx' + it.getSrc() + 'bbb' + it.src2)
+class ValueParser {
+  parse(str) {
     var list = [];
     var tmp = '';
 
@@ -75,6 +58,13 @@ class ValueHandler {
     this.pushStr(list, tmp);
     return `(${list.join(' + ')})`;
   }
+  pushStr(list, str, isExpression) {
+    if (str && isExpression) {
+      list.push(str);
+    } else if (str) {
+      list.push(`'${str}'`);
+    }
+  }
 }
 
-module.exports = new ValueHandler();
+module.exports = new ValueParser();

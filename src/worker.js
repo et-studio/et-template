@@ -268,7 +268,7 @@ module.exports = ${it.templateName};
     re = re + `
 var _line = _doms.${it.lineId};
 var _lastLength = _last.${it.valueId};
-var _list = ${it.condition};
+var _list = ${it.expression};
 var _i = 0;
 var _len = _list.length;
 for (; _i < _len; _i++) {

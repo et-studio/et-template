@@ -55,6 +55,7 @@ var Basic = (function (_NodeInterface) {
     this.parent = options.parent;
     this.previous = options.previous;
     this.next = null;
+    this.isRoot = !this.parent;
     this.children = [];
     this.parseSource(source);
   }
@@ -64,9 +65,9 @@ var Basic = (function (_NodeInterface) {
   _createClass(Basic, [{
     key: 'getNewTemplateDoms',
     value: function getNewTemplateDoms() {
-      var re = [this];
-      _.each(this.getPosterity(), function (dom) {
-        if (dom && dom.isNewTemplate) {
+      var re = [];
+      this.each(function (dom) {
+        if (dom.isRoot || dom.isNewTemplate) {
           re.push(dom);
         }
       });
@@ -108,30 +109,29 @@ var Basic = (function (_NodeInterface) {
       if (this.args) {
         _.concat(re, this.args);
       }
-      return _.uniq(re);
-    }
-  }, {
-    key: 'getPosterity',
-    value: function getPosterity() {
-      var doms = [];
-      _.each(this.children, function (child) {
-        if (child) {
-          doms.push(child);
-          _.concat(doms, child.getPosterity());
-        }
-      });
-      return doms;
+      re = _.uniq(re);
+      return _.clearArraySpace(re);
     }
   }, {
     key: 'checkRoot',
     value: function checkRoot() {
       var parent = this.parent;
       // 当不存在nodeType的时候也认为是root
-      if (!parent || !parent.nodeType || parent.nodeType === 'root' || parent.isNewTemplate) {
+      if (!parent || parent.isRoot || parent.isNewTemplate) {
         return true;
       } else {
         return false;
       }
+    }
+  }, {
+    key: 'isErraticValue',
+    value: function isErraticValue(str) {
+      if (!str) {
+        return false;
+      }
+      var start = str.indexOf('{{');
+      var end = str.lastIndexOf('}}');
+      return 0 <= start && start < end;
     }
   }, {
     key: 'saveArgument',
@@ -140,20 +140,78 @@ var Basic = (function (_NodeInterface) {
         list[_key] = arguments[_key];
       }
 
-      var args = this.args;
-      _.each(list, function (str) {
-        if (str) {
-          args.push(str);
+      _.concat(this.args, list);
+      return this;
+    }
+  }, {
+    key: 'after',
+    value: function after(node) {
+      if (this.isRoot) {
+        return;
+      }
+
+      var nodePrev = node.previous;
+      var nodeNext = node.next;
+      if (nodePrev) {
+        nodePrev.next = nodeNext;
+      }
+      if (nodeNext) {
+        nodeNext.previous = nodePrev;
+      }
+
+      node.parent = this.parent;
+      node.previous = this;
+      node.next = this.next;
+
+      var currentNext = this.next;
+      if (currentNext) {
+        currentNext.previous = node;
+      }
+      this.next = node;
+
+      var newChidren = [];
+      var _this = this;
+      _.each(this.parent.children, function (child) {
+        newChidren.push(child);
+        if (child.getId() === _this.getId()) {
+          newChidren.push(node);
         }
       });
-      return this;
+      this.parent.children = newChidren;
+    }
+  }, {
+    key: 'appendChild',
+    value: function appendChild(node) {
+      var children = this.children;
+
+      if (children.length > 0) {
+        var last = children[children.length - 1];
+        last.next = node;
+        node.previous = last;
+      }
+
+      children.push(node);
+      node.next = null;
+      node.parent = this;
+    }
+  }, {
+    key: 'each',
+    value: function each(callback) {
+      if (typeof callback === 'function') {
+        callback(this);
+        if (this.children.length) {
+          this.children[0].each(callback);
+        }
+        if (this.next) {
+          this.next.each(callback);
+        }
+      }
     }
   }, {
     key: 'initAll',
     value: function initAll() {
-      this.init();
-      _.each(this.child, function (child) {
-        child.initAll();
+      this.each(function (dom) {
+        dom.init();
       });
     }
   }, {
@@ -187,3 +245,5 @@ var Basic = (function (_NodeInterface) {
 })(NodeInterface);
 
 module.exports = Basic;
+
+// 会在构造函数中调用这个函数

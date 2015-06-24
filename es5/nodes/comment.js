@@ -9,34 +9,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var Basic = require('./basic');
-var Machine = require('../machine');
 var worker = require('../worker');
-
-// @tableStart: comment
-var commentTableOptions = {
-  states: ['start', 'header', 'text', 'end'],
-  symbols: ['<!--', '-->'],
-  table: [{
-    '0': 'header',
-    '1': '',
-    '-1': ''
-  }, {
-    '0': '',
-    '1': '',
-    '-1': 'text'
-  }, {
-    '0': 'text',
-    '1': 'end',
-    '-1': 'text'
-  }, {
-    '0': '',
-    '1': '',
-    '-1': ''
-  }]
-};
-// @tableEnd
-
-var machine = new Machine(commentTableOptions);
+var commentParser = require('../parsers/comment');
 
 var Comment = (function (_Basic) {
   function Comment(source) {
@@ -53,21 +27,7 @@ var Comment = (function (_Basic) {
   _createClass(Comment, [{
     key: 'parseSource',
     value: function parseSource(source) {
-      var line = this.getLineNumber();
-      var text = '';
-      machine.each(source, function (state, token) {
-        switch (state) {
-          case 'header':
-          case 'end':
-            break;
-          case 'text':
-            text += token;
-            break;
-          default:
-            throw new Error('Unrecognized comment format at line: ' + line + '.');
-        }
-      });
-      this.textContent = text;
+      this.text = commentParser.parse(source);
     }
   }, {
     key: 'deliverCreate',

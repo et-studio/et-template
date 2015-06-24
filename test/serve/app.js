@@ -30,16 +30,17 @@ var _ = {
     return str.indexOf('// @ignore') >= 0;
   },
   getFile: function getFile(path, callback) {
-    fs.readFile(path, 'utf-8', function(err, content) {
+    fs.readFile(`${rootDir}/${path}`, 'utf-8', function(err, content) {
       if (err) {
         return callback(err);
       }
 
       if(_.isEndWidth(path, '.js') && !_.isIgnore(content)) {
-        content = ''
-          + 'define(function(require, exports, module){\n'
-          + content
-          + '});';
+        content = `
+          define(function(require, exports, module){
+            ${content}
+          });
+        `;
         content = babel.transform(content).code;
       }
 
@@ -47,31 +48,33 @@ var _ = {
     });
   },
   getDesignJs: function getDesignJs(path, callback) {
-    fs.readFile(path, 'utf-8', function(err, content) {
+    fs.readFile(`${rootDir}/${path}`, 'utf-8', function(err, content) {
       if (err) {
         return callback(err);
       }
 
-      content = ''
-        + 'define(function(require, exports, module){\n'
-        +   'module.exports =`' + content + '`'
-        + '});';
+      content = `
+        define(function(require, exports, module){
+          module.exports = \`${content}\`;
+        });
+      `;
       content = babel.transform(content).code;
 
       callback(null, content);
     });
   },
   getDesignHtml: function getDesignHtml(path, callback) {
-    fs.readFile(path, 'utf-8', function(err, content) {
+    fs.readFile(`${rootDir}/${path}`, 'utf-8', function(err, content) {
       if (err) {
         return callback(err);
       }
-      content = ''
-        + 'define(function(require, exports, module){\n'
-        +   'module.exports =`' + et.translate(content) + '`'
-        + '});';
+      content = `
+        define(function(require, exports, module){
+          module.exports = \`${et.translate(content)}\`;
+        });
+      `;
       content = babel.transform(content).code;
-      
+
       callback(null, content);
     });
   }
@@ -106,6 +109,7 @@ app.use('/src', function(req, res) {
   _.getFile(path, function(err, content) {
     if (err) {
       console.log('not found:' + path);
+      console.log(err.toString());
       res.status(404).send(err);
     } else {
       res.send(content);

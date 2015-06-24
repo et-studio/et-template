@@ -2,14 +2,13 @@
 
 var _ = require('underscore');
 var settings = require('./settings.js');
-var Parser = require('src/parser');
+var originParser = require('src/parsers/origin');
 
 exports.register = function(){
   describe('Compiler test', function(){
     settings.forEach(function(setting){
       it(setting.title, function(){
-        var parser = new Parser(setting.options);
-        var node = parser.tranlateToOriginNode(setting.html);
+        var node = originParser.parse(setting.html);
         var expect = setting.expect;
 
         console.log(node);

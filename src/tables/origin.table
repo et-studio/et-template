@@ -14,4 +14,6 @@
 '\\"' | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
 '"'   | text        | text       | text       | tag      | str\"      | str\"      | str{{  | str\'  | strEnd | close      | close
 ' '   | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'\r'  | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
+'\n'  | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close
       | text        | text       | text       | tag      | tag        | tag        | str{{  | str\'  | str\"  | close      | close

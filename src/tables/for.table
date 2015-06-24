@@ -4,6 +4,8 @@
 '['    | start  |           |           | text     |           |           |          |            | expression
 ' in ' |        |           |           | exStart  | exStart   | exStart   | exStart  |            | expression
 ' '    |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
+'\r'   |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
+'\n'   |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
 ','    |        |           |           | itemEnd  |           | indexEnd  |          |            | expression
 ';'    |        |           |           | itemEnd  |           | indexEnd  |          |            | expression
        | header | header    | itemName  | itemName | indexName | indexName |          | expression | expression

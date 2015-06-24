@@ -1,8 +1,5 @@
 'use strict';
 
-var _ = require('./util');
-var Machine = require('./machine');
-
 // @tableStart: format
 var formatTableOptions = {
   states: ['header', 'body', 'methodName', 'methodEnd'],
@@ -36,16 +33,19 @@ var formatTableOptions = {
 };
 // @tableEnd
 
-var formatterMachine = new Machine(formatTableOptions);
+var Machine = require('./machine');
+var _ = require('../util');
 
-class Formatter {
-  format(str) {
+var formatMachine = new Machine(formatTableOptions);
+
+class FormatParser {
+  parse(str) {
     var header = '';
     var methods = [];
     var body = '';
 
     var tmp = '';
-    formatterMachine.each(str, (state, token) => {
+    formatMachine.each(str, (state, token) => {
       switch (state) {
         case 'header':
           header += token;
@@ -83,4 +83,4 @@ class Formatter {
   }
 }
 
-module.exports = new Formatter();
+module.exports = new FormatParser();

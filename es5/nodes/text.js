@@ -8,9 +8,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var valueHandler = require('./value');
 var Basic = require('./basic');
 var worker = require('../worker');
+var valueParser = require('../parsers/value');
 
 var TextNode = (function (_Basic) {
   function TextNode(source) {
@@ -33,7 +33,7 @@ var TextNode = (function (_Basic) {
     key: 'deliverCreate',
     value: function deliverCreate() {
       var text = this.getTextContent();
-      if (valueHandler.isErraticValue(text)) {
+      if (this.isErraticValue(text)) {
         text = '';
       }
       var it = {
@@ -49,14 +49,14 @@ var TextNode = (function (_Basic) {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
       var text = this.getTextContent();
-      if (valueHandler.isErraticValue(text)) {
+      if (this.isErraticValue(text)) {
         var it = {
           id: this.getId(),
           isRoot: this.checkRoot(),
           lineId: this.getLineId(),
           parentId: this.getParentId(),
           valueId: this.getRootValueId(),
-          valueString: valueHandler.compileValue(text)
+          valueString: valueParser.parse(text)
         };
         return [worker.updateText(it)];
       } else {

@@ -10,8 +10,8 @@ var settings = [
     expect: require('design/attributes/expect')
   },
   {
-    title: 'attributes-with-expression',
-    source: require('design/attributes/source.html'),
+    title: 'attrs-with-expression',
+    source: require('design/attributes-with-expression/source.html'),
     expect: require('design/attributes-with-expression/expect')
   },
   {
@@ -28,6 +28,11 @@ var settings = [
     title: 'text',
     source: require('design/text/source.html'),
     expect: require('design/text/expect')
+  },
+  {
+    title: 'if-else',
+    source: require('design/if-else/source.html'),
+    expect: require('design/if-else/expect')
   }
 ];
 

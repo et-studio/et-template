@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('./util');
+var _ = require('../util');
 
 class Machine {
   constructor(options = {}) {

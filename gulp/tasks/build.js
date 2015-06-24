@@ -21,10 +21,5 @@ exports.register = function(gulp){
     .pipe(gulp.dest(destDir));
   });
 
-  gulp.task('build-json', function() {
-    return gulp.src([srcDir + '/**/*.json'])
-    .pipe(gulp.dest(destDir));
-  });
-
-  gulp.task('build', sequence('dev', 'build-clean', 'build-js', 'build-json'));
+  gulp.task('build', sequence('dev', 'build-clean', 'build-js'));
 };
