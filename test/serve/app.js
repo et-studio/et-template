@@ -47,6 +47,22 @@ var _ = {
       callback(null, content);
     });
   },
+  getHtml: function getHtml(path, callback) {
+    fs.readFile(`${rootDir}/${path}`, 'utf-8', function(err, content) {
+      if (err) {
+        return callback(err);
+      }
+
+      content = `
+        define(function(require, exports, module){
+          ${et.translate(content)}
+        });
+      `;
+      content = babel.transform(content).code;
+
+      callback(null, content);
+    });
+  },
   getDesignJs: function getDesignJs(path, callback) {
     fs.readFile(`${rootDir}/${path}`, 'utf-8', function(err, content) {
       if (err) {
@@ -83,6 +99,19 @@ var _ = {
 app.use('/node_modules', express.static('node_modules'));
 app.use('/bower_components', express.static('bower_components'));
 
+app.use('/template', function(req, res) {
+  var path = 'test/template' + req.path;
+  path = path.slice(0, path.length - 3)
+  _.getHtml(path, function(err, content) {
+    if (err) {
+      console.log(err.toString());
+      res.status(404).send(err);
+    } else {
+      res.send(content);
+    }
+  });
+});
+
 app.use('/design', function(req, res) {
   var path = 'design' + req.path;
   var method;
@@ -97,7 +126,7 @@ app.use('/design', function(req, res) {
 
   _[method](path, function(err, content) {
     if (err) {
-      console.log('not found:' + path);
+      console.log(err.toString());
       res.status(404).send(err);
     } else {
       res.send(content);
@@ -108,7 +137,6 @@ app.use('/src', function(req, res) {
   var path = 'src' + req.path;
   _.getFile(path, function(err, content) {
     if (err) {
-      console.log('not found:' + path);
       console.log(err.toString());
       res.status(404).send(err);
     } else {
@@ -123,7 +151,7 @@ app.use(function(req, res) {
   }
   _.getFile(path, function(err, content) {
     if (err) {
-      console.log('not found:' + path);
+      console.log(err.toString());
       res.status(404).send(err);
     } else {
       res.send(content);

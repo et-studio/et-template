@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head lang="zh-CN">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to ET.</title>
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" >
+    <link rel="stylesheet" href="./db.css">
+    <script data-main="/main" src="/bower_components/requirejs/require.js"></script>
+    <script src="https://cdn.rawgit.com/paulirish/memory-stats.js/master/memory-stats.js"></script>
+  </head>
+  <body>
+    <div id="test"></div>
+    <script>
+      var stats = new MemoryStats();
+      stats.domElement.style.position = 'fixed';
+      stats.domElement.style.right        = '0px';
+      stats.domElement.style.bottom       = '0px';
+      document.body.appendChild( stats.domElement );
+      requestAnimationFrame(function rAFloop(){
+          stats.update();
+          requestAnimationFrame(rAFloop);
+      });
+    </script>
+  </body>
+</html>

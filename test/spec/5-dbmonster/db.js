@@ -1,5 +1,4 @@
 'use strict';
-// @ignore
 
 function getDatabases() {
   var newData = getData();
@@ -147,3 +146,5 @@ function formatElapsed(value) {
   }
   return str;
 }
+
+module.exports = getDatabases;
