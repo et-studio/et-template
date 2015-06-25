@@ -1,21 +1,21 @@
 'use strict';
 
-var NewNode = require('./new');
+var Basic = require('./basic');
 var _ = require('../util');
 var worker = require('../worker');
 var conditionParser = require('../parsers/condition');
 
-class IfNode extends NewNode {
-  parseSource(source) {
+class IfNode extends Basic {
+  constructor(source, options) {
+    super(source, options);
+    this.isNewTemplate = true;
+  }
+  parse(source) {
     var tmp = conditionParser.parse(source, {
       expectNodeName: '#if'
     });
     this.nodeName = tmp.nodeName;
     this.condition = tmp.condition;
-  }
-  addSilbling(node) {
-    var parent = this.parent;
-    var last = parent.children
   }
   init() {
     // 调整elseif 和 else的树形关系
@@ -31,6 +31,18 @@ class IfNode extends NewNode {
         currentNode.appendChild(child);
       }
     });
+  }
+  deliverCreate() {
+    var it = {
+      id: this.getId(),
+      isRoot: this.checkRoot(),
+      lineId: this.getLineId(),
+      parentId: this.getParentId()
+    }
+    var re = [];
+    re.push(worker.createNull(it));
+    re.push(worker.createLine(it));
+    return re;
   }
   deliverUpdate() {
     var lastRoot = this.getLastRoot();
@@ -77,10 +89,13 @@ class IfNode extends NewNode {
   translateDom(dom) {
     return {
       id: dom.getId(),
+      isRoot: dom.checkRoot(),
+      lineId: dom.getLineId(),
+      parentId: dom.getParentId(),
       templateName: dom.getTemplateName(),
       args: dom.getArguments(),
-      tag: this.getTag(dom.nodeName),
-      condition: dom.condition
+      condition: dom.condition,
+      tag: this.getTag(dom.nodeName)
     }
   }
   pickSiblings(doms, current) {

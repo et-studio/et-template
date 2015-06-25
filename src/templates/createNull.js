@@ -1,12 +1,11 @@
 
 // {{
-var _et = null;
-_doms.${it.id} = _et;
+_doms.${it.id} = null;
 // }}
 
 if (it.isRoot) {
   // {{
-  _roots.${it.id} = _et;
+  _roots.${it.id} = null;
   _rootIds.push('${it.id}');
   // }}
 }

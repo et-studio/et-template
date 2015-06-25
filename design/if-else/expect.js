@@ -34,18 +34,13 @@ _util_extend(Template_et0.prototype, _prototype, {
     _roots.et1 = _et;
     _rootIds.push('et1');
 
-    var _et = null;
-    _doms.et2 = _et;
-
-    var _et = null;
-    _doms.et4 = _et;
-
-    var _et = null;
-    _doms.et6 = _et;
-
+    _doms.et2 = null;
     var _line = _util_createLine();
     _doms.et2_line = _line;
     _util_appendChild(_doms.et1, _line);
+
+    _doms.et4 = null;
+    _doms.et6 = null;
   },
   update: function update(it) {
     var _doms = this.doms;
@@ -72,7 +67,7 @@ _util_extend(Template_et0.prototype, _prototype, {
         }
       }
       _doms.et2.update(it);
-    } if (it.elseTrue) {
+    } else if (it.elseTrue) {
       if (_last.value_0 !== 1) {
         _last.value_0 = 1;
         var _et = _doms.et4;
@@ -92,11 +87,11 @@ _util_extend(Template_et0.prototype, _prototype, {
       }
       _doms.et4.update(it);
     } else {
-      if (_last.value_0 !== 1) {
-        _last.value_0 = 1;
+      if (_last.value_0 !== 2) {
+        _last.value_0 = 2;
         var _et = _doms.et6;
         if (!_et) {
-          _doms.et6 = _et = new Template_et4();
+          _doms.et6 = _et = new Template_et6();
         }
         _util_before(_line, _et.get());
 
@@ -132,7 +127,7 @@ _util_extend(Template_et4.prototype, _prototype, {
     var _roots = this.roots;
     var _rootIds = this.rootIds;
 
-    var _et = _util_createTextNode('It is true.');
+    var _et = _util_createTextNode('It is elseTrue.');
     _doms.et5 = _et;
     _roots.et5 = _et;
     _rootIds.push('et5');
@@ -144,7 +139,7 @@ _util_extend(Template_et6.prototype, _prototype, {
     var _roots = this.roots;
     var _rootIds = this.rootIds;
 
-    var _et = _util_createTextNode('It is true.');
+    var _et = _util_createTextNode('It is else.');
     _doms.et7 = _et;
     _roots.et7 = _et;
     _rootIds.push('et7');

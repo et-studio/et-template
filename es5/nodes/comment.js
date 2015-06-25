@@ -25,8 +25,8 @@ var Comment = (function (_Basic) {
   _inherits(Comment, _Basic);
 
   _createClass(Comment, [{
-    key: 'parseSource',
-    value: function parseSource(source) {
+    key: 'parse',
+    value: function parse(source) {
       this.text = commentParser.parse(source);
     }
   }, {

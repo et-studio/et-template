@@ -26,9 +26,8 @@ _util_extend(Template_et0.prototype, _prototype, {
     _roots.et1 = _et;
     _rootIds.push('et1');
 
-    var _et = null;
-    _doms.et2 = _et;
-    _roots.et2 = _et;
+    _doms.et2 = null;
+    _roots.et2 = null;
     _rootIds.push('et2');
 
     var _line = _util_createLine();

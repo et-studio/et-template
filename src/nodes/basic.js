@@ -38,6 +38,7 @@ class Basic extends NodeInterface {
     this._source = source;
     this._lineNumber = options.lineNumber;
     this._index = options.index;
+    this.isNewTemplate = false;
     this.args = [];
     this.nodeType = 'ET';
     this.parent = options.parent;
@@ -45,7 +46,7 @@ class Basic extends NodeInterface {
     this.next = null;
     this.isRoot = !this.parent;
     this.children = [];
-    this.parseSource(source);
+    this.parse(source);
   }
   getNewTemplateDoms() {
     var re = [];
@@ -176,14 +177,11 @@ class Basic extends NodeInterface {
   }
 
   // attributes or functions could be override
-  get isNewTemplate() {
-    return false;
+  parse(source) {
+    // be called in constructor
   }
   init() {
-    return this;
-  }
-  parseSource(source) {
-    // 会在构造函数中调用这个函数
+    // should be called after the whole Tree created
   }
   deliverCreate() {
     return [];

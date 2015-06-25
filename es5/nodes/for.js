@@ -23,14 +23,15 @@ var ForNode = (function (_Basic) {
     _classCallCheck(this, ForNode);
 
     _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, source, options);
+    this.isNewTemplate = true;
     this.nodeName = '#for';
   }
 
   _inherits(ForNode, _Basic);
 
   _createClass(ForNode, [{
-    key: 'parseSource',
-    value: function parseSource(source) {
+    key: 'parse',
+    value: function parse(source) {
       var tmp = forParser.parse(source);
 
       this.itemName = tmp.itemName;
@@ -93,11 +94,6 @@ var ForNode = (function (_Basic) {
     key: 'getIndexName',
     value: function getIndexName() {
       return this.indexName || defaults.indexName;
-    }
-  }, {
-    key: 'isNewTemplate',
-    get: function () {
-      return true;
     }
   }]);
 

@@ -9,7 +9,7 @@ class TextNode extends Basic {
     super(source, options);
     this.nodeType = 3;
   }
-  parseSource(source) {
+  parse(source) {
     this.textContent = source;
   }
   deliverCreate() {

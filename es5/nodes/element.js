@@ -31,8 +31,8 @@ var Element = (function (_Basic) {
   _inherits(Element, _Basic);
 
   _createClass(Element, [{
-    key: 'parseSource',
-    value: function parseSource(source) {
+    key: 'parse',
+    value: function parse(source) {
       var tinyNode = elementParser.parse(source);
       this.attributes = tinyNode.attributes;
       this.nodeName = tinyNode.nodeName;

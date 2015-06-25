@@ -15,7 +15,7 @@ class Element extends Basic {
     this.expressions = [];
     this.parseExpresions(options.expressions);
   }
-  parseSource(source) {
+  parse(source) {
     var tinyNode = elementParser.parse(source);
     this.attributes = tinyNode.attributes;
     this.nodeName = tinyNode.nodeName;

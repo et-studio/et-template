@@ -13,9 +13,10 @@ var defaults = {
 class ForNode extends Basic {
   constructor(source, options) {
     super(source, options);
+    this.isNewTemplate = true;
     this.nodeName = '#for';
   }
-  parseSource(source) {
+  parse(source) {
     var tmp = forParser.parse(source);
 
     this.itemName = tmp.itemName;
@@ -26,9 +27,6 @@ class ForNode extends Basic {
     } else {
       this.saveArgument(tmp.itemName);
     }
-  }
-  get isNewTemplate() {
-    return true;
   }
   deliverCreate() {
     var it = {

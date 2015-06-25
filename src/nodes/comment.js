@@ -9,7 +9,7 @@ class Comment extends Basic {
     super(source, options);
     this.nodeType = 8;
   }
-  parseSource(source) {
+  parse(source) {
     this.text = commentParser.parse(source);
   }
   deliverCreate() {

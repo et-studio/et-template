@@ -50,6 +50,7 @@ var Basic = (function (_NodeInterface) {
     this._source = source;
     this._lineNumber = options.lineNumber;
     this._index = options.index;
+    this.isNewTemplate = false;
     this.args = [];
     this.nodeType = 'ET';
     this.parent = options.parent;
@@ -57,7 +58,7 @@ var Basic = (function (_NodeInterface) {
     this.next = null;
     this.isRoot = !this.parent;
     this.children = [];
-    this.parseSource(source);
+    this.parse(source);
   }
 
   _inherits(Basic, _NodeInterface);
@@ -215,13 +216,13 @@ var Basic = (function (_NodeInterface) {
       });
     }
   }, {
-    key: 'init',
-    value: function init() {
-      return this;
-    }
+    key: 'parse',
+
+    // attributes or functions could be override
+    value: function parse(source) {}
   }, {
-    key: 'parseSource',
-    value: function parseSource(source) {}
+    key: 'init',
+    value: function init() {}
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
@@ -232,13 +233,6 @@ var Basic = (function (_NodeInterface) {
     value: function deliverUpdate() {
       return [];
     }
-  }, {
-    key: 'isNewTemplate',
-
-    // attributes or functions could be override
-    get: function () {
-      return false;
-    }
   }]);
 
   return Basic;
@@ -246,4 +240,6 @@ var Basic = (function (_NodeInterface) {
 
 module.exports = Basic;
 
-// 会在构造函数中调用这个函数
+// be called in constructor
+
+// should be called after the whole Tree is created

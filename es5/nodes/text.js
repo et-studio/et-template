@@ -25,8 +25,8 @@ var TextNode = (function (_Basic) {
   _inherits(TextNode, _Basic);
 
   _createClass(TextNode, [{
-    key: 'parseSource',
-    value: function parseSource(source) {
+    key: 'parse',
+    value: function parse(source) {
       this.textContent = source;
     }
   }, {

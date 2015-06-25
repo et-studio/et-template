@@ -62,10 +62,10 @@ var worker = {
   createNull: function createNull(it) {
     var re = '';
 
-    re = re + ('\nvar _et = null;\n_doms.' + it.id + ' = _et;\n');
+    re = re + ('\n_doms.' + it.id + ' = null;\n');
 
     if (it.isRoot) {
-      re = re + ('\n  _roots.' + it.id + ' = _et;\n  _rootIds.push(\'' + it.id + '\');\n');
+      re = re + ('\n  _roots.' + it.id + ' = null;\n  _rootIds.push(\'' + it.id + '\');\n');
     }
 
     return re;
