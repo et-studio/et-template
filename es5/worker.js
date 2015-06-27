@@ -20,7 +20,7 @@ var worker = {
     var re = '';
 
     if (it.attributes) {
-      re = re + ('\n  var _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\', ' + JSON.stringify(it.attributes) + ');\n');
+      re = re + ('\n  var _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\', ' + _.stringify(it.attributes) + ');\n');
     } else {
       re = re + ('\n  var _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\');\n');
     }
@@ -86,7 +86,7 @@ var worker = {
   template: function template(it) {
     var re = '';
 
-    re = re + '\nvar _et = require(\'_et\');\nvar _util = _et._util;\nvar _prototype = _et._prototype;\n';
+    re = re + '\n\'use strict\';\n\nvar _et = require(\'_et\');\nvar _util = _et._util;\nvar _prototype = _et._prototype;\n';
 
     if (it.hasFor) {
       re = re + '\n  function Template_for(options) {\n    this.init(options);\n  }\n';

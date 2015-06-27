@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-var Basic = require('./basic');
-var worker = require('../worker');
-var forParser = require('../parsers/for');
+var Basic = require('./basic')
+var worker = require('../worker')
+var forParser = require('../parsers/for')
 
 var defaults = {
   itemName: 'item',
@@ -11,36 +11,36 @@ var defaults = {
 }
 
 class ForNode extends Basic {
-  constructor(source, options) {
-    super(source, options);
-    this.isNewTemplate = true;
-    this.nodeName = '#for';
+  constructor (source, options) {
+    super(source, options)
+    this.isNewTemplate = true
+    this.nodeName = '#for'
   }
-  parse(source) {
-    var tmp = forParser.parse(source);
+  parse (source) {
+    var tmp = forParser.parse(source)
 
-    this.itemName = tmp.itemName;
-    this.indexName = tmp.indexName;
-    this.expression = tmp.expression;
+    this.itemName = tmp.itemName
+    this.indexName = tmp.indexName
+    this.expression = tmp.expression
     if (tmp.indexName) {
-      this.saveArgument(tmp.itemName, tmp.indexName);
+      this.saveArgument(tmp.itemName, tmp.indexName)
     } else {
-      this.saveArgument(tmp.itemName);
+      this.saveArgument(tmp.itemName)
     }
   }
-  deliverCreate() {
+  deliverCreate () {
     var it = {
       id: this.getId(),
       isRoot: this.checkRoot(),
       lineId: this.getLineId(),
       parentId: this.getParentId()
     }
-    var re = [];
-    re.push(worker.createFor(it));
-    re.push(worker.createLine(it));
-    return re;
+    var re = []
+    re.push(worker.createFor(it))
+    re.push(worker.createLine(it))
+    return re
   }
-  deliverUpdate() {
+  deliverUpdate () {
     var it = {
       id: this.getId(),
       parentId: this.getParentId(),
@@ -54,20 +54,20 @@ class ForNode extends Basic {
       itemName: this.getItemName(),
       condition: this.condition
     }
-    return [worker.updateFor(it)];
+    return [worker.updateFor(it)]
   }
-  getExpression() {
-    return this.expression || this.condition;
+  getExpression () {
+    return this.expression || this.condition
   }
-  getItemName() {
-    return this.itemName || defaults.itemName;
+  getItemName () {
+    return this.itemName || defaults.itemName
   }
-  getLengthName() {
-    return this.lengthName || defaults.lengthName;
+  getLengthName () {
+    return this.lengthName || defaults.lengthName
   }
-  getIndexName() {
-    return this.indexName || defaults.indexName;
+  getIndexName () {
+    return this.indexName || defaults.indexName
   }
 }
 
-module.exports = ForNode;
+module.exports = ForNode

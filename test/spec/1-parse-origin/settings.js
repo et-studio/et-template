@@ -16,7 +16,7 @@ module.exports = [
     expect: {
       children: [{
         source: '<img>'
-      },{
+      }, {
         source: '123456'
       }, {
         source: '<div>'
@@ -31,15 +31,15 @@ module.exports = [
       children: [{
         source: '[#if it.isTrue]',
         children: [{
-          source: "It is true."
-        },{
-          source: "[#elseif it.elseTrue]"
-        },{
-          source: "It is elseTrue."
-        },{
-          source: "[#else]"
-        },{
-          source: "It is else."
+          source: 'It is true.'
+        }, {
+          source: '[#elseif it.elseTrue]'
+        }, {
+          source: 'It is elseTrue.'
+        }, {
+          source: '[#else]'
+        }, {
+          source: 'It is else.'
         }]
       }]
     }
@@ -93,4 +93,4 @@ module.exports = [
       }]
     }
   }
-];
+]

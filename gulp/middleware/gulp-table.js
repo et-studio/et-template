@@ -1,164 +1,172 @@
-'use strict';
+'use strict'
 
-var fs = require('fs');
-var path = require('path');
-var through = require('through2');
-var gutil = require('gulp-util');
-var rootDir = process.cwd();
+var fs = require('fs')
+var through = require('through2')
+var rootDir = process.cwd()
 
 var mark = {
   start: '// @tableStart:',
   end: '// @tableEnd'
 }
-var cache = {};
+var cache = {}
 
 var tableHandler = {
   checkTableMark (str) {
-    var startIndex = str.indexOf(mark.start);
-    var endIndex = str.indexOf(mark.end);
-    return  endIndex > startIndex;
+    var startIndex = str.indexOf(mark.start)
+    var endIndex = str.indexOf(mark.end)
+    return endIndex > startIndex
   },
   checkStart (str) {
-    return str.indexOf(mark.start) >= 0;
+    return str.indexOf(mark.start) >= 0
   },
   checkEnd (str) {
-    return str.indexOf(mark.end) >= 0;
+    return str.indexOf(mark.end) >= 0
   },
   translateStates (matrix) {
-    var re = [];
-    matrix.forEach(function(list, i) {
-      var state = list[0];
+    var re = []
+    matrix.forEach(function (list, i) {
+      var state = list[0]
       if (state) {
-        re.push(`'${state}'`);
+        re.push(`'${state}'`)
       }
-    });
-    return re;
+    })
+    return re
   },
   translateSymbols (matrix) {
-    var re = [];
-    var list = matrix[0];
-    list.forEach(function(symbol, i) {
+    var re = []
+    var list = matrix[0]
+    list.forEach(function (symbol, i) {
       if (symbol) {
-        re.push(symbol);
+        re.push(symbol)
       }
-    });
-    return re;
+    })
+    return re
   },
   translateTable (matrix) {
-    var re = [];
-    var symbols = this.translateSymbols(matrix);
-    var symbolList = matrix[0];
+    var re = []
+    var symbols = this.translateSymbols(matrix)
+    var symbolList = matrix[0]
 
-    matrix.forEach(function(list, i) {
+    matrix.forEach(function (list, i) {
       if (i >= 1) {
-        var tmpRe = [];
-        list.forEach(function(tmp, j) {
+        var tmpRe = []
+        list.forEach(function (tmp, j) {
           if (j >= 1) {
-            var symbol = symbolList[j];
-            var symbolIndex = symbols.indexOf(symbol);
-            tmpRe.push(`'${symbolIndex}': '${tmp}'`);
+            var symbol = symbolList[j]
+            var symbolIndex = symbols.indexOf(symbol)
+            tmpRe.push(`'${symbolIndex}': '${tmp}'`)
           }
-        });
-        re.push(`{${tmpRe.join(', ')}}`);
+        })
+        re.push(`{${tmpRe.join(', ')}}`)
       }
-    });
+    })
 
     return `[
       ${re.join(',\n')}
-    ]`;
+    ]`
   },
   translateTableMatrix (contents) {
-    var contentsList = contents.trim().split('\n');
-    var matrix = [];
-    contentsList.forEach(function(line, i) {
+    var contentsList = contents.trim().split('\n')
+    var matrix = []
+    var len = 0
+    contentsList.forEach(function (line, i) {
       if (i !== 1) {
-        var lineList = line.split('|');
-        lineList.forEach(function(tmp, j) {
-          if (tmp) {
-            tmp = tmp.trim();
+        var lineList = line.split('|')
+        if (i === 0) {
+          len = lineList.length
+        } else {
+          while (lineList.length < len) {
+            lineList.push('')
           }
-          var colList = matrix[j] || [];
-          colList[i] = tmp;
-          matrix[j] = colList;
-        });
+        }
+        lineList.forEach(function (tmp, j) {
+          if (tmp) {
+            tmp = tmp.trim()
+          }
+          var colList = matrix[j] || []
+          colList[i] = tmp
+          matrix[j] = colList
+        })
+
       }
-    });
-    return matrix;
+    })
+    return matrix
   },
   translate (name, contents) {
-    var matrix = this.translateTableMatrix(contents);
-    var states = this.translateStates(matrix);
-    var symbols = this.translateSymbols(matrix);
-    var table = this.translateTable(matrix);
+    var matrix = this.translateTableMatrix(contents)
+    var states = this.translateStates(matrix)
+    var symbols = this.translateSymbols(matrix)
+    var table = this.translateTable(matrix)
     var re = `
     var ${name}TableOptions = {
-      states: [${states.join(',')}],
-      symbols: [${symbols.join(',')}],
+      states: [${states.join(', ')}],
+      symbols: [${symbols.join(', ')}],
       table: ${table}
-    };
-    `;
-    return re.trim();
+    }
+    `
+    return re.trim()
   },
   getTable (str) {
-    var markIndex = str.indexOf(mark.start);
-    var name = str.substr(markIndex + mark.start.length).trim();
+    var markIndex = str.indexOf(mark.start)
+    var name = str.substr(markIndex + mark.start.length).trim()
     if (cache[name]) {
-      return cache[name];
+      return cache[name]
     }
 
-    var path = `${rootDir}/src/tables/${name}.table`;
-    var fileContents = '';
+    var path = `${rootDir}/src/tables/${name}.table`
+    var fileContents = ''
     try {
-      fileContents = fs.readFileSync(path, 'utf-8');
+      fileContents = fs.readFileSync(path, 'utf-8')
     } catch(err) {
-      console.log(`file not found: ${path}`);
+      console.log(`file not found: ${path}`)
     }
 
     if (fileContents) {
-      var re = this.translate(name, fileContents);
-      cache[name] = re;
-      return re;
+      var re = this.translate(name, fileContents)
+      cache[name] = re
+      return re
     } else {
-      return '';
+      return ''
     }
   },
   replace (str) {
-    var re = [];
-    var list = str.split('\n');
+    var re = []
+    var list = str.split('\n')
 
-    var isTabling = false;
+    var isTabling = false
     for (var i = 0, len = list.length; i < len; i++) {
-      var tmp = list[i];
+      var tmp = list[i]
 
       if (this.checkStart(tmp)) {
-        isTabling = true;
-        re.push(tmp);
-        re.push(this.getTable(tmp));
+        isTabling = true
+        re.push(tmp)
+        var table = this.getTable(tmp)
+        if (table) {
+          re.push(table)
+        }
       } else if (this.checkEnd(tmp)) {
-        isTabling = false;
+        isTabling = false
       }
-      
+
       if (!isTabling) {
-        re.push(tmp);
+        re.push(tmp)
       }
     }
-    return re.join('\n');
+    return re.join('\n')
   }
 }
 
-module.exports = function() {
-  var cache = {};
-  var methods = [];
-  return through.obj(function(file, enc, next) {
+module.exports = function () {
+  return through.obj(function (file, enc, next) {
     if (!file.isBuffer()) {
-      return next();
+      return next()
     }
-    var contents = file.contents.toString();
+    var contents = file.contents.toString()
     if (tableHandler.checkTableMark(contents)) {
-      contents = tableHandler.replace(contents);
-      file.contents = new Buffer(contents);
+      contents = tableHandler.replace(contents)
+      file.contents = new Buffer(contents)
     }
-    this.push(file);
-    next();
-  });
-};
+    this.push(file)
+    next()
+  })
+}

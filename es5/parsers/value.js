@@ -8,29 +8,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var valueTableOptions = {
   states: ['string', 'start', 'expression', 'end'],
   symbols: ['{{', '}}'],
-  table: [{
-    '0': 'start',
-    '1': 'string',
-    '-1': 'string'
-  }, {
-    '0': 'expression',
-    '1': 'end',
-    '-1': 'expression'
-  }, {
-    '0': 'expression',
-    '1': 'end',
-    '-1': 'expression'
-  }, {
-    '0': 'string',
-    '1': 'string',
-    '-1': 'string'
-  }]
+  table: [{ '0': 'start', '1': 'string', '-1': 'string' }, { '0': 'expression', '1': 'end', '-1': 'expression' }, { '0': 'expression', '1': 'end', '-1': 'expression' }, { '0': 'string', '1': 'string', '-1': 'string' }]
 };
 // @tableEnd
 
 var Machine = require('./machine');
-var _ = require('../util');
-
 var valueMachine = new Machine(valueTableOptions);
 
 var ValueParser = (function () {
@@ -63,7 +45,7 @@ var ValueParser = (function () {
         }
       });
       this.pushStr(list, tmp);
-      return '(' + list.join(' + ') + ')';
+      return list.join(' + ');
     }
   }, {
     key: 'pushStr',

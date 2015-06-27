@@ -1,51 +1,51 @@
-'use strict';
+'use strict'
 
-var Basic = require('./basic');
-var _ = require('../util');
-var worker = require('../worker');
-var conditionParser = require('../parsers/condition');
+var Basic = require('./basic')
+var _ = require('../util')
+var worker = require('../worker')
+var conditionParser = require('../parsers/condition')
 
 class IfNode extends Basic {
-  constructor(source, options) {
-    super(source, options);
-    this.isNewTemplate = true;
+  constructor (source, options) {
+    super(source, options)
+    this.isNewTemplate = true
   }
-  parse(source) {
+  parse (source) {
     var tmp = conditionParser.parse(source, {
       expectNodeName: '#if'
-    });
-    this.nodeName = tmp.nodeName;
-    this.condition = tmp.condition;
+    })
+    this.nodeName = tmp.nodeName
+    this.condition = tmp.condition
   }
-  init() {
+  init () {
     // 调整elseif 和 else的树形关系
-    var children = this.children;
-    this.children = [];
+    var children = this.children
+    this.children = []
 
-    var currentNode = this;
+    var currentNode = this
     _.each(children, (child) => {
       if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-        currentNode.after(child);
-        currentNode = child;
+        currentNode.after(child)
+        currentNode = child
       } else {
-        currentNode.appendChild(child);
+        currentNode.appendChild(child)
       }
-    });
+    })
   }
-  deliverCreate() {
+  deliverCreate () {
     var it = {
       id: this.getId(),
       isRoot: this.checkRoot(),
       lineId: this.getLineId(),
       parentId: this.getParentId()
     }
-    var re = [];
-    re.push(worker.createNull(it));
-    re.push(worker.createLine(it));
-    return re;
+    var re = []
+    re.push(worker.createNull(it))
+    re.push(worker.createLine(it))
+    return re
   }
-  deliverUpdate() {
-    var lastRoot = this.getLastRoot();
+  deliverUpdate () {
+    var lastRoot = this.getLastRoot()
     var it = {
       id: this.getId(),
       lineId: this.getLineId(),
@@ -53,40 +53,41 @@ class IfNode extends Basic {
       indexValueId: lastRoot.getValueId(),
       doms: this.getConditionDoms()
     }
-    return [worker.updateIf(it)];
+    return [worker.updateIf(it)]
   }
-  getConditionDoms() {
-    var re = [this.translateDom(this)];
+  getConditionDoms () {
+    var re = [this.translateDom(this)]
 
-    var hasElse = false;
-    var next = this;
-    while (next = next.next) {
-      if (next.nodeName === '#elseif' || next.nodeName === '#else') {
-        re.push(this.translateDom(next));
+    var hasElse = false
+    var current = this.next
+    while (current) {
+      if (current.nodeName === '#elseif' || current.nodeName === '#else') {
+        re.push(this.translateDom(current))
       }
-      if (next.nodeName === '#else') {
-        hasElse = true;
+      if (current.nodeName === '#else') {
+        hasElse = true
       }
-      if (next.nodeName !== '#elseif') {
-        break;
+      if (current.nodeName !== '#elseif') {
+        break
       }
+      current = current.next
     }
     if (!hasElse) {
       var defaultElse = {
         tag: 'else',
         isDefaultElse: true
-      };
-      defaultElse.siblings = _.concat([], re);
-      re.push(defaultElse);
+      }
+      defaultElse.siblings = _.concat([], re)
+      re.push(defaultElse)
     }
 
-    var self = this;
+    var self = this
     _.each(re, (dom) => {
-      dom.siblings = self.pickSiblings(re, dom);
-    });
-    return re;
+      dom.siblings = self.pickSiblings(re, dom)
+    })
+    return re
   }
-  translateDom(dom) {
+  translateDom (dom) {
     return {
       id: dom.getId(),
       isRoot: dom.checkRoot(),
@@ -98,24 +99,24 @@ class IfNode extends Basic {
       tag: this.getTag(dom.nodeName)
     }
   }
-  pickSiblings(doms, current) {
-    var siblings = [];
+  pickSiblings (doms, current) {
+    var siblings = []
     _.each(doms, (dom) => {
       if (dom.id && dom.id !== current.id) {
-        siblings.push(dom);
+        siblings.push(dom)
       }
-    });
-    return siblings;
+    })
+    return siblings
   }
-  getTag(nodeName) {
+  getTag (nodeName) {
     switch (nodeName) {
       case '#if':
-        return 'if';
+        return 'if'
       case '#elseif':
-        return 'else if';
+        return 'else if'
       default:
-        return 'else';
+        return 'else'
     }
   }
 }
-module.exports = IfNode;
+module.exports = IfNode

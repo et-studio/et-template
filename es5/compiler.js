@@ -6,7 +6,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _ = require('./util');
 var worker = require('./worker');
-var Factory = require('./nodes/factory');
 
 var Compiler = (function () {
   function Compiler() {

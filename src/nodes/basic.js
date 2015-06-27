@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Dom 的结构
@@ -28,167 +28,166 @@
  *  - indexName
  */
 
-var NodeInterface = require('./getter');
-var _ = require('../util');
+var NodeInterface = require('./getter')
+var _ = require('../util')
 
 class Basic extends NodeInterface {
-  constructor(source, options = {}) {
-    super(source, options);
+  constructor (source, options = {}) {
+    super(source, options)
 
-    this._source = source;
-    this._lineNumber = options.lineNumber;
-    this._index = options.index;
-    this.isNewTemplate = false;
-    this.args = [];
-    this.nodeType = 'ET';
-    this.parent = options.parent;
-    this.previous = options.previous;
-    this.next = null;
-    this.isRoot = !this.parent;
-    this.children = [];
-    this.parse(source);
+    this._source = source
+    this._index = options.index
+    this.isNewTemplate = false
+    this.args = []
+    this.nodeType = 'ET'
+    this.parent = options.parent
+    this.previous = options.previous
+    this.next = null
+    this.isRoot = !this.parent
+    this.children = []
+    this.parse(source)
   }
-  getNewTemplateDoms() {
-    var re = [];
+  getNewTemplateDoms () {
+    var re = []
     this.each((dom) => {
       if (dom.isRoot || dom.isNewTemplate) {
-        re.push(dom);
+        re.push(dom)
       }
-    });
-    return re;
+    })
+    return re
   }
-  getCreateList() {
-    var re = [];
+  getCreateList () {
+    var re = []
     _.each(this.children, (child) => {
-      _.concat(re, child.deliverCreate());
+      _.concat(re, child.deliverCreate())
       if (!child.isNewTemplate) {
-        _.concat(re, child.getCreateList());
+        _.concat(re, child.getCreateList())
       }
-    });
-    return _.clearArraySpace(re);
+    })
+    return _.clearArraySpace(re)
   }
-  getUpdateList() {
-    var re = [];
+  getUpdateList () {
+    var re = []
     _.each(this.children, (child) => {
-      _.concat(re, child.deliverUpdate());
+      _.concat(re, child.deliverUpdate())
       if (!child.isNewTemplate) {
-        _.concat(re, child.getUpdateList());
+        _.concat(re, child.getUpdateList())
       }
-    });
-    return _.clearArraySpace(re);
+    })
+    return _.clearArraySpace(re)
   }
-  getArguments() {
-    var re = ['it'];
+  getArguments () {
+    var re = ['it']
 
-    var lastRoot = this.getLastRoot();
+    var lastRoot = this.getLastRoot()
     if (lastRoot) {
-      _.concat(re, lastRoot.getArguments());
+      _.concat(re, lastRoot.getArguments())
     }
     if (this.args) {
-      _.concat(re, this.args);
+      _.concat(re, this.args)
     }
-    re = _.uniq(re);
-    return _.clearArraySpace(re);
+    re = _.uniq(re)
+    return _.clearArraySpace(re)
   }
 
-  checkRoot() {
-    var parent = this.parent;
+  checkRoot () {
+    var parent = this.parent
     // 当不存在nodeType的时候也认为是root
     if (!parent || parent.isRoot || parent.isNewTemplate) {
-      return true;
+      return true
     } else {
-      return false;
+      return false
     }
   }
-  isErraticValue(str) {
+  isErraticValue (str) {
     if (!str) {
-      return false;
+      return false
     }
-    var start = str.indexOf('{{');
-    var end = str.lastIndexOf('}}');
-    return 0 <= start && start < end;
+    var start = str.indexOf('{{')
+    var end = str.lastIndexOf('}}')
+    return (start >= 0) && (end > start)
   }
-  saveArgument(...list) {
-    _.concat(this.args, list);
-    return this;
+  saveArgument (...list) {
+    _.concat(this.args, list)
+    return this
   }
-  after(node) {
+  after (node) {
     if (this.isRoot) {
-      return;
+      return
     }
 
-    var nodePrev = node.previous;
-    var nodeNext = node.next;
+    var nodePrev = node.previous
+    var nodeNext = node.next
     if (nodePrev) {
-      nodePrev.next = nodeNext;
+      nodePrev.next = nodeNext
     }
     if (nodeNext) {
-      nodeNext.previous = nodePrev;
+      nodeNext.previous = nodePrev
     }
 
-    node.parent = this.parent;
-    node.previous = this;
-    node.next = this.next;
+    node.parent = this.parent
+    node.previous = this
+    node.next = this.next
 
-    var currentNext = this.next;
+    var currentNext = this.next
     if (currentNext) {
-      currentNext.previous = node;
+      currentNext.previous = node
     }
-    this.next = node;
+    this.next = node
 
-    var newChidren = [];
-    var _this = this;
+    var newChidren = []
+    var _this = this
     _.each(this.parent.children, (child) => {
-      newChidren.push(child);
+      newChidren.push(child)
       if (child.getId() === _this.getId()) {
-        newChidren.push(node);
+        newChidren.push(node)
       }
-    });
-    this.parent.children = newChidren;
+    })
+    this.parent.children = newChidren
   }
-  appendChild(node) {
-    var children = this.children;
+  appendChild (node) {
+    var children = this.children
 
     if (children.length > 0) {
-      var last = children[children.length - 1];
-      last.next = node;
-      node.previous = last;
+      var last = children[children.length - 1]
+      last.next = node
+      node.previous = last
     }
 
-    children.push(node);
-    node.next = null;
-    node.parent = this;
+    children.push(node)
+    node.next = null
+    node.parent = this
   }
-  each(callback) {
+  each (callback) {
     if (typeof callback === 'function') {
-      callback(this);
+      callback(this)
       if (this.children.length) {
-        this.children[0].each(callback);
+        this.children[0].each(callback)
       }
       if (this.next) {
-        this.next.each(callback);
+        this.next.each(callback)
       }
     }
   }
-  initAll() {
+  initAll () {
     this.each((dom) => {
-      dom.init();
-    });
+      dom.init()
+    })
   }
 
   // attributes or functions could be override
-  parse(source) {
+  parse (source) {
     // be called in constructor
   }
-  init() {
+  init () {
     // should be called after the whole Tree created
   }
-  deliverCreate() {
-    return [];
+  deliverCreate () {
+    return []
   }
-  deliverUpdate() {
-    return [];
+  deliverUpdate () {
+    return []
   }
 }
 
-module.exports = Basic;
+module.exports = Basic

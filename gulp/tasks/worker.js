@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-var esformatter = require('gulp-esformatter');
-var worker = require('../middleware/gulp-worker');
+var worker = require('../middleware/gulp-worker')
+var esformatter = require('gulp-esformatter')
 
-exports.register = function(gulp){
-  gulp.task('worker', function() {
+exports.register = function (gulp) {
+  gulp.task('worker', function () {
     return gulp.src('src/templates/*.js')
-    .pipe(worker())
-    .pipe(esformatter())
-    .pipe(gulp.dest('src'));
-  });
-};
+      .pipe(worker())
+      .pipe(esformatter())
+      .pipe(gulp.dest('src'))
+  })
+}

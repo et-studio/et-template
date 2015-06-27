@@ -1,8 +1,6 @@
-'use strict';
+'use strict'
 
-var compiler = require('src/compiler');
-var babel = require('babel');
-
+var babel = require('babel')
 var settings = [
   {
     title: 'attributes',
@@ -34,42 +32,41 @@ var settings = [
     source: require('design/if-else/source.html'),
     expect: require('design/if-else/expect')
   }
-];
+]
 
-exports.register = function(){
+exports.register = function () {
+  describe('Compiler test', function () {
+    settings.forEach(function (setting) {
+      it(setting.title, function () {
+        var left = setting.source
+        var right = setting.expect
 
-  describe('Compiler test', function(){
-    settings.forEach(function(setting){
-      it(setting.title, function(){
-        var left = setting.source;
-        var right = setting.expect;
+        // console.log(left)
+        left = babel.transform(left).code
+        left = left.trim().replace(/\n{2}/g, '\n')
+        right = babel.transform(right).code
+        right = right.trim().replace(/\n{2}/g, '\n')
+        console.log(left)
 
-        // console.log(left);
-        left = babel.transform(left).code;
-        left = left.trim().replace(/\n{2}/g, '\n');
-        right = babel.transform(right).code;
-        right = right.trim().replace(/\n{2}/g, '\n');
-        console.log(left);
-
-        var leftList = left.split('\n');
-        var rightList = right.split('\n');
-        var len = Math.max(leftList.length, rightList.length);
+        var leftList = left.split('\n')
+        var rightList = right.split('\n')
+        var len = Math.max(leftList.length, rightList.length)
         for (var i = 0; i < len; i++) {
-          var leftStr = leftList[i] || '';
-          var rightStr = rightList[i] || '';
+          var leftStr = leftList[i] || ''
+          var rightStr = rightList[i] || ''
 
           if (leftStr === rightStr) {
-            console.log(`${i}:${leftStr}`);
-            console.log(`${i}:${rightStr}`);
+            console.log(`${i}:${leftStr}`)
+            console.log(`${i}:${rightStr}`)
           } else {
-            console.error(`${i}:${leftStr}`);
-            console.error(`${i}:${rightStr}`);
+            console.error(`${i}:${leftStr}`)
+            console.error(`${i}:${rightStr}`)
           }
         }
 
-        assert.equal(left, right);
-      });
-    });
-  });
+        assert.equal(left, right)
+      })
+    })
+  })
 
-};
+}

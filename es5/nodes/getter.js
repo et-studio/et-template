@@ -4,7 +4,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('../util');
 var config = {
   'templateFunctionPrefix': 'Template',
   'spilitMark': '_',
@@ -24,7 +23,7 @@ var Getter = (function () {
     key: 'getId',
     value: function getId() {
       if (this._index >= 0) {
-        return '' + config.idPrefix + '' + this._index;
+        return '' + config.idPrefix + this._index;
       } else {
         return null;
       }
@@ -38,19 +37,19 @@ var Getter = (function () {
     key: 'getTemplateName',
     value: function getTemplateName() {
       var id = this.getId();
-      return '' + config.templateFunctionPrefix + '' + config.spilitMark + '' + id;
+      return '' + config.templateFunctionPrefix + config.spilitMark + id;
     }
   }, {
     key: 'getLineId',
     value: function getLineId() {
       var id = this.getId();
-      return '' + id + '' + config.spilitMark + '' + config.lineSuffix;
+      return '' + id + config.spilitMark + config.lineSuffix;
     }
   }, {
     key: 'getValueId',
     value: function getValueId() {
       var valueId = this.valueId++;
-      return '' + config.valuePrefix + '' + config.spilitMark + '' + valueId;
+      return '' + config.valuePrefix + config.spilitMark + valueId;
     }
   }, {
     key: 'getParentId',

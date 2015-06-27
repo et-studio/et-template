@@ -36,7 +36,9 @@ _util_extend(Template_et0.prototype, _prototype, {
       _util_setAttribute(_et, 'id', _tmp);
     }
 
-    var _tmp = (function(){return it.a + it.b;})();
+    var _tmp = (function() {
+      return it.a + it.b;
+    })();
     if (_last.value_1 !== _tmp) {
       _last.value_1 = _tmp;
       _util_setAttribute(_et, 'data-type', _tmp);

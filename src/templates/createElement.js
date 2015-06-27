@@ -1,7 +1,7 @@
 
 if (it.attributes) {
   // {{
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${JSON.stringify(it.attributes)});
+  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${_.stringify(it.attributes)});
   // }}
 } else {
   // {{

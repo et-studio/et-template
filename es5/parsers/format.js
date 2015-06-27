@@ -8,27 +8,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var formatTableOptions = {
   states: ['header', 'body', 'methodName', 'methodEnd'],
   symbols: ['function', '_util.', '('],
-  table: [{
-    '0': 'body',
-    '1': 'header',
-    '2': 'header',
-    '-1': 'header'
-  }, {
-    '0': 'body',
-    '1': 'methodName',
-    '2': 'body',
-    '-1': 'body'
-  }, {
-    '0': 'methodName',
-    '1': 'methodName',
-    '2': 'methodEnd',
-    '-1': 'methodName'
-  }, {
-    '0': 'body',
-    '1': 'body',
-    '2': 'body',
-    '-1': 'body'
-  }]
+  table: [{ '0': 'body', '1': 'header', '2': 'header', '-1': 'header' }, { '0': 'body', '1': 'methodName', '2': 'body', '-1': 'body' }, { '0': 'methodName', '1': 'methodName', '2': 'methodEnd', '-1': 'methodName' }, { '0': 'body', '1': 'body', '2': 'body', '-1': 'body' }]
 };
 // @tableEnd
 
@@ -71,7 +51,7 @@ var FormatParser = (function () {
         }
       });
       methods = _.uniq(methods);
-      return '' + header + '' + methods.join('') + '' + body;
+      return '' + header + methods.join('') + body;
     }
   }, {
     key: 'translateUtilMethod',

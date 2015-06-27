@@ -1,25 +1,25 @@
-'use strict';
+'use strict'
 
-var sequence = require('gulp-sequence');
-var babel = require('gulp-babel');
-var del = require('del');
+var sequence = require('gulp-sequence')
+var babel = require('gulp-babel')
+var del = require('del')
 
-var destDir = 'es5';
-var srcDir = 'src';
+var destDir = 'es5'
+var srcDir = 'src'
 
-exports.register = function(gulp){
-  gulp.task('build-clean', function() {
-    del([destDir]);
-  });
+exports.register = function (gulp) {
+  gulp.task('build-clean', function () {
+    del([destDir])
+  })
 
-  gulp.task('build-js', function() {
+  gulp.task('build-js', function () {
     return gulp.src([
       srcDir + '/**/*.js',
       '!' + srcDir + '/templates/*.js'
     ])
-    .pipe(babel())
-    .pipe(gulp.dest(destDir));
-  });
+      .pipe(babel())
+      .pipe(gulp.dest(destDir))
+  })
 
-  gulp.task('build', sequence('dev', 'build-clean', 'build-js'));
-};
+  gulp.task('build', sequence('dev', 'build-clean', 'build-js'))
+}

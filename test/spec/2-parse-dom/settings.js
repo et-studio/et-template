@@ -13,7 +13,7 @@ module.exports = [
         }
       }, {
         nodeType: 3,
-        textContent: '123456',
+        textContent: '123456'
       }]
     }
   },
@@ -24,9 +24,9 @@ module.exports = [
       children: [{
         nodeType: 1,
         nodeName: 'IMG'
-      },{
+      }, {
         nodeType: 3,
-        textContent: '123456',
+        textContent: '123456'
       }, {
         nodeType: 1,
         nodeName: 'DIV'
@@ -100,11 +100,6 @@ module.exports = [
     }
   },
   {
-    title: 'error test',
-    html: '<div id="{{it.id}}" [#if it.isTrue]class="test" </div>123456',
-    expect: {}
-  },
-  {
     title: 'test1',
     html: `<div id="aaa{{it.id}}bbb{{it.getSrc()}}" data-type="{{(function(){return it.a + it.b;})()}}" [#if it.isTrue]class="class-true"[/#if]></div>`,
     expect: {
@@ -123,5 +118,10 @@ module.exports = [
         }]
       }]
     }
+  },
+  {
+    title: 'error test',
+    html: '<div id="{{it.id}}" [#if it.isTrue]class="test" </div>123456',
+    expect: {}
   }
-];
+]

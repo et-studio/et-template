@@ -1,86 +1,89 @@
-'use strict';
+'use strict'
 
 var privateUtil = {
-  extendAB(A, B) {
+  extendAB (A, B) {
     if (A) {
       for (var key in B) {
-        A[key] = B[key];
+        A[key] = B[key]
       }
     }
-    return A;
+    return A
   },
-  concatAB(arrayA = [], arrayB) {
+  concatAB (arrayA = [], arrayB) {
     if (arrayB && typeof arrayB.forEach === 'function') {
       arrayB.forEach((item) => {
-        arrayA.push(item);
-      });
+        arrayA.push(item)
+      })
     }
-    return arrayA;
+    return arrayA
   }
 }
 
 class Util {
-  each(array, callback) {
+  each (array, callback) {
     if (!array) {
-      return;
+      return
     }
     for (var i = 0, len = array.length; i < len; i++) {
       if (callback(array[i], i, array) === false) {
-        break;
+        break
       }
     }
   }
-  extend(arg1 = {}, ...list) {
+  extend (arg1 = {}, ...list) {
     this.each(list, (item) => {
-      privateUtil.extendAB(arg1, item);
-    });
-    return arg1;
+      privateUtil.extendAB(arg1, item)
+    })
+    return arg1
   }
-  concat(array, ...list) {
+  concat (array, ...list) {
     this.each(list, (item) => {
-      privateUtil.concatAB(array, item);
-    });
-    return array;
+      privateUtil.concatAB(array, item)
+    })
+    return array
   }
-  isEmpty(obj) {
+  isEmpty (obj) {
     if (!obj) {
-      return true;
+      return true
     }
-    var keys = Object.keys(obj);
-    return keys.length === 0;
+    var keys = Object.keys(obj)
+    return keys.length === 0
   }
-  contains(array, value) {
-    var re = false;
+  contains (array, value) {
+    var re = false
     this.each(array, (item) => {
       if (item === value) {
-        re = true;
-        return false;
+        re = true
+        return false
       }
-    });
-    return re;
+    })
+    return re
   }
-  clearArraySpace(array) {
-    var re = [];
+  clearArraySpace (array) {
+    var re = []
     this.each(array, (item) => {
       if (item && typeof item.trim === 'function') {
-        item = item.trim();
+        item = item.trim()
       }
       if (item) {
-        re.push(item);
+        re.push(item)
       }
-    });
-    return re;
+    })
+    return re
   }
-  uniq(array) {
-    var re = [];
-    var self = this;
+  uniq (array) {
+    var re = []
+    var self = this
     this.each(array, (item) => {
       if (!self.contains(re, item)) {
-        re.push(item);
+        re.push(item)
       }
-    });
-    return re;
+    })
+    return re
+  }
+  stringify (obj) {
+    return JSON.stringify(obj).replace(/\"/g, "'")
   }
 }
 
-module.exports = new Util();
+module.exports = new Util()

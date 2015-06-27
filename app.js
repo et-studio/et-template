@@ -1,2 +1,2 @@
-'use strict';
-require('./test/serve/app')();
+'use strict'
+require('./test/serve/app')()

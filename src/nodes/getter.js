@@ -1,67 +1,66 @@
-'use strict';
+'use strict'
 
-var _ = require('../util');
 var config = {
-  "templateFunctionPrefix": "Template",
-  "spilitMark": "_",
-  "lineSuffix": "line",
-  "idPrefix": "et",
-  "valuePrefix": "value"
-};
+  'templateFunctionPrefix': 'Template',
+  'spilitMark': '_',
+  'lineSuffix': 'line',
+  'idPrefix': 'et',
+  'valuePrefix': 'value'
+}
 
 class Getter {
-  constructor() {
-    this.valueId = 0;
+  constructor () {
+    this.valueId = 0
   }
-  getId() {
+  getId () {
     if (this._index >= 0) {
-      return `${config.idPrefix}${this._index}`;
+      return `${config.idPrefix}${this._index}`
     } else {
-      return null;
+      return null
     }
   }
-  getLineNumber() {
-    return this._lineNumber;
+  getLineNumber () {
+    return this._lineNumber
   }
-  getTemplateName() {
-    var id = this.getId();
-    return `${config.templateFunctionPrefix}${config.spilitMark}${id}`;
+  getTemplateName () {
+    var id = this.getId()
+    return `${config.templateFunctionPrefix}${config.spilitMark}${id}`
   }
-  getLineId() {
-    var id = this.getId();
-    return `${id}${config.spilitMark}${config.lineSuffix}`;
+  getLineId () {
+    var id = this.getId()
+    return `${id}${config.spilitMark}${config.lineSuffix}`
   }
-  getValueId() {
-    var valueId = this.valueId++;
-    return `${config.valuePrefix}${config.spilitMark}${valueId}`;
+  getValueId () {
+    var valueId = this.valueId++
+    return `${config.valuePrefix}${config.spilitMark}${valueId}`
   }
-  getParentId() {
-    return this.parent && this.parent.getId();
+  getParentId () {
+    return this.parent && this.parent.getId()
   }
-  getNodeName() {
-    return this.nodeName && this.nodeName.toUpperCase();
+  getNodeName () {
+    return this.nodeName && this.nodeName.toUpperCase()
   }
-  getTextContent() {
-    return this.textContent || this.content || '';
+  getTextContent () {
+    return this.textContent || this.content || ''
   }
-  getRootValueId() {
-    var lastRoot = this.getLastRoot();
+  getRootValueId () {
+    var lastRoot = this.getLastRoot()
     if (lastRoot) {
-      return lastRoot.getValueId();
+      return lastRoot.getValueId()
     } else {
-      return null;
+      return null
     }
   }
-  getLastRoot() {
-    var parent = this.parent;
+  getLastRoot () {
+    var parent = this.parent
     while (parent) {
       if (parent.isNewTemplate || !parent.parent) {
-        return parent;
+        return parent
       }
-      parent = parent.parent;
+      parent = parent.parent
     }
-    return null;
+    return null
   }
 }
 
-module.exports = Getter;
+module.exports = Getter

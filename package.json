@@ -7,6 +7,24 @@
     "type": "git",
     "url": "git@github.com:suyu34/et.git"
   },
+  "scripts": {
+    "start": "node app",
+    "test": "standard && mocha test/npm.js"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "standard": {
+    "ignore": [
+      "src/templates/",
+      "src/worker.js",
+      "design/",
+      "test/spec/",
+      "test/design/",
+      "es5/",
+      "test/npm.js"
+    ]
+  },
   "devDependencies": {
     "babel": "^5.5.4",
     "babel-core": "^5.4.2",
@@ -23,7 +41,12 @@
   },
   "keywords": [
     "template"
+    "et"
+    "ET"
   ],
   "author": "suyu34",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "esformatter": "^0.7.1"
+  }
 }

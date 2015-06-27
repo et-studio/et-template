@@ -1,61 +1,42 @@
-'use strict';
+'use strict'
 
 // @tableStart: comment
 var commentTableOptions = {
-  states: ['start', 'header', 'text', 'end'],
-  symbols: ['<!--', '-->'],
-  table: [
-    {
-      '0': 'header',
-      '1': '',
-      '-1': ''
-    },
-    {
-      '0': '',
-      '1': '',
-      '-1': 'text'
-    },
-    {
-      '0': 'text',
-      '1': 'end',
-      '-1': 'text'
-    },
-    {
-      '0': '',
-      '1': '',
-      '-1': ''
+      states: ['start', 'header', 'text', 'end'],
+      symbols: ['<!--', '-->'],
+      table: [
+      {'0': 'header', '1': '', '-1': ''},
+{'0': '', '1': '', '-1': 'text'},
+{'0': 'text', '1': 'end', '-1': 'text'},
+{'0': '', '1': '', '-1': ''}
+    ]
     }
-  ]
-};
 // @tableEnd
 
-var Parser = require('./parser');
-var Machine = require('./machine');
-var _ = require('../util');
-
-var commentMachine = new Machine(commentTableOptions);
+var Parser = require('./parser')
+var Machine = require('./machine')
+var commentMachine = new Machine(commentTableOptions)
 
 class CommentParser extends Parser {
-  parse(source, options) {
-    this.set('comment', source, options);
-
-    var _this = this;
-    var text = '';
-    machine.each(source, (state, token) => {
+  parse (source, options) {
+    this.set('comment', source, options)
+    var _this = this
+    var text = ''
+    commentMachine.each(source, (state, token) => {
       switch (state) {
         case 'header':
         case 'end':
-          break;
+          break
         case 'text':
-          text += token;
-          break;
+          text += token
+          break
         default:
-          _this.throwError(state);
+          _this.throwError(state)
       }
-    });
+    })
 
-    return text;
+    return text
   }
 }
 
-module.exports = new CommentParser();
+module.exports = new CommentParser()

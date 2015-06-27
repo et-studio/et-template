@@ -39,9 +39,6 @@ var Machine = (function () {
   }, {
     key: 'switchState',
     value: function switchState(state, symbol) {
-      var states = this.states;
-      var symbols = this.symbols;
-
       var stateIndex = this.states.indexOf(state);
       var symbolIndex = this.symbols.indexOf(symbol);
 

@@ -45,11 +45,11 @@ var Util = (function () {
   }, {
     key: 'extend',
     value: function extend() {
+      var arg1 = arguments[0] === undefined ? {} : arguments[0];
+
       for (var _len = arguments.length, list = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         list[_key - 1] = arguments[_key];
       }
-
-      var arg1 = arguments[0] === undefined ? {} : arguments[0];
 
       this.each(list, function (item) {
         privateUtil.extendAB(arg1, item);
@@ -114,6 +114,11 @@ var Util = (function () {
         }
       });
       return re;
+    }
+  }, {
+    key: 'stringify',
+    value: function stringify(obj) {
+      return JSON.stringify(obj).replace(/\"/g, '\'');
     }
   }]);
 

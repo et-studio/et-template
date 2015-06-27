@@ -1,106 +1,106 @@
-var _ = require('../util');
+var _ = require('../util')
 
 class OriginNode {
-  constructor(parent, source = '', options = {}) {
-    this.rowNumber = options.rowNumber;
-    this.colNumber = options.colNumber;
-    this.isClosed = false;
-    this.source = source.trim();
-    this.parent = parent;
-    this.children = [];
-    this.expressions = [];
+  constructor (parent, source = '', options = {}) {
+    this.rowNumber = options.rowNumber
+    this.colNumber = options.colNumber
+    this.isClosed = false
+    this.source = source.trim()
+    this.parent = parent
+    this.children = []
+    this.expressions = []
   }
-  addSource(str) {
-    this.source += str;
+  addSource (str) {
+    this.source += str
   }
-  createChild(source, options) {
-    var node = new OriginNode(this, source, options);
-    this.children.push(node);
-    return node;
+  createChild (source, options) {
+    var node = new OriginNode(this, source, options)
+    this.children.push(node)
+    return node
   }
-  saveSource(source = '', options) {
-    source = source.trim();
+  saveSource (source = '', options) {
+    source = source.trim()
     if (source) {
-      this.createChild(source, options);
+      this.createChild(source, options)
     }
   }
-  closeNode(closeName) {
-    var current = this;
+  closeNode (closeName) {
+    var current = this
     while (current.parent) {
       if (current.matchClose(closeName)) {
-        current.isClosed = true;
-        break;
+        current.isClosed = true
+        break
       }
-      current = current.parent;
+      current = current.parent
     }
     current.closeAll()
     if (current.parent) {
-      return current.parent;
+      return current.parent
     } else {
-      return current;
+      return current
     }
   }
-  closeAll() {
+  closeAll () {
     _.each(this.children, (child) => {
-      child.closeAll();
-    });
+      child.closeAll()
+    })
 
     if (this.parent && !this.isClosed) {
-      _.concat(this.parent.children, this.children);
-      this.isClosed = true;
-      this.children = [];
+      _.concat(this.parent.children, this.children)
+      this.isClosed = true
+      this.children = []
     }
-    return this;
+    return this
   }
-  matchClose(closeName) {
-    var start = '';
-    var source = '';
+  matchClose (closeName) {
+    var start = ''
+    var source = ''
     if (this.source.indexOf('<') === 0) {
-      start = `<${closeName} `;
-      source = `<${closeName}>`;
+      start = `<${closeName} `
+      source = `<${closeName}>`
     } else if (this.source.indexOf('[#') === 0) {
-      start = `[#${closeName} `;
-      source = `[#${closeName}]`;
+      start = `[#${closeName} `
+      source = `[#${closeName}]`
     } else {
-      return false;
+      return false
     }
-    var currentSource = this.source.trim();
-    var isMatch = currentSource === source || currentSource.indexOf(start) === 0;
-    return isMatch;
+    var currentSource = this.source.trim()
+    var isMatch = currentSource === source || currentSource.indexOf(start) === 0
+    return isMatch
   }
-  saveChildrenToExpressions() {
-    this.expressions = this.children;
-    this.children = [];
+  saveChildrenToExpressions () {
+    this.expressions = this.children
+    this.children = []
   }
-  levelChildren() {
-    var root = this;
-    var children = [];
+  levelChildren () {
+    var root = this
+    var children = []
     while (root.parent) {
-      _.concat(children, root.children);
-      root.children = [];
-      root = root.parent;
+      _.concat(children, root.children)
+      root.children = []
+      root = root.parent
     }
-    _.concat(root.children, children);
-    return this;
+    _.concat(root.children, children)
+    return this
   }
-  removeEmptyNode() {
-    var newChildren = [];
+  removeEmptyNode () {
+    var newChildren = []
     this.children.forEach((child) => {
       if (child && child.source) {
-        child.removeEmptyNode();
-        newChildren.push(child);
+        child.removeEmptyNode()
+        newChildren.push(child)
       }
-    });
-    this.children = newChildren;
+    })
+    this.children = newChildren
   }
-  each(callback) {
+  each (callback) {
     if (typeof callback === 'function') {
-      callback(this);
+      callback(this)
       this.children.forEach((child) => {
-        child.each(callback);
-      });
+        child.each(callback)
+      })
     }
   }
 }
 
-module.exports = OriginNode;
+module.exports = OriginNode

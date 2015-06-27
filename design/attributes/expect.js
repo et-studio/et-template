@@ -17,7 +17,9 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _roots = this.roots;
     var _rootIds = this.rootIds;
 
-    var _et = _util_createElement('DIV', {'id': 'test'});
+    var _et = _util_createElement('DIV', {
+      'id': 'test'
+    });
     _doms.et1 = _et;
     _roots.et1 = _et;
     _rootIds.push('et1');

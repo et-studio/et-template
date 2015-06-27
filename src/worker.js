@@ -1,10 +1,10 @@
 
-'use strict';
-var _ = require('./util');
+'use strict'
+var _ = require('./util')
 var worker = {
 
   createComment(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _et = _util.createComment('${it.text}');
@@ -22,14 +22,14 @@ _doms.${it.id} = _et;
 `;
     }
 
-    return re;
+    return re
   },
   createElement(it) {
-    var re = '';
+    var re = ''
 
     if (it.attributes) {
       re = re + `
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${JSON.stringify(it.attributes)});
+  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${_.stringify(it.attributes)});
 `;
     } else {
       re = re + `
@@ -52,10 +52,10 @@ _doms.${it.id} = _et;
 `;
     }
 
-    return re;
+    return re
   },
   createFor(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _et = new Template_for();
@@ -69,10 +69,10 @@ _doms.${it.id} = _et;
 `;
     }
 
-    return re;
+    return re
   },
   createLine(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _line = _util.createLine();
@@ -90,10 +90,10 @@ _doms.${it.lineId} = _line;
 `;
     }
 
-    return re;
+    return re
   },
   createNull(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 _doms.${it.id} = null;
@@ -106,10 +106,10 @@ _doms.${it.id} = null;
 `;
     }
 
-    return re;
+    return re
   },
   createText(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _et = _util.createTextNode('${it.text}');
@@ -127,12 +127,14 @@ _doms.${it.id} = _et;
 `;
     }
 
-    return re;
+    return re
   },
   template(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
+'use strict';
+
 var _et = require('_et');
 var _util = _et._util;
 var _prototype = _et._prototype;
@@ -193,10 +195,10 @@ var _prototype = _et._prototype;
 module.exports = ${it.templateName};
 `;
 
-    return re;
+    return re
   },
   updateAttributes(it) {
-    var re = '';
+    var re = ''
 
     if (it.erraticAttributes.length || it.expressions.length) {
       re = re + `
@@ -259,10 +261,10 @@ module.exports = ${it.templateName};
 
     }
 
-    return re;
+    return re
   },
   updateFor(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _line = _doms.${it.lineId};
@@ -304,10 +306,10 @@ for (; _i < _lastLength; _i++) {
 `;
     }
 
-    return re;
+    return re
   },
   updateIf(it) {
-    var re = '';
+    var re = ''
     re = re + `
 var _line = _doms.${it.lineId};
 `;
@@ -363,10 +365,10 @@ var _line = _doms.${it.lineId};
 `;
     });
 
-    return re;
+    return re
   },
   updateText(it) {
-    var re = '';
+    var re = ''
 
     re = re + `
 var _et = _doms.${it.id};
@@ -377,8 +379,8 @@ if (_last.${it.valueId} !== _tmp) {
 }
 `;
 
-    return re;
+    return re
   }
 
 }
-module.exports = worker;
+module.exports = worker

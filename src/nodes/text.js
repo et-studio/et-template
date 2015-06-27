@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
-var Basic = require('./basic');
-var worker = require('../worker');
-var valueParser = require('../parsers/value');
+var Basic = require('./basic')
+var worker = require('../worker')
+var valueParser = require('../parsers/value')
 
 class TextNode extends Basic {
-  constructor(source, options = {}) {
-    super(source, options);
-    this.nodeType = 3;
+  constructor (source, options = {}) {
+    super(source, options)
+    this.nodeType = 3
   }
-  parse(source) {
-    this.textContent = source;
+  parse (source) {
+    this.textContent = source
   }
-  deliverCreate() {
-    var text = this.getTextContent();
+  deliverCreate () {
+    var text = this.getTextContent()
     if (this.isErraticValue(text)) {
-      text = '';
+      text = ''
     }
     var it = {
       id: this.getId(),
@@ -24,10 +24,10 @@ class TextNode extends Basic {
       parentId: this.getParentId(),
       text: text
     }
-    return [worker.createText(it)];
+    return [worker.createText(it)]
   }
-  deliverUpdate() {
-    var text = this.getTextContent();
+  deliverUpdate () {
+    var text = this.getTextContent()
     if (this.isErraticValue(text)) {
       var it = {
         id: this.getId(),
@@ -37,11 +37,11 @@ class TextNode extends Basic {
         valueId: this.getRootValueId(),
         valueString: valueParser.parse(text)
       }
-      return [worker.updateText(it)];
+      return [worker.updateText(it)]
     } else {
-      return [];
+      return []
     }
   }
 }
 
-module.exports = TextNode;
+module.exports = TextNode

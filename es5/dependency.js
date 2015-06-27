@@ -69,7 +69,7 @@ var _prototype = {
   isET: true,
   init: function init(options) {
     this.options = options || {};
-    this.rootIds = []; //记录root的id，有排序的作用
+    this.rootIds = []; // 记录root的id，有排序的作用
     this.roots = {}; // 记录是root的节点对象，如果那个节点被移除应该从这里移除
     this.doms = {}; // 记录所有的节点对象
     this.last = {}; // 记录上一次判断是什么值，用于差异更新
