@@ -9,6 +9,10 @@ var pathList = ['/design', '/test/design']
 
 pathList.forEach(function (path) {
   describe(path, function () {
+    var exist = fs.existsSync(rootDir + path)
+    if(!exist) {
+      return
+    }
     var designDirs = fs.readdirSync(rootDir + path)
     designDirs.forEach(function (folder) {
       it(folder, function () {

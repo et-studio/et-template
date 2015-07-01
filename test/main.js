@@ -15,7 +15,7 @@ require.config({
     spec: './spec',
     src: './src',
     _et: './src/dependency',
-    design: './design'
+    design: '../design'
   }
 })
 
