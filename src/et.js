@@ -11,19 +11,10 @@ class ET {
     this.compiler = new Compiler(options.compiler)
     this.formatter = new Formatter(options.formatter)
   }
-  translate (str) {
-    var dom = this.parse(str)
-    var result = this.compile(dom)
-    return this.format(result)
-  }
-  parse (str) {
-    return this.parser.parse(str)
-  }
-  compile (dom) {
-    return this.compiler.compile(dom)
-  }
-  format (str) {
-    return this.formatter.format(str)
+  compile (str) {
+    var dom = this.parser.parse(str)
+    var result = this.compiler.compile(dom)
+    return this.formatter.format(result)
   }
 }
 

@@ -21,26 +21,11 @@ var ET = (function () {
   }
 
   _createClass(ET, [{
-    key: 'translate',
-    value: function translate(str) {
-      var dom = this.parse(str);
-      var result = this.compile(dom);
-      return this.format(result);
-    }
-  }, {
-    key: 'parse',
-    value: function parse(str) {
-      return this.parser.parse(str);
-    }
-  }, {
     key: 'compile',
-    value: function compile(dom) {
-      return this.compiler.compile(dom);
-    }
-  }, {
-    key: 'format',
-    value: function format(str) {
-      return this.formatter.format(str);
+    value: function compile(str) {
+      var dom = this.parser.parse(str);
+      var result = this.compiler.compile(dom);
+      return this.formatter.format(result);
     }
   }]);
 

@@ -56,7 +56,7 @@ var _ = {
 
       content = `
         define(function(require, exports, module){
-          ${et.translate(content)}
+          ${et.compile(content)}
         })
       `
       content = babel.transform(content).code
@@ -87,7 +87,7 @@ var _ = {
       }
       content = `
         define(function(require, exports, module){
-          module.exports = \`${et.translate(content)}\`
+          module.exports = \`${et.compile(content)}\`
         })
       `
       content = babel.transform(content).code

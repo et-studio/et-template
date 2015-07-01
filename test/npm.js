@@ -17,7 +17,7 @@ pathList.forEach(function (path) {
     designDirs.forEach(function (folder) {
       it(folder, function () {
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-        var left = et.translate(html)
+        var left = et.compile(html)
         var right = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
 
         left = left.trim().replace(/\n{2}/g, '\n')
