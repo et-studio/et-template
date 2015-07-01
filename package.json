@@ -2,17 +2,19 @@
   "name": "et",
   "version": "0.0.1",
   "description": "A template for web.",
-  "main": "./es5/et.js",
+  "author": "suyu34",
   "repository": {
     "type": "git",
     "url": "git@github.com:suyu34/et.git"
   },
+  "main": "./es5/et.js",
   "scripts": {
     "start": "node app",
     "test": "standard && mocha test/npm.js"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "0.10.x",
+    "iojs": "2.0.x"
   },
   "standard": {
     "ignore": [
@@ -24,6 +26,9 @@
       "es5/",
       "test/npm.js"
     ]
+  },
+  "dependencies": {
+    "esformatter": "^0.7.1"
   },
   "devDependencies": {
     "babel": "^5.5.4",
@@ -44,9 +49,5 @@
     "et",
     "ET"
   ],
-  "author": "suyu34",
-  "license": "MIT",
-  "dependencies": {
-    "esformatter": "^0.7.1"
-  }
+  "license": "MIT"
 }
