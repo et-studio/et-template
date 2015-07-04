@@ -1,8 +1,8 @@
 'use strict'
 
-var Basic = require('./basic')
-var worker = require('../worker')
-var forParser = require('../parsers/for')
+import Basic from './basic'
+import worker from '../worker'
+import forParser from '../parsers/for'
 
 var defaults = {
   itemName: 'item',
@@ -70,4 +70,4 @@ class ForNode extends Basic {
   }
 }
 
-module.exports = ForNode
+export default ForNode

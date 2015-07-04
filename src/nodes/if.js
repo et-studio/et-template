@@ -1,9 +1,9 @@
 'use strict'
 
-var Basic = require('./basic')
-var _ = require('../util')
-var worker = require('../worker')
-var conditionParser = require('../parsers/condition')
+import Basic from './basic'
+import _ from '../util'
+import worker from '../worker'
+import conditionParser from '../parsers/condition'
 
 class IfNode extends Basic {
   constructor (source, options) {
@@ -119,4 +119,4 @@ class IfNode extends Basic {
     }
   }
 }
-module.exports = IfNode
+export default IfNode

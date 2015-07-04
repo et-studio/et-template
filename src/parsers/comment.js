@@ -1,5 +1,8 @@
 'use strict'
 
+import Parser from './parser'
+import Machine from './machine'
+
 // @tableStart: comment
 var commentTableOptions = {
       states: ['start', 'header', 'text', 'end'],
@@ -13,8 +16,6 @@ var commentTableOptions = {
     }
 // @tableEnd
 
-var Parser = require('./parser')
-var Machine = require('./machine')
 var commentMachine = new Machine(commentTableOptions)
 
 class CommentParser extends Parser {
@@ -39,4 +40,4 @@ class CommentParser extends Parser {
   }
 }
 
-module.exports = new CommentParser()
+export default new CommentParser()

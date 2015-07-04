@@ -1,10 +1,18 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('../util');
+var _util = require('../util');
+
+var _util2 = _interopRequireDefault(_util);
 
 var Machine = (function () {
   function Machine() {
@@ -23,12 +31,21 @@ var Machine = (function () {
     key: 'getToken',
     value: function getToken(str, index) {
       var symbols = this.symbols;
+      var char = str[index];
       var token = '';
-      _.each(symbols, function (symbol) {
-        var tmp = str.substr(index, symbol.length);
-        if (tmp === symbol) {
-          token = symbol;
-          return false;
+      _util2['default'].each(symbols, function (symbol) {
+
+        if (symbol && typeof symbol.test === 'function') {
+          if (symbol.test(char)) {
+            token = char;
+            return false;
+          }
+        } else if (symbol && symbol.length) {
+          var tmp = str.substr(index, symbol.length);
+          if (tmp === symbol) {
+            token = symbol;
+            return false;
+          }
         }
       });
       if (!token) {
@@ -60,9 +77,12 @@ var Machine = (function () {
       for (var i = 0, len = str.length; i < len;) {
         var token = this.getToken(str, i);
         var state = this.switchState(lastState, token);
+
         if (state === '_last') {
           state = stateStack.pop();
-        } else if (state && state !== lastState && state.indexOf('_') === 0) {
+        } else if (lastState.indexOf('_') === 0 && !state) {
+          state = lastState;
+        } else if (state.indexOf('_') === 0) {
           stateStack.push(lastState);
         }
         callback(state, token, i);
@@ -76,4 +96,5 @@ var Machine = (function () {
   return Machine;
 })();
 
-module.exports = Machine;
+exports['default'] = Machine;
+module.exports = exports['default'];

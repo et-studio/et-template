@@ -1,8 +1,8 @@
 'use strict'
 
-var Parser = require('./parser')
-var Compiler = require('./compiler')
-var Formatter = require('./formatter')
+import Parser from './parser'
+import Compiler from './compiler'
+import Formatter from './formatter'
 
 class ET {
   constructor (options = {}) {
@@ -18,4 +18,4 @@ class ET {
   }
 }
 
-module.exports = ET
+export default ET

@@ -1,9 +1,12 @@
 'use strict'
 
-var _ = require('./util')
-var worker = require('./worker')
+import _ from './util'
+import worker from './worker'
 
 class Compiler {
+  constructor (options = {}) {
+    this.options = options
+  }
   pickData (root) {
     var newDoms = root.getNewTemplateDoms()
     var re = {
@@ -30,4 +33,4 @@ class Compiler {
   }
 }
 
-module.exports = Compiler
+export default Compiler

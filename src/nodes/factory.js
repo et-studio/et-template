@@ -1,14 +1,24 @@
 'use strict'
 
-var nodes = {}
-nodes._element = require('./element')
-nodes._text = require('./text')
-nodes._comment = require('./comment')
-nodes._base = require('./basic')
-nodes['#if'] = require('./if')
-nodes['#elseif'] = require('./elseif')
-nodes['#else'] = require('./else')
-nodes['#for'] = require('./for')
+import NodeElement from './element'
+import NodeText from './text'
+import NodeComment from './comment'
+import NodeBasic from './basic'
+import NodeIf from './if'
+import NodeElseif from './elseif'
+import NodeElse from './else'
+import NodeFor from './for'
+
+var nodes = {
+  '_element': NodeElement,
+  '_text': NodeText,
+  '_comment': NodeComment,
+  '_base': NodeBasic,
+  '#if': NodeIf,
+  '#elseif': NodeElseif,
+  '#else': NodeElse,
+  '#for': NodeFor
+}
 
 class Factory {
   /**
@@ -71,4 +81,4 @@ class Factory {
   }
 }
 
-module.exports = new Factory()
+export default new Factory()

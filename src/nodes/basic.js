@@ -28,8 +28,8 @@
  *  - indexName
  */
 
-var NodeInterface = require('./getter')
-var _ = require('../util')
+import NodeInterface from './getter'
+import _ from '../util'
 
 class Basic extends NodeInterface {
   constructor (source, options = {}) {
@@ -190,4 +190,4 @@ class Basic extends NodeInterface {
   }
 }
 
-module.exports = Basic
+export default Basic

@@ -1,3 +1,3 @@
-# ET 管理dom生命周期的模板
+# et-template v0.0.1
 
-编译几乎完成，将要进行最后的调整，发布即将到来。
+`npm install et-template --save-dev`

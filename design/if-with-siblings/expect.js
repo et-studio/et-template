@@ -1,7 +1,8 @@
 'use strict';
-var _et = require('_et');
-var _util = _et._util;
-var _prototype = _et._prototype;
+
+var _dep = require('etDependency');
+var _util = _dep._util;
+var _prototype = _dep._prototype;
 
 var _util_extend = _util.extend;
 var _util_createTextNode = _util.createTextNode;

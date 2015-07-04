@@ -7,7 +7,18 @@ var settings = require('./settings.js')
 exports.register = function () {
   describe('Compiler test', function () {
     settings.forEach(function (setting) {
-      it(setting.title, function () {
+      it(setting.title, function (done) {
+        if (setting.title.indexOf('error') >= 0) {
+          try {
+            var errParser = new Parser(setting.options)
+            errParser.parse(setting.html)
+          } catch (e) {
+            done()
+          } finally {
+            return
+          }
+        }
+
         var parser = new Parser(setting.options)
         var node = parser.parse(setting.html)
         var expect = setting.expect
@@ -34,6 +45,7 @@ exports.register = function () {
           }
         }
         testAll(node, expect)
+        done()
       })
     })
   })

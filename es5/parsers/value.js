@@ -1,8 +1,18 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _machine = require('./machine');
+
+var _machine2 = _interopRequireDefault(_machine);
 
 // @tableStart: value
 var valueTableOptions = {
@@ -11,9 +21,7 @@ var valueTableOptions = {
   table: [{ '0': 'start', '1': 'string', '-1': 'string' }, { '0': 'expression', '1': 'end', '-1': 'expression' }, { '0': 'expression', '1': 'end', '-1': 'expression' }, { '0': 'string', '1': 'string', '-1': 'string' }]
 };
 // @tableEnd
-
-var Machine = require('./machine');
-var valueMachine = new Machine(valueTableOptions);
+var valueMachine = new _machine2['default'](valueTableOptions);
 
 var ValueParser = (function () {
   function ValueParser() {
@@ -61,4 +69,5 @@ var ValueParser = (function () {
   return ValueParser;
 })();
 
-module.exports = new ValueParser();
+exports['default'] = new ValueParser();
+module.exports = exports['default'];

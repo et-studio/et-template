@@ -24,4 +24,4 @@ class BasicParser {
   }
 }
 
-module.exports = BasicParser
+export default BasicParser

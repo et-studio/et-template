@@ -1,8 +1,8 @@
 'use strict'
 
-var Basic = require('./basic')
-var worker = require('../worker')
-var valueParser = require('../parsers/value')
+import Basic from './basic'
+import worker from '../worker'
+import valueParser from '../parsers/value'
 
 class TextNode extends Basic {
   constructor (source, options = {}) {
@@ -44,4 +44,4 @@ class TextNode extends Basic {
   }
 }
 
-module.exports = TextNode
+export default TextNode

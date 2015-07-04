@@ -3,11 +3,13 @@
 var rootDir = process.cwd()
 var express = require('express')
 var fs = require('fs')
-var babel = require('babel')
+var babel = require('babel-core')
 var esformatter = require('esformatter')
 var ET = require(`${rootDir}/es5/et`)
+var Formatter = require(`${rootDir}/es5/formatter`)
 
 var et = new ET()
+var formatter = new Formatter()
 var app = express()
 var port = 3000
 
@@ -37,12 +39,9 @@ var _ = {
       }
 
       if (_.isEndWidth(path, '.js') && !_.isIgnore(content)) {
-        content = `
-          define(function(require, exports, module){
-            ${content}
-          })
-        `
         content = babel.transform(content).code
+        content = formatter.wrapCMD(content)
+        content = esformatter.format(content)
       }
 
       callback(null, content)
@@ -54,12 +53,10 @@ var _ = {
         return callback(err)
       }
 
-      content = `
-        define(function(require, exports, module){
-          ${et.compile(content)}
-        })
-      `
+      content = et.compile(content)
       content = babel.transform(content).code
+      content = formatter.wrapCMD(content)
+      content = esformatter.format(content)
 
       callback(null, content)
     })
@@ -70,12 +67,10 @@ var _ = {
         return callback(err)
       }
 
-      content = `
-        define(function(require, exports, module){
-          module.exports = \`${content}\`
-        })
-      `
+      content = `module.exports = \`${content}\``
       content = babel.transform(content).code
+      content = formatter.wrapCMD(content)
+      content = esformatter.format(content)
 
       callback(null, content)
     })
@@ -85,12 +80,10 @@ var _ = {
       if (err) {
         return callback(err)
       }
-      content = `
-        define(function(require, exports, module){
-          module.exports = \`${et.compile(content)}\`
-        })
-      `
+
+      content = `module.exports = \`${et.compile(content)}\``
       content = babel.transform(content).code
+      content = formatter.wrapCMD(content)
       content = esformatter.format(content)
 
       callback(null, content)
@@ -100,6 +93,7 @@ var _ = {
 
 app.use('/node_modules', express.static('node_modules'))
 app.use('/bower_components', express.static('bower_components'))
+app.use('/es5', express.static('es5'))
 
 app.use('/template', function (req, res) {
   var path = 'test/template' + req.path

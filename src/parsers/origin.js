@@ -1,5 +1,8 @@
 'use strict'
 
+import Machine from './machine'
+import OriginNode from '../nodes/origin'
+
 // @tableStart: origin
 var originTableOptions = {
       states: ['text', 'tagEnd', 'closeEnd', 'tagStart', 'tag', 'strEnd', 'str{{', 'str\'', 'str\"', 'closeStart', 'close'],
@@ -19,9 +22,6 @@ var originTableOptions = {
     ]
     }
 // @tableEnd
-
-var Machine = require('./machine')
-var OriginNode = require('../nodes/origin')
 var originMachine = new Machine(originTableOptions)
 
 class OriginParser {
@@ -77,4 +77,4 @@ class OriginParser {
   }
 }
 
-module.exports = new OriginParser()
+export default new OriginParser()

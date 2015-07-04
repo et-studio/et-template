@@ -12,7 +12,7 @@ function handleString (method, string) {
     if (item.indexOf('// {{') >= 0) {
       re.push('re = re + `')
     } else if (item.indexOf('// }}') >= 0) {
-      re.push('`;')
+      re.push('`')
     } else {
       re.push(item)
     }
@@ -41,11 +41,10 @@ module.exports = function () {
   }, function (next) {
     var data = `
       'use strict'
-      var _ = require('./util')
-      var worker = {
+      import _ from './util'
+      export default {
         ${methods.join(',')}
       }
-      module.exports = worker
     `
     outputStream.push(new gutil.File({
       path: 'worker.js',

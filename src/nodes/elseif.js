@@ -1,8 +1,8 @@
 'use strict'
 
-var Basic = require('./basic')
-var worker = require('../worker')
-var conditionParser = require('../parsers/condition')
+import Basic from './basic'
+import worker from '../worker'
+import conditionParser from '../parsers/condition'
 
 class ElseIfNode extends Basic {
   constructor (source, options) {
@@ -24,4 +24,4 @@ class ElseIfNode extends Basic {
     return [worker.createNull(it)]
   }
 }
-module.exports = ElseIfNode
+export default ElseIfNode

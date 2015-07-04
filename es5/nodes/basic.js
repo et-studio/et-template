@@ -1,8 +1,14 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -36,8 +42,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
  *  - indexName
  */
 
-var NodeInterface = require('./getter');
-var _ = require('../util');
+var _getter = require('./getter');
+
+var _getter2 = _interopRequireDefault(_getter);
+
+var _util = require('../util');
+
+var _util2 = _interopRequireDefault(_util);
 
 var Basic = (function (_NodeInterface) {
   function Basic(source) {
@@ -77,25 +88,25 @@ var Basic = (function (_NodeInterface) {
     key: 'getCreateList',
     value: function getCreateList() {
       var re = [];
-      _.each(this.children, function (child) {
-        _.concat(re, child.deliverCreate());
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverCreate());
         if (!child.isNewTemplate) {
-          _.concat(re, child.getCreateList());
+          _util2['default'].concat(re, child.getCreateList());
         }
       });
-      return _.clearArraySpace(re);
+      return _util2['default'].clearArraySpace(re);
     }
   }, {
     key: 'getUpdateList',
     value: function getUpdateList() {
       var re = [];
-      _.each(this.children, function (child) {
-        _.concat(re, child.deliverUpdate());
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverUpdate());
         if (!child.isNewTemplate) {
-          _.concat(re, child.getUpdateList());
+          _util2['default'].concat(re, child.getUpdateList());
         }
       });
-      return _.clearArraySpace(re);
+      return _util2['default'].clearArraySpace(re);
     }
   }, {
     key: 'getArguments',
@@ -104,13 +115,13 @@ var Basic = (function (_NodeInterface) {
 
       var lastRoot = this.getLastRoot();
       if (lastRoot) {
-        _.concat(re, lastRoot.getArguments());
+        _util2['default'].concat(re, lastRoot.getArguments());
       }
       if (this.args) {
-        _.concat(re, this.args);
+        _util2['default'].concat(re, this.args);
       }
-      re = _.uniq(re);
-      return _.clearArraySpace(re);
+      re = _util2['default'].uniq(re);
+      return _util2['default'].clearArraySpace(re);
     }
   }, {
     key: 'checkRoot',
@@ -140,7 +151,7 @@ var Basic = (function (_NodeInterface) {
         list[_key] = arguments[_key];
       }
 
-      _.concat(this.args, list);
+      _util2['default'].concat(this.args, list);
       return this;
     }
   }, {
@@ -171,7 +182,7 @@ var Basic = (function (_NodeInterface) {
 
       var newChidren = [];
       var _this = this;
-      _.each(this.parent.children, function (child) {
+      _util2['default'].each(this.parent.children, function (child) {
         newChidren.push(child);
         if (child.getId() === _this.getId()) {
           newChidren.push(node);
@@ -235,9 +246,10 @@ var Basic = (function (_NodeInterface) {
   }]);
 
   return Basic;
-})(NodeInterface);
+})(_getter2['default']);
 
-module.exports = Basic;
+exports['default'] = Basic;
+module.exports = exports['default'];
 
 // be called in constructor
 

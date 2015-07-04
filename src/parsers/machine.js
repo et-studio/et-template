@@ -1,6 +1,6 @@
 'use strict'
 
-var _ = require('../util')
+import _ from '../util'
 
 class Machine {
   constructor (options = {}) {
@@ -12,12 +12,21 @@ class Machine {
   }
   getToken (str, index) {
     var symbols = this.symbols
+    var char = str[index]
     var token = ''
     _.each(symbols, (symbol) => {
-      var tmp = str.substr(index, symbol.length)
-      if (tmp === symbol) {
-        token = symbol
-        return false
+
+      if (symbol && typeof symbol.test === 'function') {
+        if (symbol.test(char)) {
+          token = char
+          return false
+        }
+      } else if (symbol && symbol.length) {
+        var tmp = str.substr(index, symbol.length)
+        if (tmp === symbol) {
+          token = symbol
+          return false
+        }
       }
     })
     if (!token) {
@@ -45,9 +54,12 @@ class Machine {
     for (var i = 0, len = str.length; i < len;) {
       var token = this.getToken(str, i)
       var state = this.switchState(lastState, token)
+
       if (state === '_last') {
         state = stateStack.pop()
-      } else if (state && state !== lastState && state.indexOf('_') === 0) {
+      } else if (lastState.indexOf('_') === 0 && !state) {
+        state = lastState
+      } else if (state.indexOf('_') === 0) {
         stateStack.push(lastState)
       }
       callback(state, token, i)
@@ -58,4 +70,4 @@ class Machine {
   }
 }
 
-module.exports = Machine
+export default Machine

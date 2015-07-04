@@ -1,7 +1,7 @@
 'use strict'
 
-var Basic = require('./basic')
-var worker = require('../worker')
+import Basic from './basic'
+import worker from '../worker'
 
 class ElseNode extends Basic {
   constructor (source, options) {
@@ -17,4 +17,4 @@ class ElseNode extends Basic {
     return [worker.createNull(it)]
   }
 }
-module.exports = ElseNode
+export default ElseNode

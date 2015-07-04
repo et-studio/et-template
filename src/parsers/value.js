@@ -1,5 +1,7 @@
 'use strict'
 
+import Machine from './machine'
+
 // @tableStart: value
 var valueTableOptions = {
       states: ['string', 'start', 'expression', 'end'],
@@ -12,8 +14,6 @@ var valueTableOptions = {
     ]
     }
 // @tableEnd
-
-var Machine = require('./machine')
 var valueMachine = new Machine(valueTableOptions)
 
 class ValueParser {
@@ -49,4 +49,4 @@ class ValueParser {
   }
 }
 
-module.exports = new ValueParser()
+export default new ValueParser()

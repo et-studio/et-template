@@ -1,4 +1,4 @@
-var _ = require('../util')
+import _ from '../util'
 
 class OriginNode {
   constructor (parent, source = '', options = {}) {
@@ -103,4 +103,4 @@ class OriginNode {
   }
 }
 
-module.exports = OriginNode
+export default OriginNode

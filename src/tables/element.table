@@ -1,16 +1,16 @@
 
        | start  | name | scan       | key        | valueStart | value | value\' | value\" | _str  | valueStr | end
 ------ | -----  | ---- | ----       | ----       | ---------- | ----- | ------- | ------- | ----  | -------- |
-'<'    | start  |      |            |            |            | value | value\' | value\" | _str  | valueStr |
-'>'    |        | end  | end        |            |            | end   | value\' | value\" | _str  | valueStr |
-'\\\"' |        |      |            |            |            | value | value\' | value\" | _str  | valueStr |
-'\"'   |        |      |            |            | value\"    | value | value\' | scan    | _str  | valueStr |
-'\\\'' |        |      |            |            |            | value | value\' | value\" | _str  | valueStr |
-'\''   |        |      |            |            | value\'    | value | scan    | value\" | _str  | valueStr |
-'='    |        |      | valueStart | valueStart |            | value | value\' | value\" | _str  | valueStr |
-' '    |        | scan | scan       |            | valueStart | scan  | value\' | value\" | _str  | valueStr |
-'\r'   |        | scan | scan       |            | valueStart | scan  | value\' | value\" | _str  | valueStr |
-'\n'   |        | scan | scan       |            | valueStart | scan  | value\' | value\" | _str  | valueStr |
-'{{'   |        |      |            |            | valueStr   | _str  | _str    | _str    | _str  | valueStr |
+'<'    | start  |      |            |            |            | value | value\' | value\" |       | valueStr |
+'>'    |        | end  | end        |            |            | end   | value\' | value\" |       | valueStr |
+'\\\"' |        |      |            |            |            | value | value\' | value\" |       | valueStr |
+'\"'   |        |      |            |            | value\"    | value | value\' | scan    |       | valueStr |
+'\\\'' |        |      |            |            |            | value | value\' | value\" |       | valueStr |
+'\''   |        |      |            |            | value\'    | value | scan    | value\" |       | valueStr |
+'='    |        |      | valueStart | valueStart |            | value | value\' | value\" |       | valueStr |
+' '    |        | scan | scan       |            | valueStart | scan  | value\' | value\" |       | valueStr |
+'\r'   |        | scan | scan       |            | valueStart | scan  | value\' | value\" |       | valueStr |
+'\n'   |        | scan | scan       |            | valueStart | scan  | value\' | value\" |       | valueStr |
+'{{'   |        |      |            |            | valueStr   | _str  | _str    | _str    |       | valueStr |
 '}}'   |        |      |            |            |            | value | value\' | value\" | _last | value    |
-       | name   | name | key        | key        | value      | value | value\' | value\" | _str  | valueStr |
+       | name   | name | key        | key        | value      | value | value\' | value\" |       | valueStr |

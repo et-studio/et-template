@@ -140,7 +140,8 @@ var _prototype = {
   }
 }
 
-module.exports = {
+exports['default'] = {
   _util: _util,
   _prototype: _prototype
 }
+module.exports = exports['default']

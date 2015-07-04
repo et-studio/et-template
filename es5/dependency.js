@@ -1,4 +1,14 @@
-define(function(require, exports, module) {
+;(function(global, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('etDependency', factory)
+  } else {
+    var require = function() {}
+    var module = {}
+    var exports = {}
+    factory(require, exports, module)
+    global.etDependency = module.exports
+  }
+})(window, function(require, exports, module) {
   'use strict'
 
   var LOOP = function LOOP() {}
@@ -141,9 +151,10 @@ define(function(require, exports, module) {
     }
   }
 
-  module.exports = {
+  exports['default'] = {
     _util: _util,
     _prototype: _prototype
   }
+  module.exports = exports['default']
 
-})
+});

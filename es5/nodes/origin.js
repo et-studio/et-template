@@ -1,10 +1,18 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('../util');
+var _util = require('../util');
+
+var _util2 = _interopRequireDefault(_util);
 
 var OriginNode = (function () {
   function OriginNode(parent) {
@@ -65,12 +73,12 @@ var OriginNode = (function () {
   }, {
     key: 'closeAll',
     value: function closeAll() {
-      _.each(this.children, function (child) {
+      _util2['default'].each(this.children, function (child) {
         child.closeAll();
       });
 
       if (this.parent && !this.isClosed) {
-        _.concat(this.parent.children, this.children);
+        _util2['default'].concat(this.parent.children, this.children);
         this.isClosed = true;
         this.children = [];
       }
@@ -106,11 +114,11 @@ var OriginNode = (function () {
       var root = this;
       var children = [];
       while (root.parent) {
-        _.concat(children, root.children);
+        _util2['default'].concat(children, root.children);
         root.children = [];
         root = root.parent;
       }
-      _.concat(root.children, children);
+      _util2['default'].concat(root.children, children);
       return this;
     }
   }, {
@@ -140,4 +148,5 @@ var OriginNode = (function () {
   return OriginNode;
 })();
 
-module.exports = OriginNode;
+exports['default'] = OriginNode;
+module.exports = exports['default'];

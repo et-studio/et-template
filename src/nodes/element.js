@@ -1,12 +1,12 @@
 'use strict'
 
-var Basic = require('./basic')
+import Basic from './basic'
 
-var _ = require('../util')
-var worker = require('../worker')
-var elementParser = require('../parsers/element')
-var valueParser = require('../parsers/value')
-var conditionParser = require('../parsers/condition')
+import _ from '../util'
+import worker from '../worker'
+import elementParser from '../parsers/element'
+import valueParser from '../parsers/value'
+import conditionParser from '../parsers/condition'
 
 class Element extends Basic {
   constructor (source, options = {}) {
@@ -114,4 +114,4 @@ class Element extends Basic {
   }
 }
 
-module.exports = Element
+export default Element

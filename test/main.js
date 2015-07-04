@@ -14,7 +14,8 @@ require.config({
     template: './template',
     spec: './spec',
     src: './src',
-    _et: './src/dependency',
+    etDependency: './src/dependency',
+    etRuntime: './es5/et-runtime',
     design: './design'
   }
 })
@@ -24,7 +25,8 @@ require([
   'chai',
   'jquery',
   'mocha',
-  '_et',
+  'etDependency',
+  'etRuntime',
   'underscore',
   'babel'
 ], function (test, chai) {

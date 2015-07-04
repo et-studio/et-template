@@ -1,5 +1,8 @@
 'use strict'
 
+import Machine from './machine'
+import _ from '../util'
+
 // @tableStart: format
 var formatTableOptions = {
       states: ['header', 'body', 'methodName', 'methodEnd'],
@@ -12,10 +15,6 @@ var formatTableOptions = {
     ]
     }
 // @tableEnd
-
-var Machine = require('./machine')
-var _ = require('../util')
-
 var formatMachine = new Machine(formatTableOptions)
 
 class FormatParser {
@@ -63,4 +62,4 @@ class FormatParser {
   }
 }
 
-module.exports = new FormatParser()
+export default new FormatParser()

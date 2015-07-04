@@ -1,18 +1,57 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var nodes = {};
-nodes._element = require('./element');
-nodes._text = require('./text');
-nodes._comment = require('./comment');
-nodes._base = require('./basic');
-nodes['#if'] = require('./if');
-nodes['#elseif'] = require('./elseif');
-nodes['#else'] = require('./else');
-nodes['#for'] = require('./for');
+var _element = require('./element');
+
+var _element2 = _interopRequireDefault(_element);
+
+var _text = require('./text');
+
+var _text2 = _interopRequireDefault(_text);
+
+var _comment = require('./comment');
+
+var _comment2 = _interopRequireDefault(_comment);
+
+var _basic = require('./basic');
+
+var _basic2 = _interopRequireDefault(_basic);
+
+var _if = require('./if');
+
+var _if2 = _interopRequireDefault(_if);
+
+var _elseif = require('./elseif');
+
+var _elseif2 = _interopRequireDefault(_elseif);
+
+var _else = require('./else');
+
+var _else2 = _interopRequireDefault(_else);
+
+var _for = require('./for');
+
+var _for2 = _interopRequireDefault(_for);
+
+var nodes = {
+  '_element': _element2['default'],
+  '_text': _text2['default'],
+  '_comment': _comment2['default'],
+  '_base': _basic2['default'],
+  '#if': _if2['default'],
+  '#elseif': _elseif2['default'],
+  '#else': _else2['default'],
+  '#for': _for2['default']
+};
 
 var Factory = (function () {
   function Factory() {
@@ -91,4 +130,5 @@ var Factory = (function () {
   return Factory;
 })();
 
-module.exports = new Factory();
+exports['default'] = new Factory();
+module.exports = exports['default'];

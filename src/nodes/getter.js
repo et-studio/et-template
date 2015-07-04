@@ -63,4 +63,4 @@ class Getter {
   }
 }
 
-module.exports = Getter
+export default Getter

@@ -1,8 +1,8 @@
 'use strict'
 
-var Basic = require('./basic')
-var worker = require('../worker')
-var commentParser = require('../parsers/comment')
+import Basic from './basic'
+import worker from '../worker'
+import commentParser from '../parsers/comment'
 
 class Comment extends Basic {
   constructor (source, options = {}) {
@@ -23,4 +23,4 @@ class Comment extends Basic {
   }
 }
 
-module.exports = Comment
+export default Comment

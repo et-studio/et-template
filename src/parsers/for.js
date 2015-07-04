@@ -1,5 +1,8 @@
 'use strict'
 
+import Parser from './parser'
+import Machine from './machine'
+
 // @tableStart: for
 var forTableOptions = {
       states: ['start', 'header', 'headerEnd', 'itemName', 'itemEnd', 'indexName', 'indexEnd', 'exStart', 'expression'],
@@ -17,9 +20,6 @@ var forTableOptions = {
     ]
     }
 // @tableEnd
-
-var Parser = require('./parser')
-var Machine = require('./machine')
 var forMachine = new Machine(forTableOptions)
 
 class ForParser extends Parser {
@@ -84,4 +84,4 @@ class ForParser extends Parser {
   }
 }
 
-module.exports = new ForParser()
+export default new ForParser()

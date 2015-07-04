@@ -1,11 +1,11 @@
 'use strict'
 
-var _ = require('./util')
-var originParser = require('./parsers/origin')
-var factory = require('./nodes/factory')
+import _ from './util'
+import originParser from './parsers/origin'
+import factory from './nodes/factory'
 
 class Parser {
-  constructor (options) {
+  constructor (options = {}) {
     this.options = options
   }
   parse (str) {
@@ -43,4 +43,4 @@ class Parser {
   }
 }
 
-module.exports = Parser
+export default Parser

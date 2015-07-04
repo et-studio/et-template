@@ -1,15 +1,31 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ = require('./util');
-var originParser = require('./parsers/origin');
-var factory = require('./nodes/factory');
+var _util = require('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _parsersOrigin = require('./parsers/origin');
+
+var _parsersOrigin2 = _interopRequireDefault(_parsersOrigin);
+
+var _nodesFactory = require('./nodes/factory');
+
+var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
 var Parser = (function () {
-  function Parser(options) {
+  function Parser() {
+    var options = arguments[0] === undefined ? {} : arguments[0];
+
     _classCallCheck(this, Parser);
 
     this.options = options;
@@ -18,7 +34,7 @@ var Parser = (function () {
   _createClass(Parser, [{
     key: 'parse',
     value: function parse(str) {
-      var originNode = originParser.parse(str);
+      var originNode = _parsersOrigin2['default'].parse(str);
       return this.createDom(originNode);
     }
   }, {
@@ -36,14 +52,14 @@ var Parser = (function () {
           options.expressions = origin.expressions;
         }
 
-        var node = factory.create(source, options);
+        var node = _nodesFactory2['default'].create(source, options);
         return node;
       };
       var createChildren = function createChildren(children, parent) {
         if (children === undefined) children = [];
 
         var current = null;
-        _.each(children, function (child) {
+        _util2['default'].each(children, function (child) {
           current = createNode(child.source, parent, current, child);
           createChildren(child.children, current);
         });
@@ -59,4 +75,5 @@ var Parser = (function () {
   return Parser;
 })();
 
-module.exports = Parser;
+exports['default'] = Parser;
+module.exports = exports['default'];

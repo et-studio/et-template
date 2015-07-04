@@ -1,5 +1,8 @@
 'use strict'
 
+import Parser from './parser'
+import Machine from './machine'
+
 // @tableStart: condition
 var conditionTableOptions = {
       states: ['start', 'name', 'condition'],
@@ -12,8 +15,6 @@ var conditionTableOptions = {
     }
 // @tableEnd
 
-var Parser = require('./parser')
-var Machine = require('./machine')
 var conditionMachine = new Machine(conditionTableOptions)
 
 class ConditionParser extends Parser {
@@ -59,4 +60,4 @@ class ConditionParser extends Parser {
   }
 }
 
-module.exports = new ConditionParser()
+export default new ConditionParser()
