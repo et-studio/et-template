@@ -82,7 +82,7 @@ var Machine = (function () {
           state = stateStack.pop();
         } else if (lastState.indexOf('_') === 0 && !state) {
           state = lastState;
-        } else if (state.indexOf('_') === 0) {
+        } else if (state && state.indexOf('_') === 0) {
           stateStack.push(lastState);
         }
         callback(state, token, i);

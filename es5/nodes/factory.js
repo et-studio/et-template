@@ -42,6 +42,10 @@ var _for = require('./for');
 
 var _for2 = _interopRequireDefault(_for);
 
+var _html = require('./html');
+
+var _html2 = _interopRequireDefault(_html);
+
 var nodes = {
   '_element': _element2['default'],
   '_text': _text2['default'],
@@ -50,7 +54,8 @@ var nodes = {
   '#if': _if2['default'],
   '#elseif': _elseif2['default'],
   '#else': _else2['default'],
-  '#for': _for2['default']
+  '#for': _for2['default'],
+  '#html': _html2['default']
 };
 
 var Factory = (function () {
