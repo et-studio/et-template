@@ -126,7 +126,7 @@ var tableHandler = {
       cache[name] = re
       return re
     } else {
-      return ''
+      return `var ${name}TableOptions = {}`
     }
   },
   replace (str) {
