@@ -71,6 +71,14 @@ _doms.${it.id} = _et;
 
     return re
   },
+  createHtml(it) {
+    var re = ''
+    re = re + `
+_doms.${it.parentId}.innerHTML = '${it.expression}';
+`
+
+    return re
+  },
   createLine(it) {
     var re = ''
 
@@ -305,6 +313,20 @@ for (; _i < _lastLength; _i++) {
   }
 `
     }
+
+    return re
+  },
+  updateHtml(it) {
+    var re = ''
+
+    re = re + `
+var _et = _doms.${it.parentId};
+var _tmp = ${it.valueString};
+if (_last.${it.valueId} !== _tmp) {
+  _last.${it.valueId} = _tmp;
+  _et.innerHTML = _tmp;
+}
+`
 
     return re
   },

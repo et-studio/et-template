@@ -55,6 +55,12 @@ exports['default'] = {
 
     return re;
   },
+  createHtml: function createHtml(it) {
+    var re = '';
+    re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + it.expression + '\';\n');
+
+    return re;
+  },
   createLine: function createLine(it) {
     var re = '';
 
@@ -167,6 +173,13 @@ exports['default'] = {
     if (it.isRoot) {
       re = re + ('\n  var _lastLength = _last.' + it.valueId + ';\n  var _et = _doms.' + it.id + ';\n  _et.rootIds = [];\n  for (_i = 0; _i < _lastLength; _i++) {\n    _et.rootIds.push(\'' + it.id + '_\' + _i);\n    _et.doms[\'' + it.id + '_\' + _i] = _doms[\'' + it.id + '_\' + _i];\n  }\n');
     }
+
+    return re;
+  },
+  updateHtml: function updateHtml(it) {
+    var re = '';
+
+    re = re + ('\nvar _et = _doms.' + it.parentId + ';\nvar _tmp = ' + it.valueString + ';\nif (_last.' + it.valueId + ' !== _tmp) {\n  _last.' + it.valueId + ' = _tmp;\n  _et.innerHTML = _tmp;\n}\n');
 
     return re;
   },

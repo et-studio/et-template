@@ -289,6 +289,12 @@
 
         return re;
       },
+      createHtml: function createHtml(it) {
+        var re = '';
+        re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + it.expression + '\';\n');
+
+        return re;
+      },
       createLine: function createLine(it) {
         var re = '';
 
@@ -401,6 +407,13 @@
         if (it.isRoot) {
           re = re + ('\n  var _lastLength = _last.' + it.valueId + ';\n  var _et = _doms.' + it.id + ';\n  _et.rootIds = [];\n  for (_i = 0; _i < _lastLength; _i++) {\n    _et.rootIds.push(\'' + it.id + '_\' + _i);\n    _et.doms[\'' + it.id + '_\' + _i] = _doms[\'' + it.id + '_\' + _i];\n  }\n');
         }
+
+        return re;
+      },
+      updateHtml: function updateHtml(it) {
+        var re = '';
+
+        re = re + ('\nvar _et = _doms.' + it.parentId + ';\nvar _tmp = ' + it.valueString + ';\nif (_last.' + it.valueId + ' !== _tmp) {\n  _last.' + it.valueId + ' = _tmp;\n  _et.innerHTML = _tmp;\n}\n');
 
         return re;
       },
@@ -568,7 +581,7 @@
               state = stateStack.pop();
             } else if (lastState.indexOf('_') === 0 && !state) {
               state = lastState;
-            } else if (state.indexOf('_') === 0) {
+            } else if (state && state.indexOf('_') === 0) {
               stateStack.push(lastState);
             }
             callback(state, token, i);
@@ -1415,21 +1428,21 @@
         '-1': 'key'
       }, {
         '0': '',
-        '1': '',
+        '1': 'end',
         '2': '',
         '3': '',
         '4': '',
         '5': '',
         '6': 'valueStart',
-        '7': '',
-        '8': '',
-        '9': '',
+        '7': 'scan',
+        '8': 'scan',
+        '9': 'scan',
         '10': '',
         '11': '',
         '-1': 'key'
       }, {
         '0': '',
-        '1': '',
+        '1': 'end',
         '2': '',
         '3': 'value"',
         '4': '',
@@ -2651,6 +2664,80 @@
 
     module.exports = ForNode;
   });
+  innerDefine('nodes/html', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic');
+    var worker = innerRequire('../worker');
+    var conditionParser = innerRequire('../parsers/condition');
+    var valueParser = innerRequire('../parsers/value');
+
+    var HtmlNode = (function(_Basic8) {
+      function HtmlNode() {
+        _classCallCheck(this, HtmlNode);
+
+        _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _inherits(HtmlNode, _Basic8);
+
+      _createClass(HtmlNode, [{
+        key: 'parse',
+        value: function parse(source) {
+          var tmp = conditionParser.parse(source, {
+            expectNodeName: '#html'
+          });
+          this.nodeName = tmp.nodeName;
+          var expression = tmp.condition;
+          this.expression = expression.slice(1, expression.length - 1);
+        }
+      }, {
+        key: 'init',
+        value: function init() {
+          if (!this.parent) {
+            this.throwError('html node need a parent');
+          }
+          if (this.parent.nodeType !== 1) {
+            this.throwError('the parent of html node should be element node');
+          }
+          if (this.parent.children.length > 1) {
+            this.throwError('html node should not has siblings');
+          }
+        }
+      }, {
+        key: 'deliverCreate',
+        value: function deliverCreate() {
+          var re = [];
+          var expression = this.expression;
+          if (expression && !this.isErraticValue(expression)) {
+            re.push(worker.createHtml({
+              parentId: this.parent.getId(),
+              expression: this.expression
+            }));
+          }
+          return re;
+        }
+      }, {
+        key: 'deliverUpdate',
+        value: function deliverUpdate() {
+          var re = [];
+          var expression = this.expression;
+          if (this.isErraticValue(expression)) {
+            re.push(worker.updateHtml({
+              parentId: this.getParentId(),
+              valueId: this.getRootValueId(),
+              valueString: valueParser.parse(expression)
+            }));
+          }
+          return re;
+        }
+      }]);
+
+      return HtmlNode;
+    })(Basic);
+
+    module.exports = HtmlNode;
+  });
   innerDefine('nodes/factory', function(innerRequire, exports, module) {
     'use strict';
 
@@ -2662,6 +2749,7 @@
     var NodeElseif = innerRequire('./elseif');
     var NodeElse = innerRequire('./else');
     var NodeFor = innerRequire('./for');
+    var NodeHtml = innerRequire('./html');
 
     var nodes = {
       '_element': NodeElement,
@@ -2671,7 +2759,8 @@
       '#if': NodeIf,
       '#elseif': NodeElseif,
       '#else': NodeElse,
-      '#for': NodeFor
+      '#for': NodeFor,
+      '#html': NodeHtml
     };
 
     var Factory = (function() {

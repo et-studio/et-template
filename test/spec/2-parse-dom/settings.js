@@ -1,7 +1,7 @@
 module.exports = [
   {
     title: '<div>123456',
-    html: '<div id="test" data-type=xxxx class="{{it.class}}"></div>123456',
+    html: '<div id="test" data-type=xxxx class="{{it.class}}" disabled></div>123456',
     expect: {
       children: [{
         nodeType: 1,
@@ -9,7 +9,8 @@ module.exports = [
         attributes: {
           'id': 'test',
           'data-type': 'xxxx',
-          'class': '{{it.class}}'
+          'class': '{{it.class}}',
+          'disabled': ''
         }
       }, {
         nodeType: 3,
@@ -115,6 +116,29 @@ module.exports = [
           attributes: {
             'class': 'class-true'
           }
+        }]
+      }]
+    }
+  },
+  {
+    title: 'html',
+    html: `<div>
+              [#html '<div></div>']
+            </div>
+            <div>
+              [#html 'aaa{{it.html}}bbb']
+            </div>
+          `,
+    expect: {
+      children: [{
+        children: [{
+          nodeName: '#html',
+          expression: '<div></div>'
+        }]
+      }, {
+        children: [{
+          nodeName: '#html',
+          expression: 'aaa{{it.html}}bbb'
         }]
       }]
     }
