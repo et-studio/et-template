@@ -144,6 +144,7 @@ app.use(function (req, res) {
   var path = 'test' + req.path
   if (_.isEndWidth(path, '/')) {
     path += 'index.html'
+    if (!fs.existsSync(path)) path = 'test/spec/index.html'
   }
   _.getFile(path, function (err, content) {
     if (err) {

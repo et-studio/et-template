@@ -24,13 +24,70 @@ require([
   window.location.pathname + 'test.js',
   'chai',
   'jquery',
+  'underscore',
   'mocha',
   'etDependency',
   'etRuntime',
-  'underscore',
   'babel'
-], function (test, chai) {
+], function (test, chai, $, _) {
   var mocha = window.mocha
+
+  window.testAll = (function () {
+    function testAll (left, right) {
+      if (_.isArray(right)) {
+        testArray(left, right)
+      } else if (_.isObject(right)) {
+        testObject(left, right)
+      } else {
+        window.assert.equal(left, right)
+      }
+    }
+    function testArray (left, right) {
+      window.assert.equal(left.length, right.length)
+      right.forEach(function (item, i) {
+        testAll(left[i], item)
+      })
+    }
+    function testObject (left, right) {
+      for (var key in right) {
+        testAll(left[key], right[key])
+      }
+    }
+    return testAll
+  })()
+
+  window.testCompile = function (left, right) {
+    left = left.trim().replace(/\n{2}/g, '\n')
+    right = right.trim().replace(/\n{2}/g, '\n')
+
+    var hasError = false
+    var errorLeft = ''
+    var errorRight = ''
+    var leftList = left.split('\n')
+    var rightList = right.split('\n')
+    var len = Math.max(leftList.length, rightList.length)
+    for (var i = 0; i < len; i++) {
+      var leftStr = leftList[i] || ''
+      leftStr = leftStr.trim()
+      var rightStr = rightList[i] || ''
+      rightStr = rightStr.trim()
+
+      if (leftStr === rightStr) {
+        console.log(`${i}:${leftStr}`)
+        console.log(`${i}:${rightStr}`)
+      } else {
+        console.error(`${i}:${leftStr}`)
+        console.error(`${i}:${rightStr}`)
+        if (!hasError) {
+          hasError = true
+          errorLeft = leftStr
+          errorRight = rightStr
+        }
+      }
+    }
+
+    window.assert.equal(errorLeft, errorRight)
+  }
 
   if (window.location.pathname !== '/') {
     mocha.setup('bdd')

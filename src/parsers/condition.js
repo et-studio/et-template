@@ -19,10 +19,11 @@ var conditionMachine = new Machine(conditionTableOptions)
 
 class ConditionParser extends Parser {
   parse (source, options = {}) {
-    var expectNodeName = options.expectNodeName || '#if'
+    var expectNodeName = options.expectNodeName
     this.set(expectNodeName, source, options)
 
     var _this = this
+    var tag = ''
     var nodeName = ''
     var condition = ''
     var lastToken = ''
@@ -44,16 +45,24 @@ class ConditionParser extends Parser {
     if (lastToken !== ']') {
       this.throwError()
     }
-    if (nodeName.toLowerCase() !== expectNodeName) {
+    if (expectNodeName && nodeName.toLowerCase() !== expectNodeName) {
       this.throwError()
     }
-    condition = condition.substr(0, condition.length - 1)
-    condition = condition.trim()
-    if (!condition) {
-      this.throwError()
+    if (condition) {
+      condition = condition.substr(0, condition.length - 1)
+      condition = condition.trim()
+    } else {
+      nodeName = nodeName.substr(0, nodeName.length - 1)
+    }
+
+    if (nodeName === '#elseif') {
+      tag = 'else if'
+    } else {
+      tag = nodeName.substr(1)
     }
 
     return {
+      tag: tag,
       nodeName: nodeName,
       condition: condition
     }

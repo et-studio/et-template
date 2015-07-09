@@ -16,6 +16,11 @@ class ET {
     var result = this.compiler.compile(dom)
     return this.formatter.format(result)
   }
+  compileDot (str) {
+    var dom = this.parser.parseDot(str)
+    var result = this.compiler.compile(dom)
+    return this.formatter.format(result)
+  }
 }
 
 export default ET
