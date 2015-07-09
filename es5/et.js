@@ -41,6 +41,13 @@ var ET = (function () {
       var result = this.compiler.compile(dom);
       return this.formatter.format(result);
     }
+  }, {
+    key: 'compileDot',
+    value: function compileDot(str) {
+      var dom = this.parser.parseDot(str);
+      var result = this.compiler.compile(dom);
+      return this.formatter.format(result);
+    }
   }]);
 
   return ET;
