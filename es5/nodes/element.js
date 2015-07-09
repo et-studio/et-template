@@ -63,20 +63,76 @@ var Element = (function (_Basic) {
     key: 'parseExpresions',
     value: function parseExpresions(expressions) {
       var newExpressions = [];
+      var _this = this;
       _util2['default'].each(expressions, function (expression) {
-        var child = expression.children[0];
-        var source = child && child.source || '';
-        var tinyNode = _parsersElement2['default'].parse('<div ' + source + '>');
-        var conditionNode = _parsersCondition2['default'].parse(expression.source);
+        if (expression.children.length === 1) {
+          var items1 = _this.parseSingleExpresion(expression);
+          if (items1.length) newExpressions.push(items1);
+        } else if (expression.children.length > 1) {
+          var items2 = _this.parseMultipleExpresion(expression);
+          if (items2.length) newExpressions.push(items2);
+        }
+      });
+      this.expressions = newExpressions;
+    }
+  }, {
+    key: 'parseSingleExpresion',
+    value: function parseSingleExpresion(expression) {
+      var items = [];
+      var child = expression.children[0];
+      var source = child && child.source || '';
+      var tinyNode = _parsersElement2['default'].parse('<div ' + source + '>');
+      var conditionNode = _parsersCondition2['default'].parse(expression.source);
 
-        if (!_util2['default'].isEmpty(tinyNode.attributes)) {
-          newExpressions.push({
+      if (!_util2['default'].isEmpty(tinyNode.attributes)) {
+        items.push({
+          tag: 'if',
+          condition: conditionNode.condition,
+          attributes: tinyNode.attributes
+        });
+        items.push({
+          tag: 'else',
+          exclusions: Object.keys(tinyNode.attributes)
+        });
+      }
+      return items;
+    }
+  }, {
+    key: 'parseMultipleExpresion',
+    value: function parseMultipleExpresion(expression) {
+      var items = [];
+      var hasElse = false;
+      var allAttributes = {};
+
+      var source = null;
+      var tinyNode = null;
+      var conditionNode = _parsersCondition2['default'].parse(expression.source);
+      _util2['default'].each(expression.children, function (child, i) {
+        if (i % 2) {
+          conditionNode = _parsersCondition2['default'].parse(child.source);
+        } else {
+          source = child && child.source || '';
+          tinyNode = _parsersElement2['default'].parse('<div ' + source + '>');
+          _util2['default'].extend(allAttributes, tinyNode.attributes);
+
+          if (conditionNode.tag === 'else') hasElse = true;
+          items.push({
+            tag: conditionNode.tag,
             condition: conditionNode.condition,
             attributes: tinyNode.attributes
           });
         }
       });
-      this.expressions = newExpressions;
+      _util2['default'].each(items, function (item) {
+        item.exclusions = Object.keys(_util2['default'].omit(allAttributes, item.attributes));
+      });
+      if (!hasElse) {
+        items.push({
+          tag: 'else',
+          exclusions: allAttributes
+        });
+      }
+      return items;
     }
   }, {
     key: 'deliverCreate',
@@ -136,13 +192,17 @@ var Element = (function (_Basic) {
     key: 'translateExpressions',
     value: function translateExpressions() {
       var re = [];
-      var self = this;
-      _util2['default'].each(this.expressions, function (expression) {
-        re.push({
-          condition: expression.condition,
-          valueId: self.getRootValueId(),
-          attributes: self.translateAttributesToExpressions(expression.attributes)
+      var _this = this;
+      _util2['default'].each(this.expressions, function (items) {
+        var newItems = [];
+        var valueId = _this.getRootValueId();
+        _util2['default'].each(items, function (item) {
+          var obj = _util2['default'].pick(item, 'tag', 'exclusions', 'condition');
+          obj.valueId = valueId;
+          obj.attributes = _this.translateAttributesToExpressions(item.attributes);
+          newItems.push(obj);
         });
+        re.push(newItems);
       });
       return re;
     }

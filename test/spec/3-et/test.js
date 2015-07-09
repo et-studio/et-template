@@ -35,36 +35,15 @@ var settings = [
 ]
 
 exports.register = function () {
-  describe('Compiler test', function () {
+  window.describe('Compiler test', function () {
     settings.forEach(function (setting) {
-      it(setting.title, function () {
+      window.it(setting.title, function () {
         var left = setting.source
         var right = setting.expect
-
-        // console.log(left)
         left = babel.transform(left).code
-        left = left.trim().replace(/\n{2}/g, '\n')
         right = babel.transform(right).code
-        right = right.trim().replace(/\n{2}/g, '\n')
         console.log(left)
-
-        var leftList = left.split('\n')
-        var rightList = right.split('\n')
-        var len = Math.max(leftList.length, rightList.length)
-        for (var i = 0; i < len; i++) {
-          var leftStr = leftList[i] || ''
-          var rightStr = rightList[i] || ''
-
-          if (leftStr === rightStr) {
-            console.log(`${i}:${leftStr}`)
-            console.log(`${i}:${rightStr}`)
-          } else {
-            console.error(`${i}:${leftStr}`)
-            console.error(`${i}:${rightStr}`)
-          }
-        }
-
-        assert.equal(left, right)
+        window.testCompile(left, right)
       })
     })
   })

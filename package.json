@@ -21,10 +21,9 @@
       "src/templates/",
       "src/worker.js",
       "design/",
-      "test/spec/",
       "test/design/",
-      "es5/",
-      "test/npm.js"
+      "test/design-dot/",
+      "es5/"
     ]
   },
   "dependencies": {

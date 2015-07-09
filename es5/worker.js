@@ -142,24 +142,34 @@ exports['default'] = {
         }
       });
 
-      _util2['default'].each(it.expressions, function (expression) {
-        re = re + ('\n    if (' + (expression.condition || false) + ') {\n      if (_last.' + expression.valueId + ' !== 0) {\n        _last.' + expression.valueId + ' = 0;\n');
-        _util2['default'].each(expression.attributes, function (attr) {
-          if (!attr.isErratic) {
-            re = re + ('\n            _util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+      _util2['default'].each(it.expressions, function (items) {
+        _util2['default'].each(items, function (item, i) {
+          var condition = '';
+          if (item.tag !== 'else') {
+            condition = '(' + item.condition + ')';
           }
-        });
-        re = re + '\n      }\n';
-        _util2['default'].each(expression.attributes, function (attr) {
-          if (attr.isErratic) {
-            re = re + ('\n          var _tmp = ' + attr.valueString + ';\n          if (_last.' + attr.valueId + ' !== _tmp) {\n            _last.' + attr.valueId + ' = _tmp;\n            _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n          }\n');
+          re = re + ('\n      ' + item.tag + ' ' + condition + ' {\n        if (_last.' + item.valueId + ' !== ' + i + ') {\n          _last.' + item.valueId + ' = ' + i + ';\n');
+          _util2['default'].each(item.attributes, function (attr) {
+            if (!attr.isErratic) {
+              re = re + ('\n              _util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+            }
+          });
+          if (item.exclusions && item.exclusions.length === 1) {
+            re = re + ('\n            _util.removeAttribute(_et, \'' + item.exclusions[0] + '\');\n');
+          } else if (item.exclusions && item.exclusions.length > 1) {
+            var exclusions = item.exclusions.map(function (item) {
+              return '\'' + item + '\'';
+            });
+            re = re + ('\n            _util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
           }
+          re = re + '\n        }\n';
+          _util2['default'].each(item.attributes, function (attr) {
+            if (attr.isErratic) {
+              re = re + ('\n            var _tmp = ' + attr.valueString + ';\n            if (_last.' + attr.valueId + ' !== _tmp) {\n              _last.' + attr.valueId + ' = _tmp;\n              _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n            }\n');
+            }
+          });
+          re = re + '\n      }\n';
         });
-        re = re + ('\n    } else {\n      if (_last.' + expression.valueId + ' !== 1) {\n        _last.' + expression.valueId + ' = 1;\n');
-        _util2['default'].each(expression.attributes, function (attr) {
-          re = re + ('\n          _util.removeAttribute(_et, \'' + attr.key + '\');\n');
-        });
-        re = re + '\n      }\n    }\n';
       });
     }
 

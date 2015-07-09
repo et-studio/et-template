@@ -18,6 +18,10 @@ var _parsersOrigin = require('./parsers/origin');
 
 var _parsersOrigin2 = _interopRequireDefault(_parsersOrigin);
 
+var _parsersDot = require('./parsers/dot');
+
+var _parsersDot2 = _interopRequireDefault(_parsersDot);
+
 var _nodesFactory = require('./nodes/factory');
 
 var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
@@ -36,6 +40,12 @@ var Parser = (function () {
     value: function parse(str) {
       var originNode = _parsersOrigin2['default'].parse(str);
       return this.createDom(originNode);
+    }
+  }, {
+    key: 'parseDot',
+    value: function parseDot(str) {
+      str = _parsersDot2['default'].parse(str);
+      return this.parse(str);
     }
   }, {
     key: 'createDom',

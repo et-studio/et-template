@@ -229,6 +229,31 @@
           return re;
         }
       }, {
+        key: 'omit',
+        value: function omit(objectA, objectB) {
+          var re = {};
+          for (var key in objectA) {
+            if (!(key in objectB)) {
+              re[key] = objectA[key];
+            }
+          }
+          return re;
+        }
+      }, {
+        key: 'pick',
+        value: function pick(obj) {
+          var re = {};
+
+          for (var _len3 = arguments.length, list = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+            list[_key3 - 1] = arguments[_key3];
+          }
+
+          this.each(list, function(key) {
+            re[key] = obj[key];
+          });
+          return re;
+        }
+      }, {
         key: 'stringify',
         value: function stringify(obj) {
           return JSON.stringify(obj).replace(/\"/g, '\'');
@@ -376,24 +401,34 @@
             }
           });
 
-          _.each(it.expressions, function(expression) {
-            re = re + ('\n    if (' + (expression.condition || false) + ') {\n      if (_last.' + expression.valueId + ' !== 0) {\n        _last.' + expression.valueId + ' = 0;\n');
-            _.each(expression.attributes, function(attr) {
-              if (!attr.isErratic) {
-                re = re + ('\n            _util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+          _.each(it.expressions, function(items) {
+            _.each(items, function(item, i) {
+              var condition = '';
+              if (item.tag !== 'else') {
+                condition = '(' + item.condition + ')';
               }
-            });
-            re = re + '\n      }\n';
-            _.each(expression.attributes, function(attr) {
-              if (attr.isErratic) {
-                re = re + ('\n          var _tmp = ' + attr.valueString + ';\n          if (_last.' + attr.valueId + ' !== _tmp) {\n            _last.' + attr.valueId + ' = _tmp;\n            _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n          }\n');
+              re = re + ('\n      ' + item.tag + ' ' + condition + ' {\n        if (_last.' + item.valueId + ' !== ' + i + ') {\n          _last.' + item.valueId + ' = ' + i + ';\n');
+              _.each(item.attributes, function(attr) {
+                if (!attr.isErratic) {
+                  re = re + ('\n              _util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+                }
+              });
+              if (item.exclusions && item.exclusions.length === 1) {
+                re = re + ('\n            _util.removeAttribute(_et, \'' + item.exclusions[0] + '\');\n');
+              } else if (item.exclusions && item.exclusions.length > 1) {
+                var exclusions = item.exclusions.map(function(item) {
+                  return '\'' + item + '\'';
+                });
+                re = re + ('\n            _util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
               }
+              re = re + '\n        }\n';
+              _.each(item.attributes, function(attr) {
+                if (attr.isErratic) {
+                  re = re + ('\n            var _tmp = ' + attr.valueString + ';\n            if (_last.' + attr.valueId + ' !== _tmp) {\n              _last.' + attr.valueId + ' = _tmp;\n              _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n            }\n');
+                }
+              });
+              re = re + '\n      }\n';
             });
-            re = re + ('\n    } else {\n      if (_last.' + expression.valueId + ' !== 1) {\n        _last.' + expression.valueId + ' = 1;\n');
-            _.each(expression.attributes, function(attr) {
-              re = re + ('\n          _util.removeAttribute(_et, \'' + attr.key + '\');\n');
-            });
-            re = re + '\n      }\n    }\n';
           });
         }
 
@@ -1003,6 +1038,55 @@
 
     module.exports = new OriginParser();
   });
+  innerDefine('parsers/dot', function(innerRequire, exports, module) {
+    'use strict';
+
+    var settings = {
+      interpolate: /\{\{=([\s\S]+?)\}\}/g,
+      encode: /\{\{!([\s\S]+?)\}\}/g,
+      conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+      iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+      evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
+      use: /\{\{#([\s\S]+?)\}\}/g,
+      useParams: /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+      define: /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+      defineParams: /^\s*([\w$]+):([\s\S]+)/
+    };
+
+    var DotParser = (function() {
+      function DotParser() {
+        _classCallCheck(this, DotParser);
+      }
+
+      _createClass(DotParser, [{
+        key: 'parse',
+        value: function parse(str) {
+          var c = settings;
+          return str.replace(c.interpolate, function(m, code) {
+            return '{{' + code + '}}';
+          }).replace(c.encode, function(m, code) {
+            return '{{' + code + '}}';
+          }).replace(c.conditional, function(m, elsecase, code) {
+            if (elsecase) {
+              return code ? '[#elseif ' + code + ']' : '[#else]';
+            } else {
+              return code ? '[#if ' + code + ']' : '[/#if]';
+            }
+          }).replace(c.iterate, function(m, iterate, vname, iname) {
+            if (iterate) {
+              return iname ? '[#for ' + vname + ', ' + iname + ' in ' + iterate + ']' : '[#for ' + vname + ' in ' + iterate + ']';
+            } else {
+              return '[/#for]';
+            }
+          });
+        }
+      }]);
+
+      return DotParser;
+    })();
+
+    module.exports = new DotParser();
+  });
   innerDefine('nodes/getter', function(innerRequire, exports, module) {
     'use strict';
 
@@ -1228,8 +1312,8 @@
       }, {
         key: 'saveArgument',
         value: function saveArgument() {
-          for (var _len3 = arguments.length, list = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-            list[_key3] = arguments[_key3];
+          for (var _len4 = arguments.length, list = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+            list[_key4] = arguments[_key4];
           }
 
           _.concat(this.args, list);
@@ -1803,10 +1887,11 @@
         value: function parse(source) {
           var options = arguments[1] === undefined ? {} : arguments[1];
 
-          var expectNodeName = options.expectNodeName || '#if';
+          var expectNodeName = options.expectNodeName;
           this.set(expectNodeName, source, options);
 
           var _this = this;
+          var tag = '';
           var nodeName = '';
           var condition = '';
           var lastToken = '';
@@ -1828,16 +1913,24 @@
           if (lastToken !== ']') {
             this.throwError();
           }
-          if (nodeName.toLowerCase() !== expectNodeName) {
+          if (expectNodeName && nodeName.toLowerCase() !== expectNodeName) {
             this.throwError();
           }
-          condition = condition.substr(0, condition.length - 1);
-          condition = condition.trim();
-          if (!condition) {
-            this.throwError();
+          if (condition) {
+            condition = condition.substr(0, condition.length - 1);
+            condition = condition.trim();
+          } else {
+            nodeName = nodeName.substr(0, nodeName.length - 1);
+          }
+
+          if (nodeName === '#elseif') {
+            tag = 'else if';
+          } else {
+            tag = nodeName.substr(1);
           }
 
           return {
+            tag: tag,
             nodeName: nodeName,
             condition: condition
           };
@@ -1885,20 +1978,77 @@
         key: 'parseExpresions',
         value: function parseExpresions(expressions) {
           var newExpressions = [];
+          var _this = this;
           _.each(expressions, function(expression) {
-            var child = expression.children[0];
-            var source = child && child.source || '';
-            var tinyNode = elementParser.parse('<div ' + source + '>');
-            var conditionNode = conditionParser.parse(expression.source);
+            if (expression.children.length === 1) {
+              var items1 = _this.parseSingleExpresion(expression);
+              if (items1.length) newExpressions.push(items1);
+            } else if (expression.children.length > 1) {
+              var items2 = _this.parseMultipleExpresion(expression);
+              if (items2.length) newExpressions.push(items2);
+            }
+          });
+          this.expressions = newExpressions;
+        }
+      }, {
+        key: 'parseSingleExpresion',
+        value: function parseSingleExpresion(expression) {
+          var items = [];
+          var child = expression.children[0];
+          var source = child && child.source || '';
+          var tinyNode = elementParser.parse('<div ' + source + '>');
+          var conditionNode = conditionParser.parse(expression.source);
 
-            if (!_.isEmpty(tinyNode.attributes)) {
-              newExpressions.push({
+          if (!_.isEmpty(tinyNode.attributes)) {
+            items.push({
+              tag: 'if',
+              condition: conditionNode.condition,
+              attributes: tinyNode.attributes
+            });
+            items.push({
+              tag: 'else',
+              exclusions: Object.keys(tinyNode.attributes)
+            });
+          }
+          return items;
+        }
+      }, {
+        key: 'parseMultipleExpresion',
+        value: function parseMultipleExpresion(expression) {
+          var items = [];
+          var hasElse = false;
+          var allAttributes = {};
+
+          var source = null;
+          var tinyNode = null;
+          var conditionNode = conditionParser.parse(expression.source);
+          _.each(expression.children, function(child, i) {
+            if (i % 2) {
+              conditionNode = conditionParser.parse(child.source);
+            } else {
+              source = child && child.source || '';
+              tinyNode = elementParser.parse('<div ' + source + '>');
+              _.extend(allAttributes, tinyNode.attributes);
+
+              if (conditionNode.tag === 'else')
+                hasElse = true;
+              items.push({
+                tag: conditionNode.tag,
                 condition: conditionNode.condition,
                 attributes: tinyNode.attributes
               });
             }
           });
-          this.expressions = newExpressions;
+          _.each(items, function(item) {
+            item.exclusions = Object.keys(_.omit(allAttributes, item.attributes));
+          });
+          if (!hasElse) {
+            items.push({
+              tag: 'else',
+              exclusions: allAttributes
+            });
+          }
+          return items;
         }
       }, {
         key: 'deliverCreate',
@@ -1958,13 +2108,17 @@
         key: 'translateExpressions',
         value: function translateExpressions() {
           var re = [];
-          var self = this;
-          _.each(this.expressions, function(expression) {
-            re.push({
-              condition: expression.condition,
-              valueId: self.getRootValueId(),
-              attributes: self.translateAttributesToExpressions(expression.attributes)
+          var _this = this;
+          _.each(this.expressions, function(items) {
+            var newItems = [];
+            var valueId = _this.getRootValueId();
+            _.each(items, function(item) {
+              var obj = _.pick(item, 'tag', 'exclusions', 'condition');
+              obj.valueId = valueId;
+              obj.attributes = _this.translateAttributesToExpressions(item.attributes);
+              newItems.push(obj);
             });
+            re.push(newItems);
           });
           return re;
         }
@@ -2847,6 +3001,7 @@
 
     var _ = innerRequire('./util');
     var originParser = innerRequire('./parsers/origin');
+    var dotParser = innerRequire('./parsers/dot');
     var factory = innerRequire('./nodes/factory');
 
     var Parser = (function() {
@@ -2863,6 +3018,12 @@
         value: function parse(str) {
           var originNode = originParser.parse(str);
           return this.createDom(originNode);
+        }
+      }, {
+        key: 'parseDot',
+        value: function parseDot(str) {
+          str = dotParser.parse(str);
+          return this.parse(str);
         }
       }, {
         key: 'createDom',

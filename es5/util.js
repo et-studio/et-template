@@ -120,6 +120,31 @@ var Util = (function () {
       return re;
     }
   }, {
+    key: 'omit',
+    value: function omit(objectA, objectB) {
+      var re = {};
+      for (var key in objectA) {
+        if (!(key in objectB)) {
+          re[key] = objectA[key];
+        }
+      }
+      return re;
+    }
+  }, {
+    key: 'pick',
+    value: function pick(obj) {
+      var re = {};
+
+      for (var _len3 = arguments.length, list = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+        list[_key3 - 1] = arguments[_key3];
+      }
+
+      this.each(list, function (key) {
+        re[key] = obj[key];
+      });
+      return re;
+    }
+  }, {
     key: 'stringify',
     value: function stringify(obj) {
       return JSON.stringify(obj).replace(/\"/g, '\'');

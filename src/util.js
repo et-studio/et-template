@@ -81,6 +81,22 @@ class Util {
     })
     return re
   }
+  omit (objectA, objectB) {
+    var re = {}
+    for (var key in objectA) {
+      if (!(key in objectB)) {
+        re[key] = objectA[key]
+      }
+    }
+    return re
+  }
+  pick (obj, ...list) {
+    var re = {}
+    this.each(list, (key) => {
+      re[key] = obj[key]
+    })
+    return re
+  }
   stringify (obj) {
     return JSON.stringify(obj).replace(/\"/g, "'")
   }

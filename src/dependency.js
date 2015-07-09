@@ -51,6 +51,12 @@ var _util = {
   removeAttribute: function removeAttribute (element, attrName) {
     element.removeAttribute(attrName)
   },
+  removeAttributes: function removeAttributes (element, attrNames) {
+    for (var i = 0; i < attrNames.length; i++) {
+      var attrName = attrNames[i]
+      element.removeAttribute(attrName)
+    }
+  },
   appendChild: function appendChild (elementA, elementB) {
     elementA.appendChild(elementB)
   },

@@ -36,7 +36,7 @@ module.exports = [
   },
   {
     title: 'attribute if',
-    html: '<div id="{{it.id}}" [#if it.isTrue]class="test"[/#if]></div>123456',
+    html: '<div id="{{it.id}}" [#if it.isTrue]class1="if"[#elseif it.isElseif]class2="elseif"[#else]class3="else"[/#if]></div>123456',
     expect: {
       children: [{
         nodeType: 1,
@@ -44,12 +44,29 @@ module.exports = [
         attributes: {
           id: '{{it.id}}'
         },
-        expressions: [{
-          condition: 'it.isTrue',
-          attributes: {
-            'class': 'test'
-          }
-        }]
+        expressions: [
+          [{
+            tag: 'if',
+            condition: 'it.isTrue',
+            attributes: {
+              'class1': 'if'
+            },
+            exclusions: ['class2', 'class3']
+          }, {
+            tag: 'else if',
+            condition: 'it.isElseif',
+            attributes: {
+              'class2': 'elseif'
+            },
+            exclusions: ['class1', 'class3']
+          }, {
+            tag: 'else',
+            attributes: {
+              'class3': 'else'
+            },
+            exclusions: ['class1', 'class2']
+          }]
+        ]
       }, {
         nodeType: 3,
         textContent: '123456'
@@ -111,12 +128,16 @@ module.exports = [
           'id': 'aaa{{it.id}}bbb{{it.getSrc()}}',
           'data-type': '{{(function(){return it.a + it.b;})()}}'
         },
-        expressions: [{
+        expressions: [[{
+          tag: 'if',
           condition: 'it.isTrue',
           attributes: {
             'class': 'class-true'
           }
-        }]
+        }, {
+          tag: 'else',
+          exclusions: ['class']
+        }]]
       }]
     }
   },

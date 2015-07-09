@@ -2,6 +2,7 @@
 
 import _ from './util'
 import originParser from './parsers/origin'
+import dotParser from './parsers/dot'
 import factory from './nodes/factory'
 
 class Parser {
@@ -11,6 +12,10 @@ class Parser {
   parse (str) {
     var originNode = originParser.parse(str)
     return this.createDom(originNode)
+  }
+  parseDot (str) {
+    str = dotParser.parse(str)
+    return this.parse(str)
   }
   createDom (originNode) {
     var index = 0

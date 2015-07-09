@@ -1,17 +1,16 @@
 'use strict'
 
+var parser = require('src/parsers/dot')
 var settings = require('./settings.js')
-var originParser = require('src/parsers/origin')
 
 exports.register = function () {
   window.describe('Compiler test', function () {
     settings.forEach(function (setting) {
       window.it(setting.title, function () {
-        var node = originParser.parse(setting.html)
-        var expect = setting.expect
-
-        console.log(node)
-        window.testAll(node, expect)
+        var left = parser.parse(setting.dot)
+        var right = setting.expect
+        console.log(left)
+        window.testCompile(left, right)
       })
     })
   })

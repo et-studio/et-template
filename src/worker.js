@@ -224,49 +224,55 @@ module.exports = ${it.templateName};
         }
       });
 
-      _.each(it.expressions, (expression) => {
-        re = re + `
-    if (${expression.condition || false}) {
-      if (_last.${expression.valueId} !== 0) {
-        _last.${expression.valueId} = 0;
-`
-        _.each(expression.attributes, (attr) => {
-          if (!attr.isErratic) {
-            re = re + `
-            _util.setAttribute(_et, '${attr.key}', '${attr.value}');
-`
+      _.each(it.expressions, (items) => {
+        _.each(items, (item, i) => {
+          var condition = '';
+          if (item.tag !== 'else') {
+            condition = `(${item.condition})`;
           }
-        });
-        re = re + `
-      }
-`
-        _.each(expression.attributes, (attr) => {
-          if (attr.isErratic) {
-            re = re + `
-          var _tmp = ${attr.valueString};
-          if (_last.${attr.valueId} !== _tmp) {
-            _last.${attr.valueId} = _tmp;
-            _util.setAttribute(_et, '${attr.key}', _tmp);
-          }
-`
-          }
-        });
-        re = re + `
-    } else {
-      if (_last.${expression.valueId} !== 1) {
-        _last.${expression.valueId} = 1;
-`
-        _.each(expression.attributes, (attr) => {
           re = re + `
-          _util.removeAttribute(_et, '${attr.key}');
+      ${item.tag} ${condition} {
+        if (_last.${item.valueId} !== ${i}) {
+          _last.${item.valueId} = ${i};
 `
-        });
-        re = re + `
+          _.each(item.attributes, (attr) => {
+            if (!attr.isErratic) {
+              re = re + `
+              _util.setAttribute(_et, '${attr.key}', '${attr.value}');
+`
+            }
+          });
+          if (item.exclusions && item.exclusions.length === 1) {
+            re = re + `
+            _util.removeAttribute(_et, '${item.exclusions[0]}');
+`
+          } else if (item.exclusions && item.exclusions.length > 1) {
+            var exclusions = item.exclusions.map((item) => {
+              return `'${item}'`
+            })
+            re = re + `
+            _util.removeAttributes(_et, ${exclusions.join(',')});
+`
+          }
+          re = re + `
+        }
+`
+          _.each(item.attributes, (attr) => {
+            if (attr.isErratic) {
+              re = re + `
+            var _tmp = ${attr.valueString};
+            if (_last.${attr.valueId} !== _tmp) {
+              _last.${attr.valueId} = _tmp;
+              _util.setAttribute(_et, '${attr.key}', _tmp);
+            }
+`
+            }
+          });
+          re = re + `
       }
-    }
 `
-      });
-
+        })
+      })
     }
 
     return re

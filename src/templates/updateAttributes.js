@@ -15,47 +15,51 @@ if (it.erraticAttributes.length || it.expressions.length) {
     }
   });
 
-  _.each(it.expressions, (expression) => {
-    // {{
-    if (${expression.condition || false}) {
-      if (_last.${expression.valueId} !== 0) {
-        _last.${expression.valueId} = 0;
-        // }}
-        _.each(expression.attributes, (attr) => {
-          if (!attr.isErratic) {
+  _.each(it.expressions, (items) => {
+    _.each(items, (item, i) => {
+      var condition = '';
+      if (item.tag !== 'else') {
+        condition = `(${item.condition})`;
+      }
+      // {{
+      ${item.tag} ${condition} {
+        if (_last.${item.valueId} !== ${i}) {
+          _last.${item.valueId} = ${i};
+          // }}
+          _.each(item.attributes, (attr) => {
+            if (!attr.isErratic) {
+              // {{
+              _util.setAttribute(_et, '${attr.key}', '${attr.value}');
+              // }}
+            }
+          });
+          if (item.exclusions && item.exclusions.length === 1) {
             // {{
-            _util.setAttribute(_et, '${attr.key}', '${attr.value}');
+            _util.removeAttribute(_et, '${item.exclusions[0]}');
+            // }}
+          } else if (item.exclusions && item.exclusions.length > 1) {
+            var exclusions = item.exclusions.map((item) => {return `'${item}'`})
+            // {{
+            _util.removeAttributes(_et, ${exclusions.join(',')});
+            // }}
+          }
+          // {{
+        }
+        // }}
+        _.each(item.attributes, (attr) => {
+          if (attr.isErratic) {
+            // {{
+            var _tmp = ${attr.valueString};
+            if (_last.${attr.valueId} !== _tmp) {
+              _last.${attr.valueId} = _tmp;
+              _util.setAttribute(_et, '${attr.key}', _tmp);
+            }
             // }}
           }
         });
         // {{
       }
       // }}
-      _.each(expression.attributes, (attr) => {
-        if (attr.isErratic) {
-          // {{
-          var _tmp = ${attr.valueString};
-          if (_last.${attr.valueId} !== _tmp) {
-            _last.${attr.valueId} = _tmp;
-            _util.setAttribute(_et, '${attr.key}', _tmp);
-          }
-          // }}
-        }
-      });
-      // {{
-    } else {
-      if (_last.${expression.valueId} !== 1) {
-        _last.${expression.valueId} = 1;
-        // }}
-        _.each(expression.attributes, (attr) => {
-          // {{
-          _util.removeAttribute(_et, '${attr.key}');
-          // }}
-        });
-        // {{
-      }
-    }
-    // }}
-  });
-
+    })
+  })
 }
