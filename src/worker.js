@@ -79,6 +79,23 @@ _doms.${it.parentId}.innerHTML = '${it.expression}';
 
     return re
   },
+  createImport(it) {
+    var re = ''
+    re = re + `
+var _et = require('${it.path}');
+_doms.${it.id} = _et;
+`
+    if (it.isRoot) {
+      re = re + `
+  _roots.${it.id} = _et;
+`
+    }
+    re = re + `
+_util_appendChild(_doms.${it.parentId}, _et.get());
+`
+
+    return re
+  },
   createLine(it) {
     var re = ''
 
@@ -392,6 +409,15 @@ var _line = _doms.${it.lineId};
   }
 `
     });
+
+    return re
+  },
+  updateImport(it) {
+    var re = ''
+    re = re + `
+var _et = _doms.${it.id};
+_et.update(${it.args.join(', ')});
+`
 
     return re
   },

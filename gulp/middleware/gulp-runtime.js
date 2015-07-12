@@ -18,9 +18,10 @@ function getModules (filePath) {
   var list = contents.split('\n')
   var contentsList = []
   for (var i = 0; i < list.length; i++) {
-    var item = list[i]
-    var match = /^import +(\S+) +from +'(\S+)'/.exec(item)
-    var match2 = /export default ([\s\S]*)/.exec(item)
+    var item = list[i] || ''
+    item = item.trim()
+    var match = /^\s*import +(\S+) +from +'(\S+)'/.exec(item)
+    var match2 = /^\s*export default ([\s\S]*)/.exec(item)
     if (match && match[1] && match[2]) {
       var dir = path.dirname(filePath)
       var tmpPath = path.resolve(dir, match[2]) + '.js'
@@ -33,7 +34,7 @@ function getModules (filePath) {
     }
   }
   var key = path.relative(rootDir, filePath)
-  key = key.slice(0, key.length - 3) // remote .js
+  key = key.slice(0, key.length - 3) // remove .js
   re[key] = `innerDefine('${key}', function(innerRequire, exports, module){
     ${contentsList.join('\n')}
   })`
