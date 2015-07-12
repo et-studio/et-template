@@ -9,6 +9,7 @@ import NodeElseif from './elseif'
 import NodeElse from './else'
 import NodeFor from './for'
 import NodeHtml from './html'
+import NodeImport from './import'
 
 var nodes = {
   '_element': NodeElement,
@@ -19,7 +20,8 @@ var nodes = {
   '#elseif': NodeElseif,
   '#else': NodeElse,
   '#for': NodeFor,
-  '#html': NodeHtml
+  '#html': NodeHtml,
+  '#import': NodeImport
 }
 
 class Factory {

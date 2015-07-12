@@ -10,7 +10,7 @@ var runtime = require('../middleware/gulp-runtime')
 var destDir = 'es5'
 var srcDir = 'src'
 
-exports.register = function (gulp) {
+module.exports = function (gulp) {
   gulp.task('build-clean', function () {
     del([destDir])
   })

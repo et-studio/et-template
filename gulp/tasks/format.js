@@ -2,7 +2,7 @@
 
 var esformatter = require('gulp-esformatter')
 
-exports.register = function (gulp) {
+module.exports = function (gulp) {
   gulp.task('format-design', function () {
     return gulp.src('design/**/*.js')
       .pipe(esformatter())
