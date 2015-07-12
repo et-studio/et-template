@@ -61,6 +61,16 @@ exports['default'] = {
 
     return re;
   },
+  createImport: function createImport(it) {
+    var re = '';
+    re = re + ('\nvar _et = require(\'' + it.path + '\');\n_doms.' + it.id + ' = _et;\n');
+    if (it.isRoot) {
+      re = re + ('\n  _roots.' + it.id + ' = _et;\n');
+    }
+    re = re + ('\n_util_appendChild(_doms.' + it.parentId + ', _et.get());\n');
+
+    return re;
+  },
   createLine: function createLine(it) {
     var re = '';
 
@@ -221,6 +231,12 @@ exports['default'] = {
       }
       re = re + '\n  }\n';
     });
+
+    return re;
+  },
+  updateImport: function updateImport(it) {
+    var re = '';
+    re = re + ('\nvar _et = _doms.' + it.id + ';\n_et.update(' + it.args.join(', ') + ');\n');
 
     return re;
   },

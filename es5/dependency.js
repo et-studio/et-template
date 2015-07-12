@@ -63,7 +63,7 @@
       element.removeAttribute(attrName)
     },
     removeAttributes: function removeAttributes(element, attrNames) {
-      for (var i = 0; i < attrNames.length; i++) {
+      for (var i = 0, len = attrNames.length; i < len; i++) {
         var attrName = attrNames[i]
         element.removeAttribute(attrName)
       }
