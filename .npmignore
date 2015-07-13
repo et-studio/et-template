@@ -1,4 +1,4 @@
-.*.seed
+*.seed
 *.log
 *.csv
 *.dat
@@ -21,3 +21,5 @@ test
 gulp
 gulpfile.js
 app.js
+src/tables
+src/templates
