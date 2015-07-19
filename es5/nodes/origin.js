@@ -23,11 +23,15 @@ var OriginNode = (function () {
 
     this.rowNumber = options.rowNumber;
     this.colNumber = options.colNumber;
-    this.isClosed = false;
-    this.source = source.trim();
+
+    this.nodeType = options.nodeType;
+    this.source = source;
     this.parent = parent;
     this.children = [];
     this.expressions = [];
+
+    this.isHeaderClosed = false;
+    this.isClosed = false;
   }
 
   _createClass(OriginNode, [{
@@ -38,26 +42,38 @@ var OriginNode = (function () {
   }, {
     key: 'createChild',
     value: function createChild(source, options) {
-      var node = new OriginNode(this, source, options);
-      this.children.push(node);
+      var parent = this.parent || this;
+      if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
+        parent = this;
+      }
+      var node = new OriginNode(parent, source, options);
+      parent.children.push(node);
       return node;
     }
   }, {
-    key: 'saveSource',
-    value: function saveSource(source, options) {
-      if (source === undefined) source = '';
+    key: 'saveText',
+    value: function saveText(text, options) {
+      if (text === undefined) text = '';
 
-      source = source.trim();
-      if (source) {
-        this.createChild(source, options);
+      if (text) {
+        this.createChild(text, options);
       }
+      return this;
+    }
+  }, {
+    key: 'closeHeader',
+    value: function closeHeader(token) {
+      this.addSource(token);
+      this.saveChildrenToExpressions();
+      this.isHeaderClosed = true;
     }
   }, {
     key: 'closeNode',
-    value: function closeNode(closeName) {
+    value: function closeNode(tail) {
       var current = this;
       while (current.parent) {
-        if (current.matchClose(closeName)) {
+        if (current.matchClose(tail)) {
+          current.source = current.source.trim().replace(/\s+/g, ' ');
           current.isClosed = true;
           break;
         }
@@ -78,6 +94,7 @@ var OriginNode = (function () {
       });
 
       if (this.parent && !this.isClosed) {
+        this.source = this.source.trim().replace(/\s+/g, ' ');
         _util2['default'].concat(this.parent.children, this.children);
         this.isClosed = true;
         this.children = [];
@@ -86,21 +103,12 @@ var OriginNode = (function () {
     }
   }, {
     key: 'matchClose',
-    value: function matchClose(closeName) {
-      var start = '';
-      var source = '';
-      if (this.source.indexOf('<') === 0) {
-        start = '<' + closeName + ' ';
-        source = '<' + closeName + '>';
-      } else if (this.source.indexOf('[#') === 0) {
-        start = '[#' + closeName + ' ';
-        source = '[#' + closeName + ']';
-      } else {
-        return false;
-      }
-      var currentSource = this.source.trim();
-      var isMatch = currentSource === source || currentSource.indexOf(start) === 0;
-      return isMatch;
+    value: function matchClose() {
+      var tail = arguments[0] === undefined ? '' : arguments[0];
+
+      var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
+      var source = this.source.trim();
+      return source.indexOf(start) === 0;
     }
   }, {
     key: 'saveChildrenToExpressions',

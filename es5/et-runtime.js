@@ -11,13 +11,13 @@
 })(window, function(require, exports, module) {
   'use strict';
 
-  var _get = function get(_x14, _x15, _x16) {
+  var _get = function get(_x15, _x16, _x17) {
     var _again = true;
     _function:
     while (_again) {
-      var object = _x14,
-        property = _x15,
-        receiver = _x16;
+      var object = _x15,
+        property = _x16,
+        receiver = _x17;
       desc = parent = getter = undefined;
       _again = false;
       if (object === null)
@@ -28,9 +28,9 @@
         if (parent === null) {
           return undefined;
         } else {
-          _x14 = parent;
-          _x15 = property;
-          _x16 = receiver;
+          _x15 = parent;
+          _x16 = property;
+          _x17 = receiver;
           _again = true; continue _function;
         }
       } else if ('value' in desc) {
@@ -619,25 +619,25 @@
       }, {
         key: 'each',
         value: function each(str, callback) {
-          if (!str) {
-            str = '';
-          }
+          if (!str) return;
+
           var lastState = this.startState;
           var stateStack = [];
           for (var i = 0, len = str.length; i < len;) {
             var token = this.getToken(str, i);
             var state = this.switchState(lastState, token);
 
-            if (state === '_last') {
-              state = stateStack.pop();
-            } else if (lastState.indexOf('_') === 0 && !state) {
+            if (lastState.indexOf('_') === 0 && !state) {
               state = lastState;
-            } else if (state && state.indexOf('_') === 0) {
+            } else if (state && state !== '_last' && state.indexOf('_') === 0) {
               stateStack.push(lastState);
             }
-            callback(state, token, i);
 
-            lastState = state;
+            if (state === '_last') {
+              lastState = callback(lastState, token, i) || stateStack.pop();
+            } else {
+              lastState = callback(state, token, i) || state;
+            }
             i += token.length;
           }
         }
@@ -660,11 +660,15 @@
 
         this.rowNumber = options.rowNumber;
         this.colNumber = options.colNumber;
-        this.isClosed = false;
-        this.source = source.trim();
+
+        this.nodeType = options.nodeType;
+        this.source = source;
         this.parent = parent;
         this.children = [];
         this.expressions = [];
+
+        this.isHeaderClosed = false;
+        this.isClosed = false;
       }
 
       _createClass(OriginNode, [{
@@ -675,27 +679,39 @@
       }, {
         key: 'createChild',
         value: function createChild(source, options) {
-          var node = new OriginNode(this, source, options);
-          this.children.push(node);
+          var parent = this.parent || this;
+          if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
+            parent = this;
+          }
+          var node = new OriginNode(parent, source, options);
+          parent.children.push(node);
           return node;
         }
       }, {
-        key: 'saveSource',
-        value: function saveSource(source, options) {
-          if (source === undefined)
-            source = '';
+        key: 'saveText',
+        value: function saveText(text, options) {
+          if (text === undefined)
+            text = '';
 
-          source = source.trim();
-          if (source) {
-            this.createChild(source, options);
+          if (text) {
+            this.createChild(text, options);
           }
+          return this;
+        }
+      }, {
+        key: 'closeHeader',
+        value: function closeHeader(token) {
+          this.addSource(token);
+          this.saveChildrenToExpressions();
+          this.isHeaderClosed = true;
         }
       }, {
         key: 'closeNode',
-        value: function closeNode(closeName) {
+        value: function closeNode(tail) {
           var current = this;
           while (current.parent) {
-            if (current.matchClose(closeName)) {
+            if (current.matchClose(tail)) {
+              current.source = current.source.trim().replace(/\s+/g, ' ');
               current.isClosed = true;
               break;
             }
@@ -716,6 +732,7 @@
           });
 
           if (this.parent && !this.isClosed) {
+            this.source = this.source.trim().replace(/\s+/g, ' ');
             _.concat(this.parent.children, this.children);
             this.isClosed = true;
             this.children = [];
@@ -724,21 +741,12 @@
         }
       }, {
         key: 'matchClose',
-        value: function matchClose(closeName) {
-          var start = '';
-          var source = '';
-          if (this.source.indexOf('<') === 0) {
-            start = '<' + closeName + ' ';
-            source = '<' + closeName + '>';
-          } else if (this.source.indexOf('[#') === 0) {
-            start = '[#' + closeName + ' ';
-            source = '[#' + closeName + ']';
-          } else {
-            return false;
-          }
-          var currentSource = this.source.trim();
-          var isMatch = currentSource === source || currentSource.indexOf(start) === 0;
-          return isMatch;
+        value: function matchClose() {
+          var tail = arguments[0] === undefined ? '' : arguments[0];
+
+          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
+          var source = this.source.trim();
+          return source.indexOf(start) === 0;
         }
       }, {
         key: 'saveChildrenToExpressions',
@@ -796,14 +804,14 @@
 
     // @tableStart: origin
     var originTableOptions = {
-      states: ['text', 'tagEnd', 'closeEnd', 'tagStart', 'tag', 'strEnd', 'str{{', 'str\'', 'str"', 'closeStart', 'close'],
+      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str{{', '_str\'', '_str"'],
       symbols: ['</', '<', '>', '[/#', '[#', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', ' ', '\r', '\n'],
       table: [{
-        '0': 'closeStart',
-        '1': 'tagStart',
-        '2': 'tagEnd',
-        '3': 'closeStart',
-        '4': 'tagStart',
+        '0': 'htmlTail',
+        '1': 'htmlStart',
+        '2': 'headerEnd',
+        '3': 'etTail',
+        '4': 'etStart',
         '5': 'text',
         '6': 'text',
         '7': 'text',
@@ -816,11 +824,11 @@
         '14': 'text',
         '-1': 'text'
       }, {
-        '0': 'closeStart',
-        '1': 'tagStart',
-        '2': 'tagEnd',
-        '3': 'closeStart',
-        '4': 'tagStart',
+        '0': 'htmlTail',
+        '1': 'htmlStart',
+        '2': 'headerEnd',
+        '3': 'etTail',
+        '4': 'etStart',
         '5': 'text',
         '6': 'text',
         '7': 'text',
@@ -833,11 +841,11 @@
         '14': 'text',
         '-1': 'text'
       }, {
-        '0': 'closeStart',
-        '1': 'tagStart',
-        '2': 'tagEnd',
-        '3': 'closeStart',
-        '4': 'tagStart',
+        '0': 'htmlTail',
+        '1': 'htmlStart',
+        '2': 'headerEnd',
+        '3': 'etTail',
+        '4': 'etStart',
         '5': 'text',
         '6': 'text',
         '7': 'text',
@@ -850,141 +858,158 @@
         '14': 'text',
         '-1': 'text'
       }, {
-        '0': 'tag',
-        '1': 'tag',
-        '2': 'tag',
-        '3': 'tag',
-        '4': 'tag',
-        '5': 'tag',
-        '6': 'tag',
-        '7': 'tag',
-        '8': 'tag',
-        '9': 'tag',
-        '10': 'tag',
-        '11': 'tag',
-        '12': 'tag',
-        '13': 'tag',
-        '14': 'tag',
-        '-1': 'tag'
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'htmlHeader',
+        '3': 'htmlHeader',
+        '4': 'htmlHeader',
+        '5': 'htmlHeader',
+        '6': 'htmlHeader',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': 'htmlHeader',
+        '10': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': 'htmlHeader',
+        '13': 'htmlHeader',
+        '14': 'htmlHeader',
+        '-1': 'htmlHeader'
       }, {
-        '0': 'tag',
-        '1': 'tag',
-        '2': 'tagEnd',
-        '3': 'closeStart',
-        '4': 'tagStart',
-        '5': 'tagEnd',
-        '6': 'str{{',
-        '7': 'tag',
-        '8': 'tag',
-        '9': 'str\'',
-        '10': 'tag',
-        '11': 'str"',
-        '12': 'tag',
-        '13': 'tag',
-        '14': 'tag',
-        '-1': 'tag'
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'headerEnd',
+        '3': 'htmlHeader',
+        '4': 'etStart',
+        '5': 'htmlHeader',
+        '6': '_str{{',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': '_str\'',
+        '10': 'htmlHeader',
+        '11': '_str"',
+        '12': 'htmlHeader',
+        '13': 'htmlHeader',
+        '14': 'htmlHeader',
+        '-1': 'htmlHeader'
       }, {
-        '0': 'tag',
-        '1': 'tag',
-        '2': 'tagEnd',
-        '3': 'closeStart',
-        '4': 'tagStart',
-        '5': 'tagEnd',
-        '6': 'str{{',
-        '7': 'tag',
-        '8': 'tag',
-        '9': 'str\'',
-        '10': 'tag',
-        '11': 'str"',
-        '12': 'tag',
-        '13': 'tag',
-        '14': 'tag',
-        '-1': 'tag'
+        '0': 'htmlTail',
+        '1': 'htmlTail',
+        '2': 'tailEnd',
+        '3': 'htmlTail',
+        '4': 'htmlTail',
+        '5': 'htmlTail',
+        '6': 'htmlTail',
+        '7': 'htmlTail',
+        '8': 'htmlTail',
+        '9': 'htmlTail',
+        '10': 'htmlTail',
+        '11': 'htmlTail',
+        '12': 'htmlTail',
+        '13': 'htmlTail',
+        '14': 'htmlTail',
+        '-1': 'htmlTail'
       }, {
-        '0': 'str{{',
-        '1': 'str{{',
-        '2': 'str{{',
-        '3': 'str{{',
-        '4': 'str{{',
-        '5': 'str{{',
-        '6': 'str{{',
-        '7': 'strEnd',
-        '8': 'str{{',
-        '9': 'str{{',
-        '10': 'str{{',
-        '11': 'str{{',
-        '12': 'str{{',
-        '13': 'str{{',
-        '14': 'str{{',
-        '-1': 'str{{'
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': 'etHeader',
+        '8': 'etHeader',
+        '9': 'etHeader',
+        '10': 'etHeader',
+        '11': 'etHeader',
+        '12': 'etHeader',
+        '13': 'etHeader',
+        '14': 'etHeader',
+        '-1': 'etHeader'
       }, {
-        '0': 'str\'',
-        '1': 'str\'',
-        '2': 'str\'',
-        '3': 'str\'',
-        '4': 'str\'',
-        '5': 'str\'',
-        '6': 'str\'',
-        '7': 'str\'',
-        '8': 'str\'',
-        '9': 'strEnd',
-        '10': 'str\'',
-        '11': 'str\'',
-        '12': 'str\'',
-        '13': 'str\'',
-        '14': 'str\'',
-        '-1': 'str\''
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'headerEnd',
+        '6': '_str{{',
+        '7': 'etHeader',
+        '8': 'etHeader',
+        '9': '_str\'',
+        '10': 'etHeader',
+        '11': '_str"',
+        '12': 'etHeader',
+        '13': 'etHeader',
+        '14': 'etHeader',
+        '-1': 'etHeader'
       }, {
-        '0': 'str"',
-        '1': 'str"',
-        '2': 'str"',
-        '3': 'str"',
-        '4': 'str"',
-        '5': 'str"',
-        '6': 'str"',
-        '7': 'str"',
-        '8': 'str"',
-        '9': 'str"',
-        '10': 'str"',
-        '11': 'strEnd',
-        '12': 'str"',
-        '13': 'str"',
-        '14': 'str"',
-        '-1': 'str"'
+        '0': 'etTail',
+        '1': 'etTail',
+        '2': 'etTail',
+        '3': 'etTail',
+        '4': 'etTail',
+        '5': 'tailEnd',
+        '6': 'etTail',
+        '7': 'etTail',
+        '8': 'etTail',
+        '9': 'etTail',
+        '10': 'etTail',
+        '11': 'etTail',
+        '12': 'etTail',
+        '13': 'etTail',
+        '14': 'etTail',
+        '-1': 'etTail'
       }, {
-        '0': 'close',
-        '1': 'close',
-        '2': 'close',
-        '3': 'close',
-        '4': 'close',
-        '5': 'close',
-        '6': 'close',
-        '7': 'close',
-        '8': 'close',
-        '9': 'close',
-        '10': 'close',
-        '11': 'close',
-        '12': 'close',
-        '13': 'close',
-        '14': 'close',
-        '-1': 'close'
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '_last',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '-1': ''
       }, {
-        '0': 'close',
-        '1': 'close',
-        '2': 'closeEnd',
-        '3': 'close',
-        '4': 'close',
-        '5': 'closeEnd',
-        '6': 'close',
-        '7': 'close',
-        '8': 'close',
-        '9': 'close',
-        '10': 'close',
-        '11': 'close',
-        '12': 'close',
-        '13': 'close',
-        '14': 'close',
-        '-1': 'close'
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '_last',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '_last',
+        '12': '',
+        '13': '',
+        '14': '',
+        '-1': ''
       }]
     };
     // @tableEnd
@@ -999,50 +1024,61 @@
         key: 'parse',
         value: function parse(str) {
           var root = new OriginNode();
-          var currentNode = root;
-          var text = '';
-          var closeName = '';
+          var currentNode = root.createChild();
+
+          var tail = '';
           originMachine.each(str, function(state, token) {
-            switch (state) {
-              case 'tagStart':
-              case 'tagEnd':
-              case 'closeStart':
-                currentNode.saveSource(text);
-                text = '';
-            }
+            var backState = null;
             switch (state) {
               case 'text':
-                text += token;
-                break;
-              case 'tag':
-              case 'str{{':
-              case 'str\'':
-              case 'str"':
-              case 'strEnd':
+              case '_str\'':
+              case '_str"':
+              case '_str{{':
+              case 'htmlHeader':
+              case 'etHeader':
                 currentNode.addSource(token);
                 break;
-              case 'tagStart':
-                currentNode = currentNode.createChild(token);
+              case 'htmlStart':
+                currentNode = currentNode.createChild(token, {
+                  nodeType: 'HTML'
+                });
                 break;
-              case 'tagEnd':
-                currentNode.saveChildrenToExpressions();
-                currentNode.addSource(token);
+              case 'etStart':
+                currentNode = currentNode.createChild(token, {
+                  nodeType: 'ET'
+                });
                 break;
-              case 'closeStart':
-                closeName = '';
+              case 'headerEnd':
+                currentNode.closeHeader(token);
+                currentNode = currentNode.createChild();
                 break;
-              case 'close':
-                closeName += token;
+              case 'htmlTail':
+              case 'etTail':
+                tail += token;
                 break;
-              case 'closeEnd':
-                currentNode = currentNode.closeNode(closeName);
+              case 'tailEnd':
+                currentNode = currentNode.closeNode(tail + token);
+                tail = '';
+                backState = null;
+                if (!currentNode.isHeaderClosed) {
+                  switch (currentNode.nodeType) {
+                    case 'HTML':
+                      backState = 'htmlHeader';
+                      break;
+                    case 'ET':
+                      backState = 'etHeader';
+                      break;
+                  }
+                }
+                if (!backState)
+                  currentNode = currentNode.createChild();
                 break;
               default:
                 throw new Error('The state: \'' + state + '\' is not defined.');
             }
+            return backState;
           });
-
-          currentNode.saveSource(text);
+          currentNode.saveText(tail);
           root.closeAll();
           root.removeEmptyNode();
           return root;
@@ -1683,13 +1719,14 @@
                   });
                   attrKey = '';
                 }
-                if (attrValue) {
+                if (str || attrValue) {
                   var attr = attrs.pop();
                   if (!attr || !attr.key || attr.value) {
                     _this.throwError();
                   }
-                  attr.value = attrValue;
+                  attr.value = attrValue + str;
                   attrs.push(attr);
+                  str = '';
                   attrValue = '';
                 }
                 break;

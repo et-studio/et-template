@@ -71,13 +71,14 @@ var ElementParser = (function (_Parser) {
               });
               attrKey = '';
             }
-            if (attrValue) {
+            if (str || attrValue) {
               var attr = attrs.pop();
               if (!attr || !attr.key || attr.value) {
                 _this.throwError();
               }
-              attr.value = attrValue;
+              attr.value = attrValue + str;
               attrs.push(attr);
+              str = '';
               attrValue = '';
             }
             break;
