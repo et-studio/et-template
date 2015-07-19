@@ -1,10 +1,10 @@
 module.exports = [
   {
     title: '<div>123456',
-    html: '<div id="test" data-type=xxxx class="{{it.class}}"></div>123456',
+    html: '<div id="test" data-type=xxxx class="{{it.class}}" diabled\r\n></div>123456',
     expect: {
       children: [{
-        source: '<div id="test" data-type=xxxx class="{{it.class}}">'
+        source: '<div id="test" data-type=xxxx class="{{it.class}}" diabled >'
       }, {
         source: '123456'
       }]
@@ -25,7 +25,7 @@ module.exports = [
   },
   {
     title: 'ET if node.',
-    html: '[#if it.isTrue]It is true.[#elseif it.elseTrue]It is elseTrue.[#else]It is else.[/#if]',
+    html: '[#if it.isTrue]It is true.[#elseif it.num > 10]It is elseTrue.[#else]It is else.[/#if]',
     expect: {
       source: '',
       children: [{
@@ -33,7 +33,7 @@ module.exports = [
         children: [{
           source: 'It is true.'
         }, {
-          source: '[#elseif it.elseTrue]'
+          source: '[#elseif it.num > 10]'
         }, {
           source: 'It is elseTrue.'
         }, {
@@ -46,11 +46,11 @@ module.exports = [
   },
   {
     title: 'attribute if',
-    html: '<div id="{{it.id}}" [#if it.isTrue]class="test"[/#if]></div>123456',
+    html: '<div id="{{it.id}}" [#if it.isTrue]class="test"[/#if] disabled ></div>123456',
     expect: {
       source: '',
       children: [{
-        source: '<div id="{{it.id}}" >',
+        source: '<div id="{{it.id}}" disabled >',
         expressions: [{
           source: '[#if it.isTrue]',
           children: [{
@@ -67,7 +67,7 @@ module.exports = [
     html: '<div id="{{it.id}}" [#if it.isTrue]class="test" </div>123456',
     expect: {
       children: [{
-        source: '<div id="{{it.id}}" ',
+        source: '<div id="{{it.id}}"',
         children: [{
           source: '[#if it.isTrue]'
         }, {
@@ -90,6 +90,19 @@ module.exports = [
             source: 'class="class-true"'
           }]
         }]
+      }]
+    }
+  },
+  {
+    title: 'space',
+    html: `
+    aaaaa
+
+    bbbbb
+    `,
+    expect: {
+      children: [{
+        source: `aaaaa bbbbb`
       }]
     }
   }
