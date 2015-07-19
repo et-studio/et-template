@@ -4,30 +4,44 @@ class OriginNode {
   constructor (parent, source = '', options = {}) {
     this.rowNumber = options.rowNumber
     this.colNumber = options.colNumber
-    this.isClosed = false
-    this.source = source.trim()
+
+    this.nodeType = options.nodeType
+    this.source = source
     this.parent = parent
     this.children = []
     this.expressions = []
+
+    this.isHeaderClosed = false
+    this.isClosed = false
   }
   addSource (str) {
     this.source += str
   }
   createChild (source, options) {
-    var node = new OriginNode(this, source, options)
-    this.children.push(node)
+    var parent = this.parent || this
+    if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
+      parent = this
+    }
+    var node = new OriginNode(parent, source, options)
+    parent.children.push(node)
     return node
   }
-  saveSource (source = '', options) {
-    source = source.trim()
-    if (source) {
-      this.createChild(source, options)
+  saveText (text = '', options) {
+    if (text) {
+      this.createChild(text, options)
     }
+    return this
   }
-  closeNode (closeName) {
+  closeHeader (token) {
+    this.addSource(token)
+    this.saveChildrenToExpressions()
+    this.isHeaderClosed = true
+  }
+  closeNode (tail) {
     var current = this
     while (current.parent) {
-      if (current.matchClose(closeName)) {
+      if (current.matchClose(tail)) {
+        current.source = current.source.trim().replace(/\s+/g, ' ')
         current.isClosed = true
         break
       }
@@ -46,27 +60,17 @@ class OriginNode {
     })
 
     if (this.parent && !this.isClosed) {
+      this.source = this.source.trim().replace(/\s+/g, ' ')
       _.concat(this.parent.children, this.children)
       this.isClosed = true
       this.children = []
     }
     return this
   }
-  matchClose (closeName) {
-    var start = ''
-    var source = ''
-    if (this.source.indexOf('<') === 0) {
-      start = `<${closeName} `
-      source = `<${closeName}>`
-    } else if (this.source.indexOf('[#') === 0) {
-      start = `[#${closeName} `
-      source = `[#${closeName}]`
-    } else {
-      return false
-    }
-    var currentSource = this.source.trim()
-    var isMatch = currentSource === source || currentSource.indexOf(start) === 0
-    return isMatch
+  matchClose (tail = '') {
+    var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim()
+    var source = this.source.trim()
+    return source.indexOf(start) === 0
   }
   saveChildrenToExpressions () {
     this.expressions = this.children

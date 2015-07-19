@@ -28,6 +28,15 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _et = _util_createTextNode('');
     _doms.et2 = _et;
     _util_appendChild(_doms.et1, _et);
+
+    var _et = _util_createElement('P');
+    _doms.et3 = _et;
+    _roots.et3 = _et;
+    _rootIds.push('et3');
+
+    var _et = _util_createTextNode('aaaaaaaaa bbbbbbbbb');
+    _doms.et4 = _et;
+    _util_appendChild(_doms.et3, _et);
   },
   update: function update(it) {
     var _doms = this.doms;
