@@ -15,7 +15,7 @@ exports['default'] = {
   createComment: function createComment(it) {
     var re = '';
 
-    re = re + ('\nvar _et = _util.createComment(\'' + it.text + '\');\n_doms.' + it.id + ' = _et;\n');
+    re = re + ('\nvar _et = _util.createComment(\'' + _util2['default'].translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
 
     if (it.isRoot) {
       re = re + ('\n  _roots.' + it.id + ' = _et;\n  _rootIds.push(\'' + it.id + '\');\n');
@@ -29,9 +29,9 @@ exports['default'] = {
     var re = '';
 
     if (it.attributes) {
-      re = re + ('\n  var _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\', ' + _util2['default'].stringify(it.attributes) + ');\n');
+      re = re + ('\n  var _et = _util.createElement(\'' + _util2['default'].translateMarks(it.nodeName.toUpperCase()) + '\', ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
     } else {
-      re = re + ('\n  var _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\');\n');
+      re = re + ('\n  var _et = _util.createElement(\'' + _util2['default'].translateMarks(it.nodeName.toUpperCase()) + '\');\n');
     }
 
     re = re + ('\n_doms.' + it.id + ' = _et;\n');
@@ -57,17 +57,18 @@ exports['default'] = {
   },
   createHtml: function createHtml(it) {
     var re = '';
-    re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + it.expression + '\';\n');
+    re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + _util2['default'].translateMarks(it.expression) + '\';\n');
 
     return re;
   },
   createImport: function createImport(it) {
     var re = '';
-    re = re + ('\nvar _et = require(\'' + it.path + '\');\n_doms.' + it.id + ' = _et;\n');
+    re = re + ('\nvar _ET = require(\'' + _util2['default'].translateMarks(it.path) + '\');\nvar _et = new _ET();\n_doms.' + it.id + ' = _et;\n');
     if (it.isRoot) {
-      re = re + ('\n  _roots.' + it.id + ' = _et;\n');
+      re = re + ('\n  _roots.' + it.id + ' = _et;\n  _rootIds.push(\'' + it.id + '\');\n');
+    } else {
+      re = re + ('\n  _util.appendChild(_doms.' + it.parentId + ', _et.get());\n');
     }
-    re = re + ('\n_util_appendChild(_doms.' + it.parentId + ', _et.get());\n');
 
     return re;
   },
@@ -98,7 +99,7 @@ exports['default'] = {
   createText: function createText(it) {
     var re = '';
 
-    re = re + ('\nvar _et = _util.createTextNode(\'' + it.text + '\');\n_doms.' + it.id + ' = _et;\n');
+    re = re + ('\nvar _et = _util.createTextNode(\'' + _util2['default'].translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
 
     if (it.isRoot) {
       re = re + ('\n  _roots.' + it.id + ' = _et;\n  _rootIds.push(\'' + it.id + '\');\n');
@@ -161,21 +162,21 @@ exports['default'] = {
           re = re + ('\n      ' + item.tag + ' ' + condition + ' {\n        if (_last.' + item.valueId + ' !== ' + i + ') {\n          _last.' + item.valueId + ' = ' + i + ';\n');
           _util2['default'].each(item.attributes, function (attr) {
             if (!attr.isErratic) {
-              re = re + ('\n              _util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+              re = re + ('\n              _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', \'' + _util2['default'].translateMarks(attr.value) + '\');\n');
             }
           });
           if (item.exclusions && item.exclusions.length === 1) {
-            re = re + ('\n            _util.removeAttribute(_et, \'' + item.exclusions[0] + '\');\n');
+            re = re + ('\n            _util.removeAttribute(_et, \'' + _util2['default'].translateMarks(item.exclusions[0]) + '\');\n');
           } else if (item.exclusions && item.exclusions.length > 1) {
             var exclusions = item.exclusions.map(function (item) {
-              return '\'' + item + '\'';
+              return '\'' + _util2['default'].translateMarks(item) + '\'';
             });
             re = re + ('\n            _util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
           }
           re = re + '\n        }\n';
           _util2['default'].each(item.attributes, function (attr) {
             if (attr.isErratic) {
-              re = re + ('\n            var _tmp = ' + attr.valueString + ';\n            if (_last.' + attr.valueId + ' !== _tmp) {\n              _last.' + attr.valueId + ' = _tmp;\n              _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n            }\n');
+              re = re + ('\n            var _tmp = ' + attr.valueString + ';\n            if (_last.' + attr.valueId + ' !== _tmp) {\n              _last.' + attr.valueId + ' = _tmp;\n              _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', _tmp);\n            }\n');
             }
           });
           re = re + '\n      }\n';

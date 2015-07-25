@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _parser = require('./parser');
 
@@ -20,9 +20,10 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
+// @tableStart: for
+
 var _machine2 = _interopRequireDefault(_machine);
 
-// @tableStart: for
 var forTableOptions = {
   states: ['start', 'header', 'headerEnd', 'itemName', 'itemEnd', 'indexName', 'indexEnd', 'exStart', 'expression'],
   symbols: ['[', ' in ', ' ', '\r', '\n', ',', ';'],
@@ -32,13 +33,13 @@ var forTableOptions = {
 var forMachine = new _machine2['default'](forTableOptions);
 
 var ForParser = (function (_Parser) {
+  _inherits(ForParser, _Parser);
+
   function ForParser() {
     _classCallCheck(this, ForParser);
 
     _get(Object.getPrototypeOf(ForParser.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(ForParser, _Parser);
 
   _createClass(ForParser, [{
     key: 'parse',

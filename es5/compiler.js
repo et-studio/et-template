@@ -20,7 +20,7 @@ var _worker2 = _interopRequireDefault(_worker);
 
 var Compiler = (function () {
   function Compiler() {
-    var options = arguments[0] === undefined ? {} : arguments[0];
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     _classCallCheck(this, Compiler);
 

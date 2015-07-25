@@ -21,7 +21,7 @@ var BasicParser = (function () {
   _createClass(BasicParser, [{
     key: 'set',
     value: function set(name, source) {
-      var options = arguments[2] === undefined ? {} : arguments[2];
+      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
       this.name = name;
       this.source = source;
@@ -36,10 +36,9 @@ var BasicParser = (function () {
   }, {
     key: 'throwError',
     value: function throwError(code) {
-      var name = this.name;
       var source = this.source;
       var message = this.getErrorMessage(code);
-      throw new Error('Can\'t run ' + name + ' because of ' + message + ':\n ' + source);
+      throw new Error(message + ' ===> ' + source);
     }
   }]);
 

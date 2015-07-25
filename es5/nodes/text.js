@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _basic = require('./basic');
 
@@ -27,16 +27,16 @@ var _parsersValue = require('../parsers/value');
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
 
 var TextNode = (function (_Basic) {
+  _inherits(TextNode, _Basic);
+
   function TextNode(source) {
-    var options = arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     _classCallCheck(this, TextNode);
 
     _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
     this.nodeType = 3;
   }
-
-  _inherits(TextNode, _Basic);
 
   _createClass(TextNode, [{
     key: 'parse',
@@ -47,7 +47,7 @@ var TextNode = (function (_Basic) {
     key: 'deliverCreate',
     value: function deliverCreate() {
       var text = this.getTextContent();
-      if (this.isErraticValue(text)) {
+      if (_parsersValue2['default'].isErratic(text)) {
         text = '';
       }
       var it = {
@@ -63,7 +63,7 @@ var TextNode = (function (_Basic) {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
       var text = this.getTextContent();
-      if (this.isErraticValue(text)) {
+      if (_parsersValue2['default'].isErratic(text)) {
         var it = {
           id: this.getId(),
           isRoot: this.checkRoot(),

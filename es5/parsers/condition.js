@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _parser = require('./parser');
 
@@ -20,9 +20,10 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
+// @tableStart: condition
+
 var _machine2 = _interopRequireDefault(_machine);
 
-// @tableStart: condition
 var conditionTableOptions = {
   states: ['start', 'name', 'condition'],
   symbols: ['[', ' ', '\r', '\n'],
@@ -33,18 +34,18 @@ var conditionTableOptions = {
 var conditionMachine = new _machine2['default'](conditionTableOptions);
 
 var ConditionParser = (function (_Parser) {
+  _inherits(ConditionParser, _Parser);
+
   function ConditionParser() {
     _classCallCheck(this, ConditionParser);
 
     _get(Object.getPrototypeOf(ConditionParser.prototype), 'constructor', this).apply(this, arguments);
   }
 
-  _inherits(ConditionParser, _Parser);
-
   _createClass(ConditionParser, [{
     key: 'parse',
     value: function parse(source) {
-      var options = arguments[1] === undefined ? {} : arguments[1];
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var expectNodeName = options.expectNodeName;
       this.set(expectNodeName, source, options);

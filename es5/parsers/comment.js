@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _parser = require('./parser');
 
@@ -20,9 +20,10 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
+// @tableStart: comment
+
 var _machine2 = _interopRequireDefault(_machine);
 
-// @tableStart: comment
 var commentTableOptions = {
   states: ['start', 'header', 'text', 'end'],
   symbols: ['<!--', '-->'],
@@ -33,13 +34,13 @@ var commentTableOptions = {
 var commentMachine = new _machine2['default'](commentTableOptions);
 
 var CommentParser = (function (_Parser) {
+  _inherits(CommentParser, _Parser);
+
   function CommentParser() {
     _classCallCheck(this, CommentParser);
 
     _get(Object.getPrototypeOf(CommentParser.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(CommentParser, _Parser);
 
   _createClass(CommentParser, [{
     key: 'parse',

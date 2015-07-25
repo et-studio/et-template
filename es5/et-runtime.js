@@ -76,7 +76,7 @@
       }
     });
     if (superClass)
-      subClass.__proto__ = superClass;
+      Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
   function _classCallCheck(instance, Constructor) {
@@ -158,7 +158,7 @@
       }, {
         key: 'extend',
         value: function extend() {
-          var arg1 = arguments[0] === undefined ? {} : arguments[0];
+          var arg1 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
           for (var _len = arguments.length, list = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
             list[_key - 1] = arguments[_key];
@@ -254,9 +254,24 @@
           return re;
         }
       }, {
-        key: 'stringify',
-        value: function stringify(obj) {
-          return JSON.stringify(obj).replace(/\"/g, '\'');
+        key: 'translateMarks',
+        value: function translateMarks(str) {
+          var isEscape = false;
+          var re = '';
+          this.each(str, function(token) {
+            if (isEscape) {
+              isEscape = false;
+              re += token;
+            } else if (token === '\\') {
+              isEscape = true;
+              re += token;
+            } else if (token === '\'') {
+              re += '\\\'';
+            } else {
+              re += token;
+            }
+          });
+          return re;
         }
       }]);
 
@@ -274,7 +289,7 @@
       createComment: function createComment(it) {
         var re = '';
 
-        re = re + ('\nvar _et = _util.createComment(\'' + it.text + '\');\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _et = _util.createComment(\'' + _.translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
 
         if (it.isRoot) {
           re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
@@ -288,9 +303,9 @@
         var re = '';
 
         if (it.attributes) {
-          re = re + ('\nvar _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\', ' + _.stringify(it.attributes) + ');\n');
+          re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\', ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
         } else {
-          re = re + ('\nvar _et = _util.createElement(\'' + it.nodeName.toUpperCase() + '\');\n');
+          re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\');\n');
         }
 
         re = re + ('\n_doms.' + it.id + ' = _et;\n');
@@ -316,17 +331,18 @@
       },
       createHtml: function createHtml(it) {
         var re = '';
-        re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + it.expression + '\';\n');
+        re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + _.translateMarks(it.expression) + '\';\n');
 
         return re;
       },
       createImport: function createImport(it) {
         var re = '';
-        re = re + ('\nvar _et = require(\'' + it.path + '\');\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _ET = require(\'' + _.translateMarks(it.path) + '\');\nvar _et = new _ET();\n_doms.' + it.id + ' = _et;\n');
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n');
+          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
+        } else {
+          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _et.get());\n');
         }
-        re = re + ('\n_util_appendChild(_doms.' + it.parentId + ', _et.get());\n');
 
         return re;
       },
@@ -357,7 +373,7 @@
       createText: function createText(it) {
         var re = '';
 
-        re = re + ('\nvar _et = _util.createTextNode(\'' + it.text + '\');\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _et = _util.createTextNode(\'' + _.translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
 
         if (it.isRoot) {
           re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
@@ -420,21 +436,21 @@
               re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last.' + item.valueId + ' !== ' + i + ') {\n_last.' + item.valueId + ' = ' + i + ';\n');
               _.each(item.attributes, function(attr) {
                 if (!attr.isErratic) {
-                  re = re + ('\n_util.setAttribute(_et, \'' + attr.key + '\', \'' + attr.value + '\');\n');
+                  re = re + ('\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', \'' + _.translateMarks(attr.value) + '\');\n');
                 }
               });
               if (item.exclusions && item.exclusions.length === 1) {
-                re = re + ('\n_util.removeAttribute(_et, \'' + item.exclusions[0] + '\');\n');
+                re = re + ('\n_util.removeAttribute(_et, \'' + _.translateMarks(item.exclusions[0]) + '\');\n');
               } else if (item.exclusions && item.exclusions.length > 1) {
                 var exclusions = item.exclusions.map(function(item) {
-                  return '\'' + item + '\'';
+                  return '\'' + _.translateMarks(item) + '\'';
                 });
                 re = re + ('\n_util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
               }
               re = re + '\n}\n';
               _.each(item.attributes, function(attr) {
                 if (attr.isErratic) {
-                  re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last.' + attr.valueId + ' !== _tmp) {\n_last.' + attr.valueId + ' = _tmp;\n_util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n}\n');
+                  re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last.' + attr.valueId + ' !== _tmp) {\n_last.' + attr.valueId + ' = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
                 }
               });
               re = re + '\n}\n';
@@ -517,7 +533,7 @@
 
     var Compiler = (function() {
       function Compiler() {
-        var options = arguments[0] === undefined ? {} : arguments[0];
+        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
         _classCallCheck(this, Compiler);
 
@@ -566,7 +582,7 @@
 
     var Machine = (function() {
       function Machine() {
-        var options = arguments[0] === undefined ? {} : arguments[0];
+        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
         _classCallCheck(this, Machine);
 
@@ -651,10 +667,18 @@
   innerDefine('nodes/origin', function(innerRequire, exports, module) {
     var _ = innerRequire('../util');
 
+    var transMap = {
+      '&quot;': '\\"',
+      '&amp;': '\\&',
+      '&lt;': '\\<',
+      '&gt;': '\\>',
+      '&nbsp;': ' '
+    };
+
     var OriginNode = (function() {
       function OriginNode(parent) {
-        var source = arguments[1] === undefined ? '' : arguments[1];
-        var options = arguments[2] === undefined ? {} : arguments[2];
+        var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
         _classCallCheck(this, OriginNode);
 
@@ -711,7 +735,7 @@
           var current = this;
           while (current.parent) {
             if (current.matchClose(tail)) {
-              current.source = current.source.trim().replace(/\s+/g, ' ');
+              current.transSource();
               current.isClosed = true;
               break;
             }
@@ -732,7 +756,7 @@
           });
 
           if (this.parent && !this.isClosed) {
-            this.source = this.source.trim().replace(/\s+/g, ' ');
+            this.transSource();
             _.concat(this.parent.children, this.children);
             this.isClosed = true;
             this.children = [];
@@ -742,7 +766,7 @@
       }, {
         key: 'matchClose',
         value: function matchClose() {
-          var tail = arguments[0] === undefined ? '' : arguments[0];
+          var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
           var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
           var source = this.source.trim();
@@ -780,6 +804,16 @@
           this.children = newChildren;
         }
       }, {
+        key: 'transSource',
+        value: function transSource() {
+          var source = this.source || '';
+          source = source.trim().replace(/\s+/g, ' ');
+          for (var key in transMap) {
+            source = source.replace(new RegExp(key, 'g'), transMap[key]);
+          }
+          this.source = source;
+        }
+      }, {
         key: 'each',
         value: function each(callback) {
           if (typeof callback === 'function') {
@@ -804,16 +838,16 @@
 
     // @tableStart: origin
     var originTableOptions = {
-      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str{{', '_str\'', '_str"'],
-      symbols: ['</', '<', '>', '[/#', '[#', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', ' ', '\r', '\n'],
+      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
+      symbols: ['</', '<!--', '-->', '<', '>', '[/#', '[#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', ' ', '\r', '\n'],
       table: [{
         '0': 'htmlTail',
-        '1': 'htmlStart',
-        '2': 'headerEnd',
-        '3': 'etTail',
-        '4': 'etStart',
-        '5': 'text',
-        '6': 'text',
+        '1': '_comment',
+        '2': 'text',
+        '3': 'htmlStart',
+        '4': 'headerEnd',
+        '5': 'etTail',
+        '6': 'etStart',
         '7': 'text',
         '8': 'text',
         '9': 'text',
@@ -822,15 +856,18 @@
         '12': 'text',
         '13': 'text',
         '14': 'text',
+        '15': 'text',
+        '16': 'text',
+        '17': 'text',
         '-1': 'text'
       }, {
         '0': 'htmlTail',
-        '1': 'htmlStart',
-        '2': 'headerEnd',
-        '3': 'etTail',
-        '4': 'etStart',
-        '5': 'text',
-        '6': 'text',
+        '1': '_comment',
+        '2': 'text',
+        '3': 'htmlStart',
+        '4': 'headerEnd',
+        '5': 'etTail',
+        '6': 'etStart',
         '7': 'text',
         '8': 'text',
         '9': 'text',
@@ -839,15 +876,18 @@
         '12': 'text',
         '13': 'text',
         '14': 'text',
+        '15': 'text',
+        '16': 'text',
+        '17': 'text',
         '-1': 'text'
       }, {
         '0': 'htmlTail',
-        '1': 'htmlStart',
-        '2': 'headerEnd',
-        '3': 'etTail',
-        '4': 'etStart',
-        '5': 'text',
-        '6': 'text',
+        '1': '_comment',
+        '2': 'text',
+        '3': 'htmlStart',
+        '4': 'headerEnd',
+        '5': 'etTail',
+        '6': 'etStart',
         '7': 'text',
         '8': 'text',
         '9': 'text',
@@ -856,6 +896,9 @@
         '12': 'text',
         '13': 'text',
         '14': 'text',
+        '15': 'text',
+        '16': 'text',
+        '17': 'text',
         '-1': 'text'
       }, {
         '0': 'htmlHeader',
@@ -873,30 +916,36 @@
         '12': 'htmlHeader',
         '13': 'htmlHeader',
         '14': 'htmlHeader',
+        '15': 'htmlHeader',
+        '16': 'htmlHeader',
+        '17': 'htmlHeader',
         '-1': 'htmlHeader'
       }, {
         '0': 'htmlHeader',
         '1': 'htmlHeader',
-        '2': 'headerEnd',
+        '2': 'htmlHeader',
         '3': 'htmlHeader',
-        '4': 'etStart',
+        '4': 'headerEnd',
         '5': 'htmlHeader',
-        '6': '_str{{',
+        '6': 'etStart',
         '7': 'htmlHeader',
         '8': 'htmlHeader',
-        '9': '_str\'',
+        '9': '_str{{',
         '10': 'htmlHeader',
-        '11': '_str"',
-        '12': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': '_str\'',
         '13': 'htmlHeader',
-        '14': 'htmlHeader',
+        '14': '_str\"',
+        '15': 'htmlHeader',
+        '16': 'htmlHeader',
+        '17': 'htmlHeader',
         '-1': 'htmlHeader'
       }, {
         '0': 'htmlTail',
         '1': 'htmlTail',
-        '2': 'tailEnd',
+        '2': 'htmlTail',
         '3': 'htmlTail',
-        '4': 'htmlTail',
+        '4': 'tailEnd',
         '5': 'htmlTail',
         '6': 'htmlTail',
         '7': 'htmlTail',
@@ -907,6 +956,9 @@
         '12': 'htmlTail',
         '13': 'htmlTail',
         '14': 'htmlTail',
+        '15': 'htmlTail',
+        '16': 'htmlTail',
+        '17': 'htmlTail',
         '-1': 'htmlTail'
       }, {
         '0': 'etHeader',
@@ -924,6 +976,9 @@
         '12': 'etHeader',
         '13': 'etHeader',
         '14': 'etHeader',
+        '15': 'etHeader',
+        '16': 'etHeader',
+        '17': 'etHeader',
         '-1': 'etHeader'
       }, {
         '0': 'etHeader',
@@ -931,16 +986,19 @@
         '2': 'etHeader',
         '3': 'etHeader',
         '4': 'etHeader',
-        '5': 'headerEnd',
-        '6': '_str{{',
-        '7': 'etHeader',
-        '8': 'etHeader',
-        '9': '_str\'',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': '_str[',
+        '8': 'headerEnd',
+        '9': '_str{{',
         '10': 'etHeader',
-        '11': '_str"',
-        '12': 'etHeader',
+        '11': 'etHeader',
+        '12': '_str\'',
         '13': 'etHeader',
-        '14': 'etHeader',
+        '14': '_str\"',
+        '15': 'etHeader',
+        '16': 'etHeader',
+        '17': 'etHeader',
         '-1': 'etHeader'
       }, {
         '0': 'etTail',
@@ -948,16 +1006,19 @@
         '2': 'etTail',
         '3': 'etTail',
         '4': 'etTail',
-        '5': 'tailEnd',
+        '5': 'etTail',
         '6': 'etTail',
         '7': 'etTail',
-        '8': 'etTail',
+        '8': 'tailEnd',
         '9': 'etTail',
         '10': 'etTail',
         '11': 'etTail',
         '12': 'etTail',
         '13': 'etTail',
         '14': 'etTail',
+        '15': 'etTail',
+        '16': 'etTail',
+        '17': 'etTail',
         '-1': 'etTail'
       }, {
         '0': '',
@@ -967,31 +1028,17 @@
         '4': '',
         '5': '',
         '6': '',
-        '7': '_last',
-        '8': '',
+        '7': '_str[',
+        '8': '_last',
         '9': '',
         '10': '',
         '11': '',
         '12': '',
         '13': '',
         '14': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '_last',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
         '-1': ''
       }, {
         '0': '',
@@ -1004,11 +1051,74 @@
         '7': '',
         '8': '',
         '9': '',
-        '10': '',
-        '11': '_last',
+        '10': '_last',
+        '11': '',
         '12': '',
         '13': '',
         '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '_last',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '_last',
+        '15': '',
+        '16': '',
+        '17': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '_last',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
         '-1': ''
       }]
     };
@@ -1030,10 +1140,13 @@
           originMachine.each(str, function(state, token) {
             var backState = null;
             switch (state) {
+              case '_comment':
+                break;
               case 'text':
               case '_str\'':
               case '_str"':
               case '_str{{':
+              case '_str[':
               case 'htmlHeader':
               case 'etHeader':
                 currentNode.addSource(token);
@@ -1268,8 +1381,10 @@
     var _ = innerRequire('../util');
 
     var Basic = (function(_NodeInterface) {
+      _inherits(Basic, _NodeInterface);
+
       function Basic(source) {
-        var options = arguments[1] === undefined ? {} : arguments[1];
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
         _classCallCheck(this, Basic);
 
@@ -1280,15 +1395,16 @@
         this.isNewTemplate = false;
         this.args = [];
         this.nodeType = 'ET';
+
+        this.options = options;
         this.parent = options.parent;
         this.previous = options.previous;
         this.next = null;
         this.isRoot = !this.parent;
+
         this.children = [];
         this.parse(source);
       }
-
-      _inherits(Basic, _NodeInterface);
 
       _createClass(Basic, [{
         key: 'getNewTemplateDoms',
@@ -1350,16 +1466,6 @@
           } else {
             return false;
           }
-        }
-      }, {
-        key: 'isErraticValue',
-        value: function isErraticValue(str) {
-          if (!str) {
-            return false;
-          }
-          var start = str.indexOf('{{');
-          var end = str.lastIndexOf('}}');
-          return start >= 0 && end > start;
         }
       }, {
         key: 'saveArgument',
@@ -1442,14 +1548,18 @@
             dom.init();
           });
         }
+
+      // functions could be override
       }, {
         key: 'parse',
-
-        // attributes or functions could be override
-        value: function parse(source) {}
+        value: function parse(source) {
+          // be called in constructor
+        }
       }, {
         key: 'init',
-        value: function init() {}
+        value: function init() {
+          // should be called after the whole Tree created
+        }
       }, {
         key: 'deliverCreate',
         value: function deliverCreate() {
@@ -1483,7 +1593,7 @@
       _createClass(BasicParser, [{
         key: 'set',
         value: function set(name, source) {
-          var options = arguments[2] === undefined ? {} : arguments[2];
+          var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
           this.name = name;
           this.source = source;
@@ -1498,10 +1608,9 @@
       }, {
         key: 'throwError',
         value: function throwError(code) {
-          var name = this.name;
           var source = this.source;
           var message = this.getErrorMessage(code);
-          throw new Error('Can\'t run ' + name + ' because of ' + message + ':\n ' + source);
+          throw new Error(message + ' ===> ' + source);
         }
       }]);
 
@@ -1513,13 +1622,14 @@
   innerDefine('parsers/element', function(innerRequire, exports, module) {
     'use strict';
 
+    var _ = innerRequire('../util');
     var Parser = innerRequire('./parser');
     var Machine = innerRequire('./machine');
 
     // @tableStart: element
     var elementTableOptions = {
-      states: ['start', 'name', 'scan', 'key', 'valueStart', 'value', 'value\'', 'value"', '_str', 'valueStr', 'end'],
-      symbols: ['<', '>', '\\"', '"', '\\\'', '\'', '=', ' ', '\r', '\n', '{{', '}}'],
+      states: ['start', 'name', 'scan', 'key', 'valueStart', 'value', 'value\'', 'value\"', '_str', 'valueStr', 'end'],
+      symbols: ['<', '>', '\\\"', '\"', '\\\'', '\'', '=', ' ', '\r', '\n', '{{', '}}'],
       table: [{
         '0': 'start',
         '1': '',
@@ -1580,7 +1690,7 @@
         '0': '',
         '1': 'end',
         '2': '',
-        '3': 'value"',
+        '3': 'value\"',
         '4': '',
         '5': 'value\'',
         '6': '',
@@ -1619,19 +1729,19 @@
         '11': 'value\'',
         '-1': 'value\''
       }, {
-        '0': 'value"',
-        '1': 'value"',
-        '2': 'value"',
+        '0': 'value\"',
+        '1': 'value\"',
+        '2': 'value\"',
         '3': 'scan',
-        '4': 'value"',
-        '5': 'value"',
-        '6': 'value"',
-        '7': 'value"',
-        '8': 'value"',
-        '9': 'value"',
+        '4': 'value\"',
+        '5': 'value\"',
+        '6': 'value\"',
+        '7': 'value\"',
+        '8': 'value\"',
+        '9': 'value\"',
         '10': '_str',
-        '11': 'value"',
-        '-1': 'value"'
+        '11': 'value\"',
+        '-1': 'value\"'
       }, {
         '0': '',
         '1': '',
@@ -1679,20 +1789,21 @@
     // @tableEnd
     var elementMachine = new Machine(elementTableOptions);
 
+    var BLACK_LIST = ['/'];
+    var WHITE_LIST = [];
+
     var ElementParser = (function(_Parser) {
+      _inherits(ElementParser, _Parser);
+
       function ElementParser() {
         _classCallCheck(this, ElementParser);
 
         _get(Object.getPrototypeOf(ElementParser.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _inherits(ElementParser, _Parser);
-
       _createClass(ElementParser, [{
         key: 'parse',
         value: function parse(source, options) {
-          var _this2 = this;
-
           this.set('element', source, options);
 
           var _this = this;
@@ -1748,13 +1859,13 @@
                 }
                 attrValue += token;
                 break;
-              case 'value\'':
+              case "value'":
                 if (str) {
                   attrValue += str;
                   str = '';
                 }
                 attrValue += token;
-                if (attrValue.indexOf('\'') === 0) {
+                if (attrValue.indexOf("'") === 0) {
                   attrValue = attrValue.substr(1);
                 }
                 break;
@@ -1794,18 +1905,47 @@
             attrs.push(attr);
           }
 
-          var attrMap = {};
-          attrs.forEach(function(attr) {
-            if (!attr.key) {
-              _this2.throwError();
-            }
-            attrMap[attr.key] = attr.value || '';
-          });
-
           return {
             nodeName: nodeName.toUpperCase(),
-            attributes: attrMap
+            attributes: this.translateAttributes(attrs, options)
           };
+        }
+      }, {
+        key: 'translateAttributes',
+        value: function translateAttributes(attrs, options) {
+          var _this2 = this;
+
+          if (attrs === undefined)
+            attrs = {};
+
+          var re = {};
+          var filter = this.getAttributeFilter(options);
+
+          attrs.map(function(attr) {
+            if (!attr.key) _this2.throwError();
+            if (filter(attr.key))
+              re[attr.key] = attr.value || '';
+          });
+
+          return re;
+        }
+      }, {
+        key: 'getAttributeFilter',
+        value: function getAttributeFilter() {
+          var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+          var blackList = options.blackList || BLACK_LIST;
+          var whiteList = options.whiteList || WHITE_LIST;
+
+          if (whiteList && whiteList.length) {
+            return function(key) {
+              return _.contains(whiteList, key);
+            };
+          } else {
+            return function(key) {
+              return !_.contains(blackList, key);
+            };
+          }
         }
       }]);
 
@@ -1817,78 +1957,309 @@
   innerDefine('parsers/value', function(innerRequire, exports, module) {
     'use strict';
 
+    var Parser = innerRequire('./parser');
     var Machine = innerRequire('./machine');
+    var _ = innerRequire('../util');
 
     // @tableStart: value
     var valueTableOptions = {
-      states: ['string', 'start', 'expression', 'end'],
-      symbols: ['{{', '}}'],
+      states: ['text', 'exStart', 'exBody', 'exEnd', 'ifStart', 'ifBody', 'ifEnd'],
+      symbols: ['{{', '}}', '[#if ', '[/#if]'],
+      table: [{
+        '0': 'exStart',
+        '1': 'text',
+        '2': 'ifStart',
+        '3': '',
+        '-1': 'text'
+      }, {
+        '0': 'exBody',
+        '1': 'exEnd',
+        '2': '',
+        '3': '',
+        '-1': 'exBody'
+      }, {
+        '0': 'exBody',
+        '1': 'exEnd',
+        '2': '',
+        '3': '',
+        '-1': 'exBody'
+      }, {
+        '0': 'text',
+        '1': 'text',
+        '2': 'ifStart',
+        '3': '',
+        '-1': 'text'
+      }, {
+        '0': 'ifBody',
+        '1': 'ifBody',
+        '2': '',
+        '3': 'ifBody',
+        '-1': 'ifBody'
+      }, {
+        '0': 'ifBody',
+        '1': 'ifBody',
+        '2': '',
+        '3': 'ifEnd',
+        '-1': 'ifBody'
+      }, {
+        '0': 'start',
+        '1': 'text',
+        '2': 'ifStart',
+        '3': 'text',
+        '-1': 'text'
+      }]
+    };
+    // @tableStart: valueIf
+    var valueIfTableOptions = {
+      states: ['start', 'ifCondition', 'endContition', 'ifContent', 'elseif', 'else', 'elseContent', '_value[', 'end'],
+      symbols: ['[#if ', '[#elseif ', '[#else]', '[/#if]', ']', '['],
       table: [{
         '0': 'start',
-        '1': 'string',
-        '-1': 'string'
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '-1': 'ifCondition'
       }, {
-        '0': 'expression',
-        '1': 'end',
-        '-1': 'expression'
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': 'endContition',
+        '5': '_value[',
+        '-1': 'ifCondition'
       }, {
-        '0': 'expression',
-        '1': 'end',
-        '-1': 'expression'
+        '0': '',
+        '1': 'elseif',
+        '2': 'else',
+        '3': 'end',
+        '4': 'ifContent',
+        '5': 'ifContent',
+        '-1': 'ifContent'
       }, {
-        '0': 'string',
-        '1': 'string',
-        '-1': 'string'
+        '0': '',
+        '1': 'elseif',
+        '2': 'else',
+        '3': 'end',
+        '4': 'ifContent',
+        '5': 'ifContent',
+        '-1': 'ifContent'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': 'ifContent',
+        '5': '',
+        '-1': 'ifCondition'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': 'end',
+        '4': 'elseContent',
+        '5': 'elseContent',
+        '-1': 'elseContent'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': 'end',
+        '4': 'elseContent',
+        '5': 'elseContent',
+        '-1': 'elseContent'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '_last',
+        '5': '_value[',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '-1': ''
       }]
     };
     // @tableEnd
     var valueMachine = new Machine(valueTableOptions);
+    var valueIfMatchine = new Machine(valueIfTableOptions);
 
-    var ValueParser = (function() {
+    var ValueParser = (function(_Parser2) {
+      _inherits(ValueParser, _Parser2);
+
       function ValueParser() {
         _classCallCheck(this, ValueParser);
+
+        _get(Object.getPrototypeOf(ValueParser.prototype), 'constructor', this).apply(this, arguments);
       }
 
       _createClass(ValueParser, [{
         key: 'parse',
-        value: function parse(str) {
-          var _this3 = this;
-
-          var list = [];
-          var tmp = '';
-
-          valueMachine.each(str, function(state, token) {
-            switch (state) {
-              case 'string':
-              case 'expression':
-                tmp += token;
-                break;
-              case 'start':
-                _this3.pushStr(list, tmp);
-                tmp = '';
-                break;
-              case 'end':
-                _this3.pushStr(list, tmp, true);
-                tmp = '';
-                break;
-            }
-          });
-          this.pushStr(list, tmp);
-          return list.join(' + ');
+        value: function parse(source, options) {
+          return this.parseToObject(source, options).content;
         }
       }, {
-        key: 'pushStr',
-        value: function pushStr(list, str, isExpression) {
-          if (str && isExpression) {
-            list.push(str);
-          } else if (str) {
-            list.push('\'' + str + '\'');
+        key: 'isErratic',
+        value: function isErratic(source, options) {
+          return this.parseToObject(source, options).isErractic;
+        }
+      }, {
+        key: 'parseToObject',
+        value: function parseToObject(str, options) {
+          this.set('value', str, options);
+          var re = {
+            list: [],
+            isErratic: false,
+            content: '\'\''
+          };
+
+          var text = '';
+          var expression = '';
+          var ifCondition = '';
+
+          var _this = this;
+          var lastState = 'text';
+          valueMachine.each(str, function(state, token) {
+            lastState = state;
+            switch (state) {
+              case 'text':
+                _this.pushExpression(re, expression);
+                _this.pushIf(re, ifCondition);
+                expression = '';
+                ifCondition = '';
+                break;
+              case 'exStart':
+              case 'ifStart':
+                _this.pushText(re, text);
+                _this.pushExpression(re, expression);
+                _this.pushIf(re, ifCondition);
+                text = '';
+                expression = '';
+                ifCondition = '';
+            }
+            switch (state) {
+              case 'exEnd':
+              case 'exStart':
+                break;
+              case 'text':
+                text += token;
+                break;
+              case 'exBody':
+                expression += token;
+                break;
+              case 'ifStart':
+              case 'ifBody':
+              case 'ifEnd':
+                ifCondition += token;
+                break;
+              default:
+                _this.throwError(state);
+            }
+          });
+          if (['text', 'exEnd', 'ifEnd'].indexOf(lastState) < 0) {
+            this.throwError();
           }
+          this.pushText(re, text);
+          this.pushExpression(re, expression);
+          this.pushIf(re, ifCondition);
+
+          if (re.list.length)
+            re.content = re.list.join(' + ');
+          return re;
+        }
+      }, {
+        key: 'pushText',
+        value: function pushText(obj, str) {
+          if (str) {
+            str = _.translateMarks(str);
+            obj.list.push('\'' + str + '\'');
+          }
+        }
+      }, {
+        key: 'pushExpression',
+        value: function pushExpression(obj, str) {
+          if (!str) return;
+
+          obj.list.push(str);
+          obj.isErractic = true;
+        }
+      }, {
+        key: 'pushIf',
+        value: function pushIf(obj, str) {
+          if (!str) return false;
+
+          var list = [];
+          var current = {
+            type: 'if',
+            condition: '',
+            content: ''
+          };
+          var _this = this;
+          valueIfMatchine.each(str, function(state, token) {
+            switch (state) {
+              case 'start':
+                list.push(current);
+                break;
+              case 'ifCondition':
+              case '_value[':
+                current.condition += token;
+                break;
+              case 'ifContent':
+              case 'elseContent':
+                current.content += token;
+                break;
+              case 'endContition':
+                break;
+              case 'elseif':
+                current = {
+                  type: 'elseif',
+                  condition: '',
+                  content: ''
+                };
+                list.push(current);
+                break;
+              case 'else':
+                current = {
+                  type: 'else',
+                  condition: '',
+                  content: ''
+                };
+                list.push(current);
+                break;
+              case 'end':
+                break;
+              default:
+                _this.throwError(state);
+            }
+          });
+
+          var parser = new ValueParser();
+          var strings = list.map(function(item) {
+            var content = parser.parse(item.content);
+            switch (item.type) {
+              case 'if':
+                return 'if (' + (item.condition || '') + ') {\nreturn ' + (content || '') + '\n}';
+              case 'elseif':
+                return ' else if (' + (item.condition || '') + ') {\nreturn ' + (content || '') + '\n}';
+              default:
+                return ' else {\nreturn ' + (content || '') + '\n}';
+            }
+          });
+
+          obj.list.push('(function () {\n' + strings.join('') + '\nreturn \'\'\n})()');
+          obj.isErractic = true;
         }
       }]);
 
       return ValueParser;
-    })();
+    })(Parser);
 
     module.exports = new ValueParser();
   });
@@ -1926,19 +2297,19 @@
 
     var conditionMachine = new Machine(conditionTableOptions);
 
-    var ConditionParser = (function(_Parser2) {
+    var ConditionParser = (function(_Parser3) {
+      _inherits(ConditionParser, _Parser3);
+
       function ConditionParser() {
         _classCallCheck(this, ConditionParser);
 
         _get(Object.getPrototypeOf(ConditionParser.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _inherits(ConditionParser, _Parser2);
-
       _createClass(ConditionParser, [{
         key: 'parse',
         value: function parse(source) {
-          var options = arguments[1] === undefined ? {} : arguments[1];
+          var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
           var expectNodeName = options.expectNodeName;
           this.set(expectNodeName, source, options);
@@ -2007,8 +2378,10 @@
     var conditionParser = innerRequire('../parsers/condition');
 
     var Element = (function(_Basic) {
+      _inherits(Element, _Basic);
+
       function Element(source) {
-        var options = arguments[1] === undefined ? {} : arguments[1];
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
         _classCallCheck(this, Element);
 
@@ -2018,12 +2391,10 @@
         this.parseExpresions(options.expressions);
       }
 
-      _inherits(Element, _Basic);
-
       _createClass(Element, [{
         key: 'parse',
         value: function parse(source) {
-          var tinyNode = elementParser.parse(source);
+          var tinyNode = elementParser.parse(source, this.options);
           this.attributes = tinyNode.attributes;
           this.nodeName = tinyNode.nodeName;
         }
@@ -2049,7 +2420,7 @@
           var items = [];
           var child = expression.children[0];
           var source = child && child.source || '';
-          var tinyNode = elementParser.parse('<div ' + source + '>');
+          var tinyNode = elementParser.parse('<div ' + source + '>', this.options);
           var conditionNode = conditionParser.parse(expression.source);
 
           if (!_.isEmpty(tinyNode.attributes)) {
@@ -2123,7 +2494,7 @@
           var attrs = this.attributes;
           for (var key in attrs) {
             var value = attrs[key];
-            if (!this.isErraticValue(value)) {
+            if (!valueParser.isErratic(value)) {
               re[key] = value;
               isEmpty = false;
             }
@@ -2151,7 +2522,7 @@
           var erracticMap = {};
           for (var key in attrs) {
             var value = attrs[key];
-            if (this.isErraticValue(value)) {
+            if (valueParser.isErratic(value)) {
               erracticMap[key] = value;
             }
           }
@@ -2183,7 +2554,7 @@
             var value = attrs[key];
             var tmp = {
               key: key,
-              isErratic: this.isErraticValue(value),
+              isErratic: valueParser.isErratic(value),
               value: value,
               valueString: valueParser.parse(value)
             };
@@ -2209,16 +2580,16 @@
     var valueParser = innerRequire('../parsers/value');
 
     var TextNode = (function(_Basic2) {
+      _inherits(TextNode, _Basic2);
+
       function TextNode(source) {
-        var options = arguments[1] === undefined ? {} : arguments[1];
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
         _classCallCheck(this, TextNode);
 
         _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
         this.nodeType = 3;
       }
-
-      _inherits(TextNode, _Basic2);
 
       _createClass(TextNode, [{
         key: 'parse',
@@ -2229,7 +2600,7 @@
         key: 'deliverCreate',
         value: function deliverCreate() {
           var text = this.getTextContent();
-          if (this.isErraticValue(text)) {
+          if (valueParser.isErratic(text)) {
             text = '';
           }
           var it = {
@@ -2245,7 +2616,7 @@
         key: 'deliverUpdate',
         value: function deliverUpdate() {
           var text = this.getTextContent();
-          if (this.isErraticValue(text)) {
+          if (valueParser.isErratic(text)) {
             var it = {
               id: this.getId(),
               isRoot: this.checkRoot(),
@@ -2266,117 +2637,6 @@
 
     module.exports = TextNode;
   });
-  innerDefine('parsers/comment', function(innerRequire, exports, module) {
-    'use strict';
-
-    var Parser = innerRequire('./parser');
-    var Machine = innerRequire('./machine');
-
-    // @tableStart: comment
-    var commentTableOptions = {
-      states: ['start', 'header', 'text', 'end'],
-      symbols: ['<!--', '-->'],
-      table: [{
-        '0': 'header',
-        '1': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '-1': 'text'
-      }, {
-        '0': 'text',
-        '1': 'end',
-        '-1': 'text'
-      }, {
-        '0': '',
-        '1': '',
-        '-1': ''
-      }]
-    };
-    // @tableEnd
-
-    var commentMachine = new Machine(commentTableOptions);
-
-    var CommentParser = (function(_Parser3) {
-      function CommentParser() {
-        _classCallCheck(this, CommentParser);
-
-        _get(Object.getPrototypeOf(CommentParser.prototype), 'constructor', this).apply(this, arguments);
-      }
-
-      _inherits(CommentParser, _Parser3);
-
-      _createClass(CommentParser, [{
-        key: 'parse',
-        value: function parse(source, options) {
-          this.set('comment', source, options);
-          var _this = this;
-          var text = '';
-          commentMachine.each(source, function(state, token) {
-            switch (state) {
-              case 'header':
-              case 'end':
-                break;
-              case 'text':
-                text += token;
-                break;
-              default:
-                _this.throwError(state);
-            }
-          });
-
-          return text;
-        }
-      }]);
-
-      return CommentParser;
-    })(Parser);
-
-    module.exports = new CommentParser();
-  });
-  innerDefine('nodes/comment', function(innerRequire, exports, module) {
-    'use strict';
-
-    var Basic = innerRequire('./basic');
-    var worker = innerRequire('../worker');
-    var commentParser = innerRequire('../parsers/comment');
-
-    var Comment = (function(_Basic3) {
-      function Comment(source) {
-        var options = arguments[1] === undefined ? {} : arguments[1];
-
-        _classCallCheck(this, Comment);
-
-        _get(Object.getPrototypeOf(Comment.prototype), 'constructor', this).call(this, source, options);
-        this.nodeType = 8;
-      }
-
-      _inherits(Comment, _Basic3);
-
-      _createClass(Comment, [{
-        key: 'parse',
-        value: function parse(source) {
-          this.text = commentParser.parse(source);
-        }
-      }, {
-        key: 'deliverCreate',
-        value: function deliverCreate() {
-          var it = {
-            id: this.getId(),
-            isRoot: this.checkRoot(),
-            parentId: this.getParentId(),
-            text: this.getTextContent()
-          };
-          return [worker.createComment(it)];
-        }
-      }]);
-
-      return Comment;
-    })(Basic);
-
-    module.exports = Comment;
-  });
   innerDefine('nodes/if', function(innerRequire, exports, module) {
     'use strict';
 
@@ -2385,15 +2645,15 @@
     var worker = innerRequire('../worker');
     var conditionParser = innerRequire('../parsers/condition');
 
-    var IfNode = (function(_Basic4) {
+    var IfNode = (function(_Basic3) {
+      _inherits(IfNode, _Basic3);
+
       function IfNode(source, options) {
         _classCallCheck(this, IfNode);
 
         _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, source, options);
         this.isNewTemplate = true;
       }
-
-      _inherits(IfNode, _Basic4);
 
       _createClass(IfNode, [{
         key: 'parse',
@@ -2533,15 +2793,15 @@
     var worker = innerRequire('../worker');
     var conditionParser = innerRequire('../parsers/condition');
 
-    var ElseIfNode = (function(_Basic5) {
+    var ElseIfNode = (function(_Basic4) {
+      _inherits(ElseIfNode, _Basic4);
+
       function ElseIfNode(source, options) {
         _classCallCheck(this, ElseIfNode);
 
         _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, source, options);
         this.isNewTemplate = true;
       }
-
-      _inherits(ElseIfNode, _Basic5);
 
       _createClass(ElseIfNode, [{
         key: 'parse',
@@ -2574,7 +2834,9 @@
     var Basic = innerRequire('./basic');
     var worker = innerRequire('../worker');
 
-    var ElseNode = (function(_Basic6) {
+    var ElseNode = (function(_Basic5) {
+      _inherits(ElseNode, _Basic5);
+
       function ElseNode(source, options) {
         _classCallCheck(this, ElseNode);
 
@@ -2582,8 +2844,6 @@
         this.isNewTemplate = true;
         this.nodeName = '#else';
       }
-
-      _inherits(ElseNode, _Basic6);
 
       _createClass(ElseNode, [{
         key: 'deliverCreate',
@@ -2698,13 +2958,13 @@
     var forMachine = new Machine(forTableOptions);
 
     var ForParser = (function(_Parser4) {
+      _inherits(ForParser, _Parser4);
+
       function ForParser() {
         _classCallCheck(this, ForParser);
 
         _get(Object.getPrototypeOf(ForParser.prototype), 'constructor', this).apply(this, arguments);
       }
-
-      _inherits(ForParser, _Parser4);
 
       _createClass(ForParser, [{
         key: 'parse',
@@ -2787,7 +3047,9 @@
       lengthName: 'len'
     };
 
-    var ForNode = (function(_Basic7) {
+    var ForNode = (function(_Basic6) {
+      _inherits(ForNode, _Basic6);
+
       function ForNode(source, options) {
         _classCallCheck(this, ForNode);
 
@@ -2795,8 +3057,6 @@
         this.isNewTemplate = true;
         this.nodeName = '#for';
       }
-
-      _inherits(ForNode, _Basic7);
 
       _createClass(ForNode, [{
         key: 'parse',
@@ -2879,14 +3139,14 @@
     var conditionParser = innerRequire('../parsers/condition');
     var valueParser = innerRequire('../parsers/value');
 
-    var HtmlNode = (function(_Basic8) {
+    var HtmlNode = (function(_Basic7) {
+      _inherits(HtmlNode, _Basic7);
+
       function HtmlNode() {
         _classCallCheck(this, HtmlNode);
 
         _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
       }
-
-      _inherits(HtmlNode, _Basic8);
 
       _createClass(HtmlNode, [{
         key: 'parse',
@@ -2916,7 +3176,7 @@
         value: function deliverCreate() {
           var re = [];
           var expression = this.expression;
-          if (expression && !this.isErraticValue(expression)) {
+          if (expression && !valueParser.isErratic(expression)) {
             re.push(worker.createHtml({
               parentId: this.parent.getId(),
               expression: this.expression
@@ -2929,7 +3189,7 @@
         value: function deliverUpdate() {
           var re = [];
           var expression = this.expression;
-          if (this.isErraticValue(expression)) {
+          if (valueParser.isErratic(expression)) {
             re.push(worker.updateHtml({
               parentId: this.getParentId(),
               valueId: this.getRootValueId(),
@@ -2952,14 +3212,14 @@
     var worker = innerRequire('../worker');
     var conditionParser = innerRequire('../parsers/condition');
 
-    var ImportNode = (function(_Basic9) {
+    var ImportNode = (function(_Basic8) {
+      _inherits(ImportNode, _Basic8);
+
       function ImportNode() {
         _classCallCheck(this, ImportNode);
 
         _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).apply(this, arguments);
       }
-
-      _inherits(ImportNode, _Basic9);
 
       _createClass(ImportNode, [{
         key: 'parse',
@@ -3014,7 +3274,6 @@
 
     var NodeElement = innerRequire('./element');
     var NodeText = innerRequire('./text');
-    var NodeComment = innerRequire('./comment');
     var NodeBasic = innerRequire('./basic');
     var NodeIf = innerRequire('./if');
     var NodeElseif = innerRequire('./elseif');
@@ -3026,7 +3285,6 @@
     var nodes = {
       '_element': NodeElement,
       '_text': NodeText,
-      '_comment': NodeComment,
       '_base': NodeBasic,
       '#if': NodeIf,
       '#elseif': NodeElseif,
@@ -3053,7 +3311,7 @@
         * - lineNumber
         */
         value: function create(source) {
-          var options = arguments[1] === undefined ? {} : arguments[1];
+          var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
           var parent = options.parent;
           var previous = options.previous;
@@ -3072,16 +3330,14 @@
       }, {
         key: 'getNodeName',
         value: function getNodeName(source) {
+          var htmlMatch = /^<(\w+)[ >]|^<(\w+)$/.exec(source);
+          var etMatch = /^\[(#\w+)[ \]]|^\[(#\w+)\]$/.exec(source);
           if (!source) {
             return '';
-          } else if (source.indexOf('<!--') === 0) {
-            return '!--';
-          } else if (source.indexOf('<') === 0) {
-            var regHtml = /^<(\S*)[ >]/;
-            return regHtml.exec(source)[1] || '';
-          } else if (source.indexOf('[') === 0) {
-            var regET = /^\[(\S*)[ \]]/;
-            return regET.exec(source)[1] || '';
+          } else if (htmlMatch) {
+            return htmlMatch[1] || htmlMatch[2];
+          } else if (etMatch) {
+            return etMatch[1] || etMatch[2];
           }
           return '';
         }
@@ -3095,8 +3351,6 @@
             Constructor = nodes._base;
           } else if (!nodeName) {
             Constructor = nodes._text;
-          } else if (nodeName === '!--') {
-            Constructor = nodes._comment;
           } else if (nodeName.indexOf('#') === 0) {
             Constructor = nodes[nodeName];
           } else {
@@ -3125,7 +3379,7 @@
 
     var Parser = (function() {
       function Parser() {
-        var options = arguments[0] === undefined ? {} : arguments[0];
+        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
         _classCallCheck(this, Parser);
 
@@ -3147,6 +3401,8 @@
       }, {
         key: 'createDom',
         value: function createDom(originNode) {
+          var _this3 = this;
+
           var index = 0;
           var createNode = function createNode(source, parent, previous, origin) {
             var options = {
@@ -3159,7 +3415,7 @@
               options.expressions = origin.expressions;
             }
 
-            var node = factory.create(source, options);
+            var node = factory.create(source, _.extend({}, _this3.options, options));
             return node;
           };
           var createChildren = function createChildren(children, parent) {
@@ -3208,8 +3464,4 @@
     module.exports = ET;
   });
   module.exports = modules.et;
-
-  // be called in constructor
-
-// should be called after the whole Tree created
 });

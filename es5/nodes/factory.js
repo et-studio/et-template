@@ -18,10 +18,6 @@ var _text = require('./text');
 
 var _text2 = _interopRequireDefault(_text);
 
-var _comment = require('./comment');
-
-var _comment2 = _interopRequireDefault(_comment);
-
 var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
@@ -53,7 +49,6 @@ var _import2 = _interopRequireDefault(_import);
 var nodes = {
   '_element': _element2['default'],
   '_text': _text2['default'],
-  '_comment': _comment2['default'],
   '_base': _basic2['default'],
   '#if': _if2['default'],
   '#elseif': _elseif2['default'],
@@ -80,7 +75,7 @@ var Factory = (function () {
      * - lineNumber
      */
     value: function create(source) {
-      var options = arguments[1] === undefined ? {} : arguments[1];
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var parent = options.parent;
       var previous = options.previous;
@@ -99,16 +94,14 @@ var Factory = (function () {
   }, {
     key: 'getNodeName',
     value: function getNodeName(source) {
+      var htmlMatch = /^<(\w+)[ >]|^<(\w+)$/.exec(source);
+      var etMatch = /^\[(#\w+)[ \]]|^\[(#\w+)\]$/.exec(source);
       if (!source) {
         return '';
-      } else if (source.indexOf('<!--') === 0) {
-        return '!--';
-      } else if (source.indexOf('<') === 0) {
-        var regHtml = /^<(\S*)[ >]/;
-        return regHtml.exec(source)[1] || '';
-      } else if (source.indexOf('[') === 0) {
-        var regET = /^\[(\S*)[ \]]/;
-        return regET.exec(source)[1] || '';
+      } else if (htmlMatch) {
+        return htmlMatch[1] || htmlMatch[2];
+      } else if (etMatch) {
+        return etMatch[1] || etMatch[2];
       }
       return '';
     }
@@ -122,8 +115,6 @@ var Factory = (function () {
         Constructor = nodes._base;
       } else if (!nodeName) {
         Constructor = nodes._text;
-      } else if (nodeName === '!--') {
-        Constructor = nodes._comment;
       } else if (nodeName.indexOf('#') === 0) {
         Constructor = nodes[nodeName];
       } else {

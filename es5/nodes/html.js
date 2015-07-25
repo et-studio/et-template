@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _basic = require('./basic');
 
@@ -31,13 +31,13 @@ var _parsersValue = require('../parsers/value');
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
 
 var HtmlNode = (function (_Basic) {
+  _inherits(HtmlNode, _Basic);
+
   function HtmlNode() {
     _classCallCheck(this, HtmlNode);
 
     _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(HtmlNode, _Basic);
 
   _createClass(HtmlNode, [{
     key: 'parse',
@@ -67,7 +67,7 @@ var HtmlNode = (function (_Basic) {
     value: function deliverCreate() {
       var re = [];
       var expression = this.expression;
-      if (expression && !this.isErraticValue(expression)) {
+      if (expression && !_parsersValue2['default'].isErratic(expression)) {
         re.push(_worker2['default'].createHtml({
           parentId: this.parent.getId(),
           expression: this.expression
@@ -80,7 +80,7 @@ var HtmlNode = (function (_Basic) {
     value: function deliverUpdate() {
       var re = [];
       var expression = this.expression;
-      if (this.isErraticValue(expression)) {
+      if (_parsersValue2['default'].isErratic(expression)) {
         re.push(_worker2['default'].updateHtml({
           parentId: this.getParentId(),
           valueId: this.getRootValueId(),

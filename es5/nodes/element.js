@@ -12,7 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _basic = require('./basic');
 
@@ -39,8 +39,10 @@ var _parsersCondition = require('../parsers/condition');
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
 var Element = (function (_Basic) {
+  _inherits(Element, _Basic);
+
   function Element(source) {
-    var options = arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     _classCallCheck(this, Element);
 
@@ -50,12 +52,10 @@ var Element = (function (_Basic) {
     this.parseExpresions(options.expressions);
   }
 
-  _inherits(Element, _Basic);
-
   _createClass(Element, [{
     key: 'parse',
     value: function parse(source) {
-      var tinyNode = _parsersElement2['default'].parse(source);
+      var tinyNode = _parsersElement2['default'].parse(source, this.options);
       this.attributes = tinyNode.attributes;
       this.nodeName = tinyNode.nodeName;
     }
@@ -81,7 +81,7 @@ var Element = (function (_Basic) {
       var items = [];
       var child = expression.children[0];
       var source = child && child.source || '';
-      var tinyNode = _parsersElement2['default'].parse('<div ' + source + '>');
+      var tinyNode = _parsersElement2['default'].parse('<div ' + source + '>', this.options);
       var conditionNode = _parsersCondition2['default'].parse(expression.source);
 
       if (!_util2['default'].isEmpty(tinyNode.attributes)) {
@@ -154,7 +154,7 @@ var Element = (function (_Basic) {
       var attrs = this.attributes;
       for (var key in attrs) {
         var value = attrs[key];
-        if (!this.isErraticValue(value)) {
+        if (!_parsersValue2['default'].isErratic(value)) {
           re[key] = value;
           isEmpty = false;
         }
@@ -182,7 +182,7 @@ var Element = (function (_Basic) {
       var erracticMap = {};
       for (var key in attrs) {
         var value = attrs[key];
-        if (this.isErraticValue(value)) {
+        if (_parsersValue2['default'].isErratic(value)) {
           erracticMap[key] = value;
         }
       }
@@ -214,7 +214,7 @@ var Element = (function (_Basic) {
         var value = attrs[key];
         var tmp = {
           key: key,
-          isErratic: this.isErraticValue(value),
+          isErratic: _parsersValue2['default'].isErratic(value),
           value: value,
           valueString: _parsersValue2['default'].parse(value)
         };

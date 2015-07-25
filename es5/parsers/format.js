@@ -16,9 +16,10 @@ var _machine2 = _interopRequireDefault(_machine);
 
 var _util = require('../util');
 
+// @tableStart: format
+
 var _util2 = _interopRequireDefault(_util);
 
-// @tableStart: format
 var formatTableOptions = {
   states: ['header', 'body', 'methodName', 'methodEnd'],
   symbols: ['function', '_util.', '('],

@@ -14,10 +14,18 @@ var _util = require('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var transMap = {
+  '&quot;': '\\"',
+  '&amp;': '\\&',
+  '&lt;': '\\<',
+  '&gt;': '\\>',
+  '&nbsp;': ' '
+};
+
 var OriginNode = (function () {
   function OriginNode(parent) {
-    var source = arguments[1] === undefined ? '' : arguments[1];
-    var options = arguments[2] === undefined ? {} : arguments[2];
+    var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     _classCallCheck(this, OriginNode);
 
@@ -73,7 +81,7 @@ var OriginNode = (function () {
       var current = this;
       while (current.parent) {
         if (current.matchClose(tail)) {
-          current.source = current.source.trim().replace(/\s+/g, ' ');
+          current.transSource();
           current.isClosed = true;
           break;
         }
@@ -94,7 +102,7 @@ var OriginNode = (function () {
       });
 
       if (this.parent && !this.isClosed) {
-        this.source = this.source.trim().replace(/\s+/g, ' ');
+        this.transSource();
         _util2['default'].concat(this.parent.children, this.children);
         this.isClosed = true;
         this.children = [];
@@ -104,7 +112,7 @@ var OriginNode = (function () {
   }, {
     key: 'matchClose',
     value: function matchClose() {
-      var tail = arguments[0] === undefined ? '' : arguments[0];
+      var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
       var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
       var source = this.source.trim();
@@ -140,6 +148,16 @@ var OriginNode = (function () {
         }
       });
       this.children = newChildren;
+    }
+  }, {
+    key: 'transSource',
+    value: function transSource() {
+      var source = this.source || '';
+      source = source.trim().replace(/\s+/g, ' ');
+      for (var key in transMap) {
+        source = source.replace(new RegExp(key, 'g'), transMap[key]);
+      }
+      this.source = source;
     }
   }, {
     key: 'each',

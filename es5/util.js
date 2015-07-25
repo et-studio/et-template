@@ -49,7 +49,7 @@ var Util = (function () {
   }, {
     key: 'extend',
     value: function extend() {
-      var arg1 = arguments[0] === undefined ? {} : arguments[0];
+      var arg1 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
       for (var _len = arguments.length, list = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         list[_key - 1] = arguments[_key];
@@ -145,9 +145,24 @@ var Util = (function () {
       return re;
     }
   }, {
-    key: 'stringify',
-    value: function stringify(obj) {
-      return JSON.stringify(obj).replace(/\"/g, '\'');
+    key: 'translateMarks',
+    value: function translateMarks(str) {
+      var isEscape = false;
+      var re = '';
+      this.each(str, function (token) {
+        if (isEscape) {
+          isEscape = false;
+          re += token;
+        } else if (token === '\\') {
+          isEscape = true;
+          re += token;
+        } else if (token === '\'') {
+          re += '\\\'';
+        } else {
+          re += token;
+        }
+      });
+      return re;
     }
   }]);
 

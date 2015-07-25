@@ -28,7 +28,7 @@ var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
 var Parser = (function () {
   function Parser() {
-    var options = arguments[0] === undefined ? {} : arguments[0];
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     _classCallCheck(this, Parser);
 
@@ -50,6 +50,8 @@ var Parser = (function () {
   }, {
     key: 'createDom',
     value: function createDom(originNode) {
+      var _this = this;
+
       var index = 0;
       var createNode = function createNode(source, parent, previous, origin) {
         var options = {
@@ -62,7 +64,7 @@ var Parser = (function () {
           options.expressions = origin.expressions;
         }
 
-        var node = _nodesFactory2['default'].create(source, options);
+        var node = _nodesFactory2['default'].create(source, _util2['default'].extend({}, _this.options, options));
         return node;
       };
       var createChildren = function createChildren(children, parent) {
