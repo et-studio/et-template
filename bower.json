@@ -1,8 +1,8 @@
 {
   "name": "et-template",
   "main": [
-    "./es5/et-runtime.js",
-    "./es5/dependency.js"
+    "es5/et-runtime.js",
+    "es5/dependency.js"
   ],
   "dependencies": {},
   "devDependencies": {
@@ -13,5 +13,13 @@
     "chai": "~2.3.0",
     "bootstrap": "~3.3.4",
     "js-beautify": "~1.5.10"
-  }
+  },
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "design",
+    "gulp",
+    "node_modules",
+    "test"
+  ]
 }
