@@ -1,5 +1,13 @@
 import _ from '../util'
 
+var transMap = {
+  '&quot;': '\\"',
+  '&amp;': '\\&',
+  '&lt;': '\\<',
+  '&gt;': '\\>',
+  '&nbsp;': ' '
+}
+
 class OriginNode {
   constructor (parent, source = '', options = {}) {
     this.rowNumber = options.rowNumber
@@ -41,7 +49,7 @@ class OriginNode {
     var current = this
     while (current.parent) {
       if (current.matchClose(tail)) {
-        current.source = current.source.trim().replace(/\s+/g, ' ')
+        current.transSource()
         current.isClosed = true
         break
       }
@@ -60,7 +68,7 @@ class OriginNode {
     })
 
     if (this.parent && !this.isClosed) {
-      this.source = this.source.trim().replace(/\s+/g, ' ')
+      this.transSource()
       _.concat(this.parent.children, this.children)
       this.isClosed = true
       this.children = []
@@ -96,6 +104,14 @@ class OriginNode {
       }
     })
     this.children = newChildren
+  }
+  transSource () {
+    var source = this.source || ''
+    source = source.trim().replace(/\s+/g, ' ')
+    for (var key in transMap) {
+      source = source.replace(new RegExp(key, 'g'), transMap[key])
+    }
+    this.source = source
   }
   each (callback) {
     if (typeof callback === 'function') {

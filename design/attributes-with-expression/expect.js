@@ -20,7 +20,7 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV', {
-      'disabled': ''
+      "disabled": ""
     });
     _doms.et1 = _et;
     _roots.et1 = _et;
@@ -46,14 +46,27 @@ _util_extend(Template_et0.prototype, _prototype, {
       _util_setAttribute(_et, 'data-type', _tmp);
     }
 
+    var _tmp = 'It is ' + (function() {
+        if (it.isTrue) {
+          return 'true'
+        } else {
+          return 'false'
+        }
+        return ''
+      })() + '!!!';
+    if (_last.value_2 !== _tmp) {
+      _last.value_2 = _tmp;
+      _util_setAttribute(_et, 'data-title', _tmp);
+    }
+
     if (it.isTrue) {
-      if (_last.value_2 !== 0) {
-        _last.value_2 = 0;
+      if (_last.value_3 !== 0) {
+        _last.value_3 = 0;
         _util_setAttribute(_et, 'class', 'class-true');
       }
     } else {
-      if (_last.value_2 !== 1) {
-        _last.value_2 = 1;
+      if (_last.value_3 !== 1) {
+        _last.value_3 = 1;
         _util_removeAttribute(_et, 'class');
       }
     }

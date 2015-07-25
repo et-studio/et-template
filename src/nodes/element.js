@@ -16,7 +16,7 @@ class Element extends Basic {
     this.parseExpresions(options.expressions)
   }
   parse (source) {
-    var tinyNode = elementParser.parse(source)
+    var tinyNode = elementParser.parse(source, this.options)
     this.attributes = tinyNode.attributes
     this.nodeName = tinyNode.nodeName
   }
@@ -38,7 +38,7 @@ class Element extends Basic {
     var items = []
     var child = expression.children[0]
     var source = (child && child.source) || ''
-    var tinyNode = elementParser.parse(`<div ${source}>`)
+    var tinyNode = elementParser.parse(`<div ${source}>`, this.options)
     var conditionNode = conditionParser.parse(expression.source)
 
     if (!_.isEmpty(tinyNode.attributes)) {
@@ -105,7 +105,7 @@ class Element extends Basic {
     var attrs = this.attributes
     for (var key in attrs) {
       var value = attrs[key]
-      if (!this.isErraticValue(value)) {
+      if (!valueParser.isErratic(value)) {
         re[key] = value
         isEmpty = false
       }
@@ -129,7 +129,7 @@ class Element extends Basic {
     var erracticMap = {}
     for (var key in attrs) {
       var value = attrs[key]
-      if (this.isErraticValue(value)) {
+      if (valueParser.isErratic(value)) {
         erracticMap[key] = value
       }
     }
@@ -157,7 +157,7 @@ class Element extends Basic {
       var value = attrs[key]
       var tmp = {
         key: key,
-        isErratic: this.isErraticValue(value),
+        isErratic: valueParser.isErratic(value),
         value: value,
         valueString: valueParser.parse(value)
       }

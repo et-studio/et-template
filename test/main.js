@@ -8,6 +8,7 @@ require.config({
     underscore: './bower_components/underscore/underscore',
     mocha: './bower_components/mocha/mocha',
     chai: './bower_components/chai/chai',
+    jsFormatter: './bower_components/js-beautify/js/lib/beautify',
     bootstrap: './bower_components/bootstrap/dist/js/bootstrap',
     babel: '/node_modules/babel-core/browser',
     // 资源文件夹
@@ -28,7 +29,8 @@ require([
   'mocha',
   'etDependency',
   'etRuntime',
-  'babel'
+  'babel',
+  'jsFormatter'
 ], function (test, chai, $, _) {
   var mocha = window.mocha
 

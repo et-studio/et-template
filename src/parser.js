@@ -30,7 +30,7 @@ class Parser {
         options.expressions = origin.expressions
       }
 
-      var node = factory.create(source, options)
+      var node = factory.create(source, _.extend({}, this.options, options))
       return node
     }
     var createChildren = (children = [], parent) => {

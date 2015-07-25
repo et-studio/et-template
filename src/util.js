@@ -97,8 +97,23 @@ class Util {
     })
     return re
   }
-  stringify (obj) {
-    return JSON.stringify(obj).replace(/\"/g, "'")
+  translateMarks (str) {
+    var isEscape = false
+    var re = ''
+    this.each(str, (token) => {
+      if (isEscape) {
+        isEscape = false
+        re += token
+      } else if (token === '\\') {
+        isEscape = true
+        re += token
+      } else if (token === '\'') {
+        re += '\\\''
+      } else {
+        re += token
+      }
+    })
+    return re
   }
 }
 

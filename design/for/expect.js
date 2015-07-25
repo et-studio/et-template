@@ -44,7 +44,7 @@ _util_extend(Template_et0.prototype, _prototype, {
 
     var _line = _doms.et1_line;
     var _lastLength = _last.value_0;
-    var _list = it.list;
+    var _list = it.matrix[it.members[1]];
     var _i = 0;
     var _len = _list.length;
     for (; _i < _len; _i++) {

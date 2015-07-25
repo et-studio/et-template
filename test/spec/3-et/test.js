@@ -1,6 +1,10 @@
 'use strict'
 
-var babel = require('babel')
+var ET = require('src/et')
+
+var jsFormatter = require('jsFormatter')
+var et = new ET()
+
 var settings = [
   {
     title: 'attributes',
@@ -38,12 +42,14 @@ exports.register = function () {
   window.describe('Compiler test', function () {
     settings.forEach(function (setting) {
       window.it(setting.title, function () {
-        var left = setting.source
-        var right = setting.expect
-        left = babel.transform(left).code
-        right = babel.transform(right).code
-        console.log(left)
-        window.testCompile(left, right)
+        var source = setting.source
+        var expect = setting.expect
+
+        source = et.compile(source)
+        source = jsFormatter.js_beautify(source)
+        console.log(source)
+
+        window.testCompile(source, expect)
       })
     })
   })

@@ -1,6 +1,8 @@
 
-     | string | start      | expression | end
----- | ------ | ---------- | ---------- | ---------
-'{{' | start  | expression | expression | string
-'}}' | string | end        | end        | string
-     | string | expression | expression | string
+         | text    | exStart | exBody | exEnd   | ifStart | ifBody | ifEnd
+-------- | ------  | ------- | ------ | ------- | ------- | ------ | -----
+'{{'     | exStart | exBody  | exBody | text    | ifBody  | ifBody | start
+'}}'     | text    | exEnd   | exEnd  | text    | ifBody  | ifBody | text
+'[#if '  | ifStart |         |        | ifStart |         |        | ifStart
+'[/#if]' |         |         |        |         | ifBody  | ifEnd  | text
+         | text    | exBody  | exBody | text    | ifBody  | ifBody | text

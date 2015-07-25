@@ -1,11 +1,11 @@
 
 if (it.attributes) {
   // {{
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${_.stringify(it.attributes)});
+  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}', ${JSON.stringify(it.attributes, null, '  ')});
   // }}
 } else {
   // {{
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}');
+  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
   // }}
 }
 

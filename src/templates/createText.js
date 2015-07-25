@@ -1,6 +1,6 @@
 
 // {{
-var _et = _util.createTextNode('${it.text}');
+var _et = _util.createTextNode('${_.translateMarks(it.text)}');
 _doms.${it.id} = _et;
 // }}
 

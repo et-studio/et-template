@@ -34,7 +34,7 @@ _util_extend(Template_et0.prototype, _prototype, {
     _roots.et3 = _et;
     _rootIds.push('et3');
 
-    var _et = _util_createTextNode('aaaaaaaaa bbbbbbbbb');
+    var _et = _util_createTextNode('Sorry, you can\'t do it. bbbbbbbbb');
     _doms.et4 = _et;
     _util_appendChild(_doms.et3, _et);
   },
@@ -44,7 +44,7 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _last = this.last;
 
     var _et = _doms.et2;
-    var _tmp = 'aaaa' + it.src;
+    var _tmp = 'aaaa[' + it.src + ']';
     if (_last.value_0 !== _tmp) {
       _last.value_0 = _tmp;
       _util_text(_et, _tmp);

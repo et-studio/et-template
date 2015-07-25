@@ -1,0 +1,10 @@
+
+           | start       | ifCondition | endContition | ifContent | elseif      | else        | elseContent | _value[ | end
+---------- | ------      | -------     | ------------ | -------   | ----------- | ----------- | ----------- | ------- | ---
+'[#if '    | start       |             |              |           |             |             |             |         |
+'[#elseif '|             |             | elseif       | elseif    |             |             |             |         |
+'[#else]'  |             |             | else         | else      |             |             |             |         |
+'[/#if]'   |             |             | end          | end       |             | end         | end         |         |
+']'        |             | endContition| ifContent    | ifContent | ifContent   | elseContent | elseContent | _last   |
+'['        |             | _value[     | ifContent    | ifContent |             | elseContent | elseContent | _value[ |
+           | ifCondition | ifCondition | ifContent    | ifContent | ifCondition | elseContent | elseContent |         |

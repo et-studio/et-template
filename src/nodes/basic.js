@@ -40,10 +40,13 @@ class Basic extends NodeInterface {
     this.isNewTemplate = false
     this.args = []
     this.nodeType = 'ET'
+
+    this.options = options
     this.parent = options.parent
     this.previous = options.previous
     this.next = null
     this.isRoot = !this.parent
+
     this.children = []
     this.parse(source)
   }
@@ -98,14 +101,6 @@ class Basic extends NodeInterface {
     } else {
       return false
     }
-  }
-  isErraticValue (str) {
-    if (!str) {
-      return false
-    }
-    var start = str.indexOf('{{')
-    var end = str.lastIndexOf('}}')
-    return (start >= 0) && (end > start)
   }
   saveArgument (...list) {
     _.concat(this.args, list)
@@ -175,7 +170,7 @@ class Basic extends NodeInterface {
     })
   }
 
-  // attributes or functions could be override
+  // functions could be override
   parse (source) {
     // be called in constructor
   }

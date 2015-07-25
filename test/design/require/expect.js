@@ -6,8 +6,8 @@ var _prototype = _dep._prototype;
 
 var _util_extend = _util.extend;
 var _util_createElement = _util.createElement;
-var _util_createTextNode = _util.createTextNode;
 var _util_appendChild = _util.appendChild;
+var _util_createTextNode = _util.createTextNode;
 
 function Template_et0(options) {
   this.init(options);
@@ -24,7 +24,8 @@ _util_extend(Template_et0.prototype, _prototype, {
     _roots.et1 = _et;
     _rootIds.push('et1');
 
-    var _et = require('./models/user');
+    var _ET = require('./models/user');
+    var _et = new _ET();
     _doms.et2 = _et;
     _util_appendChild(_doms.et1, _et.get());
 

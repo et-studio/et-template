@@ -20,7 +20,7 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV', {
-      'disabled': ''
+      "disabled": ""
     });
     _doms.et1 = _et;
     _roots.et1 = _et;

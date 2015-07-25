@@ -4,8 +4,8 @@ var path = require('path')
 var through = require('through2')
 var gutil = require('gulp-util')
 
-function handleString (method, string) {
-  var list = string.split('\n')
+function handleString (method, contents) {
+  var list = contents.split('\n')
   var re = []
   for (var i = 0; i < list.length; i++) {
     var item = list[i]

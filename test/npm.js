@@ -3,6 +3,7 @@
 var rootDir = process.cwd()
 var assert = require('assert')
 var fs = require('fs')
+var formatter = require('esformatter')
 var ET = require('../es5/et')
 var et = new ET()
 
@@ -33,6 +34,8 @@ pathList.forEach(function (path) {
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
         var left = et.compile(html)
         var right = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+        left = formatter.format(left)
+        right = formatter.format(right)
         testCompile(left, right)
       })
     })
@@ -52,6 +55,10 @@ dotPaths.forEach(function (path) {
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
         var left = et.compileDot(html)
         var right = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+
+        left = formatter.format(left)
+        right = formatter.format(right)
+
         testCompile(left, right)
       })
     })

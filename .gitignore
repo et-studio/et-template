@@ -16,3 +16,5 @@ tmp
 
 node_modules
 bower_components
+design/**/source.js
+test/design/**/source.js

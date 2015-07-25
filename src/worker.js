@@ -7,7 +7,7 @@ export default {
     var re = ''
 
     re = re + `
-var _et = _util.createComment('${it.text}');
+var _et = _util.createComment('${_.translateMarks(it.text)}');
 _doms.${it.id} = _et;
 `
 
@@ -29,11 +29,11 @@ _doms.${it.id} = _et;
 
     if (it.attributes) {
       re = re + `
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}', ${_.stringify(it.attributes)});
+  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}', ${JSON.stringify(it.attributes, null, '  ')});
 `
     } else {
       re = re + `
-  var _et = _util.createElement('${it.nodeName.toUpperCase()}');
+  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
 `
     }
 
@@ -74,7 +74,7 @@ _doms.${it.id} = _et;
   createHtml(it) {
     var re = ''
     re = re + `
-_doms.${it.parentId}.innerHTML = '${it.expression}';
+_doms.${it.parentId}.innerHTML = '${_.translateMarks(it.expression)}';
 `
 
     return re
@@ -82,17 +82,20 @@ _doms.${it.parentId}.innerHTML = '${it.expression}';
   createImport(it) {
     var re = ''
     re = re + `
-var _et = require('${it.path}');
+var _ET = require('${_.translateMarks(it.path)}');
+var _et = new _ET();
 _doms.${it.id} = _et;
 `
     if (it.isRoot) {
       re = re + `
   _roots.${it.id} = _et;
+  _rootIds.push('${it.id}');
+`
+    } else {
+      re = re + `
+  _util.appendChild(_doms.${it.parentId}, _et.get());
 `
     }
-    re = re + `
-_util_appendChild(_doms.${it.parentId}, _et.get());
-`
 
     return re
   },
@@ -137,7 +140,7 @@ _doms.${it.id} = null;
     var re = ''
 
     re = re + `
-var _et = _util.createTextNode('${it.text}');
+var _et = _util.createTextNode('${_.translateMarks(it.text)}');
 _doms.${it.id} = _et;
 `
 
@@ -255,17 +258,17 @@ module.exports = ${it.templateName};
           _.each(item.attributes, (attr) => {
             if (!attr.isErratic) {
               re = re + `
-              _util.setAttribute(_et, '${attr.key}', '${attr.value}');
+              _util.setAttribute(_et, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}');
 `
             }
           });
           if (item.exclusions && item.exclusions.length === 1) {
             re = re + `
-            _util.removeAttribute(_et, '${item.exclusions[0]}');
+            _util.removeAttribute(_et, '${_.translateMarks(item.exclusions[0])}');
 `
           } else if (item.exclusions && item.exclusions.length > 1) {
             var exclusions = item.exclusions.map((item) => {
-              return `'${item}'`
+              return `'${_.translateMarks(item)}'`
             })
             re = re + `
             _util.removeAttributes(_et, ${exclusions.join(',')});
@@ -280,7 +283,7 @@ module.exports = ${it.templateName};
             var _tmp = ${attr.valueString};
             if (_last.${attr.valueId} !== _tmp) {
               _last.${attr.valueId} = _tmp;
-              _util.setAttribute(_et, '${attr.key}', _tmp);
+              _util.setAttribute(_et, '${_.translateMarks(attr.key)}', _tmp);
             }
 `
             }

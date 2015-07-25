@@ -1,7 +1,6 @@
 'use strict'
 
 import formatParser from './parsers/format'
-import esformatter from 'esformatter'
 
 class Formatter {
   constructor (options = {}) {
@@ -9,7 +8,6 @@ class Formatter {
   }
   format (str, options = {}) {
     str = formatParser.parse(str)
-    str = esformatter.format(str, this.options)
     switch (this.options.modules) {
       case 'cmd':
         str = this.wrapCMD(str)

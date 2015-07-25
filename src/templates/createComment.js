@@ -1,6 +1,6 @@
 
 // {{
-var _et = _util.createComment('${it.text}');
+var _et = _util.createComment('${_.translateMarks(it.text)}');
 _doms.${it.id} = _et;
 // }}
 

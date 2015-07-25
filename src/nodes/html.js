@@ -28,7 +28,7 @@ class HtmlNode extends Basic {
   deliverCreate () {
     var re = []
     var expression = this.expression
-    if (expression && !this.isErraticValue(expression)) {
+    if (expression && !valueParser.isErratic(expression)) {
       re.push(worker.createHtml({
         parentId: this.parent.getId(),
         expression: this.expression
@@ -39,7 +39,7 @@ class HtmlNode extends Basic {
   deliverUpdate () {
     var re = []
     var expression = this.expression
-    if (this.isErraticValue(expression)) {
+    if (valueParser.isErratic(expression)) {
       re.push(worker.updateHtml({
         parentId: this.getParentId(),
         valueId: this.getRootValueId(),

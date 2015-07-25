@@ -1,5 +1,6 @@
 'use strict'
 
+import _ from '../util'
 import Parser from './parser'
 import Machine from './machine'
 
@@ -23,6 +24,9 @@ var elementTableOptions = {
     }
 // @tableEnd
 var elementMachine = new Machine(elementTableOptions)
+
+var BLACK_LIST = ['/']
+var WHITE_LIST = []
 
 class ElementParser extends Parser {
   parse (source, options) {
@@ -127,17 +131,34 @@ class ElementParser extends Parser {
       attrs.push(attr)
     }
 
-    var attrMap = {}
-    attrs.forEach((attr) => {
-      if (!attr.key) {
-        this.throwError()
-      }
-      attrMap[attr.key] = attr.value || ''
-    })
-
     return {
       nodeName: nodeName.toUpperCase(),
-      attributes: attrMap
+      attributes: this.translateAttributes(attrs, options)
+    }
+  }
+  translateAttributes (attrs = {}, options) {
+    var re = {}
+    var filter = this.getAttributeFilter(options)
+
+    attrs.map((attr) => {
+      if (!attr.key) this.throwError()
+      if (filter(attr.key)) re[attr.key] = attr.value || ''
+    })
+
+    return re
+  }
+  getAttributeFilter (options = {}) {
+    var blackList = options.blackList || BLACK_LIST
+    var whiteList = options.whiteList || WHITE_LIST
+
+    if (whiteList && whiteList.length) {
+      return (key) => {
+        return _.contains(whiteList, key)
+      }
+    } else {
+      return (key) => {
+        return !_.contains(blackList, key)
+      }
     }
   }
 }

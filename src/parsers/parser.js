@@ -17,10 +17,9 @@ class BasicParser {
     return ''
   }
   throwError (code) {
-    var name = this.name
     var source = this.source
     var message = this.getErrorMessage(code)
-    throw new Error(`Can't run ${name} because of ${message}:\n ${source}`)
+    throw new Error(`${message} ===> ${source}`)
   }
 }
 

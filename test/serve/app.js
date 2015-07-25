@@ -61,27 +61,13 @@ var _ = {
       callback(null, content)
     })
   },
-  getDesignJs: function getDesignJs (path, callback) {
+  getDesignFile: function getDesignJs (path, callback) {
     fs.readFile(`${rootDir}/${path}`, 'utf-8', function (err, content) {
       if (err) {
         return callback(err)
       }
-
+      content = content.replace(/\\/, '\\\\')
       content = `module.exports = \`${content}\``
-      content = babel.transform(content).code
-      content = formatter.wrapCMD(content)
-      content = esformatter.format(content)
-
-      callback(null, content)
-    })
-  },
-  getDesignHtml: function getDesignHtml (path, callback) {
-    fs.readFile(`${rootDir}/${path}`, 'utf-8', function (err, content) {
-      if (err) {
-        return callback(err)
-      }
-
-      content = `module.exports = \`${et.compile(content)}\``
       content = babel.transform(content).code
       content = formatter.wrapCMD(content)
       content = esformatter.format(content)
@@ -112,10 +98,10 @@ app.use('/design', function (req, res) {
   var path = 'design' + req.path
   var method
   if (_.isEndWidth(path, '.html.js')) {
-    method = 'getDesignHtml'
+    method = 'getDesignFile'
     path = path.slice(0, path.length - 3)
   } else if (_.isEndWidth(path, '.js')) {
-    method = 'getDesignJs'
+    method = 'getDesignFile'
   } else {
     method = 'getFile'
   }

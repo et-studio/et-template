@@ -105,5 +105,32 @@ module.exports = [
         source: `aaaaa bbbbb`
       }]
     }
+  },
+  {
+    title: 'test2',
+    html: `
+    [{{__markdown.helper.A}}]
+    `,
+    expect: {
+      children: [{
+        source: `[{{__markdown.helper.A}}]`
+      }]
+    }
+  },
+  {
+    title: 'test3',
+    html: `
+    [#for item,index in it.matrix[data[1]] ]
+      It is {{index}}.
+    [/#for]
+    `,
+    expect: {
+      children: [{
+        source: '[#for item,index in it.matrix[data[1]] ]',
+        children: [{
+          source: 'It is {{index}}.'
+        }]
+      }]
+    }
   }
 ]

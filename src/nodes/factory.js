@@ -2,7 +2,6 @@
 
 import NodeElement from './element'
 import NodeText from './text'
-import NodeComment from './comment'
 import NodeBasic from './basic'
 import NodeIf from './if'
 import NodeElseif from './elseif'
@@ -14,7 +13,6 @@ import NodeImport from './import'
 var nodes = {
   '_element': NodeElement,
   '_text': NodeText,
-  '_comment': NodeComment,
   '_base': NodeBasic,
   '#if': NodeIf,
   '#elseif': NodeElseif,
@@ -49,16 +47,14 @@ class Factory {
     return node
   }
   getNodeName (source) {
+    var htmlMatch = /^<(\w+)[ >]|^<(\w+)$/.exec(source)
+    var etMatch = /^\[(#\w+)[ \]]|^\[(#\w+)\]$/.exec(source)
     if (!source) {
       return ''
-    } else if (source.indexOf('<!--') === 0) {
-      return '!--'
-    } else if (source.indexOf('<') === 0) {
-      var regHtml = /^<(\S*)[ >]/
-      return regHtml.exec(source)[1] || ''
-    } else if (source.indexOf('[') === 0) {
-      var regET = /^\[(\S*)[ \]]/
-      return regET.exec(source)[1] || ''
+    } else if (htmlMatch) {
+      return htmlMatch[1] || htmlMatch[2]
+    } else if (etMatch) {
+      return etMatch[1] || etMatch[2]
     }
     return ''
   }
@@ -70,8 +66,6 @@ class Factory {
       Constructor = nodes._base
     } else if (!nodeName) {
       Constructor = nodes._text
-    } else if (nodeName === '!--') {
-      Constructor = nodes._comment
     } else if (nodeName.indexOf('#') === 0) {
       Constructor = nodes[nodeName]
     } else {

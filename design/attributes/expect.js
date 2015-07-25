@@ -18,11 +18,17 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV', {
-      'id': 'test'
+      "id": "test",
+      "data-title": "Sorry, you can't do it."
     });
     _doms.et1 = _et;
     _roots.et1 = _et;
     _rootIds.push('et1');
+
+    var _et = _util_createElement('BR');
+    _doms.et2 = _et;
+    _roots.et2 = _et;
+    _rootIds.push('et2');
   }
 });
 

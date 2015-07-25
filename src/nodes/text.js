@@ -14,7 +14,7 @@ class TextNode extends Basic {
   }
   deliverCreate () {
     var text = this.getTextContent()
-    if (this.isErraticValue(text)) {
+    if (valueParser.isErratic(text)) {
       text = ''
     }
     var it = {
@@ -28,7 +28,7 @@ class TextNode extends Basic {
   }
   deliverUpdate () {
     var text = this.getTextContent()
-    if (this.isErraticValue(text)) {
+    if (valueParser.isErratic(text)) {
       var it = {
         id: this.getId(),
         isRoot: this.checkRoot(),
