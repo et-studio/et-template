@@ -37,6 +37,15 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _et = _util_createTextNode('Sorry, you can\'t do it. bbbbbbbbb');
     _doms.et4 = _et;
     _util_appendChild(_doms.et3, _et);
+
+    var _et = _util_createElement('P');
+    _doms.et5 = _et;
+    _roots.et5 = _et;
+    _rootIds.push('et5');
+
+    var _et = _util_createTextNode('');
+    _doms.et6 = _et;
+    _util_appendChild(_doms.et5, _et);
   },
   update: function update(it) {
     var _doms = this.doms;
@@ -47,6 +56,13 @@ _util_extend(Template_et0.prototype, _prototype, {
     var _tmp = 'aaaa[' + it.src + ']';
     if (_last.value_0 !== _tmp) {
       _last.value_0 = _tmp;
+      _util_text(_et, _tmp);
+    }
+
+    var _et = _doms.et6;
+    var _tmp = it.unreadCount > 99 ? '99+' : it.unreadCount;
+    if (_last.value_1 !== _tmp) {
+      _last.value_1 = _tmp;
       _util_text(_et, _tmp);
     }
   }

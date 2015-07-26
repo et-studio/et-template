@@ -132,5 +132,16 @@ module.exports = [
         }]
       }]
     }
+  }, {
+    title: 'textBigExpression',
+    html: `<p>{{it.unreadCount > 99 ? '99+' : it.unreadCount}}</p>`,
+    expect: {
+      children: [{
+        source: '<p>',
+        children: [{
+          source: '{{it.unreadCount > 99 ? \'99+\' : it.unreadCount}}'
+        }]
+      }]
+    }
   }
 ]

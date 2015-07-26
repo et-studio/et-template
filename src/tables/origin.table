@@ -10,7 +10,7 @@
 '[#'  | etStart    | etStart    | etStart    | htmlHeader | etStart     | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '['   | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | _str[     | etTail  | _str[ |       |        |        |
 ']'   | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | headerEnd | tailEnd | _last |       |        |        |
-'{{'  | text       | text       | text       | htmlHeader | _str{{      | htmlTail | etHeader | _str{{    | etTail  |               |        |        |
+'{{'  | _str{{     | _str{{     | _str{{     | htmlHeader | _str{{      | htmlTail | etHeader | _str{{    | etTail  |       |       |        |        |
 '}}'  | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       | _last |        |        |
 '\\\''| text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '\''  | text       | text       | text       | htmlHeader | _str\'      | htmlTail | etHeader | _str\'    | etTail  |       |       | _last  |        |
