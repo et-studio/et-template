@@ -75,7 +75,6 @@ var _prototype = {
   isET: true,
   init: function init (options) {
     this.options = options || {}
-    this.rootIds = [] // 记录root的id，有排序的作用
     this.roots = {} // 记录是root的节点对象，如果那个节点被移除应该从这里移除
     this.doms = {} // 记录所有的节点对象
     this.last = {} // 记录上一次判断是什么值，用于差异更新
@@ -85,7 +84,7 @@ var _prototype = {
     // 每次进行 get 都会进行 dom 组合  应该少用
     var re = document.createDocumentFragment()
     var roots = this.roots
-    var ids = this.rootIds
+    var ids = Object.keys(roots).sort()
 
     for (var i = 0, len = ids.length; i < len; i++) {
       var id = ids[i]
@@ -102,14 +101,15 @@ var _prototype = {
   update: function update () {},
   remove: function remove () {
     // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
-    var list = this.roots
-    for (var i = 0, len = list.length; i < len; i++) {
-      var item = list[i]
-      if (item && item.isET) {
-        item.remove()
-      } else if (item) {
-        // 移除节点对象
-        _util.remove(item, true)
+    var roots = this.roots
+    var ids = Object.keys(roots).map(function (key) {return +key}).sort()
+    for (var i = 0, len = ids.length; i < len; i++) {
+      var id = ids[i]
+      var dom = roots[id]
+      if (dom && dom.isET) {
+        dom.remove()
+      } else if (dom) {
+        _util.remove(dom, true)
       }
     }
     return this
@@ -120,24 +120,25 @@ var _prototype = {
     this._destroyAttributes()
     return null
   },
-  _destroyDoms: function destroyChidren () {
-    var list = this.doms
-    for (var i = 0, len = list.length; i < len; i++) {
-      var item = list[i]
-      if (item && item.isET) {
-        item.destroy()
-      } else if (item) {
-        _util.remove(item, false)
+  _destroyDoms: function _destroyDoms () {
+    var doms = this.doms
+    var ids = Object.keys(doms)
+    for (var i = 0, len = ids.length; i < len; i++) {
+      var id = ids[i]
+      var dom = doms[id]
+      if (dom && dom.isET) {
+        dom.destroy()
+      } else if (dom) {
+        _util.remove(dom, false)
       }
     }
   },
-  _destroyAttributes: function destroyAttributes () {
-    for (var key in this) {
+  _destroyAttributes: function _destroyAttributes () {
+    var keys = Object.keys(this)
+    for (var i = 0, len = keys.length; i < len; i++) {
+      var key = keys[i]
       var item = this[key]
       if (typeof item !== 'function') {
-        if (item && typeof item.destroy === 'function') {
-          item.destroy()
-        }
         this[key] = null
       } else {
         this[key] = LOOP

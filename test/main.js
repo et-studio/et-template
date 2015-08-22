@@ -35,24 +35,24 @@ require([
   var mocha = window.mocha
 
   window.testAll = (function () {
-    function testAll (left, right) {
-      if (_.isArray(right)) {
-        testArray(left, right)
-      } else if (_.isObject(right)) {
-        testObject(left, right)
+    function testAll (expect, result) {
+      if (_.isArray(expect)) {
+        testArray(expect, result)
+      } else if (_.isObject(expect)) {
+        testObject(expect, result)
       } else {
-        window.assert.equal(left, right)
+        window.assert.equal(expect, result)
       }
     }
-    function testArray (left, right) {
-      window.assert.equal(left.length, right.length)
-      right.forEach(function (item, i) {
-        testAll(left[i], item)
+    function testArray (expect, result) {
+      window.assert.equal(expect.length, result.length)
+      expect.forEach(function (item, i) {
+        testAll(item, result[i])
       })
     }
-    function testObject (left, right) {
-      for (var key in right) {
-        testAll(left[key], right[key])
+    function testObject (expect, result) {
+      for (var key in expect) {
+        testAll(expect[key], result[key])
       }
     }
     return testAll

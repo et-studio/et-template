@@ -10,62 +10,58 @@ var _util_createTextNode = _util.createTextNode;
 var _util_appendChild = _util.appendChild;
 var _util_text = _util.text;
 
-function Template_et0(options) {
+function Template_0(options) {
   this.init(options);
 }
 
-_util_extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_0.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV');
-    _doms.et1 = _et;
-    _roots.et1 = _et;
-    _rootIds.push('et1');
+    _doms[2] = _et;
+    _roots[2] = _et;
 
     var _et = _util_createTextNode('');
-    _doms.et2 = _et;
-    _util_appendChild(_doms.et1, _et);
+    _doms[4] = _et;
+    _util_appendChild(_doms[2], _et);
 
     var _et = _util_createElement('P');
-    _doms.et3 = _et;
-    _roots.et3 = _et;
-    _rootIds.push('et3');
+    _doms[6] = _et;
+    _roots[6] = _et;
 
     var _et = _util_createTextNode('Sorry, you can\'t do it. bbbbbbbbb');
-    _doms.et4 = _et;
-    _util_appendChild(_doms.et3, _et);
+    _doms[8] = _et;
+    _util_appendChild(_doms[6], _et);
 
     var _et = _util_createElement('P');
-    _doms.et5 = _et;
-    _roots.et5 = _et;
-    _rootIds.push('et5');
+    _doms[10] = _et;
+    _roots[10] = _et;
 
     var _et = _util_createTextNode('');
-    _doms.et6 = _et;
-    _util_appendChild(_doms.et5, _et);
+    _doms[12] = _et;
+    _util_appendChild(_doms[10], _et);
   },
   update: function update(it) {
     var _doms = this.doms;
     var _roots = this.roots;
     var _last = this.last;
 
-    var _et = _doms.et2;
+    var _et = _doms[4];
     var _tmp = 'aaaa[' + it.src + ']';
-    if (_last.value_0 !== _tmp) {
-      _last.value_0 = _tmp;
+    if (_last[0] !== _tmp) {
+      _last[0] = _tmp;
       _util_text(_et, _tmp);
     }
 
-    var _et = _doms.et6;
+    var _et = _doms[12];
     var _tmp = it.unreadCount > 99 ? '99+' : it.unreadCount;
-    if (_last.value_1 !== _tmp) {
-      _last.value_1 = _tmp;
+    if (_last[1] !== _tmp) {
+      _last[1] = _tmp;
       _util_text(_et, _tmp);
     }
   }
 });
 
-module.exports = Template_et0;
+module.exports = Template_0;

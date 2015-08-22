@@ -1,11 +1,7 @@
 'use strict'
 
 var config = {
-  'templateFunctionPrefix': 'Template',
-  'spilitMark': '_',
-  'lineSuffix': 'line',
-  'idPrefix': 'et',
-  'valuePrefix': 'value'
+  'templateFunctionPrefix': 'Template_'
 }
 
 class Getter {
@@ -14,7 +10,7 @@ class Getter {
   }
   getId () {
     if (this._index >= 0) {
-      return `${config.idPrefix}${this._index}`
+      return this._index * 2
     } else {
       return null
     }
@@ -24,15 +20,14 @@ class Getter {
   }
   getTemplateName () {
     var id = this.getId()
-    return `${config.templateFunctionPrefix}${config.spilitMark}${id}`
+    return config.templateFunctionPrefix + id
   }
   getLineId () {
     var id = this.getId()
-    return `${id}${config.spilitMark}${config.lineSuffix}`
+    return id + 1
   }
   getValueId () {
-    var valueId = this.valueId++
-    return `${config.valuePrefix}${config.spilitMark}${valueId}`
+    return this.valueId++
   }
   getParentId () {
     return this.parent && this.parent.getId()

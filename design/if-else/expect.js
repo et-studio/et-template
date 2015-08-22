@@ -11,139 +11,131 @@ var _util_appendChild = _util.appendChild;
 var _util_before = _util.before;
 var _util_createTextNode = _util.createTextNode;
 
-function Template_et0(options) {
+function Template_0(options) {
   this.init(options);
 }
-function Template_et2(options) {
+function Template_4(options) {
   this.init(options);
 }
-function Template_et4(options) {
+function Template_8(options) {
   this.init(options);
 }
-function Template_et6(options) {
+function Template_12(options) {
   this.init(options);
 }
 
-_util_extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_0.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV');
-    _doms.et1 = _et;
-    _roots.et1 = _et;
-    _rootIds.push('et1');
+    _doms[2] = _et;
+    _roots[2] = _et;
 
-    _doms.et2 = null;
+    _doms[4] = null;
     var _line = _util_createLine();
-    _doms.et2_line = _line;
-    _util_appendChild(_doms.et1, _line);
+    _doms[5] = _line;
+    _util_appendChild(_doms[2], _line);
 
-    _doms.et4 = null;
-    _doms.et6 = null;
+    _doms[8] = null;
+    _doms[12] = null;
   },
   update: function update(it) {
     var _doms = this.doms;
     var _roots = this.roots;
     var _last = this.last;
 
-    var _line = _doms.et2_line;
+    var _line = _doms[5];
     if (it.isTrue) {
-      if (_last.value_0 !== 0) {
-        _last.value_0 = 0;
-        var _et = _doms.et2;
+      if (_last[0] !== 0) {
+        _last[0] = 0;
+        var _et = _doms[4];
         if (!_et) {
-          _doms.et2 = _et = new Template_et2();
+          _doms[4] = _et = new Template_4();
         }
         _util_before(_line, _et.get());
 
-        var _et = _doms.et4;
+        var _et = _doms[8];
         if (_et) {
           _et.remove();
         }
-        var _et = _doms.et6;
+        var _et = _doms[12];
         if (_et) {
           _et.remove();
         }
       }
-      _doms.et2.update(it);
+      _doms[4].update(it);
     } else if (it.elseTrue) {
-      if (_last.value_0 !== 1) {
-        _last.value_0 = 1;
-        var _et = _doms.et4;
+      if (_last[0] !== 1) {
+        _last[0] = 1;
+        var _et = _doms[8];
         if (!_et) {
-          _doms.et4 = _et = new Template_et4();
+          _doms[8] = _et = new Template_8();
         }
         _util_before(_line, _et.get());
 
-        var _et = _doms.et2;
+        var _et = _doms[4];
         if (_et) {
           _et.remove();
         }
-        var _et = _doms.et6;
+        var _et = _doms[12];
         if (_et) {
           _et.remove();
         }
       }
-      _doms.et4.update(it);
+      _doms[8].update(it);
     } else {
-      if (_last.value_0 !== 2) {
-        _last.value_0 = 2;
-        var _et = _doms.et6;
+      if (_last[0] !== 2) {
+        _last[0] = 2;
+        var _et = _doms[12];
         if (!_et) {
-          _doms.et6 = _et = new Template_et6();
+          _doms[12] = _et = new Template_12();
         }
         _util_before(_line, _et.get());
 
-        var _et = _doms.et2;
+        var _et = _doms[4];
         if (_et) {
           _et.remove();
         }
-        var _et = _doms.et4;
+        var _et = _doms[8];
         if (_et) {
           _et.remove();
         }
       }
-      _doms.et6.update(it);
+      _doms[12].update(it);
     }
   }
 });
 
-_util_extend(Template_et2.prototype, _prototype, {
+_util_extend(Template_4.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createTextNode('It is true.');
-    _doms.et3 = _et;
-    _roots.et3 = _et;
-    _rootIds.push('et3');
+    _doms[6] = _et;
+    _roots[6] = _et;
   }
 });
-_util_extend(Template_et4.prototype, _prototype, {
+_util_extend(Template_8.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createTextNode('It is elseTrue.');
-    _doms.et5 = _et;
-    _roots.et5 = _et;
-    _rootIds.push('et5');
+    _doms[10] = _et;
+    _roots[10] = _et;
   }
 });
-_util_extend(Template_et6.prototype, _prototype, {
+_util_extend(Template_12.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createTextNode('It is else.');
-    _doms.et7 = _et;
-    _roots.et7 = _et;
-    _rootIds.push('et7');
+    _doms[14] = _et;
+    _roots[14] = _et;
   }
 });
-module.exports = Template_et0;
+module.exports = Template_0;

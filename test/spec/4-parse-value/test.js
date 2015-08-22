@@ -11,7 +11,7 @@ exports.register = function () {
         var expect = setting.expect
 
         console.log(result)
-        window.testCompile(result, expect)
+        window.testCompile(expect, result)
       })
     })
   })

@@ -3,27 +3,6 @@
 import _ from './util'
 export default {
 
-  createComment(it) {
-    var re = ''
-
-    re = re + `
-var _et = _util.createComment('${_.translateMarks(it.text)}');
-_doms.${it.id} = _et;
-`
-
-    if (it.isRoot) {
-      re = re + `
-  _roots.${it.id} = _et;
-  _rootIds.push('${it.id}');
-`
-    } else {
-      re = re + `
-  _util.appendChild(_doms.${it.parentId}, _et);
-`
-    }
-
-    return re
-  },
   createElement(it) {
     var re = ''
 
@@ -38,17 +17,16 @@ _doms.${it.id} = _et;
     }
 
     re = re + `
-_doms.${it.id} = _et;
+_doms[${it.id}] = _et;
 `
 
     if (it.isRoot) {
       re = re + `
-  _roots.${it.id} = _et;
-  _rootIds.push('${it.id}');
+  _roots[${it.id}] = _et;
 `
     } else {
       re = re + `
-  _util.appendChild(_doms.${it.parentId}, _et);
+  _util.appendChild(_doms[${it.parentId}], _et);
 `
     }
 
@@ -59,13 +37,12 @@ _doms.${it.id} = _et;
 
     re = re + `
 var _et = new Template_for();
-_doms.${it.id} = _et;
+_doms[${it.id}] = _et;
 `
 
     if (it.isRoot) {
       re = re + `
-  _roots.${it.id} = _et;
-  _rootIds.push('${it.id}');
+  _roots[${it.id}] = _et;
 `
     }
 
@@ -74,7 +51,7 @@ _doms.${it.id} = _et;
   createHtml(it) {
     var re = ''
     re = re + `
-_doms.${it.parentId}.innerHTML = '${_.translateMarks(it.expression)}';
+_doms[${it.parentId}].innerHTML = '${_.translateMarks(it.expression)}';
 `
 
     return re
@@ -84,16 +61,15 @@ _doms.${it.parentId}.innerHTML = '${_.translateMarks(it.expression)}';
     re = re + `
 var _ET = require('${_.translateMarks(it.path)}');
 var _et = new _ET();
-_doms.${it.id} = _et;
+_doms[${it.id}] = _et;
 `
     if (it.isRoot) {
       re = re + `
-  _roots.${it.id} = _et;
-  _rootIds.push('${it.id}');
+  _roots[${it.id}] = _et;
 `
     } else {
       re = re + `
-  _util.appendChild(_doms.${it.parentId}, _et.get());
+  _util.appendChild(_doms[${it.parentId}], _et.get());
 `
     }
 
@@ -104,17 +80,16 @@ _doms.${it.id} = _et;
 
     re = re + `
 var _line = _util.createLine();
-_doms.${it.lineId} = _line;
+_doms[${it.lineId}] = _line;
 `
 
     if (it.isRoot) {
       re = re + `
-  _roots.${it.lineId} = _line;
-  _rootIds.push('${it.lineId}');
+  _roots[${it.lineId}] = _line;
 `
     } else {
       re = re + `
-  _util.appendChild(_doms.${it.parentId}, _line);
+  _util.appendChild(_doms[${it.parentId}], _line);
 `
     }
 
@@ -124,13 +99,12 @@ _doms.${it.lineId} = _line;
     var re = ''
 
     re = re + `
-_doms.${it.id} = null;
+_doms[${it.id}] = null;
 `
 
     if (it.isRoot) {
       re = re + `
-  _roots.${it.id} = null;
-  _rootIds.push('${it.id}');
+  _roots[${it.id}] = null;
 `
     }
 
@@ -141,17 +115,16 @@ _doms.${it.id} = null;
 
     re = re + `
 var _et = _util.createTextNode('${_.translateMarks(it.text)}');
-_doms.${it.id} = _et;
+_doms[${it.id}] = _et;
 `
 
     if (it.isRoot) {
       re = re + `
-  _roots.${it.id} = _et;
-  _rootIds.push('${it.id}');
+  _roots[${it.id}] = _et;
 `
     } else {
       re = re + `
-  _util.appendChild(_doms.${it.parentId}, _et);
+  _util.appendChild(_doms[${it.parentId}], _et);
 `
     }
 
@@ -198,7 +171,6 @@ var _prototype = _dep._prototype;
       create: function create() {
         var _doms = this.doms;
         var _roots = this.roots;
-        var _rootIds = this.rootIds;
         ${dom.createList.join('\n')}
       }${dom.updateList.length ? ',' : ''}
 `
@@ -230,14 +202,14 @@ module.exports = ${it.templateName};
 
     if (it.erraticAttributes.length || it.expressions.length) {
       re = re + `
-  var _et = _doms.${it.id};
+  var _et = _doms[${it.id}];
 `
       _.each(it.erraticAttributes, (attr) => {
         if (attr.isErratic) {
           re = re + `
       var _tmp = ${attr.valueString};
-      if (_last.${attr.valueId} !== _tmp) {
-        _last.${attr.valueId} = _tmp;
+      if (_last[${attr.valueId}] !== _tmp) {
+        _last[${attr.valueId}] = _tmp;
         _util.setAttribute(_et, '${attr.key}', _tmp);
       }
 `
@@ -252,8 +224,8 @@ module.exports = ${it.templateName};
           }
           re = re + `
       ${item.tag} ${condition} {
-        if (_last.${item.valueId} !== ${i}) {
-          _last.${item.valueId} = ${i};
+        if (_last[${item.valueId}] !== ${i}) {
+          _last[${item.valueId}] = ${i};
 `
           _.each(item.attributes, (attr) => {
             if (!attr.isErratic) {
@@ -281,8 +253,8 @@ module.exports = ${it.templateName};
             if (attr.isErratic) {
               re = re + `
             var _tmp = ${attr.valueString};
-            if (_last.${attr.valueId} !== _tmp) {
-              _last.${attr.valueId} = _tmp;
+            if (_last[${attr.valueId}] !== _tmp) {
+              _last[${attr.valueId}] = _tmp;
               _util.setAttribute(_et, '${_.translateMarks(attr.key)}', _tmp);
             }
 `
@@ -301,11 +273,13 @@ module.exports = ${it.templateName};
     var re = ''
 
     re = re + `
-var _line = _doms.${it.lineId};
-var _lastLength = _last.${it.valueId};
-var _list = ${it.expression};
+var _line = _doms[${it.lineId}];
+var _lastLength = _last[${it.valueId}] || 0;
+var _list = ${it.expression} || [];
+
 var _i = 0;
 var _len = _list.length;
+_last[${it.valueId}] = _len;
 for (; _i < _len; _i++) {
   var _et = _doms['${it.id}_' + _i];
   var _item = _list[_i];
@@ -315,13 +289,11 @@ for (; _i < _len; _i++) {
   if (!_et) {
     _doms['${it.id}_' + _i] = _et = new ${it.templateName}();
   }
-  if (!_lastLength || _lastLength < _i) {
+  if (_i >= _lastLength) {
     _util.before(_line, _et.get());
   }
   _et.update(${it.args.join(',')});
 }
-
-_last.${it.valueId} = _i;
 for (; _i < _lastLength; _i++) {
   var _et = _doms['${it.id}_' + _i];
   _et.remove();
@@ -330,12 +302,11 @@ for (; _i < _lastLength; _i++) {
 
     if (it.isRoot) {
       re = re + `
-  var _lastLength = _last.${it.valueId};
-  var _et = _doms.${it.id};
-  _et.rootIds = [];
+  var _lastLength = _last[${it.valueId}];
+  var _et = _doms[${it.id}];
+  _et.roots = {};
   for (_i = 0; _i < _lastLength; _i++) {
-    _et.rootIds.push('${it.id}_' + _i);
-    _et.doms['${it.id}_' + _i] = _doms['${it.id}_' + _i];
+    _et.doms[_i] = _et.roots[_i] = _doms['${it.id}_' + _i];
   }
 `
     }
@@ -346,10 +317,10 @@ for (; _i < _lastLength; _i++) {
     var re = ''
 
     re = re + `
-var _et = _doms.${it.parentId};
+var _et = _doms[${it.parentId}];
 var _tmp = ${it.valueString};
-if (_last.${it.valueId} !== _tmp) {
-  _last.${it.valueId} = _tmp;
+if (_last[${it.valueId}] !== _tmp) {
+  _last[${it.valueId}] = _tmp;
   _et.innerHTML = _tmp;
 }
 `
@@ -359,7 +330,7 @@ if (_last.${it.valueId} !== _tmp) {
   updateIf(it) {
     var re = ''
     re = re + `
-var _line = _doms.${it.lineId};
+var _line = _doms[${it.lineId}];
 `
     _.each(it.doms, (dom, i) => {
       var condition = '';
@@ -368,32 +339,32 @@ var _line = _doms.${it.lineId};
       }
       re = re + `
   ${dom.tag} ${condition} {
-    if (_last.${it.indexValueId} !== ${i}) {
-      _last.${it.indexValueId} = ${i};
+    if (_last[${it.indexValueId}] !== ${i}) {
+      _last[${it.indexValueId}] = ${i};
 `
       if (dom.id) {
         re = re + `
-        var _et = _doms.${dom.id};
+        var _et = _doms[${dom.id}];
         if (!_et) {
-          _doms.${dom.id} = _et = new ${dom.templateName}();
+          _doms[${dom.id}] = _et = new ${dom.templateName}();
         }
         _util.before(_line, _et.get());
 `
         if (it.isRoot) {
           re = re + `
-          _roots.${dom.id} = _et;
+          _roots[${dom.id}] = _et;
 `
         }
       }
       _.each(dom.siblings, (sibling) => {
         re = re + `
-        var _et = _doms.${sibling.id};
+        var _et = _doms[${sibling.id}];
         if (_et) {
           _et.remove();
 `
         if (it.isRoot) {
           re = re + `
-            _roots.${sibling.id} = null;
+            _roots[${sibling.id}] = null;
 `
         }
         re = re + `
@@ -405,7 +376,7 @@ var _line = _doms.${it.lineId};
 `
       if (dom.id) {
         re = re + `
-      _doms.${dom.id}.update(${dom.args.join(',')});
+      _doms[${dom.id}].update(${dom.args.join(',')});
 `
       }
       re = re + `
@@ -418,7 +389,7 @@ var _line = _doms.${it.lineId};
   updateImport(it) {
     var re = ''
     re = re + `
-var _et = _doms.${it.id};
+var _et = _doms[${it.id}];
 _et.update(${it.args.join(', ')});
 `
 
@@ -428,10 +399,10 @@ _et.update(${it.args.join(', ')});
     var re = ''
 
     re = re + `
-var _et = _doms.${it.id};
+var _et = _doms[${it.id}];
 var _tmp = ${it.valueString};
-if (_last.${it.valueId} !== _tmp) {
-  _last.${it.valueId} = _tmp;
+if (_last[${it.valueId}] !== _tmp) {
+  _last[${it.valueId}] = _tmp;
   _util.text(_et, _tmp);
 }
 `

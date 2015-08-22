@@ -37,7 +37,6 @@ _.each(it.newDoms, (dom) => {
       create: function create() {
         var _doms = this.doms;
         var _roots = this.roots;
-        var _rootIds = this.rootIds;
         ${dom.createList.join('\n')}
       }${dom.updateList.length?',':''}
     // }}

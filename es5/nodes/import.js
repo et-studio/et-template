@@ -48,7 +48,10 @@ var ImportNode = (function (_Basic) {
       this.importArgs = [];
       for (var i = 1, len = list.length; i < len; i++) {
         var str = list[i] || '';
-        this.importArgs.push(str.trim());
+        str = str.trim();
+        if (str) {
+          this.importArgs.push(str);
+        }
       }
       if (!this.importArgs.length) {
         this.importArgs.push('it');

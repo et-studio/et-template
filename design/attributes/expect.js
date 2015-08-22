@@ -7,29 +7,26 @@ var _prototype = _dep._prototype;
 var _util_extend = _util.extend;
 var _util_createElement = _util.createElement;
 
-function Template_et0(options) {
+function Template_0(options) {
   this.init(options);
 }
 
-_util_extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_0.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV', {
       "id": "test",
       "data-title": "Sorry, you can't do it."
     });
-    _doms.et1 = _et;
-    _roots.et1 = _et;
-    _rootIds.push('et1');
+    _doms[2] = _et;
+    _roots[2] = _et;
 
     var _et = _util_createElement('BR');
-    _doms.et2 = _et;
-    _roots.et2 = _et;
-    _rootIds.push('et2');
+    _doms[4] = _et;
+    _roots[4] = _et;
   }
 });
 
-module.exports = Template_et0;
+module.exports = Template_0;

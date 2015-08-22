@@ -7,10 +7,10 @@ exports.register = function () {
   window.describe('Compiler test', function () {
     settings.forEach(function (setting) {
       window.it(setting.title, function () {
-        var left = parser.parse(setting.dot)
-        var right = setting.expect
-        console.log(left)
-        window.testCompile(left, right)
+        var source = parser.parse(setting.dot)
+        var expect = setting.expect
+        console.log(source)
+        window.testCompile(expect, source)
       })
     })
   })

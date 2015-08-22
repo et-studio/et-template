@@ -1,16 +1,15 @@
 
 // {{
 var _line = _util.createLine();
-_doms.${it.lineId} = _line;
+_doms[${it.lineId}] = _line;
 // }}
 
 if (it.isRoot) {
   // {{
-  _roots.${it.lineId} = _line;
-  _rootIds.push('${it.lineId}');
+  _roots[${it.lineId}] = _line;
   // }}
 } else {
   // {{
-  _util.appendChild(_doms.${it.parentId}, _line);
+  _util.appendChild(_doms[${it.parentId}], _line);
   // }}
 }

@@ -286,19 +286,6 @@
     var _ = innerRequire('./util');
     module.exports = {
 
-      createComment: function createComment(it) {
-        var re = '';
-
-        re = re + ('\nvar _et = _util.createComment(\'' + _.translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
-
-        if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
-        } else {
-          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _et);\n');
-        }
-
-        return re;
-      },
       createElement: function createElement(it) {
         var re = '';
 
@@ -308,12 +295,12 @@
           re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\');\n');
         }
 
-        re = re + ('\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\n_doms[' + it.id + '] = _et;\n');
 
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
+          re = re + ('\n_roots[' + it.id + '] = _et;\n');
         } else {
-          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _et);\n');
+          re = re + ('\n_util.appendChild(_doms[' + it.parentId + '], _et);\n');
         }
 
         return re;
@@ -321,27 +308,27 @@
       createFor: function createFor(it) {
         var re = '';
 
-        re = re + ('\nvar _et = new Template_for();\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _et = new Template_for();\n_doms[' + it.id + '] = _et;\n');
 
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
+          re = re + ('\n_roots[' + it.id + '] = _et;\n');
         }
 
         return re;
       },
       createHtml: function createHtml(it) {
         var re = '';
-        re = re + ('\n_doms.' + it.parentId + '.innerHTML = \'' + _.translateMarks(it.expression) + '\';\n');
+        re = re + ('\n_doms[' + it.parentId + '].innerHTML = \'' + _.translateMarks(it.expression) + '\';\n');
 
         return re;
       },
       createImport: function createImport(it) {
         var re = '';
-        re = re + ('\nvar _ET = require(\'' + _.translateMarks(it.path) + '\');\nvar _et = new _ET();\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _ET = require(\'' + _.translateMarks(it.path) + '\');\nvar _et = new _ET();\n_doms[' + it.id + '] = _et;\n');
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
+          re = re + ('\n_roots[' + it.id + '] = _et;\n');
         } else {
-          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _et.get());\n');
+          re = re + ('\n_util.appendChild(_doms[' + it.parentId + '], _et.get());\n');
         }
 
         return re;
@@ -349,12 +336,12 @@
       createLine: function createLine(it) {
         var re = '';
 
-        re = re + ('\nvar _line = _util.createLine();\n_doms.' + it.lineId + ' = _line;\n');
+        re = re + ('\nvar _line = _util.createLine();\n_doms[' + it.lineId + '] = _line;\n');
 
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.lineId + ' = _line;\n_rootIds.push(\'' + it.lineId + '\');\n');
+          re = re + ('\n_roots[' + it.lineId + '] = _line;\n');
         } else {
-          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _line);\n');
+          re = re + ('\n_util.appendChild(_doms[' + it.parentId + '], _line);\n');
         }
 
         return re;
@@ -362,10 +349,10 @@
       createNull: function createNull(it) {
         var re = '';
 
-        re = re + ('\n_doms.' + it.id + ' = null;\n');
+        re = re + ('\n_doms[' + it.id + '] = null;\n');
 
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = null;\n_rootIds.push(\'' + it.id + '\');\n');
+          re = re + ('\n_roots[' + it.id + '] = null;\n');
         }
 
         return re;
@@ -373,12 +360,12 @@
       createText: function createText(it) {
         var re = '';
 
-        re = re + ('\nvar _et = _util.createTextNode(\'' + _.translateMarks(it.text) + '\');\n_doms.' + it.id + ' = _et;\n');
+        re = re + ('\nvar _et = _util.createTextNode(\'' + _.translateMarks(it.text) + '\');\n_doms[' + it.id + '] = _et;\n');
 
         if (it.isRoot) {
-          re = re + ('\n_roots.' + it.id + ' = _et;\n_rootIds.push(\'' + it.id + '\');\n');
+          re = re + ('\n_roots[' + it.id + '] = _et;\n');
         } else {
-          re = re + ('\n_util.appendChild(_doms.' + it.parentId + ', _et);\n');
+          re = re + ('\n_util.appendChild(_doms[' + it.parentId + '], _et);\n');
         }
 
         return re;
@@ -403,7 +390,7 @@
             throw new Error('If dom has updateList, it must have createList.');
           }
           if (dom.createList.length || dom.updateList.length) {
-            re = re + ('\n_util.extend(' + dom.templateName + '.prototype, _prototype, {\ncreate: function create() {\nvar _doms = this.doms;\nvar _roots = this.roots;\nvar _rootIds = this.rootIds;\n' + dom.createList.join('\n') + '\n}' + (dom.updateList.length ? ',' : '') + '\n');
+            re = re + ('\n_util.extend(' + dom.templateName + '.prototype, _prototype, {\ncreate: function create() {\nvar _doms = this.doms;\nvar _roots = this.roots;\n' + dom.createList.join('\n') + '\n}' + (dom.updateList.length ? ',' : '') + '\n');
 
             if (dom.updateList.length) {
               re = re + ('\nupdate: function update(' + dom.args.join(',') + ') {\nvar _doms = this.doms;\nvar _roots = this.roots;\nvar _last = this.last;\n' + dom.updateList.join('\n') + '\n}\n');
@@ -420,10 +407,10 @@
         var re = '';
 
         if (it.erraticAttributes.length || it.expressions.length) {
-          re = re + ('\nvar _et = _doms.' + it.id + ';\n');
+          re = re + ('\nvar _et = _doms[' + it.id + '];\n');
           _.each(it.erraticAttributes, function(attr) {
             if (attr.isErratic) {
-              re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last.' + attr.valueId + ' !== _tmp) {\n_last.' + attr.valueId + ' = _tmp;\n_util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n}\n');
+              re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n}\n');
             }
           });
 
@@ -433,7 +420,7 @@
               if (item.tag !== 'else') {
                 condition = '(' + item.condition + ')';
               }
-              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last.' + item.valueId + ' !== ' + i + ') {\n_last.' + item.valueId + ' = ' + i + ';\n');
+              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last[' + item.valueId + '] !== ' + i + ') {\n_last[' + item.valueId + '] = ' + i + ';\n');
               _.each(item.attributes, function(attr) {
                 if (!attr.isErratic) {
                   re = re + ('\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', \'' + _.translateMarks(attr.value) + '\');\n');
@@ -450,7 +437,7 @@
               re = re + '\n}\n';
               _.each(item.attributes, function(attr) {
                 if (attr.isErratic) {
-                  re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last.' + attr.valueId + ' !== _tmp) {\n_last.' + attr.valueId + ' = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
+                  re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
                 }
               });
               re = re + '\n}\n';
@@ -463,10 +450,10 @@
       updateFor: function updateFor(it) {
         var re = '';
 
-        re = re + ('\nvar _line = _doms.' + it.lineId + ';\nvar _lastLength = _last.' + it.valueId + ';\nvar _list = ' + it.expression + ';\nvar _i = 0;\nvar _len = _list.length;\nfor (; _i < _len; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\nvar _item = _list[_i];\nvar ' + it.indexName + ' = _i;\nvar ' + it.itemName + ' = _item;\n\nif (!_et) {\n_doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n}\nif (!_lastLength || _lastLength < _i) {\n_util.before(_line, _et.get());\n}\n_et.update(' + it.args.join(',') + ');\n}\n\n_last.' + it.valueId + ' = _i;\nfor (; _i < _lastLength; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\n_et.remove();\n}\n');
+        re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\nvar _item = _list[_i];\nvar ' + it.indexName + ' = _i;\nvar ' + it.itemName + ' = _item;\n\nif (!_et) {\n_doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n}\nif (_i >= _lastLength) {\n_util.before(_line, _et.get());\n}\n_et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\n_et.remove();\n}\n');
 
         if (it.isRoot) {
-          re = re + ('\nvar _lastLength = _last.' + it.valueId + ';\nvar _et = _doms.' + it.id + ';\n_et.rootIds = [];\nfor (_i = 0; _i < _lastLength; _i++) {\n_et.rootIds.push(\'' + it.id + '_\' + _i);\n_et.doms[\'' + it.id + '_\' + _i] = _doms[\'' + it.id + '_\' + _i];\n}\n');
+          re = re + ('\nvar _lastLength = _last[' + it.valueId + '];\nvar _et = _doms[' + it.id + '];\n_et.roots = {};\nfor (_i = 0; _i < _lastLength; _i++) {\n_et.doms[_i] = _et.roots[_i] = _doms[\'' + it.id + '_\' + _i];\n}\n');
         }
 
         return re;
@@ -474,35 +461,35 @@
       updateHtml: function updateHtml(it) {
         var re = '';
 
-        re = re + ('\nvar _et = _doms.' + it.parentId + ';\nvar _tmp = ' + it.valueString + ';\nif (_last.' + it.valueId + ' !== _tmp) {\n_last.' + it.valueId + ' = _tmp;\n_et.innerHTML = _tmp;\n}\n');
+        re = re + ('\nvar _et = _doms[' + it.parentId + '];\nvar _tmp = ' + it.valueString + ';\nif (_last[' + it.valueId + '] !== _tmp) {\n_last[' + it.valueId + '] = _tmp;\n_et.innerHTML = _tmp;\n}\n');
 
         return re;
       },
       updateIf: function updateIf(it) {
         var re = '';
-        re = re + ('\nvar _line = _doms.' + it.lineId + ';\n');
+        re = re + ('\nvar _line = _doms[' + it.lineId + '];\n');
         _.each(it.doms, function(dom, i) {
           var condition = '';
           if (dom.tag !== 'else') {
             condition = '(' + dom.condition + ')';
           }
-          re = re + ('\n' + dom.tag + ' ' + condition + ' {\nif (_last.' + it.indexValueId + ' !== ' + i + ') {\n_last.' + it.indexValueId + ' = ' + i + ';\n');
+          re = re + ('\n' + dom.tag + ' ' + condition + ' {\nif (_last[' + it.indexValueId + '] !== ' + i + ') {\n_last[' + it.indexValueId + '] = ' + i + ';\n');
           if (dom.id) {
-            re = re + ('\nvar _et = _doms.' + dom.id + ';\nif (!_et) {\n_doms.' + dom.id + ' = _et = new ' + dom.templateName + '();\n}\n_util.before(_line, _et.get());\n');
+            re = re + ('\nvar _et = _doms[' + dom.id + '];\nif (!_et) {\n_doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n}\n_util.before(_line, _et.get());\n');
             if (it.isRoot) {
-              re = re + ('\n_roots.' + dom.id + ' = _et;\n');
+              re = re + ('\n_roots[' + dom.id + '] = _et;\n');
             }
           }
           _.each(dom.siblings, function(sibling) {
-            re = re + ('\nvar _et = _doms.' + sibling.id + ';\nif (_et) {\n_et.remove();\n');
+            re = re + ('\nvar _et = _doms[' + sibling.id + '];\nif (_et) {\n_et.remove();\n');
             if (it.isRoot) {
-              re = re + ('\n_roots.' + sibling.id + ' = null;\n');
+              re = re + ('\n_roots[' + sibling.id + '] = null;\n');
             }
             re = re + '\n}\n';
           });
           re = re + '\n}\n';
           if (dom.id) {
-            re = re + ('\n_doms.' + dom.id + '.update(' + dom.args.join(',') + ');\n');
+            re = re + ('\n_doms[' + dom.id + '].update(' + dom.args.join(',') + ');\n');
           }
           re = re + '\n}\n';
         });
@@ -511,14 +498,14 @@
       },
       updateImport: function updateImport(it) {
         var re = '';
-        re = re + ('\nvar _et = _doms.' + it.id + ';\n_et.update(' + it.args.join(', ') + ');\n');
+        re = re + ('\nvar _et = _doms[' + it.id + '];\n_et.update(' + it.args.join(', ') + ');\n');
 
         return re;
       },
       updateText: function updateText(it) {
         var re = '';
 
-        re = re + ('\nvar _et = _doms.' + it.id + ';\nvar _tmp = ' + it.valueString + ';\nif (_last.' + it.valueId + ' !== _tmp) {\n_last.' + it.valueId + ' = _tmp;\n_util.text(_et, _tmp);\n}\n');
+        re = re + ('\nvar _et = _doms[' + it.id + '];\nvar _tmp = ' + it.valueString + ';\nif (_last[' + it.valueId + '] !== _tmp) {\n_last[' + it.valueId + '] = _tmp;\n_util.text(_et, _tmp);\n}\n');
 
         return re;
       }
@@ -1256,11 +1243,7 @@
     'use strict';
 
     var config = {
-      'templateFunctionPrefix': 'Template',
-      'spilitMark': '_',
-      'lineSuffix': 'line',
-      'idPrefix': 'et',
-      'valuePrefix': 'value'
+      'templateFunctionPrefix': 'Template_'
     };
 
     var Getter = (function() {
@@ -1274,7 +1257,7 @@
         key: 'getId',
         value: function getId() {
           if (this._index >= 0) {
-            return '' + config.idPrefix + this._index;
+            return this._index * 2;
           } else {
             return null;
           }
@@ -1288,19 +1271,18 @@
         key: 'getTemplateName',
         value: function getTemplateName() {
           var id = this.getId();
-          return '' + config.templateFunctionPrefix + config.spilitMark + id;
+          return config.templateFunctionPrefix + id;
         }
       }, {
         key: 'getLineId',
         value: function getLineId() {
           var id = this.getId();
-          return '' + id + config.spilitMark + config.lineSuffix;
+          return id + 1;
         }
       }, {
         key: 'getValueId',
         value: function getValueId() {
-          var valueId = this.valueId++;
-          return '' + config.valuePrefix + config.spilitMark + valueId;
+          return this.valueId++;
         }
       }, {
         key: 'getParentId',
@@ -3234,7 +3216,10 @@
           this.importArgs = [];
           for (var i = 1, len = list.length; i < len; i++) {
             var str = list[i] || '';
-            this.importArgs.push(str.trim());
+            str = str.trim();
+            if (str) {
+              this.importArgs.push(str);
+            }
           }
           if (!this.importArgs.length) {
             this.importArgs.push('it');

@@ -49,7 +49,7 @@ exports.register = function () {
         source = jsFormatter.js_beautify(source)
         console.log(source)
 
-        window.testCompile(source, expect)
+        window.testCompile(expect, source)
       })
     })
   })

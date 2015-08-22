@@ -31,9 +31,10 @@ pathList.forEach(function (path) {
     var designDirs = fs.readdirSync(rootDir + path)
     designDirs.forEach(function (folder) {
       global.it(folder, function () {
+        var left = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-        var left = et.compile(html)
-        var right = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+        var right = et.compile(html)
+
         left = formatter.format(left)
         right = formatter.format(right)
         testCompile(left, right)
@@ -52,9 +53,9 @@ dotPaths.forEach(function (path) {
     var designDirs = fs.readdirSync(rootDir + path)
     designDirs.forEach(function (folder) {
       global.it(folder, function () {
+        var left = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-        var left = et.compileDot(html)
-        var right = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+        var right = et.compileDot(html)
 
         left = formatter.format(left)
         right = formatter.format(right)

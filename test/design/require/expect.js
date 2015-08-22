@@ -9,38 +9,36 @@ var _util_createElement = _util.createElement;
 var _util_appendChild = _util.appendChild;
 var _util_createTextNode = _util.createTextNode;
 
-function Template_et0(options) {
+function Template_0(options) {
   this.init(options);
 }
 
-_util_extend(Template_et0.prototype, _prototype, {
+_util_extend(Template_0.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
-    var _rootIds = this.rootIds;
 
     var _et = _util_createElement('DIV');
-    _doms.et1 = _et;
-    _roots.et1 = _et;
-    _rootIds.push('et1');
+    _doms[2] = _et;
+    _roots[2] = _et;
 
     var _ET = require('./models/user');
     var _et = new _ET();
-    _doms.et2 = _et;
-    _util_appendChild(_doms.et1, _et.get());
+    _doms[4] = _et;
+    _util_appendChild(_doms[2], _et.get());
 
     var _et = _util_createTextNode('1234567890');
-    _doms.et3 = _et;
-    _util_appendChild(_doms.et1, _et);
+    _doms[6] = _et;
+    _util_appendChild(_doms[2], _et);
   },
   update: function update(it) {
     var _doms = this.doms;
     var _roots = this.roots;
     var _last = this.last;
 
-    var _et = _doms.et2;
+    var _et = _doms[4];
     _et.update(it, it.test);
   }
 });
 
-module.exports = Template_et0;
+module.exports = Template_0;
