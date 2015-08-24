@@ -7,7 +7,7 @@ var _prototype = _dep._prototype;
 var _util_extend = _util.extend;
 var _util_createTextNode = _util.createTextNode;
 var _util_createLine = _util.createLine;
-var _util_before = _util.before;
+var _util_after = _util.after;
 
 function Template_0(options) {
   this.init(options);
@@ -25,19 +25,19 @@ _util_extend(Template_0.prototype, _prototype, {
     _doms[2] = _et;
     _roots[2] = _et;
 
+    var _line = _util_createLine();
+    _doms[3] = _line;
+    _roots[3] = _line;
+
     _doms[4] = null;
     _roots[4] = null;
-
-    var _line = _util_createLine();
-    _doms[5] = _line;
-    _roots[5] = _line;
   },
   update: function update(it) {
     var _doms = this.doms;
     var _roots = this.roots;
     var _last = this.last;
 
-    var _line = _doms[5];
+    var _line = _doms[3];
     if (it.isNumber && it.isEven) {
       if (_last[0] !== 0) {
         _last[0] = 0;
@@ -45,7 +45,7 @@ _util_extend(Template_0.prototype, _prototype, {
         if (!_et) {
           _doms[4] = _et = new Template_4();
         }
-        _util_before(_line, _et.get());
+        _util_after(_line, _et.get());
         _roots[4] = _et;
       }
       _doms[4].update(it);

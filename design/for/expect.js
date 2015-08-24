@@ -6,7 +6,7 @@ var _prototype = _dep._prototype;
 
 var _util_extend = _util.extend;
 var _util_createLine = _util.createLine;
-var _util_before = _util.before;
+var _util_after = _util.after;
 var _util_createTextNode = _util.createTextNode;
 var _util_text = _util.text;
 
@@ -26,20 +26,20 @@ _util_extend(Template_0.prototype, _prototype, {
     var _doms = this.doms;
     var _roots = this.roots;
 
+    var _line = _util_createLine();
+    _doms[1] = _line;
+    _roots[1] = _line;
+
     var _et = new Template_for();
     _doms[2] = _et;
     _roots[2] = _et;
-
-    var _line = _util_createLine();
-    _doms[3] = _line;
-    _roots[3] = _line;
   },
   update: function update(it) {
     var _doms = this.doms;
     var _roots = this.roots;
     var _last = this.last;
 
-    var _line = _doms[3];
+    var _line = _doms[1];
     var _lastLength = _last[0] || 0;
     var _list = it.matrix[it.members[1]] || [];
 
@@ -56,7 +56,7 @@ _util_extend(Template_0.prototype, _prototype, {
         _doms['2_' + _i] = _et = new Template_2();
       }
       if (_i >= _lastLength) {
-        _util_before(_line, _et.get());
+        _util_after(_line, _et.get());
       }
       _et.update(it, item, index);
     }

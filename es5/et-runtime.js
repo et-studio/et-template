@@ -450,7 +450,7 @@
       updateFor: function updateFor(it) {
         var re = '';
 
-        re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\nvar _item = _list[_i];\nvar ' + it.indexName + ' = _i;\nvar ' + it.itemName + ' = _item;\n\nif (!_et) {\n_doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n}\nif (_i >= _lastLength) {\n_util.before(_line, _et.get());\n}\n_et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\n_et.remove();\n}\n');
+        re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\nvar _item = _list[_i];\nvar ' + it.indexName + ' = _i;\nvar ' + it.itemName + ' = _item;\n\nif (!_et) {\n_doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n}\nif (_i >= _lastLength) {\n_util.after(_line, _et.get());\n}\n_et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\nvar _et = _doms[\'' + it.id + '_\' + _i];\n_et.remove();\n}\n');
 
         if (it.isRoot) {
           re = re + ('\nvar _lastLength = _last[' + it.valueId + '];\nvar _et = _doms[' + it.id + '];\n_et.roots = {};\nfor (_i = 0; _i < _lastLength; _i++) {\n_et.doms[_i] = _et.roots[_i] = _doms[\'' + it.id + '_\' + _i];\n}\n');
@@ -475,7 +475,7 @@
           }
           re = re + ('\n' + dom.tag + ' ' + condition + ' {\nif (_last[' + it.indexValueId + '] !== ' + i + ') {\n_last[' + it.indexValueId + '] = ' + i + ';\n');
           if (dom.id) {
-            re = re + ('\nvar _et = _doms[' + dom.id + '];\nif (!_et) {\n_doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n}\n_util.before(_line, _et.get());\n');
+            re = re + ('\nvar _et = _doms[' + dom.id + '];\nif (!_et) {\n_doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n}\n_util.after(_line, _et.get());\n');
             if (it.isRoot) {
               re = re + ('\n_roots[' + dom.id + '] = _et;\n');
             }
@@ -1277,7 +1277,7 @@
         key: 'getLineId',
         value: function getLineId() {
           var id = this.getId();
-          return id + 1;
+          return id - 1;
         }
       }, {
         key: 'getValueId',
@@ -2673,8 +2673,8 @@
             parentId: this.getParentId()
           };
           var re = [];
-          re.push(worker.createNull(it));
           re.push(worker.createLine(it));
+          re.push(worker.createNull(it));
           return re;
         }
       }, {
@@ -3064,8 +3064,8 @@
             parentId: this.getParentId()
           };
           var re = [];
-          re.push(worker.createFor(it));
           re.push(worker.createLine(it));
+          re.push(worker.createFor(it));
           return re;
         }
       }, {

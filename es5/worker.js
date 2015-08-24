@@ -176,7 +176,7 @@ exports['default'] = {
   updateFor: function updateFor(it) {
     var re = '';
 
-    re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  var _item = _list[_i];\n  var ' + it.indexName + ' = _i;\n  var ' + it.itemName + ' = _item;\n\n  if (!_et) {\n    _doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n  }\n  if (_i >= _lastLength) {\n    _util.before(_line, _et.get());\n  }\n  _et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  _et.remove();\n}\n');
+    re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  var _item = _list[_i];\n  var ' + it.indexName + ' = _i;\n  var ' + it.itemName + ' = _item;\n\n  if (!_et) {\n    _doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n  }\n  if (_i >= _lastLength) {\n    _util.after(_line, _et.get());\n  }\n  _et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  _et.remove();\n}\n');
 
     if (it.isRoot) {
       re = re + ('\n  var _lastLength = _last[' + it.valueId + '];\n  var _et = _doms[' + it.id + '];\n  _et.roots = {};\n  for (_i = 0; _i < _lastLength; _i++) {\n    _et.doms[_i] = _et.roots[_i] = _doms[\'' + it.id + '_\' + _i];\n  }\n');
@@ -201,7 +201,7 @@ exports['default'] = {
       }
       re = re + ('\n  ' + dom.tag + ' ' + condition + ' {\n    if (_last[' + it.indexValueId + '] !== ' + i + ') {\n      _last[' + it.indexValueId + '] = ' + i + ';\n');
       if (dom.id) {
-        re = re + ('\n        var _et = _doms[' + dom.id + '];\n        if (!_et) {\n          _doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n        }\n        _util.before(_line, _et.get());\n');
+        re = re + ('\n        var _et = _doms[' + dom.id + '];\n        if (!_et) {\n          _doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n        }\n        _util.after(_line, _et.get());\n');
         if (it.isRoot) {
           re = re + ('\n          _roots[' + dom.id + '] = _et;\n');
         }

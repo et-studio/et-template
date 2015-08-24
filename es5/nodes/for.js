@@ -67,8 +67,8 @@ var ForNode = (function (_Basic) {
         parentId: this.getParentId()
       };
       var re = [];
-      re.push(_worker2['default'].createFor(it));
       re.push(_worker2['default'].createLine(it));
+      re.push(_worker2['default'].createFor(it));
       return re;
     }
   }, {

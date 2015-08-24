@@ -43,7 +43,7 @@ var Getter = (function () {
     key: 'getLineId',
     value: function getLineId() {
       var id = this.getId();
-      return id + 1;
+      return id - 1;
     }
   }, {
     key: 'getValueId',

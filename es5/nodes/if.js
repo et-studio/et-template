@@ -76,8 +76,8 @@ var IfNode = (function (_Basic) {
         parentId: this.getParentId()
       };
       var re = [];
-      re.push(_worker2['default'].createNull(it));
       re.push(_worker2['default'].createLine(it));
+      re.push(_worker2['default'].createNull(it));
       return re;
     }
   }, {
