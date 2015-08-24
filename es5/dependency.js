@@ -95,7 +95,9 @@
       // 每次进行 get 都会进行 dom 组合  应该少用
       var re = document.createDocumentFragment()
       var roots = this.roots
-      var ids = Object.keys(roots).sort()
+      var ids = Object.keys(roots).map(function(key) {
+        return +key
+      }).sort()
 
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
@@ -113,9 +115,7 @@
     remove: function remove() {
       // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
       var roots = this.roots
-      var ids = Object.keys(roots).map(function(key) {
-        return +key
-      }).sort()
+      var ids = Object.keys(roots)
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
         var dom = roots[id]
