@@ -40,8 +40,8 @@ class IfNode extends Basic {
       parentId: this.getParentId()
     }
     var re = []
-    re.push(worker.createNull(it))
     re.push(worker.createLine(it))
+    re.push(worker.createNull(it))
     return re
   }
   deliverUpdate () {

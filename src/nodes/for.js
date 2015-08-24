@@ -36,8 +36,8 @@ class ForNode extends Basic {
       parentId: this.getParentId()
     }
     var re = []
-    re.push(worker.createFor(it))
     re.push(worker.createLine(it))
+    re.push(worker.createFor(it))
     return re
   }
   deliverUpdate () {

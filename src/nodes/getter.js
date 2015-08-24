@@ -24,7 +24,7 @@ class Getter {
   }
   getLineId () {
     var id = this.getId()
-    return id + 1
+    return id - 1
   }
   getValueId () {
     return this.valueId++

@@ -17,7 +17,7 @@ for (; _i < _len; _i++) {
     _doms['${it.id}_' + _i] = _et = new ${it.templateName}();
   }
   if (_i >= _lastLength) {
-    _util.before(_line, _et.get());
+    _util.after(_line, _et.get());
   }
   _et.update(${it.args.join(',')});
 }

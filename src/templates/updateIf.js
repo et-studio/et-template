@@ -17,7 +17,7 @@ _.each(it.doms, (dom, i) => {
         if (!_et) {
           _doms[${dom.id}] = _et = new ${dom.templateName}();
         }
-        _util.before(_line, _et.get());
+        _util.after(_line, _et.get());
         // }}
         if (it.isRoot) {
           // {{

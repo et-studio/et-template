@@ -290,7 +290,7 @@ for (; _i < _len; _i++) {
     _doms['${it.id}_' + _i] = _et = new ${it.templateName}();
   }
   if (_i >= _lastLength) {
-    _util.before(_line, _et.get());
+    _util.after(_line, _et.get());
   }
   _et.update(${it.args.join(',')});
 }
@@ -348,7 +348,7 @@ var _line = _doms[${it.lineId}];
         if (!_et) {
           _doms[${dom.id}] = _et = new ${dom.templateName}();
         }
-        _util.before(_line, _et.get());
+        _util.after(_line, _et.get());
 `
         if (it.isRoot) {
           re = re + `
