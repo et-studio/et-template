@@ -20,6 +20,16 @@ class Element extends Basic {
   parse (source) {
     var tinyNode = elementParser.parse(source, this.options)
     this.modelKey = tinyNode.attributes[ET_MODEL]
+    if (this.modelKey) {
+      var isObject = this.options.modelType === 'object'
+      var isMiddleBrackets = this.modelKey[0] !== '[' &&
+      this.modelKey[this.modelKey.lenth - 1] !== ']'
+
+      if (isObject && !isMiddleBrackets) {
+        this.modelKey = '.' + this.modelKey
+      }
+    }
+
     if (this.modelKey) delete tinyNode.attributes[ET_MODEL]
     this.attributes = tinyNode.attributes
     this.nodeName = tinyNode.nodeName

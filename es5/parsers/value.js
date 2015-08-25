@@ -24,10 +24,9 @@ var _machine2 = _interopRequireDefault(_machine);
 
 var _util = require('../util');
 
-// @tableStart: value
-
 var _util2 = _interopRequireDefault(_util);
 
+// @tableStart: value
 var valueTableOptions = {
   states: ['text', 'exStart', 'exBody', 'exEnd', 'ifStart', 'ifBody', 'ifEnd'],
   symbols: ['{{', '}}', '[#if ', '[/#if]'],

@@ -20,10 +20,9 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
-// @tableStart: for
-
 var _machine2 = _interopRequireDefault(_machine);
 
+// @tableStart: for
 var forTableOptions = {
   states: ['start', 'header', 'headerEnd', 'itemName', 'itemEnd', 'indexName', 'indexEnd', 'exStart', 'expression'],
   symbols: ['[', ' in ', ' ', '\r', '\n', ',', ';'],

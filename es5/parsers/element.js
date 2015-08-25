@@ -24,10 +24,9 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
-// @tableStart: element
-
 var _machine2 = _interopRequireDefault(_machine);
 
+// @tableStart: element
 var elementTableOptions = {
   states: ['start', 'name', 'scan', 'key', 'valueStart', 'value', 'value\'', 'value\"', '_str', 'valueStr', 'end'],
   symbols: ['<', '>', '\\\"', '\"', '\\\'', '\'', '=', ' ', '\r', '\n', '{{', '}}'],

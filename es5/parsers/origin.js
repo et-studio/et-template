@@ -16,10 +16,9 @@ var _machine2 = _interopRequireDefault(_machine);
 
 var _nodesOrigin = require('../nodes/origin');
 
-// @tableStart: origin
-
 var _nodesOrigin2 = _interopRequireDefault(_nodesOrigin);
 
+// @tableStart: origin
 var originTableOptions = {
   states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
   symbols: ['</', '<!--', '-->', '<', '>', '[/#', '[#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', ' ', '\r', '\n'],

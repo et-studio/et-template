@@ -20,10 +20,9 @@ var _parser2 = _interopRequireDefault(_parser);
 
 var _machine = require('./machine');
 
-// @tableStart: condition
-
 var _machine2 = _interopRequireDefault(_machine);
 
+// @tableStart: condition
 var conditionTableOptions = {
   states: ['start', 'name', 'condition'],
   symbols: ['[', ' ', '\r', '\n'],
