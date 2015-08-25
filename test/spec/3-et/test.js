@@ -35,6 +35,11 @@ var settings = [
     title: 'if-else',
     source: require('design/if-else/source.html'),
     expect: require('design/if-else/expect')
+  },
+  {
+    title: 'et-model',
+    source: require('test/design/et-model/source.html'),
+    expect: require('test/design/et-model/expect')
   }
 ]
 

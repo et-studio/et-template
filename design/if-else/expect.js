@@ -52,7 +52,7 @@ _util_extend(Template_0.prototype, _prototype, {
         _last[0] = 0;
         var _et = _doms[4];
         if (!_et) {
-          _doms[4] = _et = new Template_4();
+          _doms[4] = _et = new Template_4(this.options);
         }
         _util_after(_line, _et.get());
 
@@ -71,7 +71,7 @@ _util_extend(Template_0.prototype, _prototype, {
         _last[0] = 1;
         var _et = _doms[8];
         if (!_et) {
-          _doms[8] = _et = new Template_8();
+          _doms[8] = _et = new Template_8(this.options);
         }
         _util_after(_line, _et.get());
 
@@ -90,7 +90,7 @@ _util_extend(Template_0.prototype, _prototype, {
         _last[0] = 2;
         var _et = _doms[12];
         if (!_et) {
-          _doms[12] = _et = new Template_12();
+          _doms[12] = _et = new Template_12(this.options);
         }
         _util_after(_line, _et.get());
 

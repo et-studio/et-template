@@ -6,8 +6,8 @@ var _prototype = _dep._prototype;
 
 var _util_extend = _util.extend;
 var _util_createElement = _util.createElement;
+var _util_on = _util.on;
 var _util_appendChild = _util.appendChild;
-var _util_createTextNode = _util.createTextNode;
 
 function Template_0(options) {
   this.init(options);
@@ -17,27 +17,19 @@ _util_extend(Template_0.prototype, _prototype, {
   create: function create() {
     var _doms = this.doms;
     var _roots = this.roots;
+    var _scope = this
 
     var _et = _util_createElement('DIV');
     _doms[2] = _et;
     _roots[2] = _et;
 
-    var _ET = require('./models/user');
-    var _et = new _ET(this.options);
+    var _et = _util_createElement('INPUT');
     _doms[4] = _et;
-    _util_appendChild(_doms[2], _et.get());
+    _util_on(_et, 'change keyup', function(e) {
+      _scope.trigger('et-model', 'name', e.target.value, e)
+    });
 
-    var _et = _util_createTextNode('1234567890');
-    _doms[6] = _et;
     _util_appendChild(_doms[2], _et);
-  },
-  update: function update(it) {
-    var _doms = this.doms;
-    var _roots = this.roots;
-    var _last = this.last;
-
-    var _et = _doms[4];
-    _et.update(it, it.test);
   }
 });
 

@@ -30,7 +30,7 @@ _util_extend(Template_0.prototype, _prototype, {
     _doms[1] = _line;
     _roots[1] = _line;
 
-    var _et = new Template_for();
+    var _et = new Template_for(this.options);
     _doms[2] = _et;
     _roots[2] = _et;
   },
@@ -53,7 +53,7 @@ _util_extend(Template_0.prototype, _prototype, {
       var item = _item;
 
       if (!_et) {
-        _doms['2_' + _i] = _et = new Template_2();
+        _doms['2_' + _i] = _et = new Template_2(this.options);
       }
       if (_i >= _lastLength) {
         _util_after(_line, _et.get());

@@ -202,7 +202,9 @@ var Basic = (function (_NodeInterface) {
     key: 'each',
     value: function each(callback) {
       if (typeof callback === 'function') {
-        callback(this);
+        if (callback(this) === false) {
+          return;
+        }
         if (this.children.length) {
           this.children[0].each(callback);
         }
@@ -210,6 +212,18 @@ var Basic = (function (_NodeInterface) {
           this.next.each(callback);
         }
       }
+    }
+  }, {
+    key: 'checkHasModelKey',
+    value: function checkHasModelKey() {
+      var result = false;
+      this.each(function (dom) {
+        if (dom.nodeType === 1 && dom.hasModelKey()) {
+          result = true;
+        }
+        return !result;
+      });
+      return result;
     }
   }, {
     key: 'initAll',

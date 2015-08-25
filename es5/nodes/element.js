@@ -38,6 +38,8 @@ var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
+var ET_MODEL = 'et-model';
+
 var Element = (function (_Basic) {
   _inherits(Element, _Basic);
 
@@ -56,6 +58,8 @@ var Element = (function (_Basic) {
     key: 'parse',
     value: function parse(source) {
       var tinyNode = _parsersElement2['default'].parse(source, this.options);
+      this.modelKey = tinyNode.attributes[ET_MODEL];
+      if (this.modelKey) delete tinyNode.attributes[ET_MODEL];
       this.attributes = tinyNode.attributes;
       this.nodeName = tinyNode.nodeName;
     }
@@ -142,7 +146,9 @@ var Element = (function (_Basic) {
         isRoot: this.checkRoot(),
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
-        attributes: this.getAttributesMap()
+        attributes: this.getAttributesMap(),
+        modelKey: this.modelKey,
+        modelType: this.options.modelType
       };
       return [_worker2['default'].createElement(it)];
     }
@@ -224,6 +230,11 @@ var Element = (function (_Basic) {
         re.push(tmp);
       }
       return re;
+    }
+  }, {
+    key: 'hasModelKey',
+    value: function hasModelKey() {
+      return !!this.modelKey;
     }
   }]);
 

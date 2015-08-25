@@ -34,12 +34,14 @@ var Compiler = (function () {
       var re = {
         templateName: root.getTemplateName(),
         hasFor: false,
+        hasModelKey: false,
         newDoms: []
       };
       _util2['default'].each(newDoms, function (dom) {
         if (dom.nodeName === '#for') {
           re.hasFor = true;
         }
+        re.hasModelKey = dom.checkHasModelKey();
         re.newDoms.push({
           templateName: dom.getTemplateName(),
           createList: dom.getCreateList(),

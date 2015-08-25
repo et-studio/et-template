@@ -43,7 +43,7 @@ _util_extend(Template_0.prototype, _prototype, {
         _last[0] = 0;
         var _et = _doms[4];
         if (!_et) {
-          _doms[4] = _et = new Template_4();
+          _doms[4] = _et = new Template_4(this.options);
         }
         _util_after(_line, _et.get());
         _roots[4] = _et;

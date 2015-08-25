@@ -115,6 +115,28 @@ app.use('/design', function (req, res) {
     }
   })
 })
+app.use('/test/design', function (req, res) {
+  var path = 'test/design' + req.path
+  var method
+  if (_.isEndWidth(path, '.html.js')) {
+    method = 'getDesignFile'
+    path = path.slice(0, path.length - 3)
+  } else if (_.isEndWidth(path, '.js')) {
+    method = 'getDesignFile'
+  } else {
+    method = 'getFile'
+  }
+
+  _[method](path, function (err, content) {
+    if (err) {
+      console.log(err.toString())
+      res.status(404).send(err)
+    } else {
+      res.send(content)
+    }
+  })
+})
+
 app.use('/src', function (req, res) {
   var path = 'src' + req.path
   _.getFile(path, function (err, content) {

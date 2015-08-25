@@ -23,6 +23,16 @@ exports['default'] = {
 
     re = re + ('\n_doms[' + it.id + '] = _et;\n');
 
+    if (it.modelKey) {
+      if (it.modelType === 'model') {
+        re = re + ('\n    _util.on(_et, \'change keyup\', function (e) {\n      _scope.set(\'' + it.modelKey + '\', e.target.value)\n    });\n');
+      } else if (it.modelType === 'object') {
+        re = re + ('\n    _util.on(_et, \'change keyup\', function (e) {\n      _scope' + it.modelKey + ' = e.target.value\n    });\n');
+      } else {
+        re = re + ('\n    _util.on(_et, \'change keyup\', function (e) {\n      _scope.trigger(\'et-model\', \'' + it.modelKey + '\', e.target.value, e)\n    });\n');
+      }
+    }
+
     if (it.isRoot) {
       re = re + ('\n  _roots[' + it.id + '] = _et;\n');
     } else {
@@ -34,7 +44,7 @@ exports['default'] = {
   createFor: function createFor(it) {
     var re = '';
 
-    re = re + ('\nvar _et = new Template_for();\n_doms[' + it.id + '] = _et;\n');
+    re = re + ('\nvar _et = new Template_for(this.options);\n_doms[' + it.id + '] = _et;\n');
 
     if (it.isRoot) {
       re = re + ('\n  _roots[' + it.id + '] = _et;\n');
@@ -50,7 +60,7 @@ exports['default'] = {
   },
   createImport: function createImport(it) {
     var re = '';
-    re = re + ('\nvar _ET = require(\'' + _util2['default'].translateMarks(it.path) + '\');\nvar _et = new _ET();\n_doms[' + it.id + '] = _et;\n');
+    re = re + ('\nvar _ET = require(\'' + _util2['default'].translateMarks(it.path) + '\');\nvar _et = new _ET(this.options);\n_doms[' + it.id + '] = _et;\n');
     if (it.isRoot) {
       re = re + ('\n  _roots[' + it.id + '] = _et;\n');
     } else {
@@ -116,7 +126,15 @@ exports['default'] = {
         throw new Error('If dom has updateList, it must have createList.');
       }
       if (dom.createList.length || dom.updateList.length) {
-        re = re + ('\n    _util.extend(' + dom.templateName + '.prototype, _prototype, {\n      create: function create() {\n        var _doms = this.doms;\n        var _roots = this.roots;\n        ' + dom.createList.join('\n') + '\n      }' + (dom.updateList.length ? ',' : '') + '\n');
+        re = re + ('\n    _util.extend(' + dom.templateName + '.prototype, _prototype, {\n      create: function create() {\n        var _doms = this.doms;\n        var _roots = this.roots;\n');
+
+        if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
+          re = re + '\n          var _scope = this.options.scope\n';
+        } else if (it.hasModelKey) {
+          re = re + '\n          var _scope = this\n';
+        }
+
+        re = re + ('\n        ' + dom.createList.join('\n') + '\n      }' + (dom.updateList.length ? ',' : '') + '\n');
 
         if (dom.updateList.length) {
           re = re + ('\n      update: function update(' + dom.args.join(',') + ') {\n        var _doms = this.doms;\n        var _roots = this.roots;\n        var _last = this.last;\n        ' + dom.updateList.join('\n') + '\n      }\n');
@@ -176,7 +194,7 @@ exports['default'] = {
   updateFor: function updateFor(it) {
     var re = '';
 
-    re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  var _item = _list[_i];\n  var ' + it.indexName + ' = _i;\n  var ' + it.itemName + ' = _item;\n\n  if (!_et) {\n    _doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '();\n  }\n  if (_i >= _lastLength) {\n    _util.after(_line, _et.get());\n  }\n  _et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  _et.remove();\n}\n');
+    re = re + ('\nvar _line = _doms[' + it.lineId + '];\nvar _lastLength = _last[' + it.valueId + '] || 0;\nvar _list = ' + it.expression + ' || [];\n\nvar _i = 0;\nvar _len = _list.length;\n_last[' + it.valueId + '] = _len;\nfor (; _i < _len; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  var _item = _list[_i];\n  var ' + it.indexName + ' = _i;\n  var ' + it.itemName + ' = _item;\n\n  if (!_et) {\n    _doms[\'' + it.id + '_\' + _i] = _et = new ' + it.templateName + '(this.options);\n  }\n  if (_i >= _lastLength) {\n    _util.after(_line, _et.get());\n  }\n  _et.update(' + it.args.join(',') + ');\n}\nfor (; _i < _lastLength; _i++) {\n  var _et = _doms[\'' + it.id + '_\' + _i];\n  _et.remove();\n}\n');
 
     if (it.isRoot) {
       re = re + ('\n  var _lastLength = _last[' + it.valueId + '];\n  var _et = _doms[' + it.id + '];\n  _et.roots = {};\n  for (_i = 0; _i < _lastLength; _i++) {\n    _et.doms[_i] = _et.roots[_i] = _doms[\'' + it.id + '_\' + _i];\n  }\n');
@@ -201,7 +219,7 @@ exports['default'] = {
       }
       re = re + ('\n  ' + dom.tag + ' ' + condition + ' {\n    if (_last[' + it.indexValueId + '] !== ' + i + ') {\n      _last[' + it.indexValueId + '] = ' + i + ';\n');
       if (dom.id) {
-        re = re + ('\n        var _et = _doms[' + dom.id + '];\n        if (!_et) {\n          _doms[' + dom.id + '] = _et = new ' + dom.templateName + '();\n        }\n        _util.after(_line, _et.get());\n');
+        re = re + ('\n        var _et = _doms[' + dom.id + '];\n        if (!_et) {\n          _doms[' + dom.id + '] = _et = new ' + dom.templateName + '(this.options);\n        }\n        _util.after(_line, _et.get());\n');
         if (it.isRoot) {
           re = re + ('\n          _roots[' + dom.id + '] = _et;\n');
         }

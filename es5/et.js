@@ -29,9 +29,9 @@ var ET = (function () {
     _classCallCheck(this, ET);
 
     this.options = options;
-    this.parser = new _parser2['default'](options.parser);
-    this.compiler = new _compiler2['default'](options.compiler);
-    this.formatter = new _formatter2['default'](options.formatter);
+    this.parser = new _parser2['default'](options);
+    this.compiler = new _compiler2['default'](options);
+    this.formatter = new _formatter2['default'](options);
   }
 
   _createClass(ET, [{
