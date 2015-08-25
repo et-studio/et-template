@@ -15,7 +15,7 @@ _.each(it.doms, (dom, i) => {
         // {{
         var _et = _doms[${dom.id}];
         if (!_et) {
-          _doms[${dom.id}] = _et = new ${dom.templateName}();
+          _doms[${dom.id}] = _et = new ${dom.templateName}(this.options);
         }
         _util.after(_line, _et.get());
         // }}

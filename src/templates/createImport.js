@@ -1,6 +1,6 @@
 // {{
 var _ET = require('${_.translateMarks(it.path)}');
-var _et = new _ET();
+var _et = new _ET(this.options);
 _doms[${it.id}] = _et;
 // }}
 if (it.isRoot) {

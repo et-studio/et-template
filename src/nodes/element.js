@@ -8,6 +8,8 @@ import elementParser from '../parsers/element'
 import valueParser from '../parsers/value'
 import conditionParser from '../parsers/condition'
 
+var ET_MODEL = 'et-model'
+
 class Element extends Basic {
   constructor (source, options = {}) {
     super(source, options)
@@ -17,6 +19,8 @@ class Element extends Basic {
   }
   parse (source) {
     var tinyNode = elementParser.parse(source, this.options)
+    this.modelKey = tinyNode.attributes[ET_MODEL]
+    if (this.modelKey) delete tinyNode.attributes[ET_MODEL]
     this.attributes = tinyNode.attributes
     this.nodeName = tinyNode.nodeName
   }
@@ -95,7 +99,9 @@ class Element extends Basic {
       isRoot: this.checkRoot(),
       parentId: this.getParentId(),
       nodeName: this.getNodeName(),
-      attributes: this.getAttributesMap()
+      attributes: this.getAttributesMap(),
+      modelKey: this.modelKey,
+      modelType: this.options.modelType
     }
     return [worker.createElement(it)]
   }
@@ -167,6 +173,9 @@ class Element extends Basic {
       re.push(tmp)
     }
     return re
+  }
+  hasModelKey () {
+    return !!this.modelKey
   }
 }
 

@@ -155,7 +155,9 @@ class Basic extends NodeInterface {
   }
   each (callback) {
     if (typeof callback === 'function') {
-      callback(this)
+      if (callback(this) === false) {
+        return
+      }
       if (this.children.length) {
         this.children[0].each(callback)
       }
@@ -163,6 +165,16 @@ class Basic extends NodeInterface {
         this.next.each(callback)
       }
     }
+  }
+  checkHasModelKey () {
+    var result = false
+    this.each((dom) => {
+      if (dom.nodeType === 1 && dom.hasModelKey()) {
+        result = true
+      }
+      return !result
+    })
+    return result
   }
   initAll () {
     this.each((dom) => {

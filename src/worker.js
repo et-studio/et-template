@@ -20,6 +20,28 @@ export default {
 _doms[${it.id}] = _et;
 `
 
+    if (it.modelKey) {
+      if (it.modelType === 'model') {
+        re = re + `
+    _util.on(_et, 'change keyup', function (e) {
+      _scope.set('${it.modelKey}', e.target.value)
+    });
+`
+      } else if (it.modelType === 'object') {
+        re = re + `
+    _util.on(_et, 'change keyup', function (e) {
+      _scope${it.modelKey} = e.target.value
+    });
+`
+      } else {
+        re = re + `
+    _util.on(_et, 'change keyup', function (e) {
+      _scope.trigger('et-model', '${it.modelKey}', e.target.value, e)
+    });
+`
+      }
+    }
+
     if (it.isRoot) {
       re = re + `
   _roots[${it.id}] = _et;
@@ -36,7 +58,7 @@ _doms[${it.id}] = _et;
     var re = ''
 
     re = re + `
-var _et = new Template_for();
+var _et = new Template_for(this.options);
 _doms[${it.id}] = _et;
 `
 
@@ -60,7 +82,7 @@ _doms[${it.parentId}].innerHTML = '${_.translateMarks(it.expression)}';
     var re = ''
     re = re + `
 var _ET = require('${_.translateMarks(it.path)}');
-var _et = new _ET();
+var _et = new _ET(this.options);
 _doms[${it.id}] = _et;
 `
     if (it.isRoot) {
@@ -171,6 +193,19 @@ var _prototype = _dep._prototype;
       create: function create() {
         var _doms = this.doms;
         var _roots = this.roots;
+`
+
+        if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
+          re = re + `
+          var _scope = this.options.scope
+`
+        } else if (it.hasModelKey) {
+          re = re + `
+          var _scope = this
+`
+        }
+
+        re = re + `
         ${dom.createList.join('\n')}
       }${dom.updateList.length ? ',' : ''}
 `
@@ -287,7 +322,7 @@ for (; _i < _len; _i++) {
   var ${it.itemName} = _item;
 
   if (!_et) {
-    _doms['${it.id}_' + _i] = _et = new ${it.templateName}();
+    _doms['${it.id}_' + _i] = _et = new ${it.templateName}(this.options);
   }
   if (_i >= _lastLength) {
     _util.after(_line, _et.get());
@@ -346,7 +381,7 @@ var _line = _doms[${it.lineId}];
         re = re + `
         var _et = _doms[${dom.id}];
         if (!_et) {
-          _doms[${dom.id}] = _et = new ${dom.templateName}();
+          _doms[${dom.id}] = _et = new ${dom.templateName}(this.options);
         }
         _util.after(_line, _et.get());
 `

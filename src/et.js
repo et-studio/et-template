@@ -7,9 +7,9 @@ import Formatter from './formatter'
 class ET {
   constructor (options = {}) {
     this.options = options
-    this.parser = new Parser(options.parser)
-    this.compiler = new Compiler(options.compiler)
-    this.formatter = new Formatter(options.formatter)
+    this.parser = new Parser(options)
+    this.compiler = new Compiler(options)
+    this.formatter = new Formatter(options)
   }
   compile (str) {
     var dom = this.parser.parse(str)

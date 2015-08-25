@@ -14,7 +14,7 @@ for (; _i < _len; _i++) {
   var ${it.itemName} = _item;
 
   if (!_et) {
-    _doms['${it.id}_' + _i] = _et = new ${it.templateName}();
+    _doms['${it.id}_' + _i] = _et = new ${it.templateName}(this.options);
   }
   if (_i >= _lastLength) {
     _util.after(_line, _et.get());

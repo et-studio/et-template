@@ -37,6 +37,19 @@ _.each(it.newDoms, (dom) => {
       create: function create() {
         var _doms = this.doms;
         var _roots = this.roots;
+        // }}
+
+        if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
+          // {{
+          var _scope = this.options.scope
+          // }}
+        }else if (it.hasModelKey) {
+          // {{
+          var _scope = this
+          // }}
+        }
+
+        // {{
         ${dom.createList.join('\n')}
       }${dom.updateList.length?',':''}
     // }}

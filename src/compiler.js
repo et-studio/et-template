@@ -12,12 +12,14 @@ class Compiler {
     var re = {
       templateName: root.getTemplateName(),
       hasFor: false,
+      hasModelKey: false,
       newDoms: []
     }
     _.each(newDoms, (dom) => {
       if (dom.nodeName === '#for') {
         re.hasFor = true
       }
+      re.hasModelKey = dom.checkHasModelKey()
       re.newDoms.push({
         templateName: dom.getTemplateName(),
         createList: dom.getCreateList(),

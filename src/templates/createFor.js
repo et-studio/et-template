@@ -1,6 +1,6 @@
 
 // {{
-var _et = new Template_for();
+var _et = new Template_for(this.options);
 _doms[${it.id}] = _et;
 // }}
 

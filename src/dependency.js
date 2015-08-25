@@ -1,6 +1,7 @@
 'use strict'
 
 var LOOP = function LOOP () {}
+var EVENT_SPLITTER = /\s+/
 
 var _util = {
   extend: function extend () {
@@ -69,6 +70,13 @@ var _util = {
     if (elementA.parentNode) {
       elementA.parentNode.insertBefore(elementB, elementA.nextSibling)
     }
+  },
+  on: function on (element, eventString, callback) {
+    var eventNames = eventString.split(EVENT_SPLITTER)
+    for (var i = 0, len = eventNames.length; i < len; i++) {
+      var eventName = eventNames[i]
+      element.addEventListener(eventName, callback)
+    }
   }
 }
 var _prototype = {
@@ -78,6 +86,7 @@ var _prototype = {
     this.roots = {} // 记录是root的节点对象，如果那个节点被移除应该从这里移除
     this.doms = {} // 记录所有的节点对象
     this.last = {} // 记录上一次判断是什么值，用于差异更新
+    this.events = {} // 纪录模板事件
     this.create()
   },
   get: function get () {
@@ -113,6 +122,25 @@ var _prototype = {
       }
     }
     return this
+  },
+
+  on: function on (eventString, callback) {
+    var eventNames = eventString.split(EVENT_SPLITTER)
+    var events = this.events
+    for (var i = 0, len = eventNames.length; i < len; i++) {
+      var eventName = eventNames[i]
+      if (!events[eventName]) events[eventName] = []
+      events[eventName].push(callback)
+    }
+    return this
+  },
+  trigger: function trigger (eventName) {
+    var args = Array.prototype.slice.call(arguments, 1)
+    var callbacks = this.events[eventName] || []
+    for (var i = 0, len = callbacks.length; i < len; i++) {
+      var callback = callbacks[i]
+      callback.apply(null, args)
+    }
   },
 
   destroy: function destroy () {
