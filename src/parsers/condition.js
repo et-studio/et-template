@@ -5,14 +5,14 @@ import Machine from './machine'
 
 // @tableStart: condition
 var conditionTableOptions = {
-      states: ['start', 'name', 'condition'],
-      symbols: ['[', ' ', '\r', '\n'],
-      table: [
-      {'0': 'start', '1': '', '2': '', '3': '', '-1': 'name'},
-{'0': '', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'name'},
-{'0': 'condition', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'condition'}
-    ]
-    }
+  states: ['start', 'name', 'condition'],
+  symbols: ['[', ' ', '\r', '\n'],
+  table: [
+    {'0': 'start', '1': '', '2': '', '3': '', '-1': 'name'},
+    {'0': '', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'name'},
+    {'0': 'condition', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'condition'}
+  ]
+}
 // @tableEnd
 
 var conditionMachine = new Machine(conditionTableOptions)

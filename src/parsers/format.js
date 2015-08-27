@@ -5,15 +5,15 @@ import _ from '../util'
 
 // @tableStart: format
 var formatTableOptions = {
-      states: ['header', 'body', 'methodName', 'methodEnd'],
-      symbols: ['function', '_util.', '('],
-      table: [
-      {'0': 'body', '1': 'header', '2': 'header', '-1': 'header'},
-{'0': 'body', '1': 'methodName', '2': 'body', '-1': 'body'},
-{'0': 'methodName', '1': 'methodName', '2': 'methodEnd', '-1': 'methodName'},
-{'0': 'body', '1': 'body', '2': 'body', '-1': 'body'}
-    ]
-    }
+  states: ['header', 'body', 'methodName', 'methodEnd'],
+  symbols: ['function', '_util.', '('],
+  table: [
+    {'0': 'body', '1': 'header', '2': 'header', '-1': 'header'},
+    {'0': 'body', '1': 'methodName', '2': 'body', '-1': 'body'},
+    {'0': 'methodName', '1': 'methodName', '2': 'methodEnd', '-1': 'methodName'},
+    {'0': 'body', '1': 'body', '2': 'body', '-1': 'body'}
+  ]
+}
 // @tableEnd
 var formatMachine = new Machine(formatTableOptions)
 

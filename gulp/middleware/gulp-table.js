@@ -62,8 +62,8 @@ var tableHandler = {
     })
 
     return `[
-      ${re.join(',\n')}
-    ]`
+    ${re.join(',\n    ')}
+  ]`
   },
   translateTableMatrix (contents) {
     var contentsList = contents.trim().split('\n')
@@ -98,11 +98,11 @@ var tableHandler = {
     var symbols = this.translateSymbols(matrix)
     var table = this.translateTable(matrix)
     var re = `
-    var ${name}TableOptions = {
-      states: [${states.join(', ')}],
-      symbols: [${symbols.join(', ')}],
-      table: ${table}
-    }
+var ${name}TableOptions = {
+  states: [${states.join(', ')}],
+  symbols: [${symbols.join(', ')}],
+  table: ${table}
+}
     `
     return re.trim()
   },

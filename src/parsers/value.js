@@ -6,34 +6,34 @@ import _ from '../util'
 
 // @tableStart: value
 var valueTableOptions = {
-      states: ['text', 'exStart', 'exBody', 'exEnd', 'ifStart', 'ifBody', 'ifEnd'],
-      symbols: ['{{', '}}', '[#if ', '[/#if]'],
-      table: [
-      {'0': 'exStart', '1': 'text', '2': 'ifStart', '3': '', '-1': 'text'},
-{'0': 'exBody', '1': 'exEnd', '2': '', '3': '', '-1': 'exBody'},
-{'0': 'exBody', '1': 'exEnd', '2': '', '3': '', '-1': 'exBody'},
-{'0': 'text', '1': 'text', '2': 'ifStart', '3': '', '-1': 'text'},
-{'0': 'ifBody', '1': 'ifBody', '2': '', '3': 'ifBody', '-1': 'ifBody'},
-{'0': 'ifBody', '1': 'ifBody', '2': '', '3': 'ifEnd', '-1': 'ifBody'},
-{'0': 'start', '1': 'text', '2': 'ifStart', '3': 'text', '-1': 'text'}
-    ]
-    }
+  states: ['text', 'exStart', 'exBody', 'exEnd', 'ifStart', 'ifBody', 'ifEnd'],
+  symbols: ['{{', '}}', '[#if ', '[/#if]'],
+  table: [
+    {'0': 'exStart', '1': 'text', '2': 'ifStart', '3': '', '-1': 'text'},
+    {'0': 'exBody', '1': 'exEnd', '2': '', '3': '', '-1': 'exBody'},
+    {'0': 'exBody', '1': 'exEnd', '2': '', '3': '', '-1': 'exBody'},
+    {'0': 'text', '1': 'text', '2': 'ifStart', '3': '', '-1': 'text'},
+    {'0': 'ifBody', '1': 'ifBody', '2': '', '3': 'ifBody', '-1': 'ifBody'},
+    {'0': 'ifBody', '1': 'ifBody', '2': '', '3': 'ifEnd', '-1': 'ifBody'},
+    {'0': 'start', '1': 'text', '2': 'ifStart', '3': 'text', '-1': 'text'}
+  ]
+}
 // @tableStart: valueIf
 var valueIfTableOptions = {
-      states: ['start', 'ifCondition', 'endContition', 'ifContent', 'elseif', 'else', 'elseContent', '_value[', 'end'],
-      symbols: ['[#if ', '[#elseif ', '[#else]', '[/#if]', ']', '['],
-      table: [
-      {'0': 'start', '1': '', '2': '', '3': '', '4': '', '5': '', '-1': 'ifCondition'},
-{'0': '', '1': '', '2': '', '3': '', '4': 'endContition', '5': '_value[', '-1': 'ifCondition'},
-{'0': '', '1': 'elseif', '2': 'else', '3': 'end', '4': 'ifContent', '5': 'ifContent', '-1': 'ifContent'},
-{'0': '', '1': 'elseif', '2': 'else', '3': 'end', '4': 'ifContent', '5': 'ifContent', '-1': 'ifContent'},
-{'0': '', '1': '', '2': '', '3': '', '4': 'ifContent', '5': '', '-1': 'ifCondition'},
-{'0': '', '1': '', '2': '', '3': 'end', '4': 'elseContent', '5': 'elseContent', '-1': 'elseContent'},
-{'0': '', '1': '', '2': '', '3': 'end', '4': 'elseContent', '5': 'elseContent', '-1': 'elseContent'},
-{'0': '', '1': '', '2': '', '3': '', '4': '_last', '5': '_value[', '-1': ''},
-{'0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '-1': ''}
-    ]
-    }
+  states: ['start', 'ifCondition', 'endContition', 'ifContent', 'elseif', 'else', 'elseContent', '_value[', 'end'],
+  symbols: ['[#if ', '[#elseif ', '[#else]', '[/#if]', ']', '['],
+  table: [
+    {'0': 'start', '1': '', '2': '', '3': '', '4': '', '5': '', '-1': 'ifCondition'},
+    {'0': '', '1': '', '2': '', '3': '', '4': 'endContition', '5': '_value[', '-1': 'ifCondition'},
+    {'0': '', '1': 'elseif', '2': 'else', '3': 'end', '4': 'ifContent', '5': 'ifContent', '-1': 'ifContent'},
+    {'0': '', '1': 'elseif', '2': 'else', '3': 'end', '4': 'ifContent', '5': 'ifContent', '-1': 'ifContent'},
+    {'0': '', '1': '', '2': '', '3': '', '4': 'ifContent', '5': '', '-1': 'ifCondition'},
+    {'0': '', '1': '', '2': '', '3': 'end', '4': 'elseContent', '5': 'elseContent', '-1': 'elseContent'},
+    {'0': '', '1': '', '2': '', '3': 'end', '4': 'elseContent', '5': 'elseContent', '-1': 'elseContent'},
+    {'0': '', '1': '', '2': '', '3': '', '4': '_last', '5': '_value[', '-1': ''},
+    {'0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '-1': ''}
+  ]
+}
 // @tableEnd
 var valueMachine = new Machine(valueTableOptions)
 var valueIfMatchine = new Machine(valueIfTableOptions)
