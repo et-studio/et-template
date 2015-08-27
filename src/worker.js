@@ -152,6 +152,23 @@ _doms[${it.id}] = _et;
 
     return re
   },
+  removeAttributes(it) {
+    var re = ''
+    if (it && it.length === 1) {
+      re = re + `
+  _util.removeAttribute(_et, '${_.translateMarks(it[0])}');
+`
+    } else if (it && it.length > 1) {
+      var exclusions = it.map((item) => {
+        return `'${_.translateMarks(item)}'`
+      })
+      re = re + `
+  _util.removeAttributes(_et, ${exclusions.join(',')});
+`
+    }
+
+    return re
+  },
   template(it) {
     var re = ''
 
@@ -238,18 +255,8 @@ module.exports = ${it.templateName};
     if (it.erraticAttributes.length || it.expressions.length) {
       re = re + `
   var _et = _doms[${it.id}];
+  ${this.updateErraticAttributes(it.erraticAttributes)}
 `
-      _.each(it.erraticAttributes, (attr) => {
-        if (attr.isErratic) {
-          re = re + `
-      var _tmp = ${attr.valueString};
-      if (_last[${attr.valueId}] !== _tmp) {
-        _last[${attr.valueId}] = _tmp;
-        _util.setAttribute(_et, '${attr.key}', _tmp);
-      }
-`
-        }
-      });
 
       _.each(it.expressions, (items) => {
         _.each(items, (item, i) => {
@@ -261,46 +268,40 @@ module.exports = ${it.templateName};
       ${item.tag} ${condition} {
         if (_last[${item.valueId}] !== ${i}) {
           _last[${item.valueId}] = ${i};
-`
-          _.each(item.attributes, (attr) => {
-            if (!attr.isErratic) {
-              re = re + `
-              _util.setAttribute(_et, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}');
-`
-            }
-          });
-          if (item.exclusions && item.exclusions.length === 1) {
-            re = re + `
-            _util.removeAttribute(_et, '${_.translateMarks(item.exclusions[0])}');
-`
-          } else if (item.exclusions && item.exclusions.length > 1) {
-            var exclusions = item.exclusions.map((item) => {
-              return `'${_.translateMarks(item)}'`
-            })
-            re = re + `
-            _util.removeAttributes(_et, ${exclusions.join(',')});
-`
-          }
-          re = re + `
+          ${this.updateResidentAttributes(item.attributes)}
+          ${this.removeAttributes(item.exclusions)}
         }
-`
-          _.each(item.attributes, (attr) => {
-            if (attr.isErratic) {
-              re = re + `
-            var _tmp = ${attr.valueString};
-            if (_last[${attr.valueId}] !== _tmp) {
-              _last[${attr.valueId}] = _tmp;
-              _util.setAttribute(_et, '${_.translateMarks(attr.key)}', _tmp);
-            }
-`
-            }
-          });
-          re = re + `
+        ${this.updateErraticAttributes(item.attributes)}
       }
 `
         })
       })
     }
+
+    return re
+  },
+  updateErraticAttributes(it) {
+    var re = ''
+    _.each(it, (attr) => {
+      if (attr.isErratic) {
+        if (attr.isDirect) {
+          re = re + `
+      var _tmp = ${attr.valueString};
+      if (_et.${attr.key} !== _tmp) {
+        _et.${attr.key} = _tmp;
+      }
+`
+        } else {
+          re = re + `
+      var _tmp = ${attr.valueString};
+      if (_last[${attr.valueId}] !== _tmp) {
+        _last[${attr.valueId}] = _tmp;
+        _util.setAttribute(_et, '${_.translateMarks(attr.key)}', _tmp);
+      }
+`
+        }
+      }
+    })
 
     return re
   },
@@ -427,6 +428,24 @@ var _line = _doms[${it.lineId}];
 var _et = _doms[${it.id}];
 _et.update(${it.args.join(', ')});
 `
+
+    return re
+  },
+  updateResidentAttributes(it) {
+    var re = ''
+    _.each(it, (attr) => {
+      if (!attr.isErratic) {
+        if (attr.isDirect) {
+          re = re + `
+      _et.${attr.key} = '${_.translateMarks(attr.value)}';
+`
+        } else {
+          re = re + `
+      _util.setAttribute(_et, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}');
+`
+        }
+      }
+    })
 
     return re
   },

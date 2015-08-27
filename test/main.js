@@ -58,37 +58,37 @@ require([
     return testAll
   })()
 
-  window.testCompile = function (left, right) {
-    left = left.trim().replace(/\n{2}/g, '\n')
-    right = right.trim().replace(/\n{2}/g, '\n')
+  window.testCompile = function (expect, result) {
+    expect = expect.trim().replace(/\n\s*\n/g, '\n')
+    result = result.trim().replace(/\n\s*\n/g, '\n')
 
     var hasError = false
-    var errorLeft = ''
-    var errorRight = ''
-    var leftList = left.split('\n')
-    var rightList = right.split('\n')
-    var len = Math.max(leftList.length, rightList.length)
+    var expectError = ''
+    var resultError = ''
+    var expectList = expect.split('\n')
+    var resultList = result.split('\n')
+    var len = Math.max(expectList.length, resultList.length)
     for (var i = 0; i < len; i++) {
-      var leftStr = leftList[i] || ''
-      leftStr = leftStr.trim()
-      var rightStr = rightList[i] || ''
-      rightStr = rightStr.trim()
+      var expectStr = expectList[i] || ''
+      expectStr = expectStr.trim()
+      var resultStr = resultList[i] || ''
+      resultStr = resultStr.trim()
 
-      if (leftStr === rightStr) {
-        console.log(`${i}:${leftStr}`)
-        console.log(`${i}:${rightStr}`)
+      if (expectStr === resultStr) {
+        console.log(`${i}:${expectStr}`)
+        console.log(`${i}:${resultStr}`)
       } else {
-        console.error(`${i}:${leftStr}`)
-        console.error(`${i}:${rightStr}`)
+        console.error(`${i}:${expectStr}`)
+        console.error(`${i}:${resultStr}`)
         if (!hasError) {
           hasError = true
-          errorLeft = leftStr
-          errorRight = rightStr
+          expectError = expectStr
+          resultError = resultStr
         }
       }
     }
 
-    window.assert.equal(errorLeft, errorRight)
+    window.assert.equal(expectError, resultError)
   }
 
   if (window.location.pathname !== '/') {

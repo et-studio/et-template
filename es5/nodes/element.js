@@ -39,6 +39,7 @@ var _parsersCondition = require('../parsers/condition');
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
 var ET_MODEL = 'et-model';
+var DIRECT_ATTRS = ['value'];
 
 var Element = (function (_Basic) {
   _inherits(Element, _Basic);
@@ -53,6 +54,8 @@ var Element = (function (_Basic) {
     this.expressions = [];
     this.parseExpresions(options.expressions);
   }
+
+  // 这部分方法和代码是为初始化的时候写的
 
   _createClass(Element, [{
     key: 'parse',
@@ -147,6 +150,8 @@ var Element = (function (_Basic) {
       }
       return items;
     }
+
+    // 这部分代码是为编译的时候写的
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
@@ -155,30 +160,11 @@ var Element = (function (_Basic) {
         isRoot: this.checkRoot(),
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
-        attributes: this.getAttributesMap(),
+        attributes: this.getResidentAttributes(),
         modelKey: this.modelKey,
         modelType: this.options.modelType
       };
       return [_worker2['default'].createElement(it)];
-    }
-  }, {
-    key: 'getAttributesMap',
-    value: function getAttributesMap() {
-      var re = {};
-      var isEmpty = true;
-      var attrs = this.attributes;
-      for (var key in attrs) {
-        var value = attrs[key];
-        if (!_parsersValue2['default'].isErratic(value)) {
-          re[key] = value;
-          isEmpty = false;
-        }
-      }
-      if (isEmpty) {
-        return null;
-      } else {
-        return re;
-      }
     }
   }, {
     key: 'deliverUpdate',
@@ -190,9 +176,28 @@ var Element = (function (_Basic) {
       };
       return [_worker2['default'].updateAttributes(it)];
     }
+
+    // 接下来的方法都是一些外部或者内部使用的辅助方法
+  }, {
+    key: 'getResidentAttributes',
+    value: function getResidentAttributes() {
+      // 获取那些固定的 不是动态的属性
+      var re = {};
+      var isEmpty = true;
+      var attrs = this.attributes;
+      for (var key in attrs) {
+        var value = attrs[key];
+        if (!_parsersValue2['default'].isErratic(value)) {
+          re[key] = value;
+          isEmpty = false;
+        }
+      }
+      if (isEmpty) return null;else return re;
+    }
   }, {
     key: 'getErraticAttributes',
     value: function getErraticAttributes() {
+      // 获取那些动态的属性
       var attrs = this.attributes;
       var erracticMap = {};
       for (var key in attrs) {
@@ -206,6 +211,7 @@ var Element = (function (_Basic) {
   }, {
     key: 'translateExpressions',
     value: function translateExpressions() {
+      // 将条件表达式转换成为work对象使用的数据
       var re = [];
       var _this = this;
       _util2['default'].each(this.expressions, function (items) {
@@ -224,16 +230,18 @@ var Element = (function (_Basic) {
   }, {
     key: 'translateAttributesToExpressions',
     value: function translateAttributesToExpressions(attrs) {
+      // 判断动态属性 并且添加函数判断和设置
       var re = [];
       for (var key in attrs) {
         var value = attrs[key];
         var tmp = {
           key: key,
           isErratic: _parsersValue2['default'].isErratic(value),
+          isDirect: DIRECT_ATTRS.indexOf(key) >= 0,
           value: value,
           valueString: _parsersValue2['default'].parse(value)
         };
-        if (tmp.isErratic) {
+        if (tmp.isErratic && !tmp.isDirect) {
           tmp.valueId = this.getRootValueId();
         }
         re.push(tmp);
@@ -243,6 +251,7 @@ var Element = (function (_Basic) {
   }, {
     key: 'hasModelKey',
     value: function hasModelKey() {
+      // 判断是非具备反相值的绑定
       return !!this.modelKey;
     }
   }]);

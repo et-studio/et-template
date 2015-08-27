@@ -106,6 +106,19 @@ exports['default'] = {
 
     return re;
   },
+  removeAttributes: function removeAttributes(it) {
+    var re = '';
+    if (it && it.length === 1) {
+      re = re + ('\n  _util.removeAttribute(_et, \'' + _util2['default'].translateMarks(it[0]) + '\');\n');
+    } else if (it && it.length > 1) {
+      var exclusions = it.map(function (item) {
+        return '\'' + _util2['default'].translateMarks(item) + '\'';
+      });
+      re = re + ('\n  _util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
+    }
+
+    return re;
+  },
   template: function template(it) {
     var re = '';
 
@@ -148,15 +161,12 @@ exports['default'] = {
     return re;
   },
   updateAttributes: function updateAttributes(it) {
+    var _this = this;
+
     var re = '';
 
     if (it.erraticAttributes.length || it.expressions.length) {
-      re = re + ('\n  var _et = _doms[' + it.id + '];\n');
-      _util2['default'].each(it.erraticAttributes, function (attr) {
-        if (attr.isErratic) {
-          re = re + ('\n      var _tmp = ' + attr.valueString + ';\n      if (_last[' + attr.valueId + '] !== _tmp) {\n        _last[' + attr.valueId + '] = _tmp;\n        _util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n      }\n');
-        }
-      });
+      re = re + ('\n  var _et = _doms[' + it.id + '];\n  ' + this.updateErraticAttributes(it.erraticAttributes) + '\n');
 
       _util2['default'].each(it.expressions, function (items) {
         _util2['default'].each(items, function (item, i) {
@@ -164,30 +174,24 @@ exports['default'] = {
           if (item.tag !== 'else') {
             condition = '(' + item.condition + ')';
           }
-          re = re + ('\n      ' + item.tag + ' ' + condition + ' {\n        if (_last[' + item.valueId + '] !== ' + i + ') {\n          _last[' + item.valueId + '] = ' + i + ';\n');
-          _util2['default'].each(item.attributes, function (attr) {
-            if (!attr.isErratic) {
-              re = re + ('\n              _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', \'' + _util2['default'].translateMarks(attr.value) + '\');\n');
-            }
-          });
-          if (item.exclusions && item.exclusions.length === 1) {
-            re = re + ('\n            _util.removeAttribute(_et, \'' + _util2['default'].translateMarks(item.exclusions[0]) + '\');\n');
-          } else if (item.exclusions && item.exclusions.length > 1) {
-            var exclusions = item.exclusions.map(function (item) {
-              return '\'' + _util2['default'].translateMarks(item) + '\'';
-            });
-            re = re + ('\n            _util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
-          }
-          re = re + '\n        }\n';
-          _util2['default'].each(item.attributes, function (attr) {
-            if (attr.isErratic) {
-              re = re + ('\n            var _tmp = ' + attr.valueString + ';\n            if (_last[' + attr.valueId + '] !== _tmp) {\n              _last[' + attr.valueId + '] = _tmp;\n              _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', _tmp);\n            }\n');
-            }
-          });
-          re = re + '\n      }\n';
+          re = re + ('\n      ' + item.tag + ' ' + condition + ' {\n        if (_last[' + item.valueId + '] !== ' + i + ') {\n          _last[' + item.valueId + '] = ' + i + ';\n          ' + _this.updateResidentAttributes(item.attributes) + '\n          ' + _this.removeAttributes(item.exclusions) + '\n        }\n        ' + _this.updateErraticAttributes(item.attributes) + '\n      }\n');
         });
       });
     }
+
+    return re;
+  },
+  updateErraticAttributes: function updateErraticAttributes(it) {
+    var re = '';
+    _util2['default'].each(it, function (attr) {
+      if (attr.isErratic) {
+        if (attr.isDirect) {
+          re = re + ('\n      var _tmp = ' + attr.valueString + ';\n      if (_et.' + attr.key + ' !== _tmp) {\n        _et.' + attr.key + ' = _tmp;\n      }\n');
+        } else {
+          re = re + ('\n      var _tmp = ' + attr.valueString + ';\n      if (_last[' + attr.valueId + '] !== _tmp) {\n        _last[' + attr.valueId + '] = _tmp;\n        _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', _tmp);\n      }\n');
+        }
+      }
+    });
 
     return re;
   },
@@ -243,6 +247,20 @@ exports['default'] = {
   updateImport: function updateImport(it) {
     var re = '';
     re = re + ('\nvar _et = _doms[' + it.id + '];\n_et.update(' + it.args.join(', ') + ');\n');
+
+    return re;
+  },
+  updateResidentAttributes: function updateResidentAttributes(it) {
+    var re = '';
+    _util2['default'].each(it, function (attr) {
+      if (!attr.isErratic) {
+        if (attr.isDirect) {
+          re = re + ('\n      _et.' + attr.key + ' = \'' + _util2['default'].translateMarks(attr.value) + '\';\n');
+        } else {
+          re = re + ('\n      _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', \'' + _util2['default'].translateMarks(attr.value) + '\');\n');
+        }
+      }
+    });
 
     return re;
   },

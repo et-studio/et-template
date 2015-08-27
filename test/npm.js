@@ -8,8 +8,8 @@ var ET = require('../es5/et')
 var et = new ET()
 
 function testCompile (left, right) {
-  left = left.trim().replace(/\n{2}/g, '\n')
-  right = right.trim().replace(/\n{2}/g, '\n')
+  left = left.trim().replace(/\n\s*\n/g, '\n')
+  right = right.trim().replace(/\n\s*\n/g, '\n')
 
   var leftList = left.split('\n')
   var rightList = right.split('\n')

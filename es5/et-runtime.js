@@ -380,6 +380,19 @@
 
         return re;
       },
+      removeAttributes: function removeAttributes(it) {
+        var re = '';
+        if (it && it.length === 1) {
+          re = re + ('\n_util.removeAttribute(_et, \'' + _.translateMarks(it[0]) + '\');\n');
+        } else if (it && it.length > 1) {
+          var exclusions = it.map(function(item) {
+            return '\'' + _.translateMarks(item) + '\'';
+          });
+          re = re + ('\n_util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
+        }
+
+        return re;
+      },
       template: function template(it) {
         var re = '';
 
@@ -422,15 +435,12 @@
         return re;
       },
       updateAttributes: function updateAttributes(it) {
+        var _this2 = this;
+
         var re = '';
 
         if (it.erraticAttributes.length || it.expressions.length) {
-          re = re + ('\nvar _et = _doms[' + it.id + '];\n');
-          _.each(it.erraticAttributes, function(attr) {
-            if (attr.isErratic) {
-              re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + attr.key + '\', _tmp);\n}\n');
-            }
-          });
+          re = re + ('\nvar _et = _doms[' + it.id + '];\n' + this.updateErraticAttributes(it.erraticAttributes) + '\n');
 
           _.each(it.expressions, function(items) {
             _.each(items, function(item, i) {
@@ -438,30 +448,24 @@
               if (item.tag !== 'else') {
                 condition = '(' + item.condition + ')';
               }
-              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last[' + item.valueId + '] !== ' + i + ') {\n_last[' + item.valueId + '] = ' + i + ';\n');
-              _.each(item.attributes, function(attr) {
-                if (!attr.isErratic) {
-                  re = re + ('\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', \'' + _.translateMarks(attr.value) + '\');\n');
-                }
-              });
-              if (item.exclusions && item.exclusions.length === 1) {
-                re = re + ('\n_util.removeAttribute(_et, \'' + _.translateMarks(item.exclusions[0]) + '\');\n');
-              } else if (item.exclusions && item.exclusions.length > 1) {
-                var exclusions = item.exclusions.map(function(item) {
-                  return '\'' + _.translateMarks(item) + '\'';
-                });
-                re = re + ('\n_util.removeAttributes(_et, ' + exclusions.join(',') + ');\n');
-              }
-              re = re + '\n}\n';
-              _.each(item.attributes, function(attr) {
-                if (attr.isErratic) {
-                  re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
-                }
-              });
-              re = re + '\n}\n';
+              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last[' + item.valueId + '] !== ' + i + ') {\n_last[' + item.valueId + '] = ' + i + ';\n' + _this2.updateResidentAttributes(item.attributes) + '\n' + _this2.removeAttributes(item.exclusions) + '\n}\n' + _this2.updateErraticAttributes(item.attributes) + '\n}\n');
             });
           });
         }
+
+        return re;
+      },
+      updateErraticAttributes: function updateErraticAttributes(it) {
+        var re = '';
+        _.each(it, function(attr) {
+          if (attr.isErratic) {
+            if (attr.isDirect) {
+              re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_et.' + attr.key + ' !== _tmp) {\n_et.' + attr.key + ' = _tmp;\n}\n');
+            } else {
+              re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
+            }
+          }
+        });
 
         return re;
       },
@@ -517,6 +521,20 @@
       updateImport: function updateImport(it) {
         var re = '';
         re = re + ('\nvar _et = _doms[' + it.id + '];\n_et.update(' + it.args.join(', ') + ');\n');
+
+        return re;
+      },
+      updateResidentAttributes: function updateResidentAttributes(it) {
+        var re = '';
+        _.each(it, function(attr) {
+          if (!attr.isErratic) {
+            if (attr.isDirect) {
+              re = re + ('\n_et.' + attr.key + ' = \'' + _.translateMarks(attr.value) + '\';\n');
+            } else {
+              re = re + ('\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', \'' + _.translateMarks(attr.value) + '\');\n');
+            }
+          }
+        });
 
         return re;
       },
@@ -1929,7 +1947,7 @@
       }, {
         key: 'translateAttributes',
         value: function translateAttributes(attrs, options) {
-          var _this2 = this;
+          var _this3 = this;
 
           if (attrs === undefined)
             attrs = {};
@@ -1938,7 +1956,7 @@
           var filter = this.getAttributeFilter(options);
 
           attrs.map(function(attr) {
-            if (!attr.key) _this2.throwError();
+            if (!attr.key) _this3.throwError();
             if (filter(attr.key))
               re[attr.key] = attr.value || '';
           });
@@ -2394,6 +2412,7 @@
     var conditionParser = innerRequire('../parsers/condition');
 
     var ET_MODEL = 'et-model';
+    var DIRECT_ATTRS = ['value'];
 
     var Element = (function(_Basic) {
       _inherits(Element, _Basic);
@@ -2408,6 +2427,8 @@
         this.expressions = [];
         this.parseExpresions(options.expressions);
       }
+
+      // 这部分方法和代码是为初始化的时候写的
 
       _createClass(Element, [{
         key: 'parse',
@@ -2504,6 +2525,8 @@
           }
           return items;
         }
+
+      // 这部分代码是为编译的时候写的
       }, {
         key: 'deliverCreate',
         value: function deliverCreate() {
@@ -2512,30 +2535,11 @@
             isRoot: this.checkRoot(),
             parentId: this.getParentId(),
             nodeName: this.getNodeName(),
-            attributes: this.getAttributesMap(),
+            attributes: this.getResidentAttributes(),
             modelKey: this.modelKey,
             modelType: this.options.modelType
           };
           return [worker.createElement(it)];
-        }
-      }, {
-        key: 'getAttributesMap',
-        value: function getAttributesMap() {
-          var re = {};
-          var isEmpty = true;
-          var attrs = this.attributes;
-          for (var key in attrs) {
-            var value = attrs[key];
-            if (!valueParser.isErratic(value)) {
-              re[key] = value;
-              isEmpty = false;
-            }
-          }
-          if (isEmpty) {
-            return null;
-          } else {
-            return re;
-          }
         }
       }, {
         key: 'deliverUpdate',
@@ -2547,9 +2551,28 @@
           };
           return [worker.updateAttributes(it)];
         }
+
+      // 接下来的方法都是一些外部或者内部使用的辅助方法
+      }, {
+        key: 'getResidentAttributes',
+        value: function getResidentAttributes() {
+          // 获取那些固定的 不是动态的属性
+          var re = {};
+          var isEmpty = true;
+          var attrs = this.attributes;
+          for (var key in attrs) {
+            var value = attrs[key];
+            if (!valueParser.isErratic(value)) {
+              re[key] = value;
+              isEmpty = false;
+            }
+          }
+          if (isEmpty) return null;else return re;
+        }
       }, {
         key: 'getErraticAttributes',
         value: function getErraticAttributes() {
+          // 获取那些动态的属性
           var attrs = this.attributes;
           var erracticMap = {};
           for (var key in attrs) {
@@ -2563,6 +2586,7 @@
       }, {
         key: 'translateExpressions',
         value: function translateExpressions() {
+          // 将条件表达式转换成为work对象使用的数据
           var re = [];
           var _this = this;
           _.each(this.expressions, function(items) {
@@ -2581,16 +2605,18 @@
       }, {
         key: 'translateAttributesToExpressions',
         value: function translateAttributesToExpressions(attrs) {
+          // 判断动态属性 并且添加函数判断和设置
           var re = [];
           for (var key in attrs) {
             var value = attrs[key];
             var tmp = {
               key: key,
               isErratic: valueParser.isErratic(value),
+              isDirect: DIRECT_ATTRS.indexOf(key) >= 0,
               value: value,
               valueString: valueParser.parse(value)
             };
-            if (tmp.isErratic) {
+            if (tmp.isErratic && !tmp.isDirect) {
               tmp.valueId = this.getRootValueId();
             }
             re.push(tmp);
@@ -2600,6 +2626,7 @@
       }, {
         key: 'hasModelKey',
         value: function hasModelKey() {
+          // 判断是非具备反相值的绑定
           return !!this.modelKey;
         }
       }]);
@@ -3441,7 +3468,7 @@
       }, {
         key: 'createDom',
         value: function createDom(originNode) {
-          var _this3 = this;
+          var _this4 = this;
 
           var index = 0;
           var createNode = function createNode(source, parent, previous, origin) {
@@ -3455,7 +3482,7 @@
               options.expressions = origin.expressions;
             }
 
-            var node = factory.create(source, _.extend({}, _this3.options, options));
+            var node = factory.create(source, _.extend({}, _this4.options, options));
             return node;
           };
           var createChildren = function createChildren(children, parent) {
