@@ -34,6 +34,7 @@ var Compiler = (function () {
       var re = {
         templateName: root.getTemplateName(),
         hasFor: false,
+        modelType: this.options.modelType,
         hasModelKey: false,
         newDoms: []
       };

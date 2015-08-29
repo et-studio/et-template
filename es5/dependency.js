@@ -93,7 +93,15 @@
   var _prototype = {
     isET: true,
     init: function init(options) {
-      this.options = options || {}
+      if (!options)
+        options = {}
+
+      if (!options.root)
+        options.root = this
+      else
+        this.root = options.root
+
+      this.options = options
       this.roots = {} // 记录是root的节点对象，如果那个节点被移除应该从这里移除
       this.doms = {} // 记录所有的节点对象
       this.last = {} // 记录上一次判断是什么值，用于差异更新
@@ -150,7 +158,8 @@
     },
     trigger: function trigger(eventName) {
       var args = Array.prototype.slice.call(arguments, 1)
-      var callbacks = this.events[eventName] || []
+      var root = this.root || this
+      var callbacks = root.events[eventName] || []
       for (var i = 0, len = callbacks.length; i < len; i++) {
         var callback = callbacks[i]
         callback.apply(null, args)

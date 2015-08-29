@@ -570,6 +570,7 @@
           var re = {
             templateName: root.getTemplateName(),
             hasFor: false,
+            modelType: this.options.modelType,
             hasModelKey: false,
             newDoms: []
           };
@@ -2437,7 +2438,7 @@
           this.modelKey = tinyNode.attributes[ET_MODEL];
           if (this.modelKey) {
             var isObject = this.options.modelType === 'object';
-            var isMiddleBrackets = this.modelKey[0] !== '[' && this.modelKey[this.modelKey.lenth - 1] !== ']';
+            var isMiddleBrackets = this.modelKey[0] === '[' && this.modelKey[this.modelKey.lenth - 1] === ']';
 
             if (isObject && !isMiddleBrackets) {
               this.modelKey = '.' + this.modelKey;

@@ -64,7 +64,7 @@ var Element = (function (_Basic) {
       this.modelKey = tinyNode.attributes[ET_MODEL];
       if (this.modelKey) {
         var isObject = this.options.modelType === 'object';
-        var isMiddleBrackets = this.modelKey[0] !== '[' && this.modelKey[this.modelKey.lenth - 1] !== ']';
+        var isMiddleBrackets = this.modelKey[0] === '[' && this.modelKey[this.modelKey.lenth - 1] === ']';
 
         if (isObject && !isMiddleBrackets) {
           this.modelKey = '.' + this.modelKey;

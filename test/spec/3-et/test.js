@@ -1,10 +1,5 @@
 'use strict'
 
-var ET = require('src/et')
-
-var jsFormatter = require('jsFormatter')
-var et = new ET()
-
 var settings = [
   {
     title: 'attributes',
@@ -40,8 +35,17 @@ var settings = [
     title: 'et-model',
     source: require('test/design/et-model/source.html'),
     expect: require('test/design/et-model/expect')
+  },
+  {
+    title: 'et-model-object',
+    options: {modelType: 'object'},
+    source: require('test/design/et-model-object/source.html'),
+    expect: require('test/design/et-model-object/expect')
   }
 ]
+
+var ET = require('src/et')
+var jsFormatter = require('jsFormatter')
 
 exports.register = function () {
   window.describe('Compiler test', function () {
@@ -50,6 +54,7 @@ exports.register = function () {
         var source = setting.source
         var expect = setting.expect
 
+        var et = new ET(setting.options)
         source = et.compile(source)
         source = jsFormatter.js_beautify(source)
         console.log(source)

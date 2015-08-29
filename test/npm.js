@@ -5,19 +5,18 @@ var assert = require('assert')
 var fs = require('fs')
 var formatter = require('esformatter')
 var ET = require('../es5/et')
-var et = new ET()
 
-function testCompile (left, right) {
-  left = left.trim().replace(/\n\s*\n/g, '\n')
-  right = right.trim().replace(/\n\s*\n/g, '\n')
+function testCompile (expect, result) {
+  expect = expect.trim().replace(/\n\s*\n/g, '\n')
+  result = result.trim().replace(/\n\s*\n/g, '\n')
 
-  var leftList = left.split('\n')
-  var rightList = right.split('\n')
-  var len = Math.max(leftList.length, rightList.length)
+  var expectList = expect.split('\n')
+  var resultList = result.split('\n')
+  var len = Math.max(expectList.length, resultList.length)
   for (var i = 0; i < len; i++) {
-    var leftStr = leftList[i] || ''
-    var rightStr = rightList[i] || ''
-    assert.equal(leftStr.trim(), rightStr.trim())
+    var expectStr = expectList[i] || ''
+    var resultStr = resultList[i] || ''
+    assert.equal(expectStr.trim(), resultStr.trim())
   }
 }
 
@@ -31,13 +30,18 @@ pathList.forEach(function (path) {
     var designDirs = fs.readdirSync(rootDir + path)
     designDirs.forEach(function (folder) {
       global.it(folder, function () {
-        var left = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+        var expect = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-        var right = et.compile(html)
 
-        left = formatter.format(left)
-        right = formatter.format(right)
-        testCompile(left, right)
+        var optionsPath = rootDir + path + '/' + folder + '/options.json'
+        var options = {}
+        if (fs.existsSync(optionsPath)) options = require(optionsPath)
+        var et = new ET(options)
+        var result = et.compile(html)
+
+        expect = formatter.format(expect)
+        result = formatter.format(result)
+        testCompile(expect, result)
       })
     })
   })
@@ -53,14 +57,19 @@ dotPaths.forEach(function (path) {
     var designDirs = fs.readdirSync(rootDir + path)
     designDirs.forEach(function (folder) {
       global.it(folder, function () {
-        var left = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
+        var expect = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
         var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-        var right = et.compileDot(html)
 
-        left = formatter.format(left)
-        right = formatter.format(right)
+        var optionsPath = rootDir + path + '/' + folder + '/options.json'
+        var options = {}
+        if (fs.existsSync(optionsPath)) options = require(optionsPath)
+        var et = new ET(options)
+        var result = et.compileDot(html)
 
-        testCompile(left, right)
+        expect = formatter.format(expect)
+        result = formatter.format(result)
+
+        testCompile(expect, result)
       })
     })
   })
