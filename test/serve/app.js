@@ -3,6 +3,7 @@
 var rootDir = process.cwd()
 var express = require('express')
 var fs = require('fs')
+var nodePath = require('path')
 var babel = require('babel-core')
 var esformatter = require('esformatter')
 var ET = require(`${rootDir}/es5/et`)
@@ -159,7 +160,7 @@ app.use(function (req, res) {
       console.log(err.toString())
       res.status(404).send(err)
     } else {
-      res.send(content)
+      res.type(nodePath.extname(path)).send(content)
     }
   })
 })
