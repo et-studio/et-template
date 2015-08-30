@@ -5,14 +5,17 @@ export default {
 
   createElement(it) {
     var re = ''
-
-    if (it.attributes) {
-      re = re + `
-  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}', ${JSON.stringify(it.attributes, null, '  ')});
+    re = re + `
+var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
 `
-    } else {
+    if (!_.isEmpty(it.attributes)) {
       re = re + `
-  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
+  _util.setAttributes(_et, ${JSON.stringify(it.attributes, null, '  ')});
+`
+    }
+    if (!_.isEmpty(it.propertis)) {
+      re = re + `
+  _util.setProperties(_et, ${JSON.stringify(it.propertis, null, '  ')});
 `
     }
 
@@ -284,7 +287,7 @@ module.exports = ${it.templateName};
     var re = ''
     _.each(it, (attr) => {
       if (attr.isErratic) {
-        if (attr.isDirect) {
+        if (attr.isProperty) {
           re = re + `
       var _tmp = ${attr.valueString};
       if (_et.${attr.key} !== _tmp) {
@@ -435,7 +438,7 @@ _et.update(${it.args.join(', ')});
     var re = ''
     _.each(it, (attr) => {
       if (!attr.isErratic) {
-        if (attr.isDirect) {
+        if (attr.isProperty) {
           re = re + `
       _et.${attr.key} = '${_.translateMarks(attr.value)}';
 `

@@ -14,11 +14,12 @@ exports['default'] = {
 
   createElement: function createElement(it) {
     var re = '';
-
-    if (it.attributes) {
-      re = re + ('\n  var _et = _util.createElement(\'' + _util2['default'].translateMarks(it.nodeName.toUpperCase()) + '\', ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
-    } else {
-      re = re + ('\n  var _et = _util.createElement(\'' + _util2['default'].translateMarks(it.nodeName.toUpperCase()) + '\');\n');
+    re = re + ('\nvar _et = _util.createElement(\'' + _util2['default'].translateMarks(it.nodeName.toUpperCase()) + '\');\n');
+    if (!_util2['default'].isEmpty(it.attributes)) {
+      re = re + ('\n  _util.setAttributes(_et, ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
+    }
+    if (!_util2['default'].isEmpty(it.propertis)) {
+      re = re + ('\n  _util.setProperties(_et, ' + JSON.stringify(it.propertis, null, '  ') + ');\n');
     }
 
     re = re + ('\n_doms[' + it.id + '] = _et;\n');
@@ -185,7 +186,7 @@ exports['default'] = {
     var re = '';
     _util2['default'].each(it, function (attr) {
       if (attr.isErratic) {
-        if (attr.isDirect) {
+        if (attr.isProperty) {
           re = re + ('\n      var _tmp = ' + attr.valueString + ';\n      if (_et.' + attr.key + ' !== _tmp) {\n        _et.' + attr.key + ' = _tmp;\n      }\n');
         } else {
           re = re + ('\n      var _tmp = ' + attr.valueString + ';\n      if (_last[' + attr.valueId + '] !== _tmp) {\n        _last[' + attr.valueId + '] = _tmp;\n        _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', _tmp);\n      }\n');
@@ -254,7 +255,7 @@ exports['default'] = {
     var re = '';
     _util2['default'].each(it, function (attr) {
       if (!attr.isErratic) {
-        if (attr.isDirect) {
+        if (attr.isProperty) {
           re = re + ('\n      _et.' + attr.key + ' = \'' + _util2['default'].translateMarks(attr.value) + '\';\n');
         } else {
           re = re + ('\n      _util.setAttribute(_et, \'' + _util2['default'].translateMarks(attr.key) + '\', \'' + _util2['default'].translateMarks(attr.value) + '\');\n');

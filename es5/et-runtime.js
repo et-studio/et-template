@@ -288,11 +288,12 @@
 
       createElement: function createElement(it) {
         var re = '';
-
-        if (it.attributes) {
-          re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\', ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
-        } else {
-          re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\');\n');
+        re = re + ('\nvar _et = _util.createElement(\'' + _.translateMarks(it.nodeName.toUpperCase()) + '\');\n');
+        if (!_.isEmpty(it.attributes)) {
+          re = re + ('\n_util.setAttributes(_et, ' + JSON.stringify(it.attributes, null, '  ') + ');\n');
+        }
+        if (!_.isEmpty(it.propertis)) {
+          re = re + ('\n_util.setProperties(_et, ' + JSON.stringify(it.propertis, null, '  ') + ');\n');
         }
 
         re = re + ('\n_doms[' + it.id + '] = _et;\n');
@@ -459,7 +460,7 @@
         var re = '';
         _.each(it, function(attr) {
           if (attr.isErratic) {
-            if (attr.isDirect) {
+            if (attr.isProperty) {
               re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_et.' + attr.key + ' !== _tmp) {\n_et.' + attr.key + ' = _tmp;\n}\n');
             } else {
               re = re + ('\nvar _tmp = ' + attr.valueString + ';\nif (_last[' + attr.valueId + '] !== _tmp) {\n_last[' + attr.valueId + '] = _tmp;\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', _tmp);\n}\n');
@@ -528,7 +529,7 @@
         var re = '';
         _.each(it, function(attr) {
           if (!attr.isErratic) {
-            if (attr.isDirect) {
+            if (attr.isProperty) {
               re = re + ('\n_et.' + attr.key + ' = \'' + _.translateMarks(attr.value) + '\';\n');
             } else {
               re = re + ('\n_util.setAttribute(_et, \'' + _.translateMarks(attr.key) + '\', \'' + _.translateMarks(attr.value) + '\');\n');
@@ -2412,7 +2413,10 @@
     var conditionParser = innerRequire('../parsers/condition');
 
     var ET_MODEL = 'et-model';
-    var DIRECT_ATTRS = ['value'];
+    var PROPERTIY_SET = {
+      'INPUT': ['value'],
+      'TEXTAREA': ['value']
+    };
 
     var Element = (function(_Basic) {
       _inherits(Element, _Basic);
@@ -2530,12 +2534,14 @@
       }, {
         key: 'deliverCreate',
         value: function deliverCreate() {
+          var set = this.getResidentAttributes();
           var it = {
             id: this.getId(),
             isRoot: this.checkRoot(),
             parentId: this.getParentId(),
             nodeName: this.getNodeName(),
-            attributes: this.getResidentAttributes(),
+            attributes: set.attributes,
+            properties: set.properties,
             modelKey: this.modelKey,
             modelType: this.options.modelType
           };
@@ -2557,17 +2563,27 @@
         key: 'getResidentAttributes',
         value: function getResidentAttributes() {
           // 获取那些固定的 不是动态的属性
-          var re = {};
-          var isEmpty = true;
+          var attributes = {};
+          var properties = {};
+          var propertiesList = PROPERTIY_SET[this.nodeName] || [];
+
           var attrs = this.attributes;
           for (var key in attrs) {
             var value = attrs[key];
+            var isProperty = propertiesList.indexOf(key) >= 0;
             if (!valueParser.isErratic(value)) {
-              re[key] = value;
-              isEmpty = false;
+              if (isProperty) {
+                properties[key] = value;
+              } else {
+                attributes[key] = value;
+              }
             }
           }
-          if (isEmpty) return null;else return re;
+
+          return {
+            attributes: attributes,
+            properties: properties
+          };
         }
       }, {
         key: 'getErraticAttributes',
@@ -2581,7 +2597,7 @@
               erracticMap[key] = value;
             }
           }
-          return this.translateAttributesToExpressions(erracticMap);
+          return this.translateAttributesToCode(erracticMap);
         }
       }, {
         key: 'translateExpressions',
@@ -2595,7 +2611,7 @@
             _.each(items, function(item) {
               var obj = _.pick(item, 'tag', 'exclusions', 'condition');
               obj.valueId = valueId;
-              obj.attributes = _this.translateAttributesToExpressions(item.attributes);
+              obj.attributes = _this.translateAttributesToCode(item.attributes);
               newItems.push(obj);
             });
             re.push(newItems);
@@ -2603,16 +2619,18 @@
           return re;
         }
       }, {
-        key: 'translateAttributesToExpressions',
-        value: function translateAttributesToExpressions(attrs) {
+        key: 'translateAttributesToCode',
+        value: function translateAttributesToCode(attrs) {
           // 判断动态属性 并且添加函数判断和设置
           var re = [];
+          var propertis = PROPERTIY_SET[this.nodeName] || [];
+
           for (var key in attrs) {
             var value = attrs[key];
             var tmp = {
               key: key,
               isErratic: valueParser.isErratic(value),
-              isDirect: DIRECT_ATTRS.indexOf(key) >= 0,
+              isProperty: propertis.indexOf(key) >= 0,
               value: value,
               valueString: valueParser.parse(value)
             };
@@ -2626,7 +2644,7 @@
       }, {
         key: 'hasModelKey',
         value: function hasModelKey() {
-          // 判断是非具备反相值的绑定
+          // 判断是非具备反向值的绑定
           return !!this.modelKey;
         }
       }]);

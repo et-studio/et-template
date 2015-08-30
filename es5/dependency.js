@@ -30,12 +30,8 @@
         return re
       }
     },
-    createElement: function createElement(tag, attributes) {
-      var re = document.createElement(tag)
-      for (var key in attributes) {
-        _util.setAttribute(re, key, attributes[key])
-      }
-      return re
+    createElement: function createElement(tag) {
+      return document.createElement(tag)
     },
     createTextNode: function createTextNode(text) {
       return document.createTextNode(text)
@@ -60,6 +56,11 @@
     setAttribute: function setAttribute(element, attrName, attrValue) {
       element.setAttribute(attrName, attrValue)
     },
+    setAttributes: function setAttributes(element, attributes) {
+      for (var key in attributes) {
+        element.setAttribute(key, attributes[key])
+      }
+    },
     removeAttribute: function removeAttribute(element, attrName) {
       element.removeAttribute(attrName)
     },
@@ -67,6 +68,11 @@
       for (var i = 0, len = attrNames.length; i < len; i++) {
         var attrName = attrNames[i]
         element.removeAttribute(attrName)
+      }
+    },
+    setProperties: function setProperties(element, propertis) {
+      for (var key in propertis) {
+        element[key] = propertis[key]
       }
     },
     appendChild: function appendChild(elementA, elementB) {

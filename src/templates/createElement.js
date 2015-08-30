@@ -1,11 +1,14 @@
-
-if (it.attributes) {
+// {{
+var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
+// }}
+if (!_.isEmpty(it.attributes)) {
   // {{
-  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}', ${JSON.stringify(it.attributes, null, '  ')});
+  _util.setAttributes(_et, ${JSON.stringify(it.attributes, null, '  ')});
   // }}
-} else {
+}
+if (!_.isEmpty(it.propertis)) {
   // {{
-  var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
+  _util.setProperties(_et, ${JSON.stringify(it.propertis, null, '  ')});
   // }}
 }
 

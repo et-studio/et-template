@@ -39,7 +39,10 @@ var _parsersCondition = require('../parsers/condition');
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
 var ET_MODEL = 'et-model';
-var DIRECT_ATTRS = ['value'];
+var PROPERTIY_SET = {
+  'INPUT': ['value'],
+  'TEXTAREA': ['value']
+};
 
 var Element = (function (_Basic) {
   _inherits(Element, _Basic);
@@ -155,12 +158,14 @@ var Element = (function (_Basic) {
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
+      var set = this.getResidentAttributes();
       var it = {
         id: this.getId(),
         isRoot: this.checkRoot(),
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
-        attributes: this.getResidentAttributes(),
+        attributes: set.attributes,
+        properties: set.properties,
         modelKey: this.modelKey,
         modelType: this.options.modelType
       };
@@ -182,17 +187,24 @@ var Element = (function (_Basic) {
     key: 'getResidentAttributes',
     value: function getResidentAttributes() {
       // 获取那些固定的 不是动态的属性
-      var re = {};
-      var isEmpty = true;
+      var attributes = {};
+      var properties = {};
+      var propertiesList = PROPERTIY_SET[this.nodeName] || [];
+
       var attrs = this.attributes;
       for (var key in attrs) {
         var value = attrs[key];
+        var isProperty = propertiesList.indexOf(key) >= 0;
         if (!_parsersValue2['default'].isErratic(value)) {
-          re[key] = value;
-          isEmpty = false;
+          if (isProperty) {
+            properties[key] = value;
+          } else {
+            attributes[key] = value;
+          }
         }
       }
-      if (isEmpty) return null;else return re;
+
+      return { attributes: attributes, properties: properties };
     }
   }, {
     key: 'getErraticAttributes',
@@ -206,7 +218,7 @@ var Element = (function (_Basic) {
           erracticMap[key] = value;
         }
       }
-      return this.translateAttributesToExpressions(erracticMap);
+      return this.translateAttributesToCode(erracticMap);
     }
   }, {
     key: 'translateExpressions',
@@ -220,7 +232,7 @@ var Element = (function (_Basic) {
         _util2['default'].each(items, function (item) {
           var obj = _util2['default'].pick(item, 'tag', 'exclusions', 'condition');
           obj.valueId = valueId;
-          obj.attributes = _this.translateAttributesToExpressions(item.attributes);
+          obj.attributes = _this.translateAttributesToCode(item.attributes);
           newItems.push(obj);
         });
         re.push(newItems);
@@ -228,16 +240,18 @@ var Element = (function (_Basic) {
       return re;
     }
   }, {
-    key: 'translateAttributesToExpressions',
-    value: function translateAttributesToExpressions(attrs) {
+    key: 'translateAttributesToCode',
+    value: function translateAttributesToCode(attrs) {
       // 判断动态属性 并且添加函数判断和设置
       var re = [];
+      var propertis = PROPERTIY_SET[this.nodeName] || [];
+
       for (var key in attrs) {
         var value = attrs[key];
         var tmp = {
           key: key,
           isErratic: _parsersValue2['default'].isErratic(value),
-          isDirect: DIRECT_ATTRS.indexOf(key) >= 0,
+          isProperty: propertis.indexOf(key) >= 0,
           value: value,
           valueString: _parsersValue2['default'].parse(value)
         };
@@ -251,7 +265,7 @@ var Element = (function (_Basic) {
   }, {
     key: 'hasModelKey',
     value: function hasModelKey() {
-      // 判断是非具备反相值的绑定
+      // 判断是非具备反向值的绑定
       return !!this.modelKey;
     }
   }]);

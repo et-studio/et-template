@@ -1,6 +1,6 @@
 _.each(it, (attr) => {
   if (!attr.isErratic) {
-    if (attr.isDirect) {
+    if (attr.isProperty) {
       // {{
       _et.${attr.key} = '${_.translateMarks(attr.value)}';
       // }}

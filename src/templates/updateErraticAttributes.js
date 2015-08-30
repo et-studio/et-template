@@ -1,6 +1,6 @@
 _.each(it, (attr) => {
   if (attr.isErratic) {
-    if (attr.isDirect) {
+    if (attr.isProperty) {
       // {{
       var _tmp = ${attr.valueString};
       if (_et.${attr.key} !== _tmp) {

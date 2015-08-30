@@ -9,7 +9,10 @@ import valueParser from '../parsers/value'
 import conditionParser from '../parsers/condition'
 
 var ET_MODEL = 'et-model'
-var DIRECT_ATTRS = ['value']
+var PROPERTIY_SET = {
+  'INPUT': ['value'],
+  'TEXTAREA': ['value']
+}
 
 class Element extends Basic {
   constructor (source, options = {}) {
@@ -109,12 +112,14 @@ class Element extends Basic {
 
   // 这部分代码是为编译的时候写的
   deliverCreate () {
+    var set = this.getResidentAttributes()
     var it = {
       id: this.getId(),
       isRoot: this.checkRoot(),
       parentId: this.getParentId(),
       nodeName: this.getNodeName(),
-      attributes: this.getResidentAttributes(),
+      attributes: set.attributes,
+      properties: set.properties,
       modelKey: this.modelKey,
       modelType: this.options.modelType
     }
@@ -131,18 +136,24 @@ class Element extends Basic {
 
   // 接下来的方法都是一些外部或者内部使用的辅助方法
   getResidentAttributes () {// 获取那些固定的 不是动态的属性
-    var re = {}
-    var isEmpty = true
+    var attributes = {}
+    var properties = {}
+    var propertiesList = PROPERTIY_SET[this.nodeName] || []
+
     var attrs = this.attributes
     for (var key in attrs) {
       var value = attrs[key]
+      var isProperty = propertiesList.indexOf(key) >= 0
       if (!valueParser.isErratic(value)) {
-        re[key] = value
-        isEmpty = false
+        if (isProperty) {
+          properties[key] = value
+        } else {
+          attributes[key] = value
+        }
       }
     }
-    if (isEmpty) return null
-    else return re
+
+    return {attributes: attributes, properties: properties}
   }
   getErraticAttributes () {// 获取那些动态的属性
     var attrs = this.attributes
@@ -153,7 +164,7 @@ class Element extends Basic {
         erracticMap[key] = value
       }
     }
-    return this.translateAttributesToExpressions(erracticMap)
+    return this.translateAttributesToCode(erracticMap)
   }
   translateExpressions () {// 将条件表达式转换成为work对象使用的数据
     var re = []
@@ -164,21 +175,23 @@ class Element extends Basic {
       _.each(items, (item) => {
         var obj = _.pick(item, 'tag', 'exclusions', 'condition')
         obj.valueId = valueId
-        obj.attributes = _this.translateAttributesToExpressions(item.attributes)
+        obj.attributes = _this.translateAttributesToCode(item.attributes)
         newItems.push(obj)
       })
       re.push(newItems)
     })
     return re
   }
-  translateAttributesToExpressions (attrs) {// 判断动态属性 并且添加函数判断和设置
+  translateAttributesToCode (attrs) {// 判断动态属性 并且添加函数判断和设置
     var re = []
+    var propertis = PROPERTIY_SET[this.nodeName] || []
+
     for (var key in attrs) {
       var value = attrs[key]
       var tmp = {
         key: key,
         isErratic: valueParser.isErratic(value),
-        isDirect: DIRECT_ATTRS.indexOf(key) >= 0,
+        isProperty: propertis.indexOf(key) >= 0,
         value: value,
         valueString: valueParser.parse(value)
       }
@@ -189,7 +202,7 @@ class Element extends Basic {
     }
     return re
   }
-  hasModelKey () {// 判断是非具备反相值的绑定
+  hasModelKey () {// 判断是非具备反向值的绑定
     return !!this.modelKey
   }
 }
