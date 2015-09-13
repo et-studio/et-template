@@ -53,7 +53,12 @@ var Getter = (function () {
   }, {
     key: 'getParentId',
     value: function getParentId() {
-      return this.parent && this.parent.getId();
+      var parent = this.parent;
+      if (parent && !parent.isRoot && !parent.isNewTemplate) {
+        return parent.getId();
+      } else {
+        return null;
+      }
     }
   }, {
     key: 'getNodeName',

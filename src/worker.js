@@ -62,13 +62,14 @@ export default {
   },
   element_append(it) {
     var re = ''
+    if (it.parentId) {
+      re = re + `
+  @.append(${it.parentId}, ${it.id})
+`
+    }
     if (it.isRoot) {
       re = re + `
   @.setRoot(${it.id})
-`
-    } else if (it.parentId) {
-      re = re + `
-  @.append(${it.parentId}, ${it.id})
 `
     }
 
@@ -173,14 +174,15 @@ export default {
   for_append(it) {
     var re = ''
 
+    if (it.parentId) {
+      re = re + `
+  @.append(${it.parentId}, ${lineId})
+`
+    }
     if (it.isRoot) {
       re = re + `
   @.setRoot(${it.lineId})
   @.setRoot(${it.id}, 0)
-`
-    } else {
-      re = re + `
-  @.append(${it.parentId}, ${lineId})
 `
     }
 
@@ -327,13 +329,14 @@ if (_last[${it.valueId}] !== _tmp) {
   if_append(it) {
     var re = ''
 
+    if (it.parentId) {
+      re = re + `
+  @.append(${it.parentId}, ${it.lineId})
+`
+    }
     if (it.isRoot) {
       re = re + `
   @.setRoot(${it.lineId})
-`
-    } else {
-      re = re + `
-  @.append(${it.parentId}, ${it.lineId})
 `
     }
 
@@ -524,13 +527,14 @@ module.exports = exports['default'] = ${it.templateName}
   },
   text_append(it) {
     var re = ''
+    if (it.parentId) {
+      re = re + `
+  @.append(${it.parentId}, ${it.id})
+`
+    }
     if (it.isRoot) {
       re = re + `
   @.setRoot(${it.id})
-`
-    } else {
-      re = re + `
-  @.append(${it.parentId}, ${it.id})
 `
     }
 

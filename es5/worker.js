@@ -51,10 +51,11 @@ exports['default'] = {
   },
   element_append: function element_append(it) {
     var re = '';
+    if (it.parentId) {
+      re = re + ('\n  @.append(' + it.parentId + ', ' + it.id + ')\n');
+    }
     if (it.isRoot) {
       re = re + ('\n  @.setRoot(' + it.id + ')\n');
-    } else if (it.parentId) {
-      re = re + ('\n  @.append(' + it.parentId + ', ' + it.id + ')\n');
     }
 
     return re;
@@ -129,10 +130,11 @@ exports['default'] = {
   for_append: function for_append(it) {
     var re = '';
 
+    if (it.parentId) {
+      re = re + ('\n  @.append(' + it.parentId + ', ' + lineId + ')\n');
+    }
     if (it.isRoot) {
       re = re + ('\n  @.setRoot(' + it.lineId + ')\n  @.setRoot(' + it.id + ', 0)\n');
-    } else {
-      re = re + ('\n  @.append(' + it.parentId + ', ' + lineId + ')\n');
     }
 
     return re;
@@ -216,10 +218,11 @@ exports['default'] = {
   if_append: function if_append(it) {
     var re = '';
 
+    if (it.parentId) {
+      re = re + ('\n  @.append(' + it.parentId + ', ' + it.lineId + ')\n');
+    }
     if (it.isRoot) {
       re = re + ('\n  @.setRoot(' + it.lineId + ')\n');
-    } else {
-      re = re + ('\n  @.append(' + it.parentId + ', ' + it.lineId + ')\n');
     }
 
     return re;
@@ -334,10 +337,11 @@ exports['default'] = {
   },
   text_append: function text_append(it) {
     var re = '';
+    if (it.parentId) {
+      re = re + ('\n  @.append(' + it.parentId + ', ' + it.id + ')\n');
+    }
     if (it.isRoot) {
       re = re + ('\n  @.setRoot(' + it.id + ')\n');
-    } else {
-      re = re + ('\n  @.append(' + it.parentId + ', ' + it.id + ')\n');
     }
 
     return re;

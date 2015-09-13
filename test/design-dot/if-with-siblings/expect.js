@@ -8,6 +8,7 @@ var _tp_createText = _dep.tp_createText
 var _tp_createLine = _dep.tp_createLine
 var _tp_createFragment = _dep.tp_createFragment
 var _tp_setRoot = _dep.tp_setRoot
+var _tp_append = _dep.tp_append
 var _tp_after = _dep.tp_after
 
 function Template_0(options) {
