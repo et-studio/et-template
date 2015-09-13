@@ -192,8 +192,8 @@ export default {
     var re = ''
 
     re = re + `
-@.craeteLine(${it.lineId})
-@.craeteFragment(${it.id})
+@.createLine(${it.lineId})
+@.createFragment(${it.id})
 `
 
     return re
@@ -444,7 +444,7 @@ _last[${it.valueId}] = -1
     var re = ''
 
     re = re + `
-@.updateTemplate(${it.id}, ${it.args.join(', ')})
+_this.doms[${it.id}].update(${it.args.join(', ')})
 `
 
     return re

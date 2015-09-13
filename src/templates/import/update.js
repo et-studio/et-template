@@ -1,4 +1,4 @@
 
 // {{
-@.updateTemplate(${it.id}, ${it.args.join(', ')})
+_this.doms[${it.id}].update(${it.args.join(', ')})
 // }}

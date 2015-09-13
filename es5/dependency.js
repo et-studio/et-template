@@ -32,102 +32,135 @@
     }
   }
 
-  function util_createElement(tag) {
-    return document.createElement(tag)
-  }
+  // about element
+  function tp_createElement(template, id, tag, attributes, properties) {
+    var elememt = document.createElement(tag)
+    template.doms[id] = elememt
 
-  function util_createTextNode(text) {
-    return document.createTextNode(text)
-  }
-
-  function util_createFragment() {
-    return document.createDocumentFragment()
-  }
-
-  function util_createLine() {
-    return document.createComment('line')
-  }
-
-  function util_remove(element) {
-    if (element.parentNode) {
-      element.parentNode.removeChild(element)
-    }
-  }
-
-  function util_text(element, textContent) {
-    element.textContent = textContent
-  }
-
-  function util_setAttribute(element, attrName, attrValue) {
-    element.setAttribute(attrName, attrValue)
-  }
-
-  function util_setAttributes(element, attributes) {
     for (var key in attributes) {
       element.setAttribute(key, attributes[key])
     }
-  }
-
-  function util_removeAttribute(element, attrName) {
-    element.removeAttribute(attrName)
-  }
-
-  function util_removeAttributes(element, attrNames) {
-    for (var i = 0, len = attrNames.length; i < len; i++) {
-      var attrName = attrNames[i]
-      element.removeAttribute(attrName)
-    }
-  }
-
-  function util_setProperties(element, properties) {
     for (var key in properties) {
-      element[key] = properties[key]
+      elememt[key] = properties[key]
     }
   }
 
-  function util_appendChild(elementA, elementB) {
-    elementA.appendChild(elementB)
+  function tp_createFragment(template, id) {
+    template.doms[id] = document.createDocumentFragment()
   }
 
-  function util_empty(element) {
-    element.textContent = ''
+  function tp_createLine(template, id) {
+    template.doms[id] = document.createComment('line')
   }
 
-  function util_before(nextElement, element) {
-    if (nextElement.parentNode) {
-      nextElement.parentNode.insertBefore(element, nextElement)
+  function tp_createText(template, id, text) {
+    template.doms[id] = document.createTextNode(text)
+  }
+
+  function tp_after(template, prevId, id) {
+    var doms = template.doms
+    var prevDom = doms[prevId]
+    var dom = doms[id]
+
+    if (prevDom.parentNode) {
+      prevDom.parentNode.insertBefore(dom, prevDom.nextSibling)
     }
   }
 
-  function util_after(prevElement, element) {
-    if (prevElement.parentNode) {
-      prevElement.parentNode.insertBefore(element, prevElement.nextSibling)
-    }
+  function tp_append(template, parentId, id) {
+    var doms = template.doms
+    var parentDom = doms[parentId]
+    var dom = doms[id]
+    parentDom.appendChild(dom)
   }
 
-  function util_on(element, eventString, callback) {
+  function tp_bind(template, id, eventString, callback) {
+    template._eventDoms[id] = true
+
+    var dom = template.doms[id]
     var eventNames = eventString.split(EVENT_SPLITTER)
     for (var i = 0, len = eventNames.length; i < len; i++) {
-      var eventName = eventNames[i]
-      element.addEventListener(eventName, callback)
+      dom.addEventListener(eventNames[i], callback)
     }
   }
 
-  function util_off(element, eventName, callback) {
-    element.removeEventListener(eventName, callback)
+  function tp_html(template, id, html) {
+    template.doms[id].innerHTML = html
   }
 
-  function tp_createElement(template, id, tag, attributes, properties) {
-    var elememt = util_createElement(tag)
-    template.doms[id] = elememt
+  function tp_text(template, id, text) {
+    template.doms[id].textContent = text
+  }
 
-    if (attributes) {
-      util_setAttributes(elememt, attributes)
+  function tp_setAttribute(template, id, attrName, attrValue) {
+    template.doms[id].setAttribute(attrName, attrValue)
+  }
+
+  function tp_setProperty(template, id, propName, propValue) {
+    template.doms[id][propName] = propValue
+  }
+
+  function tp_remove(template, id) {
+    var dom = template.doms[id]
+    if (dom && dom.parentNode) {
+      dom.parentNode.removeChild(dom)
     }
-    if (properties) {
-      util_setProperties(elememt, properties)
+  }
+
+  function tp_removeAttribute(template, id, attrName) {
+    template.doms[id].removeAttribute(attrName)
+  }
+
+  function tp_removeAttributes(template, id) {
+    var dom = template.doms[id]
+    for (var i = 2, len = arguments.length; i < len; i++) {
+      dom.removeAttribute(arguments[i])
     }
-    return elememt
+  }
+
+  // about template
+  function tp_afterTemplate(template, prevId, id) {
+    var doms = template.doms
+    var prevDom = doms[prevId]
+    var dom = doms[id]
+
+    if (prevDom.parentNode) {
+      prevDom.parentNode.insertBefore(dom.get(), prevDom.nextSibling)
+    }
+  }
+
+  function tp_appendTemplate(template, parentId, id) {
+    var doms = template.doms
+    var parentDom = doms[parentId]
+    var dom = doms[id]
+    parentDom.appendChild(dom.get())
+  }
+
+  function tp_bindTemplate(template, id, eventString, callback) {
+    template._eventDoms[id] = true
+
+    var dom = template.doms[id]
+    var eventNames = eventString.split(EVENT_SPLITTER)
+    for (var i = 0, len = eventNames.length; i < len; i++) {
+      dom.addEventListener(eventNames[i], callback)
+    }
+  }
+
+  function tp_getTemplate(template, id, Constructor) {
+    var template = template.doms[id]
+    if (!template) {
+      template = template.doms[id] = new Constructor(template.options)
+    }
+    return template
+  }
+
+  function tp_removeTemplate(template, id) {
+    var et = template.doms[id]
+    if (et) et.remove()
+  }
+
+  function tp_removeRoot(template, id) {
+    template.roots[id] = false
   }
 
   function tp_setRoot(template, id, length) {
@@ -136,37 +169,6 @@
     } else {
       template.roots[id] = true
     }
-  }
-
-  function tp_removeRoot(template, id) {
-    template.roots[id] = false
-  }
-
-  function tp_bind(template, id, eventString, callback) {
-    var dom = template.doms[id]
-    if (dom && !dom.isET) {
-      template._eventDoms[id] = true
-      util_on(dom, eventString, callback)
-    }
-  }
-
-  function tp_remove(template, id) {
-    var dom = template.doms[id]
-    util_remove(dom)
-  }
-
-  function tp_append(template, parentId, id) {
-    var doms = template.doms
-    var parentNode = doms[parentId]
-    var dom = doms[id]
-    util_appendChild(parentNode, dom)
-  }
-
-  function tp_after(template, prevId, id) {
-    var doms = template.doms
-    var prevDom = doms[prevId]
-    var dom = doms[id]
-    util_after(prevDom, dom)
   }
 
   var template = {
@@ -180,7 +182,7 @@
       else
         this.root = options.root
 
-      this._rootFrag = util_createFragment()
+      this._rootFrag = document.createDocumentFragment()
       this._eventDoms = {} // 纪录那些绑定了事件的id
 
       this.options = options
@@ -206,18 +208,18 @@
         if (isRoot === true) {
           var dom = doms[id]
           if (dom.isET) {
-            util_appendChild(result, dom.get())
+            result.appendChild(dom.get())
           } else {
-            util_appendChild(result, dom)
+            result.appendChild(dom)
           }
         } else {
           for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
             var domId = id + '_' + j
             var dom2 = doms[domId]
             if (dom2.isET) {
-              util_appendChild(result, dom2.get())
+              result.appendChild(dom2.get())
             } else {
-              util_appendChild(result, dom2)
+              result.appendChild(dom2)
             }
           }
         }
@@ -266,8 +268,8 @@
           var dom = doms[id]
           if (dom.isET) {
             dom.remove()
-          } else {
-            util_remove(dom)
+          } else if (dom.parentNode) {
+            dom.parentNode.removeChild(dom)
           }
         } else {
           for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
@@ -275,8 +277,8 @@
             var dom2 = doms[domId]
             if (dom2.isET) {
               dom2.remove()
-            } else {
-              util_remove(dom2)
+            } else if (dom.parentNode) {
+              dom.parentNode.removeChild(dom)
             }
           }
         }
@@ -292,7 +294,7 @@
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
         var dom = doms[id]
-        if (!dom.isET) util_off(dom)
+        if (!dom.isET) dom.removeEventListener()
       }
 
       // destroy attributes
@@ -310,31 +312,27 @@
   }
 
   exports['default'] = {
-    util_createElement: util_createElement,
-    util_createTextNode: util_createTextNode,
-    util_createFragment: util_createFragment,
-    util_createLine: util_createLine,
-    util_remove: util_remove,
-    util_text: util_text,
-    util_setAttribute: util_setAttribute,
-    util_setAttributes: util_setAttributes,
-    util_removeAttribute: util_removeAttribute,
-    util_removeAttributes: util_removeAttributes,
-    util_setProperties: util_setProperties,
-    util_appendChild: util_appendChild,
-    util_empty: util_empty,
-    util_before: util_before,
-    util_after: util_after,
-    util_on: util_on,
-    util_off: util_off,
-
-    tp_createElement: tp_createElement,
-    tp_setRoot: tp_setRoot,
-    tp_removeRoot: tp_removeRoot,
-    tp_bind: tp_bind,
-    tp_remove: tp_remove,
-    tp_append: tp_append,
     tp_after: tp_after,
+    tp_afterTemplate: tp_afterTemplate,
+    tp_append: tp_append,
+    tp_appendTemplate: tp_appendTemplate,
+    tp_bind: tp_bind,
+    tp_bindTemplate: tp_bindTemplate,
+    tp_createElement: tp_createElement,
+    tp_createFragment: tp_createFragment,
+    tp_createLine: tp_createLine,
+    tp_createText: tp_createText,
+    tp_getTemplate: tp_getTemplate,
+    tp_html: tp_html,
+    tp_remove: tp_remove,
+    tp_removeAttribute: tp_removeAttribute,
+    tp_removeAttributes: tp_removeAttributes,
+    tp_removeRoot: tp_removeRoot,
+    tp_removeTemplate: tp_removeTemplate,
+    tp_setAttribute: tp_setAttribute,
+    tp_setProperty: tp_setProperty,
+    tp_setRoot: tp_setRoot,
+    tp_text: tp_text,
 
     extend: extend,
     template: template

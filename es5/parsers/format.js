@@ -39,6 +39,12 @@ var FormatParser = (function () {
   _createClass(FormatParser, [{
     key: 'parse',
     value: function parse(str) {
+      var it = this.parseData(str);
+      return _worker2['default'].format_tp(it);
+    }
+  }, {
+    key: 'parseData',
+    value: function parseData(str) {
       var header = '';
       var methods = [];
       var body = '';
@@ -74,13 +80,11 @@ var FormatParser = (function () {
             _this.throwError(state);
         }
       });
-
-      var it = {
+      return {
         header: header,
         methods: _util2['default'].uniq(methods),
         body: body
       };
-      return _worker2['default'].format_tp(it);
     }
   }]);
 

@@ -417,7 +417,7 @@
       for_create: function for_create(it) {
         var re = '';
 
-        re = re + ('\n@.craeteLine(' + it.lineId + ')\n@.craeteFragment(' + it.id + ')\n');
+        re = re + ('\n@.createLine(' + it.lineId + ')\n@.createFragment(' + it.id + ')\n');
 
         return re;
       },
@@ -567,7 +567,7 @@
       import_update: function import_update(it) {
         var re = '';
 
-        re = re + ('\n@.updateTemplate(' + it.id + ', ' + it.args.join(', ') + ')\n');
+        re = re + ('\n_this.doms[' + it.id + '].update(' + it.args.join(', ') + ')\n');
 
         return re;
       },

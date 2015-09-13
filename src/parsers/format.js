@@ -27,6 +27,10 @@ var formatMachine = new Machine(formatTableOptions)
 
 class FormatParser {
   parse (str) {
+    var it = this.parseData(str)
+    return worker.format_tp(it)
+  }
+  parseData (str) {
     var header = ''
     var methods = []
     var body = ''
@@ -62,13 +66,11 @@ class FormatParser {
           _this.throwError(state)
       }
     })
-
-    var it = {
+    return {
       header: header,
       methods: _.uniq(methods),
       body: body
     }
-    return worker.format_tp(it)
   }
 }
 
