@@ -1,8 +1,5 @@
 
-     | start | name      | condition
----- | ----- | ------    | ---------
-'['  | start |           | condition
-' '  |       | condition | condition
-'\r' |       | condition | condition
-'\n' |       | condition | condition
-     | name  | name      | condition
+     | name      | condition
+---- | ------    | ---------
+/\s/ | condition | condition
+     | name      | condition

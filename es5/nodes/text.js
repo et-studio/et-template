@@ -35,7 +35,9 @@ var TextNode = (function (_Basic) {
     _classCallCheck(this, TextNode);
 
     _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
+
     this.nodeType = 3;
+    this.isVirtualNode = false;
   }
 
   _createClass(TextNode, [{
@@ -44,38 +46,54 @@ var TextNode = (function (_Basic) {
       this.textContent = source;
     }
   }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var text = this.getTextContent();
-      if (_parsersValue2['default'].isErratic(text)) {
-        text = '';
-      }
-      var it = {
+    key: 'assembleWorkerData',
+    value: function assembleWorkerData() {
+      var it = this._workerData;
+      if (it) return it;
+
+      it = {
         id: this.getId(),
         isRoot: this.checkRoot(),
-        lineId: this.getLineId(),
         parentId: this.getParentId(),
-        text: text
+        text: ''
       };
-      return [_worker2['default'].createText(it)];
+      var text = this.getTextContent();
+      if (_parsersValue2['default'].isErratic(text)) {
+        it.valueId = this.getRootValueId();
+        it.valueString = _parsersValue2['default'].parse(text);
+      } else {
+        it.text = text;
+      }
+      this._workerData = it;
+      return it;
+    }
+  }, {
+    key: 'deliverCreate',
+    value: function deliverCreate() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].text_create(it)];
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].text_append(it)];
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var text = this.getTextContent();
-      if (_parsersValue2['default'].isErratic(text)) {
-        var it = {
-          id: this.getId(),
-          isRoot: this.checkRoot(),
-          lineId: this.getLineId(),
-          parentId: this.getParentId(),
-          valueId: this.getRootValueId(),
-          valueString: _parsersValue2['default'].parse(text)
-        };
-        return [_worker2['default'].updateText(it)];
+      var it = this.assembleWorkerData();
+      if (it.valueString) {
+        return [_worker2['default'].text_update(it)];
       } else {
         return [];
       }
+    }
+  }, {
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].text_remove(it)];
     }
   }]);
 

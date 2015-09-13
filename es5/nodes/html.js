@@ -68,12 +68,17 @@ var HtmlNode = (function (_Basic) {
       var re = [];
       var expression = this.expression;
       if (expression && !_parsersValue2['default'].isErratic(expression)) {
-        re.push(_worker2['default'].createHtml({
-          parentId: this.parent.getId(),
+        re.push(_worker2['default'].html_create({
+          parentId: this.getParentId(),
           expression: this.expression
         }));
       }
       return re;
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      return [];
     }
   }, {
     key: 'deliverUpdate',
@@ -81,13 +86,18 @@ var HtmlNode = (function (_Basic) {
       var re = [];
       var expression = this.expression;
       if (_parsersValue2['default'].isErratic(expression)) {
-        re.push(_worker2['default'].updateHtml({
+        re.push(_worker2['default'].html_update({
           parentId: this.getParentId(),
           valueId: this.getRootValueId(),
           valueString: _parsersValue2['default'].parse(expression)
         }));
       }
       return re;
+    }
+  }, {
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      return [];
     }
   }]);
 

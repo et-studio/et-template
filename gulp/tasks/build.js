@@ -19,7 +19,7 @@ module.exports = function (gulp) {
     return gulp.src([
       srcDir + '/**/*.js',
       '!' + srcDir + '/dependency.js',
-      '!' + srcDir + '/templates/*.js'
+      '!' + srcDir + '/templates/**/*.js'
     ])
       .pipe(babel())
       .pipe(gulp.dest(destDir))
@@ -37,12 +37,12 @@ module.exports = function (gulp) {
       .pipe(gulp.dest(destDir))
   })
 
-  gulp.task('build-dependency', function () {
+  gulp.task('build-dep', function () {
     return gulp.src(srcDir + '/dependency.js')
-      .pipe(wrap('etDependency'))
+      .pipe(wrap('et-dependency'))
       .pipe(esformatter())
       .pipe(gulp.dest(destDir))
   })
 
-  gulp.task('build', sequence('dev', 'build-clean', 'build-js', 'build-dependency', 'build-runtime'))
+  gulp.task('build', sequence('dev', 'build-clean', 'build-js', 'build-dep', 'build-runtime'))
 }

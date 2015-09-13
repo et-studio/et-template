@@ -1,99 +1,76 @@
-'use strict';
+'use strict'
 
-var _dep = require('etDependency');
-var _util = _dep._util;
-var _prototype = _dep._prototype;
+var _dep = require('et-dependency')
+var _prototype = _dep.template
+var _extend = _dep.extend
 
-var _util_extend = _util.extend;
-var _util_createLine = _util.createLine;
-var _util_after = _util.after;
-var _util_createTextNode = _util.createTextNode;
-var _util_text = _util.text;
+var _tp_craeteLine = _dep.tp_craeteLine
+var _tp_craeteFragment = _dep.tp_craeteFragment
+var _tp_setRoot = _dep.tp_setRoot
+var _tp_getTemplate = _dep.tp_getTemplate
+var _tp_append = _dep.tp_append
+var _tp_remove = _dep.tp_remove
+var _tp_after = _dep.tp_after
+var _tp_createText = _dep.tp_createText
+var _tp_text = _dep.tp_text
 
-function Template_for(options) {
-  this.init(options);
-}
 function Template_0(options) {
-  this.init(options);
+  this.init(options)
 }
 function Template_2(options) {
-  this.init(options);
+  this.init(options)
 }
-
-_util_extend(Template_for.prototype, _prototype);
-_util_extend(Template_0.prototype, _prototype, {
+_extend(Template_0.prototype, _prototype, {
   create: function create() {
-    var _doms = this.doms;
-    var _roots = this.roots;
+    var _this = this
+    var _scope = this
 
-    var _line = _util_createLine();
-    _doms[1] = _line;
-    _roots[1] = _line;
-
-    var _et = new Template_for(this.options);
-    _doms[2] = _et;
-    _roots[2] = _et;
+    _tp_craeteLine(_this, 1)
+    _tp_craeteFragment(_this, 2)
+    _tp_setRoot(_this, 1)
+    _tp_setRoot(_this, 2, 0)
   },
   update: function update(it) {
-    var _doms = this.doms;
-    var _roots = this.roots;
-    var _last = this.last;
+    var _this = this
+    var _last = this.last
 
-    var _line = _doms[1];
-    var _lastLength = _last[0] || 0;
-    var _list = it.matrix[it.members[1]] || [];
-
-    var _i = 0;
-    var _len = _list.length;
-    _last[0] = _len;
-    for (; _i < _len; _i++) {
-      var _et = _doms['2_' + _i];
-      var _item = _list[_i];
-      var index = _i;
-      var item = _item;
-
-      if (!_et) {
-        _doms['2_' + _i] = _et = new Template_2(this.options);
+    var _lastLength = _last[0] || 0
+    var _list = it.matrix[it.members[1]] || []
+    var _index = 0
+    var _len = _last[0] = _list.length
+    for (; _index < _len; _index++) {
+      var index = _index
+      var item = _list[_index]
+      var _template = _tp_getTemplate(_this, '2_' + _index, Template_2)
+      if (_index >= _lastLength) {
+        _tp_append(_this, 2, '2_' + _index)
       }
-      if (_i >= _lastLength) {
-        _util_after(_line, _et.get());
-      }
-      _et.update(it, item, index);
+      _template.update(it, item, index)
     }
-    for (; _i < _lastLength; _i++) {
-      var _et = _doms['2_' + _i];
-      _et.remove();
+    for (; _index < _lastLength; _index++) {
+      _tp_remove(_this, '2_' + _index)
     }
-
-    var _lastLength = _last[0];
-    var _et = _doms[2];
-    _et.roots = {};
-    for (_i = 0; _i < _lastLength; _i++) {
-      _et.doms[_i] = _et.roots[_i] = _doms['2_' + _i];
-    }
+    _tp_after(_this, 1, 2)
+    _tp_setRoot(_this, 2, _len)
   }
-});
-_util_extend(Template_2.prototype, _prototype, {
+})
+_extend(Template_2.prototype, _prototype, {
   create: function create() {
-    var _doms = this.doms;
-    var _roots = this.roots;
+    var _this = this
+    var _scope = this
 
-    var _et = _util_createTextNode('');
-    _doms[4] = _et;
-    _roots[4] = _et;
+    _tp_createText(_this, 4, '')
+    _tp_setRoot(_this, 4)
   },
   update: function update(it, item, index) {
-    var _doms = this.doms;
-    var _roots = this.roots;
-    var _last = this.last;
+    var _this = this
+    var _last = this.last
 
-    var _et = _doms[4];
-    var _tmp = 'it is for loop ' + index;
+    var _tmp = 'it is for loop ' + index
     if (_last[0] !== _tmp) {
-      _last[0] = _tmp;
-      _util_text(_et, _tmp);
+      _last[0] = _tmp
+      _tp_text(_this, 4, _tmp)
     }
   }
-});
-
-module.exports = Template_0;
+})
+module.exports = exports['default'] = Template_0

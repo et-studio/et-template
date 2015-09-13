@@ -1,15 +1,20 @@
 'use strict'
 
+import _ from './util'
 import Parser from './parser'
 import Compiler from './compiler'
 import Formatter from './formatter'
 
+var DEFAULTS = {
+  dependency: 'et-dependency'
+}
+
 class ET {
   constructor (options = {}) {
-    this.options = options
-    this.parser = new Parser(options)
-    this.compiler = new Compiler(options)
-    this.formatter = new Formatter(options)
+    this.options = _.extend({}, DEFAULTS, options)
+    this.parser = new Parser(this.options)
+    this.compiler = new Compiler(this.options)
+    this.formatter = new Formatter(this.options)
   }
   compile (str) {
     var dom = this.parser.parse(str)

@@ -26,58 +26,101 @@ var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
+var NODE_NAME = '#import';
+var PARAMETER_SPLIT = ',';
+
 var ImportNode = (function (_Basic) {
   _inherits(ImportNode, _Basic);
 
-  function ImportNode() {
+  function ImportNode(source, options) {
     _classCallCheck(this, ImportNode);
 
-    _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, source, options);
+    this.nodeName = NODE_NAME;
   }
 
   _createClass(ImportNode, [{
     key: 'parse',
     value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, {
-        expectNodeName: '#import'
-      });
-      this.nodeName = tmp.nodeName;
-      var list = tmp.condition.split(',');
-      this.importPath = list[0] || '';
-      this.importPath = this.importPath.slice(1, this.importPath.length - 1);
-      this.importArgs = [];
+      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
+      var list = tmp.condition.split(PARAMETER_SPLIT);
+
+      var path = list[0] || '';
+      var isSingleQuotation = path[0] === '\'' && path[path.length - 1] === '\'';
+      var isDoubleQuotation = path[0] === '"' && path[path.length - 1] === '"';
+      if (isSingleQuotation || isDoubleQuotation) {
+        path = path.slice(1, path.length - 1);
+      }
+      this.importPath = path;
+
+      var args = [];
       for (var i = 1, len = list.length; i < len; i++) {
         var str = list[i] || '';
         str = str.trim();
-        if (str) {
-          this.importArgs.push(str);
-        }
+        if (str) args.push(str);
       }
-      if (!this.importArgs.length) {
-        this.importArgs.push('it');
-      }
+      if (!args.length) args.push('it');
+      this.importArgs = args;
+    }
+  }, {
+    key: 'getPath',
+    value: function getPath() {
+      return this.importPath;
+    }
+  }, {
+    key: 'getArguments',
+    value: function getArguments() {
+      return this.importArgs;
+    }
+  }, {
+    key: 'assembleWorkerData',
+    value: function assembleWorkerData() {
+      var it = this._workerData;
+      if (it) return it;
+
+      this._workerData = it = {
+        id: this.getId(),
+        lineId: this.getLineId(),
+        parentId: this.getParentId(),
+        args: this.getArguments(),
+        path: this.getPath(),
+        templateName: this.getTemplateName()
+      };
+
+      return it;
+    }
+  }, {
+    key: 'deliverRequire',
+    value: function deliverRequire() {
+      var it = {
+        name: this.getTemplateName(),
+        path: this.getPath()
+      };
+      return [_worker2['default'].require(it)];
     }
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
-      var re = [];
-      re.push(_worker2['default'].createImport({
-        id: this.getId(),
-        parentId: this.getParentId(),
-        isRoot: this.checkRoot(),
-        path: this.importPath
-      }));
-      return re;
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].import_create(it)];
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].import_append(it)];
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var re = [];
-      re.push(_worker2['default'].updateImport({
-        id: this.getId(),
-        args: this.importArgs
-      }));
-      return re;
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].import_update(it)];
+    }
+  }, {
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].import_remove(it)];
     }
   }]);
 

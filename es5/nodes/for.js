@@ -58,56 +58,70 @@ var ForNode = (function (_Basic) {
       }
     }
   }, {
+    key: 'getForValueId',
+    value: function getForValueId() {
+      var valueId = this._valueId;
+      if (valueId >= 0) return valueId;
+
+      valueId = this._valueId = this.getRootValueId();
+      return valueId;
+    }
+  }, {
+    key: 'checkIsImportTemplate',
+    value: function checkIsImportTemplate() {
+      return this.children.length === 1 && this.children[0].nodeName === '#import';
+    }
+  }, {
+    key: 'assembleWorkerData',
+    value: function assembleWorkerData() {
+      var it = this._workerData;
+      if (it) return it;
+
+      it = {
+        id: this.getId(),
+        lineId: this.getLineId(),
+        parentId: this.getParentId(),
+        valueId: this.getForValueId(),
+        isRoot: this.checkRoot(),
+        expression: this.expression || this.condition,
+        indexName: this.indexName || defaults.indexName,
+        itemName: this.itemName || defaults.itemName,
+        templateName: this.getTemplateName(),
+        args: this.getArguments()
+      };
+
+      if (this.checkIsImportTemplate()) {
+        var child = this.children[0];
+        it.templateName = child.getTemplateName();
+        it.args = child.getArguments();
+      }
+
+      this._workerData = it;
+      return it;
+    }
+  }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
-      var it = {
-        id: this.getId(),
-        isRoot: this.checkRoot(),
-        lineId: this.getLineId(),
-        parentId: this.getParentId()
-      };
-      var re = [];
-      re.push(_worker2['default'].createLine(it));
-      re.push(_worker2['default'].createFor(it));
-      return re;
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].for_create(it)];
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].for_append(it)];
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      var it = {
-        id: this.getId(),
-        parentId: this.getParentId(),
-        lineId: this.getLineId(),
-        isRoot: this.checkRoot(),
-        valueId: this.getRootValueId(),
-        args: this.getArguments(),
-        expression: this.getExpression(),
-        templateName: this.getTemplateName(),
-        indexName: this.getIndexName(),
-        itemName: this.getItemName(),
-        condition: this.condition
-      };
-      return [_worker2['default'].updateFor(it)];
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].for_update(it)];
     }
   }, {
-    key: 'getExpression',
-    value: function getExpression() {
-      return this.expression || this.condition;
-    }
-  }, {
-    key: 'getItemName',
-    value: function getItemName() {
-      return this.itemName || defaults.itemName;
-    }
-  }, {
-    key: 'getLengthName',
-    value: function getLengthName() {
-      return this.lengthName || defaults.lengthName;
-    }
-  }, {
-    key: 'getIndexName',
-    value: function getIndexName() {
-      return this.indexName || defaults.indexName;
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      var it = this.assembleWorkerData();
+      return [_worker2['default'].for_remove(it)];
     }
   }]);
 

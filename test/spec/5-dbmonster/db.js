@@ -46,7 +46,6 @@ function getDatabases () {
   })
 
   return databaseArray
-
 }
 
 function getData () {

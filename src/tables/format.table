@@ -1,7 +1,15 @@
 
-           | header | body       | methodName | methodEnd
----------- | ------ | ----       | ---------- | ---------
-'function' | body   | body       | methodName | body
-'_util.'   | header | methodName | methodName | body
-'('        | header | body       | methodEnd  | body
-           | header | body       | methodName | body
+           | header | body   | prev   | start  | method   | _h1   | _h2   | _h3   | _str1 | _str2 | _str3
+---------- | ------ | ------ | ------ | -----  | ------   | ----- | ----- | ----- | ----- | ----- | -----
+/\s/       | header | prev   | prev   |        |          |       |       |       |       |       |
+'@.'       | header | body   | start  |        |          |       |       |       |       |       |
+'\\\''     | header | body   | body   |        |          |       |       |       |       |       |
+'\\"'      | header | body   | body   |        |          |       |       |       |       |       |
+'\\`'      | header | body   | body   |        |          |       |       |       |       |       |
+'\''       | _h1    | _str1  | _str1  |        |          | _last |       |       | _last |       |
+'"'        | _h2    | _str2  | _str2  |        |          |       | _last |       |       | _last |
+'`'        | _h3    | _str3  | _str3  |        |          |       |       | _last |       |       | _last
+'('        | header | body   | body   |        | end:body |       |       |       |       |       |
+'function' | body   | body   | body   | method | method   |       |       |       |       |       |
+/\w/       | header | body   | body   | method | method   |       |       |       |       |       |
+           | header | body   | body   |        |          |       |       |       |       |       |

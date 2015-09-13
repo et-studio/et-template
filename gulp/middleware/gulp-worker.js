@@ -1,5 +1,6 @@
 'use strict'
 
+var rootDir = process.cwd()
 var path = require('path')
 var through = require('through2')
 var gutil = require('gulp-util')
@@ -27,21 +28,26 @@ function handleString (method, contents) {
 }
 
 module.exports = function () {
-  var methods = []
+  var map = {}
   var outputStream = through.obj(function (file, enc, next) {
     if (!file.isBuffer()) {
       return next()
     }
     var contents = file.contents.toString()
-    var basename = path.basename(file.path)
-    var method = basename.split('.')[0]
+    var relativePath = path.relative(`${rootDir}/src/templates`, file.path)
+    var pathList = relativePath.split(/[\/\.]/g)
+    pathList.pop()
+    var method = pathList.join('_')
 
-    methods.push(handleString(method, contents))
+    map[method] = handleString(method, contents)
     next()
   }, function (next) {
+    var keys = Object.keys(map).sort()
+    var methods = keys.map(function (key) { return map[key] })
     var data = `
       'use strict'
       import _ from './util'
+
       export default {
         ${methods.join(',')}
       }

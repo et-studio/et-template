@@ -37,6 +37,7 @@ class Basic extends NodeInterface {
 
     this._source = source
     this._index = options.index
+    this.isVirtualNode = true
     this.isNewTemplate = false
     this.args = []
     this.nodeType = 'ET'
@@ -51,33 +52,14 @@ class Basic extends NodeInterface {
     this.parse(source)
   }
   getNewTemplateDoms () {
-    var re = []
-    this.each((dom) => {
+    var results = []
+    var eachHandler = (dom) => {
       if (dom.isRoot || dom.isNewTemplate) {
-        re.push(dom)
+        results.push(dom)
       }
-    })
-    return re
-  }
-  getCreateList () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverCreate())
-      if (!child.isNewTemplate) {
-        _.concat(re, child.getCreateList())
-      }
-    })
-    return _.clearArraySpace(re)
-  }
-  getUpdateList () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverUpdate())
-      if (!child.isNewTemplate) {
-        _.concat(re, child.getUpdateList())
-      }
-    })
-    return _.clearArraySpace(re)
+    }
+    this.each(eachHandler)
+    return results
   }
   getArguments () {
     var re = ['it']
@@ -92,108 +74,89 @@ class Basic extends NodeInterface {
     re = _.uniq(re)
     return _.clearArraySpace(re)
   }
-
-  checkRoot () {
-    var parent = this.parent
-    // 当不存在nodeType的时候也认为是root
-    if (!parent || parent.isRoot || parent.isNewTemplate) {
-      return true
-    } else {
-      return false
-    }
-  }
   saveArgument (...list) {
     _.concat(this.args, list)
     return this
   }
-  after (node) {
-    if (this.isRoot) {
-      return
-    }
 
-    var nodePrev = node.previous
-    var nodeNext = node.next
-    if (nodePrev) {
-      nodePrev.next = nodeNext
-    }
-    if (nodeNext) {
-      nodeNext.previous = nodePrev
-    }
-
-    node.parent = this.parent
-    node.previous = this
-    node.next = this.next
-
-    var currentNext = this.next
-    if (currentNext) {
-      currentNext.previous = node
-    }
-    this.next = node
-
-    var newChidren = []
-    var _this = this
-    _.each(this.parent.children, (child) => {
-      newChidren.push(child)
-      if (child.getId() === _this.getId()) {
-        newChidren.push(node)
-      }
-    })
-    this.parent.children = newChidren
-  }
-  appendChild (node) {
-    var children = this.children
-
-    if (children.length > 0) {
-      var last = children[children.length - 1]
-      last.next = node
-      node.previous = last
-    }
-
-    children.push(node)
-    node.next = null
-    node.parent = this
+  checkRoot () {
+    var parent = this.parent
+    if (!parent || parent.isRoot || parent.isNewTemplate) return true
+    if (parent.isVirtualNode && parent.checkRoot()) return true
+    return false
   }
   each (callback) {
-    if (typeof callback === 'function') {
-      if (callback(this) === false) {
-        return
-      }
-      if (this.children.length) {
-        this.children[0].each(callback)
-      }
-      if (this.next) {
-        this.next.each(callback)
-      }
+    if (typeof callback !== 'function') return
+    if (callback(this) === false) return
+
+    if (this.children.length) {
+      this.children[0].each(callback)
+    }
+    if (this.next) {
+      this.next.each(callback)
     }
   }
-  checkHasModelKey () {
-    var result = false
-    this.each((dom) => {
-      if (dom.nodeType === 1 && dom.hasModelKey()) {
-        result = true
-      }
-      return !result
-    })
-    return result
-  }
+
   initAll () {
-    this.each((dom) => {
+    var eachHandler = (dom) => {
       dom.init()
+    }
+    this.each(eachHandler)
+  }
+  getAllRequire () {
+    var re = []
+    var eachHandler = (dom) => {
+      _.concat(re, dom.deliverRequire())
+    }
+    this.each(eachHandler)
+    return re
+  }
+  getChildrenCreate () {
+    var re = []
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverCreate())
     })
+    return re
+  }
+  getChildrenAppend () {
+    var re = []
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverAppend())
+    })
+    return re
+  }
+  getChildrenUpdate () {
+    var re = []
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverUpdate())
+    })
+    return re
+  }
+  getChildrenRemove () {
+    var re = []
+    _.each(this.children, (child) => {
+      _.concat(re, child.deliverRemove())
+    })
+    return re
   }
 
   // functions could be override
-  parse (source) {
-    // be called in constructor
-  }
-  init () {
-    // should be called after the whole Tree created
+  parse (source) {}
+  init () {}
+  deliverRequire () {
+    return []
   }
   deliverCreate () {
-    return []
+    return this.getChildrenCreate()
+  }
+  deliverAppend () {
+    return this.getChildrenAppend()
   }
   deliverUpdate () {
-    return []
+    return this.getChildrenUpdate()
+  }
+  deliverRemove () {
+    return this.getChildrenRemove()
   }
 }
 

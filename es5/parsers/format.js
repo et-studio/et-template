@@ -18,11 +18,15 @@ var _util = require('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _worker = require('../worker');
+
+var _worker2 = _interopRequireDefault(_worker);
+
 // @tableStart: format
 var formatTableOptions = {
-  states: ['header', 'body', 'methodName', 'methodEnd'],
-  symbols: ['function', '_util.', '('],
-  table: [{ '0': 'body', '1': 'header', '2': 'header', '-1': 'header' }, { '0': 'body', '1': 'methodName', '2': 'body', '-1': 'body' }, { '0': 'methodName', '1': 'methodName', '2': 'methodEnd', '-1': 'methodName' }, { '0': 'body', '1': 'body', '2': 'body', '-1': 'body' }]
+  states: ['header', 'body', 'prev', 'start', 'method', '_h1', '_h2', '_h3', '_str1', '_str2', '_str3'],
+  symbols: [/\s/, '@.', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', 'function', /\w/],
+  table: [{ '0': 'header', '1': 'header', '2': 'header', '3': 'header', '4': 'header', '5': '_h1', '6': '_h2', '7': '_h3', '8': 'header', '9': 'body', '10': 'header', '-1': 'header' }, { '0': 'prev', '1': 'body', '2': 'body', '3': 'body', '4': 'body', '5': '_str1', '6': '_str2', '7': '_str3', '8': 'body', '9': 'body', '10': 'body', '-1': 'body' }, { '0': 'prev', '1': 'start', '2': 'body', '3': 'body', '4': 'body', '5': '_str1', '6': '_str2', '7': '_str3', '8': 'body', '9': 'body', '10': 'body', '-1': 'body' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': 'method', '10': 'method', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': 'end:body', '9': 'method', '10': 'method', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '_last', '6': '', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '_last', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '_last', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '_last', '6': '', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '_last', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '_last', '8': '', '9': '', '10': '', '-1': '' }]
 };
 // @tableEnd
 var formatMachine = new _machine2['default'](formatTableOptions);
@@ -35,52 +39,48 @@ var FormatParser = (function () {
   _createClass(FormatParser, [{
     key: 'parse',
     value: function parse(str) {
-      var _this = this;
-
       var header = '';
       var methods = [];
       var body = '';
 
-      var tmp = '';
+      var method = '';
+      var _this = this;
       formatMachine.each(str, function (state, token) {
         switch (state) {
           case 'header':
+          case '_h1':
+          case '_h2':
+          case '_h3':
             header += token;
             break;
           case 'body':
+          case 'prev':
+          case '_str1':
+          case '_str2':
+          case '_str3':
             body += token;
             break;
-          case 'methodName':
-            tmp += token;
+          case 'start':
+            method = '';
             break;
-          case 'methodEnd':
-            methods.push(_this.declareUtilMethod(tmp));
-            body = body + _this.translateUtilMethod(tmp) + token;
-            tmp = '';
+          case 'method':
+            method += token;
             break;
+          case 'end':
+            methods.push(method);
+            body = body + '_tp_' + method + token + '_this, ';
+            break;
+          default:
+            _this.throwError(state);
         }
       });
-      methods = _util2['default'].uniq(methods);
-      return '' + header + methods.join('') + body;
-    }
-  }, {
-    key: 'translateUtilMethod',
-    value: function translateUtilMethod(tmpStr) {
-      var re = '';
-      _util2['default'].each(tmpStr, function (char) {
-        if (char === '.') {
-          re += '_';
-        } else {
-          re += char;
-        }
-      });
-      return re.trim();
-    }
-  }, {
-    key: 'declareUtilMethod',
-    value: function declareUtilMethod(tmpStr) {
-      var methodName = this.translateUtilMethod(tmpStr);
-      return 'var ' + methodName + ' = ' + tmpStr + ';\n';
+
+      var it = {
+        header: header,
+        methods: _util2['default'].uniq(methods),
+        body: body
+      };
+      return _worker2['default'].format_tp(it);
     }
   }]);
 

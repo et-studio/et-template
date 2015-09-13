@@ -17,7 +17,7 @@ module.exports = function (moduleId) {
         var module = {}
         var exports = {}
         factory(require, exports, module)
-        global.${moduleId} = module.exports
+        global['${moduleId}'] = module.exports
       }
     })(window, function(require, exports, module) {
       ${contents}

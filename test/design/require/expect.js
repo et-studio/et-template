@@ -1,44 +1,38 @@
-'use strict';
+'use strict'
 
-var _dep = require('etDependency');
-var _util = _dep._util;
-var _prototype = _dep._prototype;
+var _dep = require('et-dependency')
+var _prototype = _dep.template
+var _extend = _dep.extend
 
-var _util_extend = _util.extend;
-var _util_createElement = _util.createElement;
-var _util_appendChild = _util.appendChild;
-var _util_createTextNode = _util.createTextNode;
+var Template_4 = require('./models/user')
+var _tp_createElement = _dep.tp_createElement
+var _tp_getTemplate = _dep.tp_getTemplate
+var _tp_createText = _dep.tp_createText
+var _tp_setRoot = _dep.tp_setRoot
+var _tp_append = _dep.tp_append
+var _tp_updateTemplate = _dep.tp_updateTemplate
 
 function Template_0(options) {
-  this.init(options);
+  this.init(options)
 }
-
-_util_extend(Template_0.prototype, _prototype, {
+_extend(Template_0.prototype, _prototype, {
   create: function create() {
-    var _doms = this.doms;
-    var _roots = this.roots;
+    var _this = this
+    var _scope = this
 
-    var _et = _util_createElement('DIV');
-    _doms[2] = _et;
-    _roots[2] = _et;
+    _tp_createElement(_this, 2, 'DIV')
+    _tp_getTemplate(_this, 4, Template_4)
+    _tp_createText(_this, 6, '1234567890')
 
-    var _ET = require('./models/user');
-    var _et = new _ET(this.options);
-    _doms[4] = _et;
-    _util_appendChild(_doms[2], _et.get());
-
-    var _et = _util_createTextNode('1234567890');
-    _doms[6] = _et;
-    _util_appendChild(_doms[2], _et);
+    _tp_setRoot(_this, 2)
+    _tp_append(_this, 2, 4)
+    _tp_append(_this, 2, 6)
   },
   update: function update(it) {
-    var _doms = this.doms;
-    var _roots = this.roots;
-    var _last = this.last;
-
-    var _et = _doms[4];
-    _et.update(it, it.test);
+    var _this = this
+    var _last = this.last
+    _tp_updateTemplate(_this, 4, it, it.test)
   }
-});
+})
 
-module.exports = Template_0;
+module.exports = exports['default'] = Template_0

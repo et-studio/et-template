@@ -10,6 +10,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _util = require('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
 var _parser = require('./parser');
 
 var _parser2 = _interopRequireDefault(_parser);
@@ -22,16 +26,20 @@ var _formatter = require('./formatter');
 
 var _formatter2 = _interopRequireDefault(_formatter);
 
+var DEFAULTS = {
+  dependency: 'et-dependency'
+};
+
 var ET = (function () {
   function ET() {
     var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     _classCallCheck(this, ET);
 
-    this.options = options;
-    this.parser = new _parser2['default'](options);
-    this.compiler = new _compiler2['default'](options);
-    this.formatter = new _formatter2['default'](options);
+    this.options = _util2['default'].extend({}, DEFAULTS, options);
+    this.parser = new _parser2['default'](this.options);
+    this.compiler = new _compiler2['default'](this.options);
+    this.formatter = new _formatter2['default'](this.options);
   }
 
   _createClass(ET, [{

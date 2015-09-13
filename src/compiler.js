@@ -8,22 +8,19 @@ class Compiler {
     this.options = options
   }
   pickData (root) {
-    var newDoms = root.getNewTemplateDoms()
     var re = {
-      templateName: root.getTemplateName(),
-      hasFor: false,
+      dependency: this.options.dependency,
       modelType: this.options.modelType,
-      hasModelKey: root.checkHasModelKey(),
+      requires: root.getAllRequire(),
+      templateName: root.getTemplateName(),
       newDoms: []
     }
-    _.each(newDoms, (dom) => {
-      if (dom.nodeName === '#for') {
-        re.hasFor = true
-      }
+    _.each(root.getNewTemplateDoms(), (dom) => {
       re.newDoms.push({
         templateName: dom.getTemplateName(),
-        createList: dom.getCreateList(),
-        updateList: dom.getUpdateList(),
+        createList: dom.getChildrenCreate(),
+        appendList: dom.getChildrenAppend(),
+        updateList: dom.getChildrenUpdate(),
         args: dom.getArguments()
       })
     })

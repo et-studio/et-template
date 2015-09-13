@@ -34,9 +34,9 @@ var _parsersValue = require('../parsers/value');
 
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
 
-var _parsersCondition = require('../parsers/condition');
+var _elementHandler = require('./element-handler');
 
-var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
+var _elementHandler2 = _interopRequireDefault(_elementHandler);
 
 var ET_MODEL = 'et-model';
 var PROPERTIY_SET = {
@@ -53,9 +53,10 @@ var Element = (function (_Basic) {
     _classCallCheck(this, Element);
 
     _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, source, options);
+
     this.nodeType = 1;
-    this.expressions = [];
-    this.parseExpresions(options.expressions);
+    this.isVirtualNode = false;
+    this.expressions = _elementHandler2['default'].parse(options.expressions);
   }
 
   // 这部分方法和代码是为初始化的时候写的
@@ -76,110 +77,7 @@ var Element = (function (_Basic) {
 
       if (this.modelKey) delete tinyNode.attributes[ET_MODEL];
       this.attributes = tinyNode.attributes;
-      this.nodeName = tinyNode.nodeName;
-    }
-  }, {
-    key: 'parseExpresions',
-    value: function parseExpresions(expressions) {
-      var newExpressions = [];
-      var _this = this;
-      _util2['default'].each(expressions, function (expression) {
-        if (expression.children.length === 1) {
-          var items1 = _this.parseSingleExpresion(expression);
-          if (items1.length) newExpressions.push(items1);
-        } else if (expression.children.length > 1) {
-          var items2 = _this.parseMultipleExpresion(expression);
-          if (items2.length) newExpressions.push(items2);
-        }
-      });
-      this.expressions = newExpressions;
-    }
-  }, {
-    key: 'parseSingleExpresion',
-    value: function parseSingleExpresion(expression) {
-      var items = [];
-      var child = expression.children[0];
-      var source = child && child.source || '';
-      var tinyNode = _parsersElement2['default'].parse('<div ' + source + '>', this.options);
-      var conditionNode = _parsersCondition2['default'].parse(expression.source);
-
-      if (!_util2['default'].isEmpty(tinyNode.attributes)) {
-        items.push({
-          tag: 'if',
-          condition: conditionNode.condition,
-          attributes: tinyNode.attributes
-        });
-        items.push({
-          tag: 'else',
-          exclusions: Object.keys(tinyNode.attributes)
-        });
-      }
-      return items;
-    }
-  }, {
-    key: 'parseMultipleExpresion',
-    value: function parseMultipleExpresion(expression) {
-      var items = [];
-      var hasElse = false;
-      var allAttributes = {};
-
-      var source = null;
-      var tinyNode = null;
-      var conditionNode = _parsersCondition2['default'].parse(expression.source);
-      _util2['default'].each(expression.children, function (child, i) {
-        if (i % 2) {
-          conditionNode = _parsersCondition2['default'].parse(child.source);
-        } else {
-          source = child && child.source || '';
-          tinyNode = _parsersElement2['default'].parse('<div ' + source + '>');
-          _util2['default'].extend(allAttributes, tinyNode.attributes);
-
-          if (conditionNode.tag === 'else') hasElse = true;
-          items.push({
-            tag: conditionNode.tag,
-            condition: conditionNode.condition,
-            attributes: tinyNode.attributes
-          });
-        }
-      });
-      _util2['default'].each(items, function (item) {
-        item.exclusions = Object.keys(_util2['default'].omit(allAttributes, item.attributes));
-      });
-      if (!hasElse) {
-        items.push({
-          tag: 'else',
-          exclusions: allAttributes
-        });
-      }
-      return items;
-    }
-
-    // 这部分代码是为编译的时候写的
-  }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var set = this.getResidentAttributes();
-      var it = {
-        id: this.getId(),
-        isRoot: this.checkRoot(),
-        parentId: this.getParentId(),
-        nodeName: this.getNodeName(),
-        attributes: set.attributes,
-        properties: set.properties,
-        modelKey: this.modelKey,
-        modelType: this.options.modelType
-      };
-      return [_worker2['default'].createElement(it)];
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var it = {
-        id: this.getId(),
-        erraticAttributes: this.getErraticAttributes(),
-        expressions: this.translateExpressions()
-      };
-      return [_worker2['default'].updateAttributes(it)];
+      this.nodeName = tinyNode.nodeName.toUpperCase();
     }
 
     // 接下来的方法都是一些外部或者内部使用的辅助方法
@@ -224,26 +122,33 @@ var Element = (function (_Basic) {
     key: 'translateExpressions',
     value: function translateExpressions() {
       // 将条件表达式转换成为work对象使用的数据
-      var re = [];
+      var results = [];
       var _this = this;
       _util2['default'].each(this.expressions, function (items) {
         var newItems = [];
         var valueId = _this.getRootValueId();
         _util2['default'].each(items, function (item) {
           var obj = _util2['default'].pick(item, 'tag', 'exclusions', 'condition');
+          var attrs = _this.translateAttributesToCode(item.attributes);
+
           obj.valueId = valueId;
-          obj.attributes = _this.translateAttributesToCode(item.attributes);
+          obj.residentAttributes = attrs.filter(function (attr) {
+            return !attr.isErratic;
+          });
+          obj.erraticAttributes = attrs.filter(function (attr) {
+            return attr.isErratic;
+          });
           newItems.push(obj);
         });
-        re.push(newItems);
+        results.push(newItems);
       });
-      return re;
+      return results;
     }
   }, {
     key: 'translateAttributesToCode',
     value: function translateAttributesToCode(attrs) {
       // 判断动态属性 并且添加函数判断和设置
-      var re = [];
+      var results = [];
       var propertis = PROPERTIY_SET[this.nodeName] || [];
 
       for (var key in attrs) {
@@ -255,18 +160,67 @@ var Element = (function (_Basic) {
           value: value,
           valueString: _parsersValue2['default'].parse(value)
         };
-        if (tmp.isErratic && !tmp.isDirect) {
+        if (tmp.isErratic && !tmp.isProperty) {
           tmp.valueId = this.getRootValueId();
         }
-        re.push(tmp);
+        results.push(tmp);
       }
-      return re;
+      return results;
+    }
+
+    // 这部分代码是为编译的时候写的
+  }, {
+    key: 'assembleWrokerData',
+    value: function assembleWrokerData() {
+      var it = this._workerData;
+      if (it) return it;
+
+      var set = this.getResidentAttributes();
+      this._workerData = it = {
+        id: this.getId(),
+        isRoot: this.checkRoot(),
+        parentId: this.parentId,
+        nodeName: this.getNodeName(),
+        modelKey: this.modelKey,
+        modelType: this.options.modelType,
+
+        attributes: set.attributes,
+        properties: set.properties,
+        erraticAttributes: this.getErraticAttributes(),
+        expressions: this.translateExpressions()
+      };
+      return it;
     }
   }, {
-    key: 'hasModelKey',
-    value: function hasModelKey() {
-      // 判断是非具备反向值的绑定
-      return !!this.modelKey;
+    key: 'deliverCreate',
+    value: function deliverCreate() {
+      var results = this.getChildrenCreate();
+      var it = this.assembleWrokerData();
+      results.unshift(_worker2['default'].element_create(it));
+      return results;
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      var results = this.getChildrenAppend();
+      var it = this.assembleWrokerData();
+      results.unshift(_worker2['default'].element_append(it));
+      return results;
+    }
+  }, {
+    key: 'deliverUpdate',
+    value: function deliverUpdate() {
+      var results = this.getChildrenUpdate();
+      var it = this.assembleWrokerData();
+      var updateStr = _worker2['default'].element_update(it);
+      if (updateStr) results.unshift(updateStr);
+      return results;
+    }
+  }, {
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      var it = this.assembleWrokerData();
+      return [_worker2['default'].element_remove(it)];
     }
   }]);
 

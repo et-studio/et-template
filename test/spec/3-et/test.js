@@ -22,15 +22,19 @@ exports.register = function () {
   })
 
   $btn.addEventListener('click', function () {
+    console.clear()
+
     var opsStr = $options.value || '{}'
     var opts = JSON.parse(opsStr)
     var html = $input.value
     var et = new ET(opts)
-    var result = et.compile(html)
+
+    var result = ''
+    if (opts.useDot) result = et.compileDot(html)
+    else result = et.compile(html)
+
     result = jsFormatter.js_beautify(result)
     result = result.trim().replace(/\n\s*\n/g, '\n')
-
-    console.clear()
     console.log(result)
   })
 
