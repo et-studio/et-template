@@ -41,6 +41,7 @@ class IfNode extends Basic {
     _.each(this.children, checkHandler)
 
     // second index the expressions
+    var hasElse = false
     var expressions = []
     var expression = createExpression(TAG, this.condition)
     expressions.push(expression)
@@ -49,6 +50,8 @@ class IfNode extends Basic {
       if (dom.nodeName === '#elseif' || dom.nodeName === '#else') {
         var tag = dom.nodeName.substr(1)
         if (tag === 'elseif') tag = 'else if'
+        else hasElse = true
+
         expression = createExpression(tag, dom.condition, i, i)
         expressions.push(expression)
       }
@@ -57,6 +60,7 @@ class IfNode extends Basic {
       }
     }
     _.each(this.children, indexHandler)
+    if (!hasElse) expressions.push(createExpression('else', '', 0, 0))
 
     // third get the worker list
     var _this = this

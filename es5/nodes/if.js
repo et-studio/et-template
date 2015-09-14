@@ -77,6 +77,7 @@ var IfNode = (function (_Basic) {
       _util2['default'].each(this.children, checkHandler);
 
       // second index the expressions
+      var hasElse = false;
       var expressions = [];
       var expression = createExpression(TAG, this.condition);
       expressions.push(expression);
@@ -84,7 +85,8 @@ var IfNode = (function (_Basic) {
       var indexHandler = function indexHandler(dom, i) {
         if (dom.nodeName === '#elseif' || dom.nodeName === '#else') {
           var tag = dom.nodeName.substr(1);
-          if (tag === 'elseif') tag = 'else if';
+          if (tag === 'elseif') tag = 'else if';else hasElse = true;
+
           expression = createExpression(tag, dom.condition, i, i);
           expressions.push(expression);
         }
@@ -93,6 +95,7 @@ var IfNode = (function (_Basic) {
         }
       };
       _util2['default'].each(this.children, indexHandler);
+      if (!hasElse) expressions.push(createExpression('else', '', 0, 0));
 
       // third get the worker list
       var _this = this;

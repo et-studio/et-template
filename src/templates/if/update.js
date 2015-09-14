@@ -11,7 +11,13 @@ _.each(it.expressions, (expression, i) => {
 
       ${expression.removeList.join('\n')}
       ${expression.appendList.join('\n')}
-      @.after(${it.lineId}, ${it.id})
+      // }}
+      if (expression.endIndex > expression.startIndex) {
+        // {{
+        @.after(_elements, ${it.lineId}, ${it.id})
+        // }}
+      }
+      // {{
     }
     ${expression.updateList.join('\n')}
   }

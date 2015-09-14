@@ -22,7 +22,7 @@ _.each(it.newDoms, (dom) => {
     // {{
     _extend(${dom.templateName}.prototype, _prototype, {
       create: function create () {
-        var _this = this
+        var _elements = this.elements
         // }}
         if (it.modelType === 'model' || it.modelType === 'object') {
           // {{
@@ -43,7 +43,7 @@ _.each(it.newDoms, (dom) => {
       if (dom.updateList.length) {
         // {{
         update: function update (${dom.args.join(', ')}) {
-          var _this = this
+          var _elements = this.elements
           var _last = this.last
 
           ${dom.updateList.join('\n')}

@@ -21,8 +21,6 @@
       "src/templates/",
       "src/worker.js",
       "design/",
-      "test/design/",
-      "test/design-dot/",
       "es5/"
     ]
   },

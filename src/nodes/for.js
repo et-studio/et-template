@@ -38,6 +38,9 @@ class ForNode extends Basic {
   checkIsImportTemplate () {
     return this.children.length === 1 && this.children[0].nodeName === '#import'
   }
+  checkIsCompile () {
+    return !this.checkIsImportTemplate()
+  }
   assembleWorkerData () {
     var it = this._workerData
     if (it) return it

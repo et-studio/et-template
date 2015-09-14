@@ -123,7 +123,7 @@ class Element extends Basic {
     this._workerData = it = {
       id: this.getId(),
       isRoot: this.checkRoot(),
-      parentId: this.parentId,
+      parentId: this.getParentId(),
       nodeName: this.getNodeName(),
       modelKey: this.modelKey,
       modelType: this.options.modelType,

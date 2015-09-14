@@ -32,131 +32,109 @@
     }
   }
 
-  // about element
-  function tp_createElement(template, id, tag, attributes, properties) {
-    var elememt = document.createElement(tag)
-    template.doms[id] = elememt
-
-    for (var key in attributes) {
-      element.setAttribute(key, attributes[key])
+  function tp_createElement(elements, id, tag, attributes, properties) {
+    var element = document.createElement(tag)
+    for (var attrName in attributes) {
+      element.setAttribute(attrName, attributes[attrName])
     }
-    for (var key in properties) {
-      elememt[key] = properties[key]
+    for (var propName in properties) {
+      element[propName] = properties[propName]
+    }
+    elements[id] = element
+  }
+
+  function tp_createFragment(elements, id) {
+    elements[id] = document.createDocumentFragment()
+  }
+
+  function tp_createLine(elements, id) {
+    elements[id] = document.createComment('line')
+  }
+
+  function tp_createText(elements, id, text) {
+    elements[id] = document.createTextNode(text)
+  }
+
+  function tp_after(elements, prevId, id) {
+    var prev = elements[prevId]
+    var current = elements[id]
+
+    if (prev.parentNode) {
+      if (current.isET) {
+        prev.parentNode.insertBefore(current.get(), prev.nextSibling)
+      } else {
+        prev.parentNode.insertBefore(current, prev.nextSibling)
+      }
     }
   }
 
-  function tp_createFragment(template, id) {
-    template.doms[id] = document.createDocumentFragment()
-  }
+  function tp_append(elements, parentId, id) {
+    var parent = elements[parentId]
+    var current = elements[id]
 
-  function tp_createLine(template, id) {
-    template.doms[id] = document.createComment('line')
-  }
-
-  function tp_createText(template, id, text) {
-    template.doms[id] = document.createTextNode(text)
-  }
-
-  function tp_after(template, prevId, id) {
-    var doms = template.doms
-    var prevDom = doms[prevId]
-    var dom = doms[id]
-
-    if (prevDom.parentNode) {
-      prevDom.parentNode.insertBefore(dom, prevDom.nextSibling)
+    if (current.isET) {
+      parent.appendChild(current.get())
+    } else {
+      parent.appendChild(current)
     }
-  }
-
-  function tp_append(template, parentId, id) {
-    var doms = template.doms
-    var parentDom = doms[parentId]
-    var dom = doms[id]
-    parentDom.appendChild(dom)
   }
 
   function tp_bind(template, id, eventString, callback) {
-    template._eventDoms[id] = true
+    template._eventsLogger[id] = true
 
-    var dom = template.doms[id]
+    var element = template.elements[id]
     var eventNames = eventString.split(EVENT_SPLITTER)
     for (var i = 0, len = eventNames.length; i < len; i++) {
-      dom.addEventListener(eventNames[i], callback)
+      element.addEventListener(eventNames[i], callback)
     }
   }
 
-  function tp_html(template, id, html) {
-    template.doms[id].innerHTML = html
+  function tp_html(elements, id, html) {
+    elements[id].innerHTML = html
   }
 
-  function tp_text(template, id, text) {
-    template.doms[id].textContent = text
+  function tp_text(elements, id, text) {
+    elements[id].textContent = text
   }
 
-  function tp_setAttribute(template, id, attrName, attrValue) {
-    template.doms[id].setAttribute(attrName, attrValue)
+  function tp_setAttribute(elements, id, attrName, attrValue) {
+    elements[id].setAttribute(attrName, attrValue)
   }
 
-  function tp_setProperty(template, id, propName, propValue) {
-    template.doms[id][propName] = propValue
+  function tp_getProperty(elements, id, propName) {
+    return elements[id][propName]
   }
 
-  function tp_remove(template, id) {
-    var dom = template.doms[id]
-    if (dom && dom.parentNode) {
-      dom.parentNode.removeChild(dom)
+  function tp_setProperty(elements, id, propName, propValue) {
+    elements[id][propName] = propValue
+  }
+
+  function tp_remove(elements, id) {
+    var element = elements[id]
+    if (element && element.isET) {
+      element.remove()
+    } else if (element && element.parentNode) {
+      element.parentNode.removeChild(element)
     }
   }
 
-  function tp_removeAttribute(template, id, attrName) {
-    template.doms[id].removeAttribute(attrName)
+  function tp_removeAttribute(elements, id, attrName) {
+    elements[id].removeAttribute(attrName)
   }
 
-  function tp_removeAttributes(template, id) {
-    var dom = template.doms[id]
+  function tp_removeAttributes(elements, id) {
+    var element = elements[id]
     for (var i = 2, len = arguments.length; i < len; i++) {
-      dom.removeAttribute(arguments[i])
+      element.removeAttribute(arguments[i])
     }
   }
 
-  // about template
-  function tp_afterTemplate(template, prevId, id) {
-    var doms = template.doms
-    var prevDom = doms[prevId]
-    var dom = doms[id]
-
-    if (prevDom.parentNode) {
-      prevDom.parentNode.insertBefore(dom.get(), prevDom.nextSibling)
+  function tp_getTemplate(elements, id, Constructor, options) {
+    var et = elements[id]
+    if (!et) {
+      et = elements[id] = new Constructor(options)
     }
-  }
-
-  function tp_appendTemplate(template, parentId, id) {
-    var doms = template.doms
-    var parentDom = doms[parentId]
-    var dom = doms[id]
-    parentDom.appendChild(dom.get())
-  }
-
-  function tp_bindTemplate(template, id, eventString, callback) {
-    template._eventDoms[id] = true
-
-    var dom = template.doms[id]
-    var eventNames = eventString.split(EVENT_SPLITTER)
-    for (var i = 0, len = eventNames.length; i < len; i++) {
-      dom.addEventListener(eventNames[i], callback)
-    }
-  }
-
-  function tp_getTemplate(template, id, Constructor) {
-    var template = template.doms[id]
-    if (!template) {
-      template = template.doms[id] = new Constructor(template.options)
-    }
-    return template
-  }
-
-  function tp_removeTemplate(template, id) {
-    var et = template.doms[id]
-    if (et) et.remove()
+    return et
   }
 
   function tp_removeRoot(template, id) {
@@ -183,18 +161,18 @@
         this.root = options.root
 
       this._rootFrag = document.createDocumentFragment()
-      this._eventDoms = {} // 纪录那些绑定了事件的id
+      this._eventsLogger = {} // 纪录那些绑定了事件的id
 
       this.options = options
       this.roots = {} // 记录某个id是不是root，如果纪录的是数字，那么认为是一个所属集合
-      this.doms = {} // 记录所有的节点对象
+      this.elements = {} // 记录所有的节点对象
       this.last = {} // 记录上一次判断是什么值，用于差异更新
       this.events = {} // 纪录模板事件
       this.create()
     },
     get: function get() {
       var result = this._rootFrag
-      var doms = this.doms
+      var elements = this.elements
       var roots = this.roots
       var ids = Object.keys(roots).map(function(key) {
         return +key
@@ -206,20 +184,20 @@
         if (!isRoot) continue
 
         if (isRoot === true) {
-          var dom = doms[id]
-          if (dom.isET) {
-            result.appendChild(dom.get())
+          var element = elements[id]
+          if (element.isET) {
+            result.appendChild(element.get())
           } else {
-            result.appendChild(dom)
+            result.appendChild(element)
           }
         } else {
           for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
-            var domId = id + '_' + j
-            var dom2 = doms[domId]
-            if (dom2.isET) {
-              result.appendChild(dom2.get())
+            var elementId = id + '_' + j
+            var forElement = elements[elementId]
+            if (forElement.isET) {
+              result.appendChild(forElement.get())
             } else {
-              result.appendChild(dom2)
+              result.appendChild(forElement)
             }
           }
         }
@@ -241,9 +219,9 @@
       return this
     },
     trigger: function trigger(eventName) {
-      var args = new Array(arguments.length - 1)
-      for (var j = 0, argLen = arguments.length; j < argLen; j++) {
-        args[i] = arguments[i]
+      var args = []
+      for (var j = 1, argLen = arguments.length; j < argLen; j++) {
+        args.push(arguments[j])
       }
 
       var root = this.root || this
@@ -255,7 +233,7 @@
     },
 
     remove: function remove() {
-      var doms = this.doms
+      var elements = this.elements
       var roots = this.roots
       var ids = Object.keys(roots)
 
@@ -265,36 +243,25 @@
         if (!isRoot) continue
 
         if (isRoot === true) {
-          var dom = doms[id]
-          if (dom.isET) {
-            dom.remove()
-          } else if (dom.parentNode) {
-            dom.parentNode.removeChild(dom)
-          }
+          tp_remove(elements, id)
         } else {
           for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
-            var domId = id + '_' + j
-            var dom2 = doms[domId]
-            if (dom2.isET) {
-              dom2.remove()
-            } else if (dom.parentNode) {
-              dom.parentNode.removeChild(dom)
-            }
+            tp_remove(elements, id + '_' + j)
           }
         }
       }
       return this
     },
     destroy: function destroy() {
-      // remove doms
+      // remove elements
       this.remove()
       // off events
-      var ids = Object.keys(this._eventDoms)
-      var doms = this.doms
+      var ids = Object.keys(this._eventsLogger)
+      var elements = this.elements
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
-        var dom = doms[id]
-        if (!dom.isET) dom.removeEventListener()
+        var element = elements[id]
+        if (!element.isET) element.removeEventListener()
       }
 
       // destroy attributes
@@ -313,11 +280,8 @@
 
   exports['default'] = {
     tp_after: tp_after,
-    tp_afterTemplate: tp_afterTemplate,
     tp_append: tp_append,
-    tp_appendTemplate: tp_appendTemplate,
     tp_bind: tp_bind,
-    tp_bindTemplate: tp_bindTemplate,
     tp_createElement: tp_createElement,
     tp_createFragment: tp_createFragment,
     tp_createLine: tp_createLine,
@@ -328,8 +292,8 @@
     tp_removeAttribute: tp_removeAttribute,
     tp_removeAttributes: tp_removeAttributes,
     tp_removeRoot: tp_removeRoot,
-    tp_removeTemplate: tp_removeTemplate,
     tp_setAttribute: tp_setAttribute,
+    tp_getProperty: tp_getProperty,
     tp_setProperty: tp_setProperty,
     tp_setRoot: tp_setRoot,
     tp_text: tp_text,

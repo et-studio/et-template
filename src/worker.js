@@ -10,14 +10,14 @@ export default {
     var attrs = arguments[1] || []
     if (attrs.length === 1) {
       re = re + `
-  @.removeAttribute(${it.id}, '${_.translateMarks(attrs[0])}')
+  @.removeAttribute(_elements, ${it.id}, '${_.translateMarks(attrs[0])}')
 `
     } else if (attrs.length > 1) {
       var exclusions = attrs.map((item) => {
         return `'${_.translateMarks(item)}'`
       })
       re = re + `
-  @.removeAttributes(${it.id}, ${exclusions.join(',')})
+  @.removeAttributes(_elements, ${it.id}, ${exclusions.join(',')})
 `
     }
 
@@ -32,8 +32,8 @@ export default {
         if (attr.isProperty) {
           re = re + `
       var _tmp = ${attr.valueString}
-      if (@.getProperty(${it.id}, '${_.translateMarks(attr.key)}') !== _tmp) {
-        @.setProperty(${it.id}, '${_.translateMarks(attr.key)}', tmp)
+      if (@.getProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}') !== _tmp) {
+        @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
       }
 `
         } else {
@@ -41,18 +41,18 @@ export default {
       var _tmp = ${attr.valueString}
       if (_last[${attr.valueId}] !== _tmp) {
         _last[${attr.valueId}] = _tmp
-        @.setAttribute(${it.id}, '${_.translateMarks(attr.key)}', _tmp)
+        @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
       }
 `
         }
       } else {
         if (attr.isProperty) {
           re = re + `
-      @.setProperty(${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+      @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
 `
         } else {
           re = re + `
-      @.setAttribute(${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+      @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
 `
         }
       }
@@ -64,12 +64,12 @@ export default {
     var re = ''
     if (it.parentId) {
       re = re + `
-  @.append(${it.parentId}, ${it.id})
+  @.append(_elements, ${it.parentId}, ${it.id})
 `
     }
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.id})
+  @.setRoot(this, ${it.id})
 `
     }
 
@@ -91,21 +91,21 @@ export default {
 
     if (propertiesString !== nullString) {
       re = re + `
-  @.createElement(${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
 `
     } else if (attributesString !== nullString) {
       re = re + `
-  @.createElement(${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
 `
     } else {
       re = re + `
-  @.createElement(${it.id}, '${_.translateMarks(it.nodeName)}')
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}')
 `
     }
 
     if (it.modelKey) {
       re = re + `
-  @.bind(${it.id}, 'change keyup', function (e) {
+  @.bind(this, ${it.id}, 'change keyup', function (e) {
 `
       if (it.modelType === 'model') {
         re = re + `
@@ -131,11 +131,11 @@ export default {
     var re = ''
 
     re = re + `
-@.remove(${it.id})
+@.remove(_elements, ${it.id})
 `
     if (it.isRoot) {
       re = re + `
-  @.removeRoot(${it.id})
+  @.removeRoot(this, ${it.id})
 `
     }
 
@@ -176,13 +176,13 @@ export default {
 
     if (it.parentId) {
       re = re + `
-  @.append(${it.parentId}, ${lineId})
+  @.append(_elements, ${it.parentId}, ${it.lineId})
 `
     }
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.lineId})
-  @.setRoot(${it.id}, 0)
+  @.setRoot(this, ${it.lineId})
+  @.setRoot(this, ${it.id}, 0)
 `
     }
 
@@ -192,8 +192,8 @@ export default {
     var re = ''
 
     re = re + `
-@.createLine(${it.lineId})
-@.createFragment(${it.id})
+@.createLine(_elements, ${it.lineId})
+@.createFragment(_elements, ${it.id})
 `
 
     return re
@@ -204,12 +204,12 @@ export default {
     re = re + `
 var _len = _last[${it.valueId}]
 for (var _i = 0; _i < _len; _i++) {
-  @.remove('${it.id}_' + _i)
+  @.remove(_elements, '${it.id}_' + _i)
 }
 `
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.id}, _last[${it.valueId}] = 0)
+  @.setRoot(this, ${it.id}, _last[${it.valueId}] = 0)
 `
     }
 
@@ -228,21 +228,21 @@ for (; _index < _len; _index++) {
   var ${it.indexName} = _index
   var ${it.itemName} = _list[_index]
 
-  var _template = @.getTemplate('${it.id}_' + _index, ${it.templateName})
+  var _template = @.getTemplate(_elements, '${it.id}_' + _index, ${it.templateName}, this.options)
   if (_index >= _lastLength) {
-    @.append(${it.id}, '${it.id}_' + _index)
+    @.append(_elements, ${it.id}, '${it.id}_' + _index)
   }
   _template.update(${it.args.join(', ')})
 }
 for (; _index < _lastLength; _index++) {
-  @.remove('${it.id}_' + _index)
+  @.remove(_elements, '${it.id}_' + _index)
 }
-@.after(${it.lineId}, ${it.id})
+@.after(_elements, ${it.lineId}, ${it.id})
 `
 
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.id}, _len)
+  @.setRoot(this, ${it.id}, _len)
 `
     }
 
@@ -308,7 +308,7 @@ ${it.body}
     var re = ''
 
     re = re + `
-@.html(${it.parentId}, '${_.translateMarks(it.expression)}')
+@.html(_elements, ${it.parentId}, '${_.translateMarks(it.expression)}')
 `
 
     return re
@@ -320,7 +320,7 @@ ${it.body}
 var _tmp = ${it.valueString}
 if (_last[${it.valueId}] !== _tmp) {
   _last[${it.valueId}] = _tmp
-  @.html(${it.parentId}, _tmp)
+  @.html(_elements, ${it.parentId}, _tmp)
 }
 `
 
@@ -331,12 +331,12 @@ if (_last[${it.valueId}] !== _tmp) {
 
     if (it.parentId) {
       re = re + `
-  @.append(${it.parentId}, ${it.lineId})
+  @.append(_elements, ${it.parentId}, ${it.lineId})
 `
     }
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.lineId})
+  @.setRoot(this, ${it.lineId})
 `
     }
 
@@ -346,8 +346,8 @@ if (_last[${it.valueId}] !== _tmp) {
     var re = ''
 
     re = re + `
-@.createLine(${it.lineId})
-@.createFragment(${it.id})
+@.createLine(_elements, ${it.lineId})
+@.createFragment(_elements, ${it.id})
 `
 
     return re
@@ -370,11 +370,11 @@ switch (_last[${it.valueId}]) {
     re = re + `
 }
 _last[${it.valueId}] = -1
-@.remove(${id.lindId})
+@.remove(_elements, ${id.lindId})
 `
     if (it.isRoot) {
       re = re + `
-  @.removeRoot(${it.lindId})
+  @.removeRoot(this, ${it.lindId})
 `
     }
 
@@ -395,7 +395,13 @@ _last[${it.valueId}] = -1
 
       ${expression.removeList.join('\n')}
       ${expression.appendList.join('\n')}
-      @.after(${it.lineId}, ${it.id})
+`
+      if (expression.endIndex > expression.startIndex) {
+        re = re + `
+        @.after(_elements, ${it.lineId}, ${it.id})
+`
+      }
+      re = re + `
     }
     ${expression.updateList.join('\n')}
   }
@@ -408,11 +414,11 @@ _last[${it.valueId}] = -1
     var re = ''
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.id})
+  @.setRoot(this, ${it.id})
 `
     } else {
       re = re + `
-  @.append(${it.parentId}, ${it.id})
+  @.append(_elements, ${it.parentId}, ${it.id})
 `
     }
 
@@ -421,7 +427,7 @@ _last[${it.valueId}] = -1
   import_create(it) {
     var re = ''
     re = re + `
-@.getTemplate(${it.id}, ${it.templateName})
+@.getTemplate(_elements, ${it.id}, ${it.templateName}, this.options)
 `
 
     return re
@@ -430,11 +436,11 @@ _last[${it.valueId}] = -1
     var re = ''
 
     re = re + `
-@.removeTemplate(${it.id})
+@.remove(_elements, ${it.id})
 `
     if (it.isRoot) {
       re = re + `
-  @.removeRoot(${it.id})
+  @.removeRoot(this, ${it.id})
 `
     }
 
@@ -484,7 +490,7 @@ ${it.requires.join('\n')}
         re = re + `
     _extend(${dom.templateName}.prototype, _prototype, {
       create: function create () {
-        var _this = this
+        var _elements = this.elements
 `
         if (it.modelType === 'model' || it.modelType === 'object') {
           re = re + `
@@ -505,7 +511,7 @@ ${it.requires.join('\n')}
         if (dom.updateList.length) {
           re = re + `
         update: function update (${dom.args.join(', ')}) {
-          var _this = this
+          var _elements = this.elements
           var _last = this.last
 
           ${dom.updateList.join('\n')}
@@ -529,12 +535,12 @@ module.exports = exports['default'] = ${it.templateName}
     var re = ''
     if (it.parentId) {
       re = re + `
-  @.append(${it.parentId}, ${it.id})
+  @.append(_elements, ${it.parentId}, ${it.id})
 `
     }
     if (it.isRoot) {
       re = re + `
-  @.setRoot(${it.id})
+  @.setRoot(this, ${it.id})
 `
     }
 
@@ -544,7 +550,7 @@ module.exports = exports['default'] = ${it.templateName}
     var re = ''
 
     re = re + `
-@.createText(${it.id}, '${_.translateMarks(it.text)}')
+@.createText(_elements, ${it.id}, '${_.translateMarks(it.text)}')
 `
 
     return re
@@ -553,11 +559,11 @@ module.exports = exports['default'] = ${it.templateName}
     var re = ''
 
     re = re + `
-@.remove(${it.id})
+@.remove(_elements, ${it.id})
 `
     if (it.isRoot) {
       re = re + `
-  @.removeRoot(${it.id})
+  @.removeRoot(this, ${it.id})
 `
     }
 
@@ -570,7 +576,7 @@ module.exports = exports['default'] = ${it.templateName}
 var _tmp = ${it.valueString}
 if (_last[${it.valueId}] !== _tmp) {
   _last[${it.valueId}] = _tmp
-  @.text(${it.id}, _tmp)
+  @.text(_elements, ${it.id}, _tmp)
 }
 `
 

@@ -1,10 +1,10 @@
 if (it.parentId) {
   // {{
-  @.append(${it.parentId}, ${it.id})
+  @.append(_elements, ${it.parentId}, ${it.id})
   // }}
 }
 if (it.isRoot) {
   // {{
-  @.setRoot(${it.id})
+  @.setRoot(this, ${it.id})
   // }}
 }

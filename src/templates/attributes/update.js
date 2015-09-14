@@ -5,8 +5,8 @@ _.each(attrs, (attr) => {
     if (attr.isProperty) {
       // {{
       var _tmp = ${attr.valueString}
-      if (@.getProperty(${it.id}, '${_.translateMarks(attr.key)}') !== _tmp) {
-        @.setProperty(${it.id}, '${_.translateMarks(attr.key)}', tmp)
+      if (@.getProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}') !== _tmp) {
+        @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
       }
       // }}
     } else {
@@ -14,18 +14,18 @@ _.each(attrs, (attr) => {
       var _tmp = ${attr.valueString}
       if (_last[${attr.valueId}] !== _tmp) {
         _last[${attr.valueId}] = _tmp
-        @.setAttribute(${it.id}, '${_.translateMarks(attr.key)}', _tmp)
+        @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
       }
       // }}
     }
   } else {
     if (attr.isProperty) {
       // {{
-      @.setProperty(${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+      @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
       // }}
     } else {
       // {{
-      @.setAttribute(${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+      @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
       // }}
     }
   }

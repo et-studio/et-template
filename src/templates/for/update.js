@@ -9,20 +9,20 @@ for (; _index < _len; _index++) {
   var ${it.indexName} = _index
   var ${it.itemName} = _list[_index]
 
-  var _template = @.getTemplate('${it.id}_' + _index, ${it.templateName})
+  var _template = @.getTemplate(_elements, '${it.id}_' + _index, ${it.templateName}, this.options)
   if (_index >= _lastLength) {
-    @.append(${it.id}, '${it.id}_' + _index)
+    @.append(_elements, ${it.id}, '${it.id}_' + _index)
   }
   _template.update(${it.args.join(', ')})
 }
 for (; _index < _lastLength; _index++) {
-  @.remove('${it.id}_' + _index)
+  @.remove(_elements, '${it.id}_' + _index)
 }
-@.after(${it.lineId}, ${it.id})
+@.after(_elements, ${it.lineId}, ${it.id})
 // }}
 
 if (it.isRoot) {
   // {{
-  @.setRoot(${it.id}, _len)
+  @.setRoot(this, ${it.id}, _len)
   // }}
 }

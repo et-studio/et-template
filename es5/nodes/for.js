@@ -72,6 +72,11 @@ var ForNode = (function (_Basic) {
       return this.children.length === 1 && this.children[0].nodeName === '#import';
     }
   }, {
+    key: 'checkIsCompile',
+    value: function checkIsCompile() {
+      return !this.checkIsImportTemplate();
+    }
+  }, {
     key: 'assembleWorkerData',
     value: function assembleWorkerData() {
       var it = this._workerData;

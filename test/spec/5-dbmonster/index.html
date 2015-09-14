@@ -7,21 +7,9 @@
     <title>Welcome to ET.</title>
     <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" >
     <link href="./db.css" rel="stylesheet" >
-    <script data-main="/main" src="/bower_components/requirejs/require.js"></script>
-    <script src="https://cdn.rawgit.com/paulirish/memory-stats.js/master/memory-stats.js"></script>
   </head>
   <body>
     <div id="test"></div>
-    <script>
-      var stats = new MemoryStats();
-      stats.domElement.style.position = 'fixed';
-      stats.domElement.style.right        = '0px';
-      stats.domElement.style.bottom       = '0px';
-      document.body.appendChild( stats.domElement );
-      requestAnimationFrame(function rAFloop(){
-          stats.update();
-          requestAnimationFrame(rAFloop);
-      });
-    </script>
+    <script data-main="/main" src="/bower_components/requirejs/require.js"></script>
   </body>
 </html>

@@ -1,9 +1,9 @@
 
 // {{
-@.removeTemplate(${it.id})
+@.remove(_elements, ${it.id})
 // }}
 if (it.isRoot) {
   // {{
-  @.removeRoot(${it.id})
+  @.removeRoot(this, ${it.id})
   // }}
 }

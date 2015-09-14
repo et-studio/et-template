@@ -1,11 +1,11 @@
 
 if (it.parentId) {
   // {{
-  @.append(${it.parentId}, ${it.lineId})
+  @.append(_elements, ${it.parentId}, ${it.lineId})
   // }}
 }
 if (it.isRoot) {
   // {{
-  @.setRoot(${it.lineId})
+  @.setRoot(this, ${it.lineId})
   // }}
 }

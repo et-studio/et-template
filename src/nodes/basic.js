@@ -54,7 +54,7 @@ class Basic extends NodeInterface {
   getNewTemplateDoms () {
     var results = []
     var eachHandler = (dom) => {
-      if (dom.isRoot || dom.isNewTemplate) {
+      if ((dom.isRoot || dom.isNewTemplate) && dom.checkIsCompile()) {
         results.push(dom)
       }
     }
@@ -143,6 +143,9 @@ class Basic extends NodeInterface {
   // functions could be override
   parse (source) {}
   init () {}
+  checkIsCompile () {
+    return true
+  }
   deliverRequire () {
     return []
   }

@@ -1,3 +1,3 @@
 // {{
-@.getTemplate(${it.id}, ${it.templateName})
+@.getTemplate(_elements, ${it.id}, ${it.templateName}, this.options)
 // }}

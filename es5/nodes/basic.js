@@ -82,7 +82,7 @@ var Basic = (function (_NodeInterface) {
     value: function getNewTemplateDoms() {
       var results = [];
       var eachHandler = function eachHandler(dom) {
-        if (dom.isRoot || dom.isNewTemplate) {
+        if ((dom.isRoot || dom.isNewTemplate) && dom.checkIsCompile()) {
           results.push(dom);
         }
       };
@@ -197,6 +197,11 @@ var Basic = (function (_NodeInterface) {
   }, {
     key: 'init',
     value: function init() {}
+  }, {
+    key: 'checkIsCompile',
+    value: function checkIsCompile() {
+      return true;
+    }
   }, {
     key: 'deliverRequire',
     value: function deliverRequire() {

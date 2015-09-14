@@ -14,10 +14,10 @@ switch (_last[${it.valueId}]) {
   // {{
 }
 _last[${it.valueId}] = -1
-@.remove(${id.lindId})
+@.remove(_elements, ${id.lindId})
 // }}
 if (it.isRoot) {
   // {{
-  @.removeRoot(${it.lindId})
+  @.removeRoot(this, ${it.lindId})
   // }}
 }

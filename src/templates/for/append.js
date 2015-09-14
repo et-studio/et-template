@@ -1,12 +1,12 @@
 
 if (it.parentId) {
   // {{
-  @.append(${it.parentId}, ${lineId})
+  @.append(_elements, ${it.parentId}, ${it.lineId})
   // }}
 }
 if (it.isRoot) {
   // {{
-  @.setRoot(${it.lineId})
-  @.setRoot(${it.id}, 0)
+  @.setRoot(this, ${it.lineId})
+  @.setRoot(this, ${it.id}, 0)
   // }}
 }

@@ -20,7 +20,7 @@ function testCompile (expect, result) {
   }
 }
 
-var pathList = ['/design', '/test/design']
+var pathList = ['/design/et']
 pathList.forEach(function (path) {
   global.describe(path, function () {
     var exist = fs.existsSync(rootDir + path)
@@ -47,7 +47,7 @@ pathList.forEach(function (path) {
   })
 })
 
-var dotPaths = ['/test/design-dot']
+var dotPaths = ['/design/dot']
 dotPaths.forEach(function (path) {
   global.describe(path, function () {
     var exist = fs.existsSync(rootDir + path)
