@@ -14,6 +14,12 @@ var _parsersFormat = require('./parsers/format');
 
 var _parsersFormat2 = _interopRequireDefault(_parsersFormat);
 
+var _worker = require('./worker');
+
+var _worker2 = _interopRequireDefault(_worker);
+
+var DEFAULT_TEMPLATE_ID = 'Template';
+
 var Formatter = (function () {
   function Formatter() {
     var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -25,45 +31,29 @@ var Formatter = (function () {
 
   _createClass(Formatter, [{
     key: 'format',
-    value: function format(str) {
+    value: function format(content) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-      str = _parsersFormat2['default'].parse(str);
-      switch (this.options.modules) {
+      content = _parsersFormat2['default'].parse(content);
+      return this.wrap(content, this.options.modules, options);
+    }
+  }, {
+    key: 'wrap',
+    value: function wrap(content, modules, options) {
+      var it = {
+        content: content,
+        moduleId: options.moduleId || DEFAULT_TEMPLATE_ID,
+        moduleIds: options.moduleIds || []
+      };
+      switch (modules) {
         case 'cmd':
-          str = this.wrapCMD(str);
-          break;
+          return _worker2['default'].format_cmd(it);
         case 'amd':
-          str = this.wrapAMD(str, options.moduleId, options.moduleIds);
-          break;
+          return _worker2['default'].format_amd(it);
         case 'global':
-          str = this.wrapGlobal(str, options.moduleId);
-          break;
+          return _worker2['default'].format_global(it);
       }
-      return str;
-    }
-  }, {
-    key: 'wrapCMD',
-    value: function wrapCMD(str) {
-      return 'define(function(require, exports, module){\n      ' + str + '\n    });';
-    }
-  }, {
-    key: 'wrapAMD',
-    value: function wrapAMD(str) {
-      var moduleId = arguments.length <= 1 || arguments[1] === undefined ? 'Template' : arguments[1];
-      var moduleIds = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
-
-      var ids = moduleIds.map(function (item) {
-        return '\'' + item + '\'';
-      });
-      return 'define(\'' + moduleId + '\', [' + ids.join(',') + '], function([' + moduleIds.join(',') + ']){\n      var module = {};\n      ' + str + '\n      return module.exports;\n    });';
-    }
-  }, {
-    key: 'wrapGlobal',
-    value: function wrapGlobal(str) {
-      var moduleId = arguments.length <= 1 || arguments[1] === undefined ? 'Template' : arguments[1];
-
-      return ';(function(global){\n      var module = {};\n      ' + str + '\n      global.' + moduleId + ' = module.exports;\n    })(window);';
+      return content;
     }
   }]);
 

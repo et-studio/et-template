@@ -24,13 +24,14 @@ var _machine2 = _interopRequireDefault(_machine);
 
 // @tableStart: condition
 var conditionTableOptions = {
-  states: ['start', 'name', 'condition'],
-  symbols: ['[', ' ', '\r', '\n'],
-  table: [{ '0': 'start', '1': '', '2': '', '3': '', '-1': 'name' }, { '0': '', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'name' }, { '0': 'condition', '1': 'condition', '2': 'condition', '3': 'condition', '-1': 'condition' }]
+  states: ['name', 'condition'],
+  symbols: [/\s/],
+  table: [{ '0': 'condition', '-1': 'name' }, { '0': 'condition', '-1': 'condition' }]
 };
 // @tableEnd
 
 var conditionMachine = new _machine2['default'](conditionTableOptions);
+var CONDITION_REG = /^\[[\s\S]*\]$/;
 
 var ConditionParser = (function (_Parser) {
   _inherits(ConditionParser, _Parser);
@@ -49,16 +50,16 @@ var ConditionParser = (function (_Parser) {
       var expectNodeName = options.expectNodeName;
       this.set(expectNodeName, source, options);
 
+      if (!CONDITION_REG.test(source)) {
+        this.throwError('Wrong condition source specification.');
+      }
+
       var _this = this;
       var tag = '';
       var nodeName = '';
       var condition = '';
-      var lastToken = '';
-      conditionMachine.each(source, function (state, token) {
-        lastToken = token;
+      conditionMachine.each(source.substr(1, source.length - 2), function (state, token) {
         switch (state) {
-          case 'start':
-            break;
           case 'name':
             nodeName += token;
             break;
@@ -69,17 +70,8 @@ var ConditionParser = (function (_Parser) {
             _this.throwError(state);
         }
       });
-      if (lastToken !== ']') {
-        this.throwError();
-      }
       if (expectNodeName && nodeName.toLowerCase() !== expectNodeName) {
         this.throwError();
-      }
-      if (condition) {
-        condition = condition.substr(0, condition.length - 1);
-        condition = condition.trim();
-      } else {
-        nodeName = nodeName.substr(0, nodeName.length - 1);
       }
 
       if (nodeName === '#elseif') {
@@ -91,7 +83,7 @@ var ConditionParser = (function (_Parser) {
       return {
         tag: tag,
         nodeName: nodeName,
-        condition: condition
+        condition: condition.trim()
       };
     }
   }]);

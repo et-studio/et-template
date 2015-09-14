@@ -18,13 +18,12 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
+
+var NODE_NAME = '#elseif';
+var TAG = 'else if';
 
 var ElseIfNode = (function (_Basic) {
   _inherits(ElseIfNode, _Basic);
@@ -33,26 +32,24 @@ var ElseIfNode = (function (_Basic) {
     _classCallCheck(this, ElseIfNode);
 
     _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, source, options);
-    this.isNewTemplate = true;
+    this.nodeName = NODE_NAME;
   }
 
   _createClass(ElseIfNode, [{
     key: 'parse',
     value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, {
-        expectNodeName: '#elseif'
-      });
-      this.nodeName = tmp.nodeName;
+      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
       this.condition = tmp.condition;
     }
   }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var it = {
-        id: this.getId(),
-        isRoot: this.checkRoot()
-      };
-      return [_worker2['default'].createNull(it)];
+    key: 'getCondition',
+    value: function getCondition() {
+      return this.condition;
+    }
+  }, {
+    key: 'getTag',
+    value: function getTag() {
+      return TAG;
     }
   }]);
 

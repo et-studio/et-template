@@ -2,6 +2,11 @@
 
 import _ from '../util'
 
+var STATE_BACK_MARK = '_last'
+var STATE_ALL_MATCH = '*'
+var STATE_SPLIT = ':'
+var STATE_CHILD_REG = /^_/
+
 class Machine {
   constructor (options = {}) {
     this.options = options
@@ -10,61 +15,77 @@ class Machine {
     this.table = options.table || []
     this.startState = options.startState || this.states[0]
   }
-  getToken (str, index) {
+  getTokenSet (str, index) {
     var symbols = this.symbols
     var char = str[index]
-    var token = ''
-    _.each(symbols, (symbol) => {
+    var token = char
+    var symbolIndex = -1
 
+    _.each(symbols, (symbol, i) => {
       if (symbol && typeof symbol.test === 'function') {
         if (symbol.test(char)) {
           token = char
+          symbolIndex = i
           return false
         }
       } else if (symbol && symbol.length) {
         var tmp = str.substr(index, symbol.length)
         if (tmp === symbol) {
           token = symbol
+          symbolIndex = i
           return false
         }
       }
     })
-    if (!token) {
-      token = str[index]
-    }
-    return token
-  }
-  switchState (state, symbol) {
-    var stateIndex = this.states.indexOf(state)
-    var symbolIndex = this.symbols.indexOf(symbol)
 
+    return {token: token, index: symbolIndex}
+  }
+  switchState (currentState, symbolIndex, stateStack) {
+    var stateIndex = this.states.indexOf(currentState)
     var map = this.table[stateIndex]
-    var re = map[symbolIndex]
-    if (!re) {
-      re = map['*']
+
+    var state = map[symbolIndex]
+    if (!state) state = map[STATE_ALL_MATCH] || ''
+
+    var index = state.indexOf(STATE_SPLIT)
+    if (index < 0) index = state.length
+
+    var prevState = state.substring(0, index)
+    var nextState = state.substring(index + 1) || prevState
+    var isCurrentAtLoop = STATE_CHILD_REG.test(currentState)
+
+    if (STATE_CHILD_REG.test(nextState) && nextState !== STATE_BACK_MARK) {
+      stateStack.push(currentState)
     }
-    return re
+
+    if ((isCurrentAtLoop && !prevState) || prevState === STATE_BACK_MARK) {
+      prevState = currentState
+    }
+
+    if (isCurrentAtLoop && !nextState) {
+      nextState = currentState
+    } else if (nextState === STATE_BACK_MARK) {
+      nextState = stateStack.pop() || ''
+    }
+
+    return {
+      prevState: prevState,
+      nextState: nextState
+    }
   }
   each (str, callback) {
     if (!str) return
 
-    var lastState = this.startState
+    var currentState = this.startState
     var stateStack = []
     for (var i = 0, len = str.length; i < len;) {
-      var token = this.getToken(str, i)
-      var state = this.switchState(lastState, token)
+      var tokenSet = this.getTokenSet(str, i)
+      var stateSet = this.switchState(currentState, tokenSet.index, stateStack)
+      var token = tokenSet.token
 
-      if (lastState.indexOf('_') === 0 && !state) {
-        state = lastState
-      } else if (state && state !== '_last' && state.indexOf('_') === 0) {
-        stateStack.push(lastState)
-      }
-
-      if (state === '_last') {
-        lastState = callback(lastState, token, i) || stateStack.pop()
-      } else {
-        lastState = callback(state, token, i) || state
-      }
+      var prevState = stateSet.prevState
+      var nextState = stateSet.nextState
+      currentState = callback(prevState, token, i) || nextState
       i += token.length
     }
   }

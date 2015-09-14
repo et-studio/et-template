@@ -28,45 +28,60 @@ class ForNode extends Basic {
       this.saveArgument(tmp.itemName)
     }
   }
-  deliverCreate () {
-    var it = {
+  getForValueId () {
+    var valueId = this._valueId
+    if (valueId >= 0) return valueId
+
+    valueId = this._valueId = this.getRootValueId()
+    return valueId
+  }
+  checkIsImportTemplate () {
+    return this.children.length === 1 && this.children[0].nodeName === '#import'
+  }
+  checkIsCompile () {
+    return !this.checkIsImportTemplate()
+  }
+  assembleWorkerData () {
+    var it = this._workerData
+    if (it) return it
+
+    it = {
       id: this.getId(),
-      isRoot: this.checkRoot(),
       lineId: this.getLineId(),
-      parentId: this.getParentId()
+      parentId: this.getParentId(),
+      valueId: this.getForValueId(),
+      isRoot: this.checkRoot(),
+      expression: this.expression || this.condition,
+      indexName: this.indexName || defaults.indexName,
+      itemName: this.itemName || defaults.itemName,
+      templateName: this.getTemplateName(),
+      args: this.getArguments()
     }
-    var re = []
-    re.push(worker.createLine(it))
-    re.push(worker.createFor(it))
-    return re
+
+    if (this.checkIsImportTemplate()) {
+      var child = this.children[0]
+      it.templateName = child.getTemplateName()
+      it.args = child.getArguments()
+    }
+
+    this._workerData = it
+    return it
+  }
+  deliverCreate () {
+    var it = this.assembleWorkerData()
+    return [worker.for_create(it)]
+  }
+  deliverAppend () {
+    var it = this.assembleWorkerData()
+    return [worker.for_append(it)]
   }
   deliverUpdate () {
-    var it = {
-      id: this.getId(),
-      parentId: this.getParentId(),
-      lineId: this.getLineId(),
-      isRoot: this.checkRoot(),
-      valueId: this.getRootValueId(),
-      args: this.getArguments(),
-      expression: this.getExpression(),
-      templateName: this.getTemplateName(),
-      indexName: this.getIndexName(),
-      itemName: this.getItemName(),
-      condition: this.condition
-    }
-    return [worker.updateFor(it)]
+    var it = this.assembleWorkerData()
+    return [worker.for_update(it)]
   }
-  getExpression () {
-    return this.expression || this.condition
-  }
-  getItemName () {
-    return this.itemName || defaults.itemName
-  }
-  getLengthName () {
-    return this.lengthName || defaults.lengthName
-  }
-  getIndexName () {
-    return this.indexName || defaults.indexName
+  deliverRemove () {
+    var it = this.assembleWorkerData()
+    return [worker.for_remove(it)]
   }
 }
 

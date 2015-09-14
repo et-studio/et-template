@@ -25,28 +25,35 @@ class HtmlNode extends Basic {
       this.throwError('html node should not has siblings')
     }
   }
+
   deliverCreate () {
     var re = []
     var expression = this.expression
     if (expression && !valueParser.isErratic(expression)) {
-      re.push(worker.createHtml({
-        parentId: this.parent.getId(),
+      re.push(worker.html_create({
+        parentId: this.getParentId(),
         expression: this.expression
       }))
     }
     return re
   }
+  deliverAppend () {
+    return []
+  }
   deliverUpdate () {
     var re = []
     var expression = this.expression
     if (valueParser.isErratic(expression)) {
-      re.push(worker.updateHtml({
+      re.push(worker.html_update({
         parentId: this.getParentId(),
         valueId: this.getRootValueId(),
         valueString: valueParser.parse(expression)
       }))
     }
     return re
+  }
+  deliverRemove () {
+    return []
   }
 }
 export default HtmlNode

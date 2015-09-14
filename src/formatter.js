@@ -1,47 +1,33 @@
 'use strict'
 
 import formatParser from './parsers/format'
+import worker from './worker'
+
+var DEFAULT_TEMPLATE_ID = 'Template'
 
 class Formatter {
   constructor (options = {}) {
     this.options = options
   }
-  format (str, options = {}) {
-    str = formatParser.parse(str)
-    switch (this.options.modules) {
-      case 'cmd':
-        str = this.wrapCMD(str)
-        break
-      case 'amd':
-        str = this.wrapAMD(str, options.moduleId, options.moduleIds)
-        break
-      case 'global':
-        str = this.wrapGlobal(str, options.moduleId)
-        break
+  format (content, options = {}) {
+    content = formatParser.parse(content)
+    return this.wrap(content, this.options.modules, options)
+  }
+  wrap (content, modules, options) {
+    var it = {
+      content: content,
+      moduleId: options.moduleId || DEFAULT_TEMPLATE_ID,
+      moduleIds: options.moduleIds || []
     }
-    return str
-  }
-  wrapCMD (str) {
-    return `define(function(require, exports, module){
-      ${str}
-    });`
-  }
-  wrapAMD (str, moduleId = 'Template', moduleIds = []) {
-    var ids = moduleIds.map((item) => {
-      return `'${item}'`
-    })
-    return `define('${moduleId}', [${ids.join(',')}], function([${moduleIds.join(',')}]){
-      var module = {};
-      ${str}
-      return module.exports;
-    });`
-  }
-  wrapGlobal (str, moduleId = 'Template') {
-    return `;(function(global){
-      var module = {};
-      ${str}
-      global.${moduleId} = module.exports;
-    })(window);`
+    switch (modules) {
+      case 'cmd':
+        return worker.format_cmd(it)
+      case 'amd':
+        return worker.format_amd(it)
+      case 'global':
+        return worker.format_global(it)
+    }
+    return content
   }
 }
 

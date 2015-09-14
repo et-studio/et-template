@@ -6,7 +6,7 @@ import _ from '../util'
 import worker from '../worker'
 import elementParser from '../parsers/element'
 import valueParser from '../parsers/value'
-import conditionParser from '../parsers/condition'
+import elementHandler from './element-handler'
 
 var ET_MODEL = 'et-model'
 var PROPERTIY_SET = {
@@ -17,9 +17,10 @@ var PROPERTIY_SET = {
 class Element extends Basic {
   constructor (source, options = {}) {
     super(source, options)
+
     this.nodeType = 1
-    this.expressions = []
-    this.parseExpresions(options.expressions)
+    this.isVirtualNode = false
+    this.expressions = elementHandler.parse(options.expressions)
   }
 
   // 这部分方法和代码是为初始化的时候写的
@@ -38,100 +39,7 @@ class Element extends Basic {
 
     if (this.modelKey) delete tinyNode.attributes[ET_MODEL]
     this.attributes = tinyNode.attributes
-    this.nodeName = tinyNode.nodeName
-  }
-  parseExpresions (expressions) {
-    var newExpressions = []
-    var _this = this
-    _.each(expressions, (expression) => {
-      if (expression.children.length === 1) {
-        var items1 = _this.parseSingleExpresion(expression)
-        if (items1.length) newExpressions.push(items1)
-      } else if (expression.children.length > 1) {
-        var items2 = _this.parseMultipleExpresion(expression)
-        if (items2.length) newExpressions.push(items2)
-      }
-    })
-    this.expressions = newExpressions
-  }
-  parseSingleExpresion (expression) {
-    var items = []
-    var child = expression.children[0]
-    var source = (child && child.source) || ''
-    var tinyNode = elementParser.parse(`<div ${source}>`, this.options)
-    var conditionNode = conditionParser.parse(expression.source)
-
-    if (!_.isEmpty(tinyNode.attributes)) {
-      items.push({
-        tag: 'if',
-        condition: conditionNode.condition,
-        attributes: tinyNode.attributes
-      })
-      items.push({
-        tag: 'else',
-        exclusions: Object.keys(tinyNode.attributes)
-      })
-    }
-    return items
-  }
-  parseMultipleExpresion (expression) {
-    var items = []
-    var hasElse = false
-    var allAttributes = {}
-
-    var source = null
-    var tinyNode = null
-    var conditionNode = conditionParser.parse(expression.source)
-    _.each(expression.children, (child, i) => {
-      if (i % 2) {
-        conditionNode = conditionParser.parse(child.source)
-      } else {
-        source = (child && child.source) || ''
-        tinyNode = elementParser.parse(`<div ${source}>`)
-        _.extend(allAttributes, tinyNode.attributes)
-
-        if (conditionNode.tag === 'else') hasElse = true
-        items.push({
-          tag: conditionNode.tag,
-          condition: conditionNode.condition,
-          attributes: tinyNode.attributes
-        })
-      }
-    })
-    _.each(items, (item) => {
-      item.exclusions = Object.keys(_.omit(allAttributes, item.attributes))
-    })
-    if (!hasElse) {
-      items.push({
-        tag: 'else',
-        exclusions: allAttributes
-      })
-    }
-    return items
-  }
-
-  // 这部分代码是为编译的时候写的
-  deliverCreate () {
-    var set = this.getResidentAttributes()
-    var it = {
-      id: this.getId(),
-      isRoot: this.checkRoot(),
-      parentId: this.getParentId(),
-      nodeName: this.getNodeName(),
-      attributes: set.attributes,
-      properties: set.properties,
-      modelKey: this.modelKey,
-      modelType: this.options.modelType
-    }
-    return [worker.createElement(it)]
-  }
-  deliverUpdate () {
-    var it = {
-      id: this.getId(),
-      erraticAttributes: this.getErraticAttributes(),
-      expressions: this.translateExpressions()
-    }
-    return [worker.updateAttributes(it)]
+    this.nodeName = tinyNode.nodeName.toUpperCase()
   }
 
   // 接下来的方法都是一些外部或者内部使用的辅助方法
@@ -167,23 +75,26 @@ class Element extends Basic {
     return this.translateAttributesToCode(erracticMap)
   }
   translateExpressions () {// 将条件表达式转换成为work对象使用的数据
-    var re = []
+    var results = []
     var _this = this
     _.each(this.expressions, (items) => {
       var newItems = []
       var valueId = _this.getRootValueId()
       _.each(items, (item) => {
         var obj = _.pick(item, 'tag', 'exclusions', 'condition')
+        var attrs = _this.translateAttributesToCode(item.attributes)
+
         obj.valueId = valueId
-        obj.attributes = _this.translateAttributesToCode(item.attributes)
+        obj.residentAttributes = attrs.filter((attr) => { return !attr.isErratic })
+        obj.erraticAttributes = attrs.filter((attr) => { return attr.isErratic })
         newItems.push(obj)
       })
-      re.push(newItems)
+      results.push(newItems)
     })
-    return re
+    return results
   }
   translateAttributesToCode (attrs) {// 判断动态属性 并且添加函数判断和设置
-    var re = []
+    var results = []
     var propertis = PROPERTIY_SET[this.nodeName] || []
 
     for (var key in attrs) {
@@ -195,15 +106,57 @@ class Element extends Basic {
         value: value,
         valueString: valueParser.parse(value)
       }
-      if (tmp.isErratic && !tmp.isDirect) {
+      if (tmp.isErratic && !tmp.isProperty) {
         tmp.valueId = this.getRootValueId()
       }
-      re.push(tmp)
+      results.push(tmp)
     }
-    return re
+    return results
   }
-  hasModelKey () {// 判断是非具备反向值的绑定
-    return !!this.modelKey
+
+  // 这部分代码是为编译的时候写的
+  assembleWrokerData () {
+    var it = this._workerData
+    if (it) return it
+
+    var set = this.getResidentAttributes()
+    this._workerData = it = {
+      id: this.getId(),
+      isRoot: this.checkRoot(),
+      parentId: this.getParentId(),
+      nodeName: this.getNodeName(),
+      modelKey: this.modelKey,
+      modelType: this.options.modelType,
+
+      attributes: set.attributes,
+      properties: set.properties,
+      erraticAttributes: this.getErraticAttributes(),
+      expressions: this.translateExpressions()
+    }
+    return it
+  }
+  deliverCreate () {
+    var results = this.getChildrenCreate()
+    var it = this.assembleWrokerData()
+    results.unshift(worker.element_create(it))
+    return results
+  }
+  deliverAppend () {
+    var results = this.getChildrenAppend()
+    var it = this.assembleWrokerData()
+    results.unshift(worker.element_append(it))
+    return results
+  }
+  deliverUpdate () {
+    var results = this.getChildrenUpdate()
+    var it = this.assembleWrokerData()
+    var updateStr = worker.element_update(it)
+    if (updateStr) results.unshift(updateStr)
+    return results
+  }
+  deliverRemove () {
+    var it = this.assembleWrokerData()
+    return [worker.element_remove(it)]
   }
 }
 

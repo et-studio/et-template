@@ -62,6 +62,7 @@ var Basic = (function (_NodeInterface) {
 
     this._source = source;
     this._index = options.index;
+    this.isVirtualNode = true;
     this.isNewTemplate = false;
     this.args = [];
     this.nodeType = 'ET';
@@ -79,37 +80,14 @@ var Basic = (function (_NodeInterface) {
   _createClass(Basic, [{
     key: 'getNewTemplateDoms',
     value: function getNewTemplateDoms() {
-      var re = [];
-      this.each(function (dom) {
-        if (dom.isRoot || dom.isNewTemplate) {
-          re.push(dom);
+      var results = [];
+      var eachHandler = function eachHandler(dom) {
+        if ((dom.isRoot || dom.isNewTemplate) && dom.checkIsCompile()) {
+          results.push(dom);
         }
-      });
-      return re;
-    }
-  }, {
-    key: 'getCreateList',
-    value: function getCreateList() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverCreate());
-        if (!child.isNewTemplate) {
-          _util2['default'].concat(re, child.getCreateList());
-        }
-      });
-      return _util2['default'].clearArraySpace(re);
-    }
-  }, {
-    key: 'getUpdateList',
-    value: function getUpdateList() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverUpdate());
-        if (!child.isNewTemplate) {
-          _util2['default'].concat(re, child.getUpdateList());
-        }
-      });
-      return _util2['default'].clearArraySpace(re);
+      };
+      this.each(eachHandler);
+      return results;
     }
   }, {
     key: 'getArguments',
@@ -127,17 +105,6 @@ var Basic = (function (_NodeInterface) {
       return _util2['default'].clearArraySpace(re);
     }
   }, {
-    key: 'checkRoot',
-    value: function checkRoot() {
-      var parent = this.parent;
-      // 当不存在nodeType的时候也认为是root
-      if (!parent || parent.isRoot || parent.isNewTemplate) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }, {
     key: 'saveArgument',
     value: function saveArgument() {
       for (var _len = arguments.length, list = Array(_len), _key = 0; _key < _len; _key++) {
@@ -148,111 +115,117 @@ var Basic = (function (_NodeInterface) {
       return this;
     }
   }, {
-    key: 'after',
-    value: function after(node) {
-      if (this.isRoot) {
-        return;
-      }
-
-      var nodePrev = node.previous;
-      var nodeNext = node.next;
-      if (nodePrev) {
-        nodePrev.next = nodeNext;
-      }
-      if (nodeNext) {
-        nodeNext.previous = nodePrev;
-      }
-
-      node.parent = this.parent;
-      node.previous = this;
-      node.next = this.next;
-
-      var currentNext = this.next;
-      if (currentNext) {
-        currentNext.previous = node;
-      }
-      this.next = node;
-
-      var newChidren = [];
-      var _this = this;
-      _util2['default'].each(this.parent.children, function (child) {
-        newChidren.push(child);
-        if (child.getId() === _this.getId()) {
-          newChidren.push(node);
-        }
-      });
-      this.parent.children = newChidren;
-    }
-  }, {
-    key: 'appendChild',
-    value: function appendChild(node) {
-      var children = this.children;
-
-      if (children.length > 0) {
-        var last = children[children.length - 1];
-        last.next = node;
-        node.previous = last;
-      }
-
-      children.push(node);
-      node.next = null;
-      node.parent = this;
+    key: 'checkRoot',
+    value: function checkRoot() {
+      var parent = this.parent;
+      if (!parent || parent.isRoot || parent.isNewTemplate) return true;
+      if (parent.isVirtualNode && parent.checkRoot()) return true;
+      return false;
     }
   }, {
     key: 'each',
     value: function each(callback) {
-      if (typeof callback === 'function') {
-        if (callback(this) === false) {
-          return;
-        }
-        if (this.children.length) {
-          this.children[0].each(callback);
-        }
-        if (this.next) {
-          this.next.each(callback);
-        }
+      if (typeof callback !== 'function') return;
+      if (callback(this) === false) return;
+
+      if (this.children.length) {
+        this.children[0].each(callback);
       }
-    }
-  }, {
-    key: 'checkHasModelKey',
-    value: function checkHasModelKey() {
-      var result = false;
-      this.each(function (dom) {
-        if (dom.nodeType === 1 && dom.hasModelKey()) {
-          result = true;
-        }
-        return !result;
-      });
-      return result;
+      if (this.next) {
+        this.next.each(callback);
+      }
     }
   }, {
     key: 'initAll',
     value: function initAll() {
-      this.each(function (dom) {
+      var eachHandler = function eachHandler(dom) {
         dom.init();
+      };
+      this.each(eachHandler);
+    }
+  }, {
+    key: 'getAllRequire',
+    value: function getAllRequire() {
+      var re = [];
+      var eachHandler = function eachHandler(dom) {
+        _util2['default'].concat(re, dom.deliverRequire());
+      };
+      this.each(eachHandler);
+      return re;
+    }
+  }, {
+    key: 'getChildrenCreate',
+    value: function getChildrenCreate() {
+      var re = [];
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverCreate());
       });
+      return re;
+    }
+  }, {
+    key: 'getChildrenAppend',
+    value: function getChildrenAppend() {
+      var re = [];
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverAppend());
+      });
+      return re;
+    }
+  }, {
+    key: 'getChildrenUpdate',
+    value: function getChildrenUpdate() {
+      var re = [];
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverUpdate());
+      });
+      return re;
+    }
+  }, {
+    key: 'getChildrenRemove',
+    value: function getChildrenRemove() {
+      var re = [];
+      _util2['default'].each(this.children, function (child) {
+        _util2['default'].concat(re, child.deliverRemove());
+      });
+      return re;
     }
 
     // functions could be override
   }, {
     key: 'parse',
-    value: function parse(source) {
-      // be called in constructor
-    }
+    value: function parse(source) {}
   }, {
     key: 'init',
-    value: function init() {
-      // should be called after the whole Tree created
+    value: function init() {}
+  }, {
+    key: 'checkIsCompile',
+    value: function checkIsCompile() {
+      return true;
+    }
+  }, {
+    key: 'deliverRequire',
+    value: function deliverRequire() {
+      return [];
     }
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
-      return [];
+      return this.getChildrenCreate();
+    }
+  }, {
+    key: 'deliverAppend',
+    value: function deliverAppend() {
+      return this.getChildrenAppend();
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      return [];
+      return this.getChildrenUpdate();
+    }
+  }, {
+    key: 'deliverRemove',
+    value: function deliverRemove() {
+      return this.getChildrenRemove();
     }
   }]);
 

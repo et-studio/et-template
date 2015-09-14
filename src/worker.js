@@ -1,280 +1,168 @@
 
 'use strict'
 import _ from './util'
+
 export default {
 
-  createElement(it) {
-    var re = ''
-    re = re + `
-var _et = _util.createElement('${_.translateMarks(it.nodeName.toUpperCase())}');
-`
-    if (!_.isEmpty(it.attributes)) {
-      re = re + `
-  _util.setAttributes(_et, ${JSON.stringify(it.attributes, null, '  ')});
-`
-    }
-    if (!_.isEmpty(it.propertis)) {
-      re = re + `
-  _util.setProperties(_et, ${JSON.stringify(it.propertis, null, '  ')});
-`
-    }
-
-    re = re + `
-_doms[${it.id}] = _et;
-`
-
-    if (it.modelKey) {
-      if (it.modelType === 'model') {
-        re = re + `
-    _util.on(_et, 'change keyup', function (e) {
-      _scope.set('${it.modelKey}', e.target.value)
-    });
-`
-      } else if (it.modelType === 'object') {
-        re = re + `
-    _util.on(_et, 'change keyup', function (e) {
-      _scope${it.modelKey} = e.target.value
-    });
-`
-      } else {
-        re = re + `
-    _util.on(_et, 'change keyup', function (e) {
-      _scope.trigger('et-model', '${it.modelKey}', e.target.value, e)
-    });
-`
-      }
-    }
-
-    if (it.isRoot) {
-      re = re + `
-  _roots[${it.id}] = _et;
-`
-    } else {
-      re = re + `
-  _util.appendChild(_doms[${it.parentId}], _et);
-`
-    }
-
-    return re
-  },
-  createFor(it) {
+  attributes_remove(it) {
     var re = ''
 
-    re = re + `
-var _et = new Template_for(this.options);
-_doms[${it.id}] = _et;
-`
-
-    if (it.isRoot) {
+    var attrs = arguments[1] || []
+    if (attrs.length === 1) {
       re = re + `
-  _roots[${it.id}] = _et;
+  @.removeAttribute(_elements, ${it.id}, '${_.translateMarks(attrs[0])}')
 `
-    }
-
-    return re
-  },
-  createHtml(it) {
-    var re = ''
-    re = re + `
-_doms[${it.parentId}].innerHTML = '${_.translateMarks(it.expression)}';
-`
-
-    return re
-  },
-  createImport(it) {
-    var re = ''
-    re = re + `
-var _ET = require('${_.translateMarks(it.path)}');
-var _et = new _ET(this.options);
-_doms[${it.id}] = _et;
-`
-    if (it.isRoot) {
-      re = re + `
-  _roots[${it.id}] = _et;
-`
-    } else {
-      re = re + `
-  _util.appendChild(_doms[${it.parentId}], _et.get());
-`
-    }
-
-    return re
-  },
-  createLine(it) {
-    var re = ''
-
-    re = re + `
-var _line = _util.createLine();
-_doms[${it.lineId}] = _line;
-`
-
-    if (it.isRoot) {
-      re = re + `
-  _roots[${it.lineId}] = _line;
-`
-    } else {
-      re = re + `
-  _util.appendChild(_doms[${it.parentId}], _line);
-`
-    }
-
-    return re
-  },
-  createNull(it) {
-    var re = ''
-
-    re = re + `
-_doms[${it.id}] = null;
-`
-
-    if (it.isRoot) {
-      re = re + `
-  _roots[${it.id}] = null;
-`
-    }
-
-    return re
-  },
-  createText(it) {
-    var re = ''
-
-    re = re + `
-var _et = _util.createTextNode('${_.translateMarks(it.text)}');
-_doms[${it.id}] = _et;
-`
-
-    if (it.isRoot) {
-      re = re + `
-  _roots[${it.id}] = _et;
-`
-    } else {
-      re = re + `
-  _util.appendChild(_doms[${it.parentId}], _et);
-`
-    }
-
-    return re
-  },
-  removeAttributes(it) {
-    var re = ''
-    if (it && it.length === 1) {
-      re = re + `
-  _util.removeAttribute(_et, '${_.translateMarks(it[0])}');
-`
-    } else if (it && it.length > 1) {
-      var exclusions = it.map((item) => {
+    } else if (attrs.length > 1) {
+      var exclusions = attrs.map((item) => {
         return `'${_.translateMarks(item)}'`
       })
       re = re + `
-  _util.removeAttributes(_et, ${exclusions.join(',')});
+  @.removeAttributes(_elements, ${it.id}, ${exclusions.join(',')})
 `
     }
 
     return re
   },
-  template(it) {
+  attributes_update(it) {
+    var re = ''
+
+    var attrs = arguments[1] || []
+    _.each(attrs, (attr) => {
+      if (attr.isErratic) {
+        if (attr.isProperty) {
+          re = re + `
+      var _tmp = ${attr.valueString}
+      if (@.getProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}') !== _tmp) {
+        @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
+      }
+`
+        } else {
+          re = re + `
+      var _tmp = ${attr.valueString}
+      if (_last[${attr.valueId}] !== _tmp) {
+        _last[${attr.valueId}] = _tmp
+        @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', _tmp)
+      }
+`
+        }
+      } else {
+        if (attr.isProperty) {
+          re = re + `
+      @.setProperty(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+`
+        } else {
+          re = re + `
+      @.setAttribute(_elements, ${it.id}, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}')
+`
+        }
+      }
+    })
+
+    return re
+  },
+  element_append(it) {
+    var re = ''
+    if (it.parentId) {
+      re = re + `
+  @.append(_elements, ${it.parentId}, ${it.id})
+`
+    }
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.id})
+`
+    }
+
+    return re
+  },
+  element_create(it) {
+    var re = ''
+
+    var nullString = 'null'
+    var attributesString = nullString
+    var propertiesString = nullString
+
+    if (!_.isEmpty(it.attributes)) {
+      attributesString = JSON.stringify(it.attributes, null, '  ')
+    }
+    if (!_.isEmpty(it.properties)) {
+      propertiesString = JSON.stringify(it.properties, null, '  ')
+    }
+
+    if (propertiesString !== nullString) {
+      re = re + `
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
+`
+    } else if (attributesString !== nullString) {
+      re = re + `
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
+`
+    } else {
+      re = re + `
+  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}')
+`
+    }
+
+    if (it.modelKey) {
+      re = re + `
+  @.bind(this, ${it.id}, 'change keyup', function (e) {
+`
+      if (it.modelType === 'model') {
+        re = re + `
+      _scope.set('${_.translateMarks(it.modelKey)}', e.target.value)
+`
+      } else if (it.modelType === 'object') {
+        re = re + `
+      _scope${it.modelKey} = e.target.value
+`
+      } else {
+        re = re + `
+      _scope.trigger('et-model', '${_.translateMarks(it.modelKey)}', e.target.value, e)
+`
+      }
+      re = re + `
+  })
+`
+    }
+
+    return re
+  },
+  element_remove(it) {
     var re = ''
 
     re = re + `
-'use strict';
-
-var _dep = require('etDependency');
-var _util = _dep._util;
-var _prototype = _dep._prototype;
+@.remove(_elements, ${it.id})
 `
-
-    if (it.hasFor) {
+    if (it.isRoot) {
       re = re + `
-  function Template_for(options) {
-    this.init(options);
-  }
+  @.removeRoot(this, ${it.id})
 `
     }
-    _.each(it.newDoms, (dom) => {
-      re = re + `
-  function ${dom.templateName}(options) {
-    this.init(options);
-  }
-`
-    });
-
-    if (it.hasFor) {
-      re = re + `
-  _util.extend(Template_for.prototype, _prototype);
-`
-    }
-    _.each(it.newDoms, (dom) => {
-      if (!dom.createList.length && dom.updateList.length) {
-        throw new Error('If dom has updateList, it must have createList.');
-      }
-      if (dom.createList.length || dom.updateList.length) {
-        re = re + `
-    _util.extend(${dom.templateName}.prototype, _prototype, {
-      create: function create() {
-        var _doms = this.doms;
-        var _roots = this.roots;
-`
-
-        if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
-          re = re + `
-          var _scope = this.options.scope
-`
-        } else if (it.hasModelKey) {
-          re = re + `
-          var _scope = this
-`
-        }
-
-        re = re + `
-        ${dom.createList.join('\n')}
-      }${dom.updateList.length ? ',' : ''}
-`
-
-        if (dom.updateList.length) {
-          re = re + `
-      update: function update(${dom.args.join(',')}) {
-        var _doms = this.doms;
-        var _roots = this.roots;
-        var _last = this.last;
-        ${dom.updateList.join('\n')}
-      }
-`
-        }
-        re = re + `
-    });
-`
-      }
-    });
-
-    re = re + `
-module.exports = ${it.templateName};
-`
 
     return re
   },
-  updateAttributes(it) {
+  element_update(it) {
     var re = ''
 
     if (it.erraticAttributes.length || it.expressions.length) {
       re = re + `
-  var _et = _doms[${it.id}];
-  ${this.updateErraticAttributes(it.erraticAttributes)}
+  ${this.attributes_update(it, it.erraticAttributes)}
 `
 
       _.each(it.expressions, (items) => {
         _.each(items, (item, i) => {
-          var condition = '';
+          var condition = ''
           if (item.tag !== 'else') {
-            condition = `(${item.condition})`;
+            condition = `(${item.condition})`
           }
           re = re + `
       ${item.tag} ${condition} {
         if (_last[${item.valueId}] !== ${i}) {
-          _last[${item.valueId}] = ${i};
-          ${this.updateResidentAttributes(item.attributes)}
-          ${this.removeAttributes(item.exclusions)}
+          _last[${item.valueId}] = ${i}
+          ${this.attributes_update(it, item.residentAttributes)}
+          ${this.attributes_remove(it, item.exclusions)}
         }
-        ${this.updateErraticAttributes(item.attributes)}
+        ${this.attributes_update(it, item.erraticAttributes)}
       }
 `
         })
@@ -283,184 +171,412 @@ module.exports = ${it.templateName};
 
     return re
   },
-  updateErraticAttributes(it) {
+  for_append(it) {
     var re = ''
-    _.each(it, (attr) => {
-      if (attr.isErratic) {
-        if (attr.isProperty) {
-          re = re + `
-      var _tmp = ${attr.valueString};
-      if (_et.${attr.key} !== _tmp) {
-        _et.${attr.key} = _tmp;
-      }
+
+    if (it.parentId) {
+      re = re + `
+  @.append(_elements, ${it.parentId}, ${it.lineId})
 `
-        } else {
-          re = re + `
-      var _tmp = ${attr.valueString};
-      if (_last[${attr.valueId}] !== _tmp) {
-        _last[${attr.valueId}] = _tmp;
-        _util.setAttribute(_et, '${_.translateMarks(attr.key)}', _tmp);
-      }
+    }
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.lineId})
+  @.setRoot(this, ${it.id}, 0)
 `
-        }
-      }
-    })
+    }
 
     return re
   },
-  updateFor(it) {
+  for_create(it) {
     var re = ''
 
     re = re + `
-var _line = _doms[${it.lineId}];
-var _lastLength = _last[${it.valueId}] || 0;
-var _list = ${it.expression} || [];
+@.createLine(_elements, ${it.lineId})
+@.createFragment(_elements, ${it.id})
+`
 
-var _i = 0;
-var _len = _list.length;
-_last[${it.valueId}] = _len;
-for (; _i < _len; _i++) {
-  var _et = _doms['${it.id}_' + _i];
-  var _item = _list[_i];
-  var ${it.indexName} = _i;
-  var ${it.itemName} = _item;
+    return re
+  },
+  for_remove(it) {
+    var re = ''
 
-  if (!_et) {
-    _doms['${it.id}_' + _i] = _et = new ${it.templateName}(this.options);
-  }
-  if (_i >= _lastLength) {
-    _util.after(_line, _et.get());
-  }
-  _et.update(${it.args.join(',')});
+    re = re + `
+var _len = _last[${it.valueId}]
+for (var _i = 0; _i < _len; _i++) {
+  @.remove(_elements, '${it.id}_' + _i)
 }
-for (; _i < _lastLength; _i++) {
-  var _et = _doms['${it.id}_' + _i];
-  _et.remove();
+`
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.id}, _last[${it.valueId}] = 0)
+`
+    }
+
+    return re
+  },
+  for_update(it) {
+    var re = ''
+
+    re = re + `
+var _lastLength = _last[${it.valueId}] || 0
+var _list = ${it.expression} || []
+
+var _index = 0
+var _len = _last[${it.valueId}] = _list.length
+for (; _index < _len; _index++) {
+  var ${it.indexName} = _index
+  var ${it.itemName} = _list[_index]
+
+  var _template = @.getTemplate(_elements, '${it.id}_' + _index, ${it.templateName}, this.options)
+  if (_index >= _lastLength) {
+    @.append(_elements, ${it.id}, '${it.id}_' + _index)
+  }
+  _template.update(${it.args.join(', ')})
 }
+for (; _index < _lastLength; _index++) {
+  @.remove(_elements, '${it.id}_' + _index)
+}
+@.after(_elements, ${it.lineId}, ${it.id})
 `
 
     if (it.isRoot) {
       re = re + `
-  var _lastLength = _last[${it.valueId}];
-  var _et = _doms[${it.id}];
-  _et.roots = {};
-  for (_i = 0; _i < _lastLength; _i++) {
-    _et.doms[_i] = _et.roots[_i] = _doms['${it.id}_' + _i];
-  }
+  @.setRoot(this, ${it.id}, _len)
 `
     }
 
     return re
   },
-  updateHtml(it) {
+  format_amd(it) {
+    var re = ''
+
+    var ids = it.moduleIds.map((item) => {
+      return `'${item}'`
+    })
+    re = re + `
+define('${it.moduleId}', [${ids.join(',')}], function([${it.moduleIds.join(',')}]){
+  var module = {}
+  ${it.content}
+  return module.exports
+})
+`
+
+    return re
+  },
+  format_cmd(it) {
     var re = ''
 
     re = re + `
-var _et = _doms[${it.parentId}];
-var _tmp = ${it.valueString};
+define(function(require, exports, module){
+  ${it.content}
+})
+`
+
+    return re
+  },
+  format_global(it) {
+    var re = ''
+
+    re = re + `
+(function(global){
+  var module = {}
+  ${it.content}
+  global.${it.moduleId} = module.exports
+})(window)
+`
+
+    return re
+  },
+  format_tp(it) {
+    var re = ''
+
+    var declares = it.methods.map((method) => {
+      return `var _tp_${method} = _dep.tp_${method}`
+    })
+    re = re + `
+${it.header}
+
+${declares.join('\n')}
+
+${it.body}
+`
+
+    return re
+  },
+  html_create(it) {
+    var re = ''
+
+    re = re + `
+@.html(_elements, ${it.parentId}, '${_.translateMarks(it.expression)}')
+`
+
+    return re
+  },
+  html_update(it) {
+    var re = ''
+
+    re = re + `
+var _tmp = ${it.valueString}
 if (_last[${it.valueId}] !== _tmp) {
-  _last[${it.valueId}] = _tmp;
-  _et.innerHTML = _tmp;
+  _last[${it.valueId}] = _tmp
+  @.html(_elements, ${it.parentId}, _tmp)
 }
 `
 
     return re
   },
-  updateIf(it) {
+  if_append(it) {
     var re = ''
-    re = re + `
-var _line = _doms[${it.lineId}];
+
+    if (it.parentId) {
+      re = re + `
+  @.append(_elements, ${it.parentId}, ${it.lineId})
 `
-    _.each(it.doms, (dom, i) => {
-      var condition = '';
-      if (dom.tag !== 'else') {
-        condition = `(${dom.condition})`;
+    }
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.lineId})
+`
+    }
+
+    return re
+  },
+  if_create(it) {
+    var re = ''
+
+    re = re + `
+@.createLine(_elements, ${it.lineId})
+@.createFragment(_elements, ${it.id})
+`
+
+    return re
+  },
+  if_remove(it) {
+    var re = ''
+
+    re = re + `
+switch (_last[${it.valueId}]) {
+`
+    _.each(it.expressions, (expression, i) => {
+      if (expression.removeList.length) {
+        re = re + `
+      case ${i}:
+        ${expression.removeList.join('\n')}
+        break
+`
+      }
+    })
+    re = re + `
+}
+_last[${it.valueId}] = -1
+@.remove(_elements, ${id.lindId})
+`
+    if (it.isRoot) {
+      re = re + `
+  @.removeRoot(this, ${it.lindId})
+`
+    }
+
+    return re
+  },
+  if_update(it) {
+    var re = ''
+
+    _.each(it.expressions, (expression, i) => {
+      var condition = ''
+      if (expression.tag !== 'else') {
+        condition = `(${expression.condition})`
       }
       re = re + `
-  ${dom.tag} ${condition} {
-    if (_last[${it.indexValueId}] !== ${i}) {
-      _last[${it.indexValueId}] = ${i};
+  ${expression.tag} ${condition} {
+    if (_last[${it.valueId}] !== ${i}) {
+      _last[${it.valueId}] = ${i}
+
+      ${expression.removeList.join('\n')}
+      ${expression.appendList.join('\n')}
 `
-      if (dom.id) {
+      if (expression.endIndex > expression.startIndex) {
         re = re + `
-        var _et = _doms[${dom.id}];
-        if (!_et) {
-          _doms[${dom.id}] = _et = new ${dom.templateName}(this.options);
-        }
-        _util.after(_line, _et.get());
+        @.after(_elements, ${it.lineId}, ${it.id})
 `
-        if (it.isRoot) {
-          re = re + `
-          _roots[${dom.id}] = _et;
-`
-        }
       }
-      _.each(dom.siblings, (sibling) => {
-        re = re + `
-        var _et = _doms[${sibling.id}];
-        if (_et) {
-          _et.remove();
-`
-        if (it.isRoot) {
-          re = re + `
-            _roots[${sibling.id}] = null;
-`
-        }
-        re = re + `
-        }
-`
-      });
       re = re + `
     }
-`
-      if (dom.id) {
-        re = re + `
-      _doms[${dom.id}].update(${dom.args.join(',')});
-`
-      }
-      re = re + `
+    ${expression.updateList.join('\n')}
   }
 `
-    });
-
-    return re
-  },
-  updateImport(it) {
-    var re = ''
-    re = re + `
-var _et = _doms[${it.id}];
-_et.update(${it.args.join(', ')});
-`
-
-    return re
-  },
-  updateResidentAttributes(it) {
-    var re = ''
-    _.each(it, (attr) => {
-      if (!attr.isErratic) {
-        if (attr.isProperty) {
-          re = re + `
-      _et.${attr.key} = '${_.translateMarks(attr.value)}';
-`
-        } else {
-          re = re + `
-      _util.setAttribute(_et, '${_.translateMarks(attr.key)}', '${_.translateMarks(attr.value)}');
-`
-        }
-      }
     })
 
     return re
   },
-  updateText(it) {
+  import_append(it) {
+    var re = ''
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.id})
+`
+    } else {
+      re = re + `
+  @.append(_elements, ${it.parentId}, ${it.id})
+`
+    }
+
+    return re
+  },
+  import_create(it) {
+    var re = ''
+    re = re + `
+@.getTemplate(_elements, ${it.id}, ${it.templateName}, this.options)
+`
+
+    return re
+  },
+  import_remove(it) {
     var re = ''
 
     re = re + `
-var _et = _doms[${it.id}];
-var _tmp = ${it.valueString};
+@.remove(_elements, ${it.id})
+`
+    if (it.isRoot) {
+      re = re + `
+  @.removeRoot(this, ${it.id})
+`
+    }
+
+    return re
+  },
+  import_update(it) {
+    var re = ''
+
+    re = re + `
+_this.doms[${it.id}].update(${it.args.join(', ')})
+`
+
+    return re
+  },
+  require(it) {
+    var re = ''
+
+    re = re + `
+var ${it.name} = require('${it.path}')
+`
+
+    return re
+  },
+  template(it) {
+    var re = ''
+
+    re = re + `
+'use strict'
+
+var _dep = require('${it.dependency}')
+var _prototype = _dep.template
+var _extend = _dep.extend
+
+${it.requires.join('\n')}
+`
+
+    _.each(it.newDoms, (dom) => {
+      re = re + `
+  function ${dom.templateName} (options) {
+    this.init(options)
+  }
+`
+    })
+
+    _.each(it.newDoms, (dom) => {
+      if (dom.createList.length || dom.updateList.length) {
+        re = re + `
+    _extend(${dom.templateName}.prototype, _prototype, {
+      create: function create () {
+        var _elements = this.elements
+`
+        if (it.modelType === 'model' || it.modelType === 'object') {
+          re = re + `
+          var _scope = this.options.scope
+`
+        } else {
+          re = re + `
+          var _scope = this
+`
+        }
+
+        re = re + `
+        ${dom.createList.join('\n')}
+        ${dom.appendList.join('\n')}
+      }${dom.updateList.length ? ',' : ''}
+`
+
+        if (dom.updateList.length) {
+          re = re + `
+        update: function update (${dom.args.join(', ')}) {
+          var _elements = this.elements
+          var _last = this.last
+
+          ${dom.updateList.join('\n')}
+        }
+`
+        }
+
+        re = re + `
+    })
+`
+      }
+    })
+
+    re = re + `
+module.exports = exports['default'] = ${it.templateName}
+`
+
+    return re
+  },
+  text_append(it) {
+    var re = ''
+    if (it.parentId) {
+      re = re + `
+  @.append(_elements, ${it.parentId}, ${it.id})
+`
+    }
+    if (it.isRoot) {
+      re = re + `
+  @.setRoot(this, ${it.id})
+`
+    }
+
+    return re
+  },
+  text_create(it) {
+    var re = ''
+
+    re = re + `
+@.createText(_elements, ${it.id}, '${_.translateMarks(it.text)}')
+`
+
+    return re
+  },
+  text_remove(it) {
+    var re = ''
+
+    re = re + `
+@.remove(_elements, ${it.id})
+`
+    if (it.isRoot) {
+      re = re + `
+  @.removeRoot(this, ${it.id})
+`
+    }
+
+    return re
+  },
+  text_update(it) {
+    var re = ''
+
+    re = re + `
+var _tmp = ${it.valueString}
 if (_last[${it.valueId}] !== _tmp) {
-  _last[${it.valueId}] = _tmp;
-  _util.text(_et, _tmp);
+  _last[${it.valueId}] = _tmp
+  @.text(_elements, ${it.id}, _tmp)
 }
 `
 

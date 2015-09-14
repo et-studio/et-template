@@ -30,22 +30,19 @@ var Compiler = (function () {
   _createClass(Compiler, [{
     key: 'pickData',
     value: function pickData(root) {
-      var newDoms = root.getNewTemplateDoms();
       var re = {
-        templateName: root.getTemplateName(),
-        hasFor: false,
+        dependency: this.options.dependency,
         modelType: this.options.modelType,
-        hasModelKey: root.checkHasModelKey(),
+        requires: root.getAllRequire(),
+        templateName: root.getTemplateName(),
         newDoms: []
       };
-      _util2['default'].each(newDoms, function (dom) {
-        if (dom.nodeName === '#for') {
-          re.hasFor = true;
-        }
+      _util2['default'].each(root.getNewTemplateDoms(), function (dom) {
         re.newDoms.push({
           templateName: dom.getTemplateName(),
-          createList: dom.getCreateList(),
-          updateList: dom.getUpdateList(),
+          createList: dom.getChildrenCreate(),
+          appendList: dom.getChildrenAppend(),
+          updateList: dom.getChildrenUpdate(),
           args: dom.getArguments()
         });
       });

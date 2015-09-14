@@ -1,27 +1,25 @@
 'use strict'
 
 import Basic from './basic'
-import worker from '../worker'
 import conditionParser from '../parsers/condition'
+
+var NODE_NAME = '#elseif'
+var TAG = 'else if'
 
 class ElseIfNode extends Basic {
   constructor (source, options) {
     super(source, options)
-    this.isNewTemplate = true
+    this.nodeName = NODE_NAME
   }
   parse (source) {
-    var tmp = conditionParser.parse(source, {
-      expectNodeName: '#elseif'
-    })
-    this.nodeName = tmp.nodeName
+    var tmp = conditionParser.parse(source, {expectNodeName: NODE_NAME})
     this.condition = tmp.condition
   }
-  deliverCreate () {
-    var it = {
-      id: this.getId(),
-      isRoot: this.checkRoot()
-    }
-    return [worker.createNull(it)]
+  getCondition () {
+    return this.condition
+  }
+  getTag () {
+    return TAG
   }
 }
 export default ElseIfNode

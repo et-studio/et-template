@@ -7,10 +7,9 @@ var nodePath = require('path')
 var babel = require('babel-core')
 var esformatter = require('esformatter')
 var ET = require(`${rootDir}/es5/et`)
-var Formatter = require(`${rootDir}/es5/formatter`)
+var worker = require(`${rootDir}/es5/worker`)
 
 var et = new ET()
-var formatter = new Formatter()
 var app = express()
 var port = 3000
 
@@ -41,7 +40,7 @@ var _ = {
 
       if (_.isEndWidth(path, '.js') && !_.isIgnore(content)) {
         content = babel.transform(content).code
-        content = formatter.wrapCMD(content)
+        content = worker.format_cmd({content: content})
         content = esformatter.format(content)
       }
 
@@ -56,7 +55,7 @@ var _ = {
 
       content = et.compile(content)
       content = babel.transform(content).code
-      content = formatter.wrapCMD(content)
+      content = worker.format_cmd({content: content})
       content = esformatter.format(content)
 
       callback(null, content)
@@ -70,7 +69,7 @@ var _ = {
       content = content.replace(/\\/, '\\\\')
       content = `module.exports = \`${content}\``
       content = babel.transform(content).code
-      content = formatter.wrapCMD(content)
+      content = worker.format_cmd({content: content})
       content = esformatter.format(content)
 
       callback(null, content)

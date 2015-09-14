@@ -87,7 +87,6 @@ var tableHandler = {
           colList[i] = tmp
           matrix[j] = colList
         })
-
       }
     })
     return matrix

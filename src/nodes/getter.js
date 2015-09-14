@@ -30,7 +30,12 @@ class Getter {
     return this.valueId++
   }
   getParentId () {
-    return this.parent && this.parent.getId()
+    var parent = this.parent
+    if (parent && !parent.isRoot && !parent.isNewTemplate) {
+      return parent.getId()
+    } else {
+      return null
+    }
   }
   getNodeName () {
     return this.nodeName && this.nodeName.toUpperCase()

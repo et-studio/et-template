@@ -1,102 +1,155 @@
 ;(function(global, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('etDependency', factory)
+    define('et-dependency', factory)
   } else {
     var require = function() {}
     var module = {}
     var exports = {}
     factory(require, exports, module)
-    global.etDependency = module.exports
+    global['et-dependency'] = module.exports
   }
 })(window, function(require, exports, module) {
   'use strict'
 
-  var LOOP = function LOOP() {}
   var EVENT_SPLITTER = /\s+/
 
-  var _util = {
-    extend: function extend() {
-      var len = arguments.length
-      if (len <= 1) {
-        return arguments[0]
-      } else {
-        var re = arguments[0] || {}
-        for (var i = 1; i < len; i++) {
-          var item = arguments[i]
-          for (var key in item) {
-            re[key] = item[key]
-          }
+  function LOOP() {
+  }
+
+  function extend() {
+    var len = arguments.length
+    if (len <= 1) {
+      return arguments[0]
+    } else {
+      var re = arguments[0] || {}
+      for (var i = 1; i < len; i++) {
+        var item = arguments[i]
+        for (var key in item) {
+          re[key] = item[key]
         }
-        return re
       }
-    },
-    createElement: function createElement(tag) {
-      return document.createElement(tag)
-    },
-    createTextNode: function createTextNode(text) {
-      return document.createTextNode(text)
-    },
-    createComment: function createComment(text) {
-      return document.createComment(text)
-    },
-    createLine: function createLine(text) {
-      return _util.createComment(text || 'line')
-    },
-    remove: function remove(element, isKeeyData) {
-      if (element.parentNode) {
-        element.parentNode.removeChild(element)
-      }
-      if (!isKeeyData) {
-        element.removeEventListener()
-      }
-    },
-    text: function text(element, _text) {
-      element.textContent = _text
-    },
-    setAttribute: function setAttribute(element, attrName, attrValue) {
-      element.setAttribute(attrName, attrValue)
-    },
-    setAttributes: function setAttributes(element, attributes) {
-      for (var key in attributes) {
-        element.setAttribute(key, attributes[key])
-      }
-    },
-    removeAttribute: function removeAttribute(element, attrName) {
-      element.removeAttribute(attrName)
-    },
-    removeAttributes: function removeAttributes(element, attrNames) {
-      for (var i = 0, len = attrNames.length; i < len; i++) {
-        var attrName = attrNames[i]
-        element.removeAttribute(attrName)
-      }
-    },
-    setProperties: function setProperties(element, propertis) {
-      for (var key in propertis) {
-        element[key] = propertis[key]
-      }
-    },
-    appendChild: function appendChild(elementA, elementB) {
-      elementA.appendChild(elementB)
-    },
-    before: function before(elementA, elementB) {
-      if (elementA.parentNode) {
-        elementA.parentNode.insertBefore(elementB, elementA)
-      }
-    },
-    after: function after(elementA, elementB) {
-      if (elementA.parentNode) {
-        elementA.parentNode.insertBefore(elementB, elementA.nextSibling)
-      }
-    },
-    on: function on(element, eventString, callback) {
-      var eventNames = eventString.split(EVENT_SPLITTER)
-      for (var i = 0, len = eventNames.length; i < len; i++) {
-        var eventName = eventNames[i]
-        element.addEventListener(eventName, callback)
+      return re
+    }
+  }
+
+  function tp_createElement(elements, id, tag, attributes, properties) {
+    var element = document.createElement(tag)
+    for (var attrName in attributes) {
+      element.setAttribute(attrName, attributes[attrName])
+    }
+    for (var propName in properties) {
+      element[propName] = properties[propName]
+    }
+    elements[id] = element
+  }
+
+  function tp_createFragment(elements, id) {
+    elements[id] = document.createDocumentFragment()
+  }
+
+  function tp_createLine(elements, id) {
+    elements[id] = document.createComment('line')
+  }
+
+  function tp_createText(elements, id, text) {
+    elements[id] = document.createTextNode(text)
+  }
+
+  function tp_after(elements, prevId, id) {
+    var prev = elements[prevId]
+    var current = elements[id]
+
+    if (prev.parentNode) {
+      if (current.isET) {
+        prev.parentNode.insertBefore(current.get(), prev.nextSibling)
+      } else {
+        prev.parentNode.insertBefore(current, prev.nextSibling)
       }
     }
   }
-  var _prototype = {
+
+  function tp_append(elements, parentId, id) {
+    var parent = elements[parentId]
+    var current = elements[id]
+
+    if (current.isET) {
+      parent.appendChild(current.get())
+    } else {
+      parent.appendChild(current)
+    }
+  }
+
+  function tp_bind(template, id, eventString, callback) {
+    template._eventsLogger[id] = true
+
+    var element = template.elements[id]
+    var eventNames = eventString.split(EVENT_SPLITTER)
+    for (var i = 0, len = eventNames.length; i < len; i++) {
+      element.addEventListener(eventNames[i], callback)
+    }
+  }
+
+  function tp_html(elements, id, html) {
+    elements[id].innerHTML = html
+  }
+
+  function tp_text(elements, id, text) {
+    elements[id].textContent = text
+  }
+
+  function tp_setAttribute(elements, id, attrName, attrValue) {
+    elements[id].setAttribute(attrName, attrValue)
+  }
+
+  function tp_getProperty(elements, id, propName) {
+    return elements[id][propName]
+  }
+
+  function tp_setProperty(elements, id, propName, propValue) {
+    elements[id][propName] = propValue
+  }
+
+  function tp_remove(elements, id) {
+    var element = elements[id]
+    if (element && element.isET) {
+      element.remove()
+    } else if (element && element.parentNode) {
+      element.parentNode.removeChild(element)
+    }
+  }
+
+  function tp_removeAttribute(elements, id, attrName) {
+    elements[id].removeAttribute(attrName)
+  }
+
+  function tp_removeAttributes(elements, id) {
+    var element = elements[id]
+    for (var i = 2, len = arguments.length; i < len; i++) {
+      element.removeAttribute(arguments[i])
+    }
+  }
+
+  function tp_getTemplate(elements, id, Constructor, options) {
+    var et = elements[id]
+    if (!et) {
+      et = elements[id] = new Constructor(options)
+    }
+    return et
+  }
+
+  function tp_removeRoot(template, id) {
+    template.roots[id] = false
+  }
+
+  function tp_setRoot(template, id, length) {
+    if (length >= 0) {
+      template.roots[id] = length
+    } else {
+      template.roots[id] = true
+    }
+  }
+
+  var template = {
     isET: true,
     init: function init(options) {
       if (!options)
@@ -107,16 +160,19 @@
       else
         this.root = options.root
 
+      this._rootFrag = document.createDocumentFragment()
+      this._eventsLogger = {} // 纪录那些绑定了事件的id
+
       this.options = options
-      this.roots = {} // 记录是root的节点对象，如果那个节点被移除应该从这里移除
-      this.doms = {} // 记录所有的节点对象
+      this.roots = {} // 记录某个id是不是root，如果纪录的是数字，那么认为是一个所属集合
+      this.elements = {} // 记录所有的节点对象
       this.last = {} // 记录上一次判断是什么值，用于差异更新
       this.events = {} // 纪录模板事件
       this.create()
     },
     get: function get() {
-      // 每次进行 get 都会进行 dom 组合  应该少用
-      var re = document.createDocumentFragment()
+      var result = this._rootFrag
+      var elements = this.elements
       var roots = this.roots
       var ids = Object.keys(roots).map(function(key) {
         return +key
@@ -124,32 +180,32 @@
 
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
-        var dom = roots[id]
-        if (dom && dom.isET) {
-          _util.appendChild(re, dom.get())
-        } else if (dom) {
-          _util.appendChild(re, dom)
+        var isRoot = roots[id]
+        if (!isRoot) continue
+
+        if (isRoot === true) {
+          var element = elements[id]
+          if (element.isET) {
+            result.appendChild(element.get())
+          } else {
+            result.appendChild(element)
+          }
+        } else {
+          for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
+            var elementId = id + '_' + j
+            var forElement = elements[elementId]
+            if (forElement.isET) {
+              result.appendChild(forElement.get())
+            } else {
+              result.appendChild(forElement)
+            }
+          }
         }
       }
-      return re
+      return result
     },
     create: function create() {},
     update: function update() {},
-    remove: function remove() {
-      // 从页面中移除掉，不进行事件解绑，相当于 jQuery 中的 detach
-      var roots = this.roots
-      var ids = Object.keys(roots)
-      for (var i = 0, len = ids.length; i < len; i++) {
-        var id = ids[i]
-        var dom = roots[id]
-        if (dom && dom.isET) {
-          dom.remove()
-        } else if (dom) {
-          _util.remove(dom, true)
-        }
-      }
-      return this
-    },
 
     on: function on(eventString, callback) {
       var eventNames = eventString.split(EVENT_SPLITTER)
@@ -163,7 +219,11 @@
       return this
     },
     trigger: function trigger(eventName) {
-      var args = Array.prototype.slice.call(arguments, 1)
+      var args = []
+      for (var j = 1, argLen = arguments.length; j < argLen; j++) {
+        args.push(arguments[j])
+      }
+
       var root = this.root || this
       var callbacks = root.events[eventName] || []
       for (var i = 0, len = callbacks.length; i < len; i++) {
@@ -172,28 +232,42 @@
       }
     },
 
-    destroy: function destroy() {
-      this._destroyDoms()
-      this._destroyAttributes()
-      return null
-    },
-    _destroyDoms: function _destroyDoms() {
-      var doms = this.doms
-      var ids = Object.keys(doms)
+    remove: function remove() {
+      var elements = this.elements
+      var roots = this.roots
+      var ids = Object.keys(roots)
+
       for (var i = 0, len = ids.length; i < len; i++) {
         var id = ids[i]
-        var dom = doms[id]
-        if (dom && dom.isET) {
-          dom.destroy()
-        } else if (dom) {
-          _util.remove(dom, false)
+        var isRoot = roots[id]
+        if (!isRoot) continue
+
+        if (isRoot === true) {
+          tp_remove(elements, id)
+        } else {
+          for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
+            tp_remove(elements, id + '_' + j)
+          }
         }
       }
+      return this
     },
-    _destroyAttributes: function _destroyAttributes() {
+    destroy: function destroy() {
+      // remove elements
+      this.remove()
+      // off events
+      var ids = Object.keys(this._eventsLogger)
+      var elements = this.elements
+      for (var i = 0, len = ids.length; i < len; i++) {
+        var id = ids[i]
+        var element = elements[id]
+        if (!element.isET) element.removeEventListener()
+      }
+
+      // destroy attributes
       var keys = Object.keys(this)
-      for (var i = 0, len = keys.length; i < len; i++) {
-        var key = keys[i]
+      for (var p = 0, len2 = keys.length; p < len2; p++) {
+        var key = keys[p]
         var item = this[key]
         if (typeof item !== 'function') {
           this[key] = null
@@ -205,8 +279,27 @@
   }
 
   exports['default'] = {
-    _util: _util,
-    _prototype: _prototype
+    tp_after: tp_after,
+    tp_append: tp_append,
+    tp_bind: tp_bind,
+    tp_createElement: tp_createElement,
+    tp_createFragment: tp_createFragment,
+    tp_createLine: tp_createLine,
+    tp_createText: tp_createText,
+    tp_getTemplate: tp_getTemplate,
+    tp_html: tp_html,
+    tp_remove: tp_remove,
+    tp_removeAttribute: tp_removeAttribute,
+    tp_removeAttributes: tp_removeAttributes,
+    tp_removeRoot: tp_removeRoot,
+    tp_setAttribute: tp_setAttribute,
+    tp_getProperty: tp_getProperty,
+    tp_setProperty: tp_setProperty,
+    tp_setRoot: tp_setRoot,
+    tp_text: tp_text,
+
+    extend: extend,
+    template: template
   }
   module.exports = exports['default']
 
