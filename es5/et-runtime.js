@@ -448,21 +448,21 @@
         var ids = it.moduleIds.map(function(item) {
           return '\'' + item + '\'';
         });
-        re = re + ('\ndefine(\'' + it.moduleId + '\', [' + ids.join(',') + '], function([' + it.moduleIds.join(',') + ']){\nvar module = {}\n' + it.content + '\nreturn module.exports\n})\n');
+        re = re + ('\n;define(\'' + it.moduleId + '\', [' + ids.join(',') + '], function([' + it.moduleIds.join(',') + ']){\nvar module = {}\n' + it.content + '\nreturn module.exports\n})\n');
 
         return re;
       },
       format_cmd: function format_cmd(it) {
         var re = '';
 
-        re = re + ('\ndefine(function(require, exports, module){\n' + it.content + '\n})\n');
+        re = re + ('\n;define(function(require, exports, module){\n' + it.content + '\n})\n');
 
         return re;
       },
       format_global: function format_global(it) {
         var re = '';
 
-        re = re + ('\n(function(global){\nvar module = {}\n' + it.content + '\nglobal.' + it.moduleId + ' = module.exports\n})(window)\n');
+        re = re + ('\n;(function(global){\nvar module = {}\nvar exports = {}\nfunction require (key) {\nreturn global[key]\n}\n\n' + it.content + '\nglobal.' + it.moduleId + ' = module.exports\n})(window)\n');
 
         return re;
       },
@@ -2610,7 +2610,7 @@
 
     var ET_MODEL = 'et-model';
     var PROPERTIY_SET = {
-      'INPUT': ['value'],
+      'INPUT': ['value', 'checked'],
       'TEXTAREA': ['value']
     };
 

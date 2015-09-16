@@ -255,7 +255,7 @@ for (; _index < _lastLength; _index++) {
       return `'${item}'`
     })
     re = re + `
-define('${it.moduleId}', [${ids.join(',')}], function([${it.moduleIds.join(',')}]){
+;define('${it.moduleId}', [${ids.join(',')}], function([${it.moduleIds.join(',')}]){
   var module = {}
   ${it.content}
   return module.exports
@@ -268,7 +268,7 @@ define('${it.moduleId}', [${ids.join(',')}], function([${it.moduleIds.join(',')}
     var re = ''
 
     re = re + `
-define(function(require, exports, module){
+;define(function(require, exports, module){
   ${it.content}
 })
 `
@@ -279,8 +279,13 @@ define(function(require, exports, module){
     var re = ''
 
     re = re + `
-(function(global){
+;(function(global){
   var module = {}
+  var exports = {}
+  function require (key) {
+    return global[key]
+  }
+
   ${it.content}
   global.${it.moduleId} = module.exports
 })(window)

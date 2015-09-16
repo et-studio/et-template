@@ -10,7 +10,7 @@ import elementHandler from './element-handler'
 
 var ET_MODEL = 'et-model'
 var PROPERTIY_SET = {
-  'INPUT': ['value'],
+  'INPUT': ['value', 'checked'],
   'TEXTAREA': ['value']
 }
 

@@ -40,7 +40,7 @@ var _elementHandler2 = _interopRequireDefault(_elementHandler);
 
 var ET_MODEL = 'et-model';
 var PROPERTIY_SET = {
-  'INPUT': ['value'],
+  'INPUT': ['value', 'checked'],
   'TEXTAREA': ['value']
 };
 
