@@ -58,6 +58,17 @@ var ForNode = (function (_Basic) {
       }
     }
   }, {
+    key: 'getId',
+    value: function getId() {
+      return this._index * 2 - 1;
+    }
+  }, {
+    key: 'getLineId',
+    value: function getLineId() {
+      var id = this.getId();
+      return id + 1;
+    }
+  }, {
     key: 'getForValueId',
     value: function getForValueId() {
       var valueId = this._valueId;

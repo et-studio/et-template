@@ -181,8 +181,8 @@ export default {
     }
     if (it.isRoot) {
       re = re + `
-  @.setRoot(this, ${it.lineId})
   @.setRoot(this, ${it.id}, 0)
+  @.setRoot(this, ${it.lineId})
 `
     }
 
@@ -192,8 +192,8 @@ export default {
     var re = ''
 
     re = re + `
-@.createLine(_elements, ${it.lineId})
 @.createFragment(_elements, ${it.id})
+@.createLine(_elements, ${it.lineId})
 `
 
     return re
@@ -237,7 +237,7 @@ for (; _index < _len; _index++) {
 for (; _index < _lastLength; _index++) {
   @.remove(_elements, '${it.id}_' + _index)
 }
-@.after(_elements, ${it.lineId}, ${it.id})
+@.before(_elements, ${it.lineId}, ${it.id})
 `
 
     if (it.isRoot) {

@@ -36,11 +36,24 @@ function tp_createFragment (elements, id) {
 }
 
 function tp_createLine (elements, id) {
-  elements[id] = document.createComment('line')
+  elements[id] = document.createComment(id)
 }
 
 function tp_createText (elements, id, text) {
   elements[id] = document.createTextNode(text)
+}
+
+function tp_before (elements, nextId, id) {
+  var next = elements[nextId]
+  var current = elements[id]
+
+  if (next.parentNode) {
+    if (current.isET) {
+      next.parentNode.insertBefore(current.get(), next)
+    } else {
+      next.parentNode.insertBefore(current, next)
+    }
+  }
 }
 
 function tp_after (elements, prevId, id) {
@@ -261,6 +274,7 @@ var template = {
 }
 
 exports['default'] = {
+  tp_before: tp_before,
   tp_after: tp_after,
   tp_append: tp_append,
   tp_bind: tp_bind,

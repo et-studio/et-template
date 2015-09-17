@@ -6,7 +6,7 @@ if (it.parentId) {
 }
 if (it.isRoot) {
   // {{
-  @.setRoot(this, ${it.lineId})
   @.setRoot(this, ${it.id}, 0)
+  @.setRoot(this, ${it.lineId})
   // }}
 }

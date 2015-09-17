@@ -18,7 +18,7 @@ for (; _index < _len; _index++) {
 for (; _index < _lastLength; _index++) {
   @.remove(_elements, '${it.id}_' + _index)
 }
-@.after(_elements, ${it.lineId}, ${it.id})
+@.before(_elements, ${it.lineId}, ${it.id})
 // }}
 
 if (it.isRoot) {

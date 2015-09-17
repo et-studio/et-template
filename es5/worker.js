@@ -134,7 +134,7 @@ exports['default'] = {
       re = re + ('\n  @.append(_elements, ' + it.parentId + ', ' + it.lineId + ')\n');
     }
     if (it.isRoot) {
-      re = re + ('\n  @.setRoot(this, ' + it.lineId + ')\n  @.setRoot(this, ' + it.id + ', 0)\n');
+      re = re + ('\n  @.setRoot(this, ' + it.id + ', 0)\n  @.setRoot(this, ' + it.lineId + ')\n');
     }
 
     return re;
@@ -142,7 +142,7 @@ exports['default'] = {
   for_create: function for_create(it) {
     var re = '';
 
-    re = re + ('\n@.createLine(_elements, ' + it.lineId + ')\n@.createFragment(_elements, ' + it.id + ')\n');
+    re = re + ('\n@.createFragment(_elements, ' + it.id + ')\n@.createLine(_elements, ' + it.lineId + ')\n');
 
     return re;
   },
@@ -159,7 +159,7 @@ exports['default'] = {
   for_update: function for_update(it) {
     var re = '';
 
-    re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\n  var ' + it.indexName + ' = _index\n  var ' + it.itemName + ' = _list[_index]\n\n  var _template = @.getTemplate(_elements, \'' + it.id + '_\' + _index, ' + it.templateName + ', this.options)\n  if (_index >= _lastLength) {\n    @.append(_elements, ' + it.id + ', \'' + it.id + '_\' + _index)\n  }\n  _template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n  @.remove(_elements, \'' + it.id + '_\' + _index)\n}\n@.after(_elements, ' + it.lineId + ', ' + it.id + ')\n');
+    re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\n  var ' + it.indexName + ' = _index\n  var ' + it.itemName + ' = _list[_index]\n\n  var _template = @.getTemplate(_elements, \'' + it.id + '_\' + _index, ' + it.templateName + ', this.options)\n  if (_index >= _lastLength) {\n    @.append(_elements, ' + it.id + ', \'' + it.id + '_\' + _index)\n  }\n  _template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n  @.remove(_elements, \'' + it.id + '_\' + _index)\n}\n@.before(_elements, ' + it.lineId + ', ' + it.id + ')\n');
 
     if (it.isRoot) {
       re = re + ('\n  @.setRoot(this, ' + it.id + ', _len)\n');

@@ -409,7 +409,7 @@
           re = re + ('\n@.append(_elements, ' + it.parentId + ', ' + it.lineId + ')\n');
         }
         if (it.isRoot) {
-          re = re + ('\n@.setRoot(this, ' + it.lineId + ')\n@.setRoot(this, ' + it.id + ', 0)\n');
+          re = re + ('\n@.setRoot(this, ' + it.id + ', 0)\n@.setRoot(this, ' + it.lineId + ')\n');
         }
 
         return re;
@@ -417,7 +417,7 @@
       for_create: function for_create(it) {
         var re = '';
 
-        re = re + ('\n@.createLine(_elements, ' + it.lineId + ')\n@.createFragment(_elements, ' + it.id + ')\n');
+        re = re + ('\n@.createFragment(_elements, ' + it.id + ')\n@.createLine(_elements, ' + it.lineId + ')\n');
 
         return re;
       },
@@ -434,7 +434,7 @@
       for_update: function for_update(it) {
         var re = '';
 
-        re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\nvar ' + it.indexName + ' = _index\nvar ' + it.itemName + ' = _list[_index]\n\nvar _template = @.getTemplate(_elements, \'' + it.id + '_\' + _index, ' + it.templateName + ', this.options)\nif (_index >= _lastLength) {\n@.append(_elements, ' + it.id + ', \'' + it.id + '_\' + _index)\n}\n_template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n@.remove(_elements, \'' + it.id + '_\' + _index)\n}\n@.after(_elements, ' + it.lineId + ', ' + it.id + ')\n');
+        re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\nvar ' + it.indexName + ' = _index\nvar ' + it.itemName + ' = _list[_index]\n\nvar _template = @.getTemplate(_elements, \'' + it.id + '_\' + _index, ' + it.templateName + ', this.options)\nif (_index >= _lastLength) {\n@.append(_elements, ' + it.id + ', \'' + it.id + '_\' + _index)\n}\n_template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n@.remove(_elements, \'' + it.id + '_\' + _index)\n}\n@.before(_elements, ' + it.lineId + ', ' + it.id + ')\n');
 
         if (it.isRoot) {
           re = re + ('\n@.setRoot(this, ' + it.id + ', _len)\n');
@@ -3348,6 +3348,17 @@
           } else {
             this.saveArgument(tmp.itemName);
           }
+        }
+      }, {
+        key: 'getId',
+        value: function getId() {
+          return this._index * 2 - 1;
+        }
+      }, {
+        key: 'getLineId',
+        value: function getLineId() {
+          var id = this.getId();
+          return id + 1;
         }
       }, {
         key: 'getForValueId',
