@@ -56,11 +56,10 @@ class ImportNode extends Basic {
     return it
   }
   deliverRequire () {
-    var it = {
+    return [{
       name: this.getTemplateName(),
       path: this.getPath()
-    }
-    return [worker.require(it)]
+    }]
   }
   deliverCreate () {
     var it = this.assembleWorkerData()

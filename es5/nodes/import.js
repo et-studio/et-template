@@ -92,11 +92,10 @@ var ImportNode = (function (_Basic) {
   }, {
     key: 'deliverRequire',
     value: function deliverRequire() {
-      var it = {
+      return [{
         name: this.getTemplateName(),
         path: this.getPath()
-      };
-      return [_worker2['default'].require(it)];
+      }];
     }
   }, {
     key: 'deliverCreate',

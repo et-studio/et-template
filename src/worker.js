@@ -60,6 +60,164 @@ export default {
 
     return re
   },
+  compile_amd(it) {
+    var re = ''
+
+    var paths = [`'${it.dependency}'`]
+    var variables = ['_dep']
+    for (var i = 0, len = it.requires.length; i < len; i++) {
+      var item = it.requires[i]
+      paths.push(`'${item.path}'`)
+      variables.push(item.name)
+    }
+
+    re = re + `
+;define('${it.moduleId}', [${paths.join(',')}], function(${variables.join(',')}){
+  ${this.compile_template(it)}
+  return ${it.templateName}
+})
+`
+
+    return re
+  },
+  compile_angular(it) {
+    var re = ''
+
+    var paths = [`'${it.dependency}'`]
+    var variables = ['_dep']
+    for (var i = 0, len = it.requires.length; i < len; i++) {
+      var item = it.requires[i]
+      paths.push(`'${item.path}'`)
+      variables.push(item.name)
+    }
+
+    re = re + `
+angular.module('${it.angularModuleName}').factory('${it.moduleId}', [${paths.join(',')}, function(${variables.join(',')}) {
+  ${this.compile_template(it)}
+  return ${it.templateName}
+}]);
+`
+
+    return re
+  },
+  compile_cmd(it) {
+    var re = ''
+
+    var requires = []
+    for (var i = 0, len = it.requires.length; i < len; i++) {
+      var item = it.requires[i]
+      requires.push(`var ${item.name} = require('${item.path}')`)
+    }
+
+    re = re + `
+;define(function(require, exports, module){
+  ${requires.join('\n')}
+  var _dep = require('${it.dependency}')
+  ${this.compile_template(it)}
+  module.exports = exports['default'] = ${it.templateName}
+})
+`
+
+    return re
+  },
+  compile_common(it) {
+    var re = ''
+
+    var requires = []
+    for (var i = 0, len = it.requires.length; i < len; i++) {
+      var item = it.requires[i]
+      requires.push(`var ${item.name} = require('${item.path}')`)
+    }
+
+    re = re + `
+'use strict'
+
+${requires.join('\n')}
+var _dep = require('${it.dependency}')
+${this.compile_template(it)}
+module.exports = exports['default'] = ${it.templateName}
+`
+
+    return re
+  },
+  compile_global(it) {
+    var re = ''
+
+    var requires = []
+    for (var i = 0, len = it.requires.length; i < len; i++) {
+      var item = it.requires[i]
+      requires.push(`var ${item.name} = global['${item.path}']`)
+    }
+
+    re = re + `
+;(function(global){
+  ${requires.join('\n')}
+  var _dep = global['${it.dependency}']
+  ${this.compile_template(it)}
+  global.${it.moduleId} = ${it.templateName}
+})(window)
+`
+
+    return re
+  },
+  compile_template(it) {
+    var re = ''
+
+    re = re + `
+// 默认认为_dep对象已经存在了
+var _prototype = _dep.template
+var _extend = _dep.extend
+// __bodyStart__
+`
+
+    _.each(it.newDoms, (dom) => {
+      re = re + `
+  function ${dom.templateName} (options) {
+    this.init(options)
+  }
+`
+    })
+
+    _.each(it.newDoms, (dom) => {
+      re = re + `
+  _extend(${dom.templateName}.prototype, _prototype, {
+    create: function create () {
+      var _elements = this.elements
+`
+      if (it.modelType === 'model' || it.modelType === 'object') {
+        re = re + `
+        var _scope = this.options.scope
+`
+      } else {
+        re = re + `
+        var _scope = this
+`
+      }
+
+      re = re + `
+      ${dom.createList.join('\n')}
+      ${dom.appendList.join('\n')}
+    }${dom.updateList.length ? ',' : ''}
+`
+
+      if (dom.updateList.length) {
+        re = re + `
+      update: function update (${dom.args.join(', ')}) {
+        var _elements = this.elements
+        var _last = this.last
+
+        ${dom.updateList.join('\n')}
+      }
+`
+      }
+
+      re = re + `
+  })
+`
+    })
+
+    return re
+  },
   element_append(it) {
     var re = ''
     if (it.parentId) {
@@ -456,82 +614,6 @@ _last[${it.valueId}] = -1
 
     re = re + `
 _this.doms[${it.id}].update(${it.args.join(', ')})
-`
-
-    return re
-  },
-  require(it) {
-    var re = ''
-
-    re = re + `
-var ${it.name} = require('${it.path}')
-`
-
-    return re
-  },
-  template(it) {
-    var re = ''
-
-    re = re + `
-'use strict'
-
-var _dep = require('${it.dependency}')
-var _prototype = _dep.template
-var _extend = _dep.extend
-
-${it.requires.join('\n')}
-`
-
-    _.each(it.newDoms, (dom) => {
-      re = re + `
-  function ${dom.templateName} (options) {
-    this.init(options)
-  }
-`
-    })
-
-    _.each(it.newDoms, (dom) => {
-      if (dom.createList.length || dom.updateList.length) {
-        re = re + `
-    _extend(${dom.templateName}.prototype, _prototype, {
-      create: function create () {
-        var _elements = this.elements
-`
-        if (it.modelType === 'model' || it.modelType === 'object') {
-          re = re + `
-          var _scope = this.options.scope
-`
-        } else {
-          re = re + `
-          var _scope = this
-`
-        }
-
-        re = re + `
-        ${dom.createList.join('\n')}
-        ${dom.appendList.join('\n')}
-      }${dom.updateList.length ? ',' : ''}
-`
-
-        if (dom.updateList.length) {
-          re = re + `
-        update: function update (${dom.args.join(', ')}) {
-          var _elements = this.elements
-          var _last = this.last
-
-          ${dom.updateList.join('\n')}
-        }
-`
-        }
-
-        re = re + `
-    })
-`
-      }
-    })
-
-    re = re + `
-module.exports = exports['default'] = ${it.templateName}
 `
 
     return re

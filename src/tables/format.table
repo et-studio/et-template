@@ -10,6 +10,6 @@
 '"'        | _h2    | _str2  |        |          |       | _last |       |       | _last |
 '`'        | _h3    | _str3  |        |          |       |       | _last |       |       | _last
 '('        | header | body   |        | end:body |       |       |       |       |       |
-'function' | body   | body   | method | method   |       |       |       |       |       |
+'// __bodyStart__' | body   | body   | method | method   |       |       |       |       |       |
 /\w/       | header | body   | method | method   |       |       |       |       |       |
            | header | body   |        |          |       |       |       |       |       |

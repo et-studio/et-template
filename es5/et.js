@@ -27,34 +27,40 @@ var _formatter = require('./formatter');
 var _formatter2 = _interopRequireDefault(_formatter);
 
 var DEFAULTS = {
-  dependency: 'et-dependency'
+  modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
+  dependency: 'et-dependency',
+  modelType: 'event', // ['model', 'object', 'event']
+  moduleId: 'Template',
+  angularModuleName: 'moduleName'
 };
 
 var ET = (function () {
   function ET() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    var initOptions = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     _classCallCheck(this, ET);
 
-    this.options = _util2['default'].extend({}, DEFAULTS, options);
-    this.parser = new _parser2['default'](this.options);
-    this.compiler = new _compiler2['default'](this.options);
-    this.formatter = new _formatter2['default'](this.options);
+    this.initOptions = _util2['default'].extend({}, DEFAULTS, initOptions);
+    this.parser = new _parser2['default'](this.initOptions);
+    this.compiler = new _compiler2['default'](this.initOptions);
+    this.formatter = new _formatter2['default'](this.initOptions);
   }
 
   _createClass(ET, [{
     key: 'compile',
-    value: function compile(str) {
-      var dom = this.parser.parse(str);
-      var result = this.compiler.compile(dom);
-      return this.formatter.format(result);
+    value: function compile(str, compileOptions) {
+      var options = _util2['default'].extend({}, this.initOptions, compileOptions);
+      var dom = this.parser.parse(str, options);
+      var result = this.compiler.compile(dom, options);
+      return this.formatter.format(result, options);
     }
   }, {
     key: 'compileDot',
-    value: function compileDot(str) {
-      var dom = this.parser.parseDot(str);
-      var result = this.compiler.compile(dom);
-      return this.formatter.format(result);
+    value: function compileDot(str, compileOptions) {
+      var options = _util2['default'].extend({}, this.initOptions, compileOptions);
+      var dom = this.parser.parseDot(str, options);
+      var result = this.compiler.compile(dom, options);
+      return this.formatter.format(result, options);
     }
   }]);
 

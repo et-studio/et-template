@@ -14,19 +14,11 @@ var _parsersFormat = require('./parsers/format');
 
 var _parsersFormat2 = _interopRequireDefault(_parsersFormat);
 
-var _worker = require('./worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
-var DEFAULT_TEMPLATE_ID = 'Template';
+var LINE_SPLIT = '\n';
 
 var Formatter = (function () {
   function Formatter() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
     _classCallCheck(this, Formatter);
-
-    this.options = options;
   }
 
   _createClass(Formatter, [{
@@ -35,25 +27,19 @@ var Formatter = (function () {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       content = _parsersFormat2['default'].parse(content);
-      return this.wrap(content, this.options.modules, options);
+      content = this.removeComments(content);
+      return content;
     }
   }, {
-    key: 'wrap',
-    value: function wrap(content, modules, options) {
-      var it = {
-        content: content,
-        moduleId: options.moduleId || DEFAULT_TEMPLATE_ID,
-        moduleIds: options.moduleIds || []
-      };
-      switch (modules) {
-        case 'cmd':
-          return _worker2['default'].format_cmd(it);
-        case 'amd':
-          return _worker2['default'].format_amd(it);
-        case 'global':
-          return _worker2['default'].format_global(it);
+    key: 'removeComments',
+    value: function removeComments(content) {
+      var list = content.split(LINE_SPLIT);
+      var results = [];
+      for (var i = 0, len = list.length; i < len; i++) {
+        var item = list[i].trim();
+        if (!item.startsWith('//')) results.push(item);
       }
-      return content;
+      return results.join(LINE_SPLIT);
     }
   }]);
 

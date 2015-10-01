@@ -28,30 +28,24 @@ var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
 var Parser = (function () {
   function Parser() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
     _classCallCheck(this, Parser);
-
-    this.options = options;
   }
 
   _createClass(Parser, [{
     key: 'parse',
-    value: function parse(str) {
+    value: function parse(str, options) {
       var originNode = _parsersOrigin2['default'].parse(str);
-      return this.createDom(originNode);
+      return this.createDom(originNode, options);
     }
   }, {
     key: 'parseDot',
-    value: function parseDot(str) {
+    value: function parseDot(str, options) {
       str = _parsersDot2['default'].parse(str);
-      return this.parse(str);
+      return this.parse(str, options);
     }
   }, {
     key: 'createDom',
-    value: function createDom(originNode) {
-      var _this = this;
-
+    value: function createDom(originNode, createOptions) {
       var index = 0;
       var createNode = function createNode(source, parent, previous, origin) {
         var options = {
@@ -64,7 +58,7 @@ var Parser = (function () {
           options.expressions = origin.expressions;
         }
 
-        var node = _nodesFactory2['default'].create(source, _util2['default'].extend({}, _this.options, options));
+        var node = _nodesFactory2['default'].create(source, _util2['default'].extend({}, createOptions, options));
         return node;
       };
       var createChildren = function createChildren(children, parent) {

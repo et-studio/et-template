@@ -11,13 +11,13 @@
 })(window, function(require, exports, module) {
   'use strict';
 
-  var _get = function get(_x15, _x16, _x17) {
+  var _get = function get(_x13, _x14, _x15) {
     var _again = true;
     _function:
     while (_again) {
-      var object = _x15,
-        property = _x16,
-        receiver = _x17;
+      var object = _x13,
+        property = _x14,
+        receiver = _x15;
       desc = parent = getter = undefined;
       _again = false;
       if (object === null)
@@ -28,9 +28,9 @@
         if (parent === null) {
           return undefined;
         } else {
-          _x15 = parent;
-          _x16 = property;
-          _x17 = receiver;
+          _x13 = parent;
+          _x14 = property;
+          _x15 = receiver;
           _again = true; continue _function;
         }
       } else if ('value' in desc) {
@@ -324,6 +324,103 @@
 
         return re;
       },
+      compile_amd: function compile_amd(it) {
+        var re = '';
+
+        var paths = ['\'' + it.dependency + '\''];
+        var variables = ['_dep'];
+        for (var i = 0, len = it.requires.length; i < len; i++) {
+          var item = it.requires[i];
+          paths.push('\'' + item.path + '\'');
+          variables.push(item.name);
+        }
+
+        re = re + ('\n;define(\'' + it.moduleId + '\', [' + paths.join(',') + '], function(' + variables.join(',') + '){\n' + this.compile_template(it) + '\nreturn ' + it.templateName + '\n})\n');
+
+        return re;
+      },
+      compile_angular: function compile_angular(it) {
+        var re = '';
+
+        var paths = ['\'' + it.dependency + '\''];
+        var variables = ['_dep'];
+        for (var i = 0, len = it.requires.length; i < len; i++) {
+          var item = it.requires[i];
+          paths.push('\'' + item.path + '\'');
+          variables.push(item.name);
+        }
+
+        re = re + ('\nangular.module(\'' + it.angularModuleName + '\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n' + this.compile_template(it) + '\nreturn ' + it.templateName + '\n}]);\n');
+
+        return re;
+      },
+      compile_cmd: function compile_cmd(it) {
+        var re = '';
+
+        var requires = [];
+        for (var i = 0, len = it.requires.length; i < len; i++) {
+          var item = it.requires[i];
+          requires.push('var ' + item.name + ' = require(\'' + item.path + '\')');
+        }
+
+        re = re + ('\n;define(function(require, exports, module){\n' + requires.join('\n') + '\nvar _dep = require(\'' + it.dependency + '\')\n' + this.compile_template(it) + '\nmodule.exports = exports[\'default\'] = ' + it.templateName + '\n})\n');
+
+        return re;
+      },
+      compile_common: function compile_common(it) {
+        var re = '';
+
+        var requires = [];
+        for (var i = 0, len = it.requires.length; i < len; i++) {
+          var item = it.requires[i];
+          requires.push('var ' + item.name + ' = require(\'' + item.path + '\')');
+        }
+
+        re = re + ('\n\'use strict\'\n\n' + requires.join('\n') + '\nvar _dep = require(\'' + it.dependency + '\')\n' + this.compile_template(it) + '\nmodule.exports = exports[\'default\'] = ' + it.templateName + '\n');
+
+        return re;
+      },
+      compile_global: function compile_global(it) {
+        var re = '';
+
+        var requires = [];
+        for (var i = 0, len = it.requires.length; i < len; i++) {
+          var item = it.requires[i];
+          requires.push('var ' + item.name + ' = global[\'' + item.path + '\']');
+        }
+
+        re = re + ('\n;(function(global){\n' + requires.join('\n') + '\nvar _dep = global[\'' + it.dependency + '\']\n' + this.compile_template(it) + '\nglobal.' + it.moduleId + ' = ' + it.templateName + '\n})(window)\n');
+
+        return re;
+      },
+      compile_template: function compile_template(it) {
+        var re = '';
+
+        re = re + '\n// 默认认为_dep对象已经存在了\nvar _prototype = _dep.template\nvar _extend = _dep.extend\n// __bodyStart__\n';
+
+        _.each(it.newDoms, function(dom) {
+          re = re + ('\nfunction ' + dom.templateName + ' (options) {\nthis.init(options)\n}\n');
+        });
+
+        _.each(it.newDoms, function(dom) {
+          re = re + ('\n_extend(' + dom.templateName + '.prototype, _prototype, {\ncreate: function create () {\nvar _elements = this.elements\n');
+          if (it.modelType === 'model' || it.modelType === 'object') {
+            re = re + '\nvar _scope = this.options.scope\n';
+          } else {
+            re = re + '\nvar _scope = this\n';
+          }
+
+          re = re + ('\n' + dom.createList.join('\n') + '\n' + dom.appendList.join('\n') + '\n}' + (dom.updateList.length ? ',' : '') + '\n');
+
+          if (dom.updateList.length) {
+            re = re + ('\nupdate: function update (' + dom.args.join(', ') + ') {\nvar _elements = this.elements\nvar _last = this.last\n\n' + dom.updateList.join('\n') + '\n}\n');
+          }
+
+          re = re + '\n})\n';
+        });
+
+        return re;
+      },
       element_append: function element_append(it) {
         var re = '';
         if (it.parentId) {
@@ -575,45 +672,6 @@
 
         return re;
       },
-      require: function require(it) {
-        var re = '';
-
-        re = re + ('\nvar ' + it.name + ' = require(\'' + it.path + '\')\n');
-
-        return re;
-      },
-      template: function template(it) {
-        var re = '';
-
-        re = re + ('\n\'use strict\'\n\nvar _dep = require(\'' + it.dependency + '\')\nvar _prototype = _dep.template\nvar _extend = _dep.extend\n\n' + it.requires.join('\n') + '\n');
-
-        _.each(it.newDoms, function(dom) {
-          re = re + ('\nfunction ' + dom.templateName + ' (options) {\nthis.init(options)\n}\n');
-        });
-
-        _.each(it.newDoms, function(dom) {
-          if (dom.createList.length || dom.updateList.length) {
-            re = re + ('\n_extend(' + dom.templateName + '.prototype, _prototype, {\ncreate: function create () {\nvar _elements = this.elements\n');
-            if (it.modelType === 'model' || it.modelType === 'object') {
-              re = re + '\nvar _scope = this.options.scope\n';
-            } else {
-              re = re + '\nvar _scope = this\n';
-            }
-
-            re = re + ('\n' + dom.createList.join('\n') + '\n' + dom.appendList.join('\n') + '\n}' + (dom.updateList.length ? ',' : '') + '\n');
-
-            if (dom.updateList.length) {
-              re = re + ('\nupdate: function update (' + dom.args.join(', ') + ') {\nvar _elements = this.elements\nvar _last = this.last\n\n' + dom.updateList.join('\n') + '\n}\n');
-            }
-
-            re = re + '\n})\n';
-          }
-        });
-
-        re = re + ('\nmodule.exports = exports[\'default\'] = ' + it.templateName + '\n');
-
-        return re;
-      },
       text_append: function text_append(it) {
         var re = '';
         if (it.parentId) {
@@ -660,19 +718,17 @@
 
     var Compiler = (function() {
       function Compiler() {
-        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
         _classCallCheck(this, Compiler);
-
-        this.options = options;
       }
 
       _createClass(Compiler, [{
         key: 'pickData',
-        value: function pickData(root) {
+        value: function pickData(root, options) {
           var re = {
-            dependency: this.options.dependency,
-            modelType: this.options.modelType,
+            moduleId: options.moduleId,
+            dependency: options.dependency,
+            angularModuleName: options.angularModuleName,
+            modelType: options.modelType,
             requires: root.getAllRequire(),
             templateName: root.getTemplateName(),
             newDoms: []
@@ -690,9 +746,20 @@
         }
       }, {
         key: 'compile',
-        value: function compile(dom) {
-          var it = this.pickData(dom);
-          return worker.template(it);
+        value: function compile(dom, options) {
+          var it = this.pickData(dom, options);
+          switch (options.modules) {
+            case 'angular':
+              return worker.compile_angular(it);
+            case 'cmd':
+              return worker.compile_cmd(it);
+            case 'amd':
+              return worker.compile_amd(it);
+            case 'global':
+              return worker.compile_global(it);
+            default:
+              return worker.compile_common(it);
+          }
         }
       }]);
 
@@ -3597,11 +3664,10 @@
       }, {
         key: 'deliverRequire',
         value: function deliverRequire() {
-          var it = {
+          return [{
             name: this.getTemplateName(),
             path: this.getPath()
-          };
-          return [worker.require(it)];
+          }];
         }
       }, {
         key: 'deliverCreate',
@@ -3744,30 +3810,24 @@
 
     var Parser = (function() {
       function Parser() {
-        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
         _classCallCheck(this, Parser);
-
-        this.options = options;
       }
 
       _createClass(Parser, [{
         key: 'parse',
-        value: function parse(str) {
+        value: function parse(str, options) {
           var originNode = originParser.parse(str);
-          return this.createDom(originNode);
+          return this.createDom(originNode, options);
         }
       }, {
         key: 'parseDot',
-        value: function parseDot(str) {
+        value: function parseDot(str, options) {
           str = dotParser.parse(str);
-          return this.parse(str);
+          return this.parse(str, options);
         }
       }, {
         key: 'createDom',
-        value: function createDom(originNode) {
-          var _this7 = this;
-
+        value: function createDom(originNode, createOptions) {
           var index = 0;
           var createNode = function createNode(source, parent, previous, origin) {
             var options = {
@@ -3780,7 +3840,7 @@
               options.expressions = origin.expressions;
             }
 
-            var node = factory.create(source, _.extend({}, _this7.options, options));
+            var node = factory.create(source, _.extend({}, createOptions, options));
             return node;
           };
           var createChildren = function createChildren(children, parent) {

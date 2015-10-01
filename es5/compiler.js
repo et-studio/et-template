@@ -20,19 +20,17 @@ var _worker2 = _interopRequireDefault(_worker);
 
 var Compiler = (function () {
   function Compiler() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
     _classCallCheck(this, Compiler);
-
-    this.options = options;
   }
 
   _createClass(Compiler, [{
     key: 'pickData',
-    value: function pickData(root) {
+    value: function pickData(root, options) {
       var re = {
-        dependency: this.options.dependency,
-        modelType: this.options.modelType,
+        moduleId: options.moduleId,
+        dependency: options.dependency,
+        angularModuleName: options.angularModuleName,
+        modelType: options.modelType,
         requires: root.getAllRequire(),
         templateName: root.getTemplateName(),
         newDoms: []
@@ -50,9 +48,20 @@ var Compiler = (function () {
     }
   }, {
     key: 'compile',
-    value: function compile(dom) {
-      var it = this.pickData(dom);
-      return _worker2['default'].template(it);
+    value: function compile(dom, options) {
+      var it = this.pickData(dom, options);
+      switch (options.modules) {
+        case 'angular':
+          return _worker2['default'].compile_angular(it);
+        case 'cmd':
+          return _worker2['default'].compile_cmd(it);
+        case 'amd':
+          return _worker2['default'].compile_amd(it);
+        case 'global':
+          return _worker2['default'].compile_global(it);
+        default:
+          return _worker2['default'].compile_common(it);
+      }
     }
   }]);
 

@@ -1,10 +1,10 @@
 'use strict'
 
+var Template_4 = require('./models/user')
 var _dep = require('et-dependency')
 var _prototype = _dep.template
 var _extend = _dep.extend
 
-var Template_4 = require('./models/user')
 var _tp_createElement = _dep.tp_createElement
 var _tp_getTemplate = _dep.tp_getTemplate
 var _tp_createText = _dep.tp_createText

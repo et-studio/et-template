@@ -4,13 +4,12 @@ import _ from './util'
 import worker from './worker'
 
 class Compiler {
-  constructor (options = {}) {
-    this.options = options
-  }
-  pickData (root) {
+  pickData (root, options) {
     var re = {
-      dependency: this.options.dependency,
-      modelType: this.options.modelType,
+      moduleId: options.moduleId,
+      dependency: options.dependency,
+      angularModuleName: options.angularModuleName,
+      modelType: options.modelType,
       requires: root.getAllRequire(),
       templateName: root.getTemplateName(),
       newDoms: []
@@ -26,9 +25,20 @@ class Compiler {
     })
     return re
   }
-  compile (dom) {
-    var it = this.pickData(dom)
-    return worker.template(it)
+  compile (dom, options) {
+    var it = this.pickData(dom, options)
+    switch (options.modules) {
+      case 'angular':
+        return worker.compile_angular(it)
+      case 'cmd':
+        return worker.compile_cmd(it)
+      case 'amd':
+        return worker.compile_amd(it)
+      case 'global':
+        return worker.compile_global(it)
+      default:
+        return worker.compile_common(it)
+    }
   }
 }
 
