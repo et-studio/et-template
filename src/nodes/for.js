@@ -28,13 +28,6 @@ class ForNode extends Basic {
       this.saveArgument(tmp.itemName)
     }
   }
-  getId () {
-    return this._index * 2 - 1
-  }
-  getLineId () {
-    var id = this.getId()
-    return id + 1
-  }
   getForValueId () {
     var valueId = this._valueId
     if (valueId >= 0) return valueId
