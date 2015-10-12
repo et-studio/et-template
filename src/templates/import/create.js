@@ -1,3 +1,6 @@
+
+var parentElementId = it.parentId
+if (it.isRoot) parentElementId = null
 // {{
-@.getTemplate(_elements, ${it.id}, ${it.templateName}, this.options)
+@.createTemplate(_this, ${parentElementId}, ${it.templateName}, this.options)
 // }}

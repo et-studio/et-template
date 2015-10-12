@@ -52,6 +52,25 @@ function tp_createText (template, parentId, id, text) {
   tp_create_parentHander(template, parentId, id)
 }
 
+function tp_createTemplate (template, parentId, id, Constructor, options) {
+  var elements = template.elements
+  var et = elements[id] = new Constructor(options)
+  if (!parentId) tp_setRoot(template, id)
+  return et
+}
+
+function tp_getTemplate (template, id) {
+  return template.elements[id]
+}
+
+function tp_getOrCreateTemplate (template, parentId, id, Constructor, options) {
+  var et = tp_getTemplate(template, id)
+  if (!et) {
+    et = tp_createTemplate(template, parentId, id, Constructor, options)
+  }
+  return et
+}
+
 function tp_before (template, nextId, id) {
   var elements = template.elements
   var next = elements[nextId]
@@ -137,15 +156,6 @@ function tp_removeAttributes (template, id) {
   }
 }
 
-function tp_getTemplate (template, id, Constructor, options) {
-  var elements = template.elements
-  var et = elements[id]
-  if (!et) {
-    et = elements[id] = new Constructor(options)
-  }
-  return et
-}
-
 function tp_removeRoot (template, id) {
   template.roots[id] = false
 }
@@ -197,7 +207,7 @@ var template = {
       this.root = options.root
     }
 
-    this._rootFrag = document.createDocumentFragment()
+    this.rootFrag = document.createDocumentFragment()
     this.templateStart = document.createComment('Start Template')
     this.templateEnd = document.createComment('End Template')
 
@@ -208,7 +218,7 @@ var template = {
     this.create()
   },
   get: function get () {
-    var result = this._rootFrag
+    var result = this.rootFrag
     var elements = this.elements
     var roots = this.roots
     var ids = Object.keys(roots).map(function (key) { return +key }).sort()
@@ -267,6 +277,7 @@ var template = {
   destroy: function destroy () {
     // remove elements
     this.remove()
+
     // off events
     var ids = Object.keys(this._eventsLogger)
     var elements = this.elements
@@ -274,6 +285,7 @@ var template = {
       var id = ids[i]
       var element = elements[id]
       if (!element.isET) element.removeEventListener()
+      else element.destroy()
     }
 
     // destroy attributes
@@ -291,11 +303,11 @@ var template = {
 }
 
 function dep_createTemplate (prop) {
-  var result = function () {
+  var Template = function () {
     this.init()
   }
-  extend(result.prototype, template, event, prop)
-  return result
+  extend(Template.prototype, template, event, prop)
+  return Template
 }
 
 exports['default'] = {
@@ -306,7 +318,9 @@ exports['default'] = {
   tp_createElement: tp_createElement,
   tp_createLine: tp_createLine,
   tp_createText: tp_createText,
+  tp_createTemplate: tp_createTemplate,
   tp_getTemplate: tp_getTemplate,
+  tp_getOrCreateTemplate: tp_getOrCreateTemplate,
   tp_html: tp_html,
   tp_remove: tp_remove,
   tp_removeAttribute: tp_removeAttribute,

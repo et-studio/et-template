@@ -1,4 +1,6 @@
 
+var parentElementId = it.parentId
+if (it.isRoot) parentElementId = null
 // {{
-@.createText(_elements, ${it.id}, '${_.translateMarks(it.text)}')
+@.createText(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.text)}')
 // }}

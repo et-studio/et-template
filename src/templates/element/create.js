@@ -2,31 +2,33 @@
 var nullString = 'null'
 var attributesString = nullString
 var propertiesString = nullString
+var parentElementId = it.parentId
+if (it.isRoot) parentElementId = nullString
 
 if (!_.isEmpty(it.attributes)) {
-  attributesString = JSON.stringify(it.attributes, null, '  ')
+  attributesString = JSON.stringify(it.attributes, null, 2)
 }
 if (!_.isEmpty(it.properties)) {
-  propertiesString = JSON.stringify(it.properties, null, '  ')
+  propertiesString = JSON.stringify(it.properties, null, 2)
 }
 
 if (propertiesString !== nullString) {
   // {{
-  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
+  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
   // }}
 } else if (attributesString !== nullString) {
   // {{
-  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
+  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
   // }}
 } else {
   // {{
-  @.createElement(_elements, ${it.id}, '${_.translateMarks(it.nodeName)}')
+  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}')
   // }}
 }
 
 if (it.modelKey) {
   // {{
-  @.bind(this, ${it.id}, 'change keyup', function (e) {
+  @.bind(_this, ${it.id}, 'change keyup', function (e) {
     // }}
     if (it.modelType === 'model') {
       // {{

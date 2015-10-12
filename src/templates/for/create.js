@@ -1,5 +1,6 @@
 
+var parentElementId = it.parentId
+if (it.isRoot) parentElementId = null
 // {{
-@.createFragment(_elements, ${it.id})
-@.createLine(_elements, ${it.lineId})
+@.createLine(_this, ${parentElementId}, ${it.lineId})
 // }}
