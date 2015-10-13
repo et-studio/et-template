@@ -9,6 +9,7 @@ var TAG = 'else'
 class ElseNode extends Basic {
   constructor (source, options) {
     super(source, options)
+    this.isNewTemplate = true
     this.nodeName = NODE_NAME
   }
   parse (source) {
