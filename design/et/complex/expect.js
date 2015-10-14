@@ -12,15 +12,17 @@ var _tp_setRoot = _dep.tp_setRoot
 var _tp_text = _dep.tp_text
 
 var Template_0 = _dep_createTemplate({
-  create: function () {
+  create: function() {
     var _this = this
-    _tp_createElement(_this, null, 2, 'DIV', {id: 'content'})
+    _tp_createElement(_this, null, 2, 'DIV', {
+      id: 'content'
+    })
     _tp_createLine(_this, 2, 3)
     _tp_createElement(_this, 2, 12, 'P')
     _tp_createText(_this, 12, 14, 'It is P label.')
     _tp_createLine(_this, 2, 15)
   },
-  update: function (it) {
+  update: function(it) {
     var _this = this
     var _last = this.last
 
@@ -67,25 +69,25 @@ var Template_0 = _dep_createTemplate({
 })
 
 var Template_4 = _dep_createTemplate({
-  create: function () {
+  create: function() {
     var _this = this
     _tp_createText(_this, null, 6, 'It is true.')
   }
 })
 
 var Template_8 = _dep_createTemplate({
-  create: function () {
+  create: function() {
     var _this = this
     _tp_createText(_this, null, 10, 'It is else.')
   }
 })
 
 var Template_16 = _dep_createTemplate({
-  create: function () {
+  create: function() {
     var _this = this
     _tp_createText(_this, null, 10, '')
   },
-  update: function (it, item, index) {
+  update: function(it, item, index) {
     var _this = this
     var _last = this.last
 
