@@ -3,12 +3,15 @@
 import Basic from './basic'
 import conditionParser from '../parsers/condition'
 
-var NODE_NAME = '#elseif'
+var NAME_SPACE = 'elseif'
+var NODE_NAME = `#${NAME_SPACE}`
 var TAG = 'else if'
 
 class ElseIfNode extends Basic {
   constructor (source, options) {
     super(source, options)
+
+    this.namespace = NAME_SPACE
     this.isNewTemplate = true
     this.nodeName = NODE_NAME
   }

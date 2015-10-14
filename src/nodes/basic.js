@@ -30,17 +30,14 @@
 
 import NodeInterface from './interface'
 import _ from '../util'
+import worker from '../worker'
 
 class Basic extends NodeInterface {
-  constructor (source, index, parent, previous, next, config) {
-    super
+  constructor (source, options) {
+    super(source, options)
 
     this._source = source
-    this._index = index
-    this.parent = parent
-    this.previous = previous
-    this.next = next
-    this.config = config
+    this.options = options
 
     this.isNewTemplate = false
     this.args = []
@@ -139,14 +136,16 @@ class Basic extends NodeInterface {
   deliverCreate () {
     var method = `${this.namespace}_create`
     var it = this.assembleWorkerData()
-    if (typeof worker[method] === 'function')
+    if (typeof worker[method] === 'function') {
       return worker[method](it)
+    }
   }
   deliverUpdate () {
     var method = `${this.namespace}_update`
     var it = this.assembleWorkerData()
-    if (typeof worker[method] === 'function')
+    if (typeof worker[method] === 'function') {
       return worker[method](it)
+    }
   }
 }
 

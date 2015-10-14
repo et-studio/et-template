@@ -2,28 +2,16 @@
 
 import Basic from './basic'
 import _ from '../util'
-import worker from '../worker'
 import conditionParser from '../parsers/condition'
 
 var NAME_SPACE = 'if'
 var NODE_NAME = `#${NAME_SPACE}`
 var TAG = NAME_SPACE
 
-var createExpression = (tag, condition, startIndex, endIndex, appendList, updateList, removeList) => {
-  return {
-    tag: tag,
-    condition: condition || '',
-    startIndex: startIndex || 0,
-    endIndex: endIndex || 0,
-    appendList: appendList || [],
-    updateList: updateList || [],
-    removeList: removeList || []
-  }
-}
-
 class IfNode extends Basic {
   constructor (source, options) {
-    super
+    super(source, options)
+
     this.namespace = NAME_SPACE
     this.isNewTemplate = true
     this.nodeName = NODE_NAME
@@ -48,6 +36,9 @@ class IfNode extends Basic {
     })
   }
 
+  getTag () {
+    return TAG
+  }
   getConditionDoms () {
     var results = [this.translateDom(this)]
 
@@ -94,9 +85,9 @@ class IfNode extends Basic {
       id: this.getId(),
       lineId: this.getLineId(),
       parentId: this.getParentId(),
-      valueId: this.getValueId(),
-      saveId: this.getValueId(),
-      isRoot: this.checkRoot()
+      valueId: this.getRootValueId(),
+      saveId: this.getRootValueId(),
+      isRoot: this.checkRoot(),
       doms: this.getConditionDoms()
     }
     return it

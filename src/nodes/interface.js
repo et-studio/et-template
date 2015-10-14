@@ -1,17 +1,24 @@
 'use strict'
 
+import _ from '../util'
+
 var config = {
   'templateFunctionPrefix': 'Template_'
 }
 
 class Interface {
   constructor () {
+    this._index = null
+    this._lineNumber = null
     this.valueId = 0
     this.children = []
 
     this.parent = null
     this.previous = null
     this.next = null
+  }
+  setIndex (index) {
+    this._index = index
   }
   getId () {
     if (this._index >= 0) {
@@ -80,12 +87,24 @@ class Interface {
     var newChidren = []
     var _this = this
     _.each(this.parent.children, (child) => {
-      newChidren.push(child)
-      if (child.getId() === _this.getId()) {
-        newChidren.push(node)
+      if (child.getId() !== _this.getId()) {
+        newChidren.push(child)
       }
     })
     this.parent.children = newChidren
+  }
+  prepend (node) {
+    var children = this.children
+
+    if (children.length > 0) {
+      var first = children[0]
+      first.previous = node
+      node.next = first
+    }
+
+    children.unshift(node)
+    node.previous = null
+    node.parent = this
   }
   append (node) {
     var children = this.children

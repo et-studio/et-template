@@ -1,9 +1,10 @@
 'use strict'
 
 import Basic from './basic'
-import worker from '../worker'
 import forParser from '../parsers/for'
 
+var NAME_SPACE = 'for'
+var NODE_NAME = `#${NAME_SPACE}`
 var defaults = {
   itemName: 'item',
   indexName: 'i',
@@ -13,8 +14,10 @@ var defaults = {
 class ForNode extends Basic {
   constructor (source, options) {
     super(source, options)
+
+    this.namespace = NAME_SPACE
     this.isNewTemplate = true
-    this.nodeName = '#for'
+    this.nodeName = NODE_NAME
   }
   parse (source) {
     var tmp = forParser.parse(source)
@@ -28,18 +31,8 @@ class ForNode extends Basic {
       this.saveArgument(tmp.itemName)
     }
   }
-  getForValueId () {
-    var valueId = this._valueId
-    if (valueId >= 0) return valueId
-
-    valueId = this._valueId = this.getRootValueId()
-    return valueId
-  }
   checkIsImportTemplate () {
     return this.children.length === 1 && this.children[0].nodeName === '#import'
-  }
-  checkIsCompile () {
-    return !this.checkIsImportTemplate()
   }
   assembleWorkerData () {
     var it = this._workerData
@@ -49,7 +42,7 @@ class ForNode extends Basic {
       id: this.getId(),
       lineId: this.getLineId(),
       parentId: this.getParentId(),
-      valueId: this.getForValueId(),
+      valueId: this.getRootValueId(),
       isRoot: this.checkRoot(),
       expression: this.expression || this.condition,
       indexName: this.indexName || defaults.indexName,
@@ -66,22 +59,6 @@ class ForNode extends Basic {
 
     this._workerData = it
     return it
-  }
-  deliverCreate () {
-    var it = this.assembleWorkerData()
-    return [worker.for_create(it)]
-  }
-  deliverAppend () {
-    var it = this.assembleWorkerData()
-    return [worker.for_append(it)]
-  }
-  deliverUpdate () {
-    var it = this.assembleWorkerData()
-    return [worker.for_update(it)]
-  }
-  deliverRemove () {
-    var it = this.assembleWorkerData()
-    return [worker.for_remove(it)]
   }
 }
 
