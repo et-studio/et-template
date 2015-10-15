@@ -8,7 +8,7 @@ var config = {
 
 class Interface {
   constructor () {
-    this._index = null
+    this._index = 0
     this._lineNumber = null
     this.valueId = 0
     this.children = []
@@ -21,11 +21,7 @@ class Interface {
     this._index = index
   }
   getId () {
-    if (this._index >= 0) {
-      return this._index * 2
-    } else {
-      return null
-    }
+    return this._index * 2
   }
   getLineNumber () {
     return this._lineNumber

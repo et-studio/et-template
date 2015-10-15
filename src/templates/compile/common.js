@@ -1,7 +1,7 @@
 
 var requires = []
-for (var i = 0, len = it.requires.length; i < len; i++) {
-  var item = it.requires[i]
+for (var i = 0, len = it.dependencies.length; i < len; i++) {
+  var item = it.dependencies[i]
   requires.push(`var ${item.name} = require('${item.path}')`)
 }
 
@@ -9,7 +9,6 @@ for (var i = 0, len = it.requires.length; i < len; i++) {
 'use strict'
 
 ${requires.join('\n')}
-var _dep = require('${it.dependency}')
 ${this.compile_template(it)}
 module.exports = exports['default'] = ${it.templateName}
 // }}

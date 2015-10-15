@@ -4,28 +4,25 @@ import _ from './util'
 import worker from './worker'
 
 class Compiler {
-  pickData (root, options) {
-    var re = {
-      moduleId: options.moduleId,
-      dependency: options.dependency,
+  constructor (options) {
+    this.options = options
+  }
+  pickData (root) {
+    var dependencies = root.getDependencies()
+    dependencies.unshift({
+      name: options.dependencyName,
+      path: options.dependencyPath
+    })
+    return {
+      templateName: root.getTemplateName(),
+      dependencies: dependencies,
       angularModuleName: options.angularModuleName,
       modelType: options.modelType,
-      requires: root.getAllRequire(),
-      templateName: root.getTemplateName(),
-      newDoms: []
+      newDoms: root.getNewTemplateDoms()
     }
-    _.each(root.getNewTemplateDoms(), (dom) => {
-      re.newDoms.push({
-        templateName: dom.getTemplateName(),
-        createList: dom.getChildrenCreate(),
-        appendList: dom.getChildrenAppend(),
-        updateList: dom.getChildrenUpdate(),
-        args: dom.getArguments()
-      })
-    })
-    return re
   }
-  compile (dom, options) {
+  compile (dom) {
+    var options = this.options
     var it = this.pickData(dom, options)
     switch (options.modules) {
       case 'angular':

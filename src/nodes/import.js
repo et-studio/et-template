@@ -57,7 +57,7 @@ class ImportNode extends Basic {
 
     return it
   }
-  deliverRequire () {
+  deliverDependencies () {
     return [{
       name: this.getTemplateName(),
       path: this.getPath()

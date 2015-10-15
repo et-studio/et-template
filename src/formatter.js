@@ -5,7 +5,10 @@ import formatParser from './parsers/format'
 var LINE_SPLIT = '\n'
 
 class Formatter {
-  format (content, options = {}) {
+  constructor (options) {
+    this.options = options
+  }
+  format (content) {
     content = formatParser.parse(content)
     content = this.removeComments(content)
     return content

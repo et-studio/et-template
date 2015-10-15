@@ -55,6 +55,37 @@ class Basic extends NodeInterface {
     })
     return results
   }
+  getCreateList () {
+    var results = []
+    _.each(this.children, (child) => {
+      var tmp = child.deliverCreate()
+      if (tmp) results.push(tmp)
+
+      if (!child.isNewTemplate) {
+        _.concat(results, child.getCreateList())
+      }
+    })
+    return results
+  }
+  getUpdateList () {
+    var results = []
+    _.each(this.children, (child) => {
+      var tmp = child.deliverUpdate()
+      if (tmp) results.push(tmp)
+
+      if (!child.isNewTemplate) {
+        _.concat(results, child.getUpdateList())
+      }
+    })
+    return results
+  }
+  getDependencies () {
+    var re = []
+    this.each((dom) => {
+      _.concat(re, dom.deliverDependencies())
+    })
+    return re
+  }
   getArguments () {
     var re = ['it']
 
@@ -84,45 +115,14 @@ class Basic extends NodeInterface {
       this.next.each(callback)
     }
   }
-
   initAll () {
     var eachHandler = (dom) => {
       dom.init()
     }
     this.each(eachHandler)
   }
-  getAllRequire () {
-    var re = []
-    var eachHandler = (dom) => {
-      _.concat(re, dom.deliverRequire())
-    }
-    this.each(eachHandler)
-    return re
-  }
-  getCreateList () {
-    var results = []
-    _.each(this.children, (child) => {
-      var tmp = child.deliverCreate()
-      if (tmp) results.push(tmp)
 
-      if (!child.isNewTemplate) {
-        _.concat(results, child.getCreateList())
-      }
-    })
-    return results
-  }
-  getUpdateList () {
-    var results = []
-    _.each(this.children, (child) => {
-      var tmp = child.deliverUpdate()
-      if (tmp) results.push(tmp)
 
-      if (!child.isNewTemplate) {
-        _.concat(results, child.getUpdateList())
-      }
-    })
-    return results
-  }
 
   // functions could be override
   parse (source) {}
@@ -130,7 +130,7 @@ class Basic extends NodeInterface {
   assembleWorkerData () {
     return {}
   }
-  deliverRequire () {
+  deliverDependencies () {
     return []
   }
   deliverCreate () {

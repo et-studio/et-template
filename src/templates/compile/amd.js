@@ -1,8 +1,8 @@
 
-var paths = [`'${it.dependency}'`]
-var variables = ['_dep']
-for (var i = 0, len = it.requires.length; i < len; i++) {
-  var item = it.requires[i]
+var paths = []
+var variables = []
+for (var i = 0, len = it.dependencies.length; i < len; i++) {
+  var item = it.dependencies[i]
   paths.push(`'${item.path}'`)
   variables.push(item.name)
 }

@@ -23,27 +23,9 @@ var nodes = {
 }
 
 class Factory {
-  /**
-   * options
-   * - index
-   * - parent
-   * - previous
-   * - expressions
-   * - lineNumber
-   */
-  create (source, options = {}) {
-    var parent = options.parent
-    var previous = options.previous
-
+  create (source, options, expressions) {
     var Constructor = this.findConstuctor(source)
-    var node = new Constructor(source, options)
-
-    if (parent) {
-      parent.children.push(node)
-    }
-    if (previous) {
-      previous.next = node
-    }
+    var node = new Constructor(source, options, expressions)
     return node
   }
   getNodeName (source) {
