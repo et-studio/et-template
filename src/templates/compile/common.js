@@ -1,7 +1,8 @@
 
+var dependencies = it.dependencies || []
 var requires = []
-for (var i = 0, len = it.dependencies.length; i < len; i++) {
-  var item = it.dependencies[i]
+for (var i = 0, len = dependencies.length; i < len; i++) {
+  var item = dependencies[i]
   requires.push(`var ${item.name} = require('${item.path}')`)
 }
 

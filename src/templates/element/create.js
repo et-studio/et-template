@@ -14,21 +14,21 @@ if (!_.isEmpty(it.properties)) {
 
 if (propertiesString !== nullString) {
   // {{
-  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
   // }}
 } else if (attributesString !== nullString) {
   // {{
-  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
   // }}
 } else {
   // {{
-  @.createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}')
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}')
   // }}
 }
 
 if (it.modelKey) {
   // {{
-  @.bind(_this, ${it.id}, 'change keyup', function (e) {
+  _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
     // }}
     if (it.modelType === 'model') {
       // {{

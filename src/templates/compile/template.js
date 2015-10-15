@@ -2,8 +2,7 @@
 // {{
 // 默认认为_dep对象已经存在了
 var _dep_createTemplate = _dep.dep_createTemplate
-// __bodyStart__
-it.newDoms.join('\n')
+// @_tp_mark
 // }}
 
 _.each(it.newDoms, (dom) => {
@@ -11,7 +10,7 @@ _.each(it.newDoms, (dom) => {
   var createList = dom.getCreateList()
   var updateList = dom.getUpdateList()
   var args = dom.getArguments()
-  
+
   // {{
   var ${templateName} = _dep_createTemplate({
     create: function () {

@@ -8,7 +8,7 @@ import Formatter from './formatter'
 var DEFAULTS = {
   modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
   dependencyName: '_dep',
-  dependencyPath: 'et-dependency'
+  dependencyPath: 'et-dependency',
   modelType: 'event', // ['model', 'object', 'event']
   moduleId: 'Template',
   angularModuleName: 'moduleName'

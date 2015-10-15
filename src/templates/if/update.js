@@ -11,29 +11,29 @@ _.each(it.doms, (dom, i) => {
   if (dom.id) {
     // {{
     ${dom.tag} ${condition} {
-      var _template = @.getConditionTemplate(_this, ${parentElementId}, ${dom.id}, ${dom.templateName}, this.options)
+      var _template = _tp_getConditionTemplate(_this, ${parentElementId}, ${dom.id}, ${dom.templateName}, this.options)
       if (_last[${it.valueId}] !== ${i}) {
         _last[${it.valueId}] = ${i}
 
         var _lastTemplateId = _last[${it.saveId}]
-        var _lastTemplate = @.getTemplate(_this, _lastTemplateId)
+        var _lastTemplate = _tp_getTemplate(_this, _lastTemplateId)
         if (_lastTemplate) {
           _lastTemplate.remove()
           // }}
           if (it.isRoot) {
             // {{
-            @.removeRoot(_this, _lastTemplateId)
+            _tp_removeRoot(_this, _lastTemplateId)
             // }}
           }
           // {{
         }
 
         _last[${it.saveId}] = ${dom.id}
-        @.after(_this, ${it.lineId}, ${dom.id})
+        _tp_after(_this, ${it.lineId}, ${dom.id})
         // }}
         if (it.isRoot) {
           // {{
-          @.setRoot(_this, ${dom.id})
+          _tp_setRoot(_this, ${dom.id})
           // }}
         }
         // {{
@@ -48,13 +48,13 @@ _.each(it.doms, (dom, i) => {
         _last[${it.valueId}] = ${i}
 
         var _lastTemplateId = _last[${it.saveId}]
-        var _lastTemplate = @.getTemplate(_this, _lastTemplateId)
+        var _lastTemplate = _tp_getTemplate(_this, _lastTemplateId)
         if (_lastTemplate) {
           _lastTemplate.remove()
           // }}
           if (it.isRoot) {
             // {{
-            @.removeRoot(_this, _lastTemplateId)
+            _tp_removeRoot(_this, _lastTemplateId)
             // }}
           }
           // {{

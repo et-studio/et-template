@@ -2,5 +2,5 @@
 var parentElementId = it.parentId
 if (it.isRoot) parentElementId = null
 // {{
-@.createLine(_this, ${parentElementId}, ${it.lineId})
+_tp_createLine(_this, ${parentElementId}, ${it.lineId})
 // }}
