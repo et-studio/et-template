@@ -161,17 +161,6 @@ var _dep_createTemplate = _dep.dep_createTemplate
   var ${templateName} = _dep_createTemplate({
     create: function () {
       var _this = this
-`
-      if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
-        re = re + `
-        var _scope = this.options.scope
-`
-      } else if (it.hasModelKey) {
-        re = re + `
-        var _scope = this
-`
-      }
-      re = re + `
       ${createList.join('\n')}
     }${updateList.length ? ',' : ''}
 `
@@ -225,21 +214,7 @@ var _dep_createTemplate = _dep.dep_createTemplate
     if (it.modelKey) {
       re = re + `
   _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-`
-      if (it.modelType === 'model') {
-        re = re + `
-      _scope.set('${_.translateMarks(it.modelKey)}', e.target.value)
-`
-      } else if (it.modelType === 'object') {
-        re = re + `
-      _scope${it.modelKey} = e.target.value
-`
-      } else {
-        re = re + `
-      _scope.trigger('et-model', '${_.translateMarks(it.modelKey)}', e.target.value, e)
-`
-      }
-      re = re + `
+    _tp_setModel(_this, '${it.modelType}', '${_.translateMarks(it.modelKey)}', e.target.value)
   })
 `
     }
@@ -301,7 +276,7 @@ for (; _index < _len; _index++) {
   var ${it.indexName} = _index
   var ${it.itemName} = _list[_index]
   var _itemId = '${it.id}_' + _index
-  var _template = _tp_getCondtionTemplate(_this, _itemId, ${it.templateName}, this.options)
+  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, this.options)
 
   if (_index >= _lastLength) {
     var _prevId = _index?('${it.id}_' + (_index - 1)) : ${it.lineId}
@@ -422,73 +397,64 @@ _tp_createLine(_this, ${parentElementId}, ${it.lineId})
   if_update(it) {
     var re = ''
 
-    var parentElementId = it.parentId
-    if (it.isRoot)
-      parentElementId = null
+    re = re + `
+var _index
+var _templateId = last[${it.saveId}]
+var _template = _tp_getTemplate(_this, _templateId)
 
+`
     _.each(it.doms, (dom, i) => {
       var condition = ''
-      if (dom.tag !== 'else') {
-        condition = `(${expression.condition})`
-      }
-
-      if (dom.id) {
-        re = re + `
-    ${dom.tag} ${condition} {
-      var _template = _tp_getConditionTemplate(_this, ${parentElementId}, ${dom.id}, ${dom.templateName}, this.options)
-      if (_last[${it.valueId}] !== ${i}) {
-        _last[${it.valueId}] = ${i}
-
-        var _lastTemplateId = _last[${it.saveId}]
-        var _lastTemplate = _tp_getTemplate(_this, _lastTemplateId)
-        if (_lastTemplate) {
-          _lastTemplate.remove()
+      if (dom.tag !== 'else')
+        condition = `(${dom.condition})`
+      re = re + `
+  ${dom.tag} ${condition} {
+    _index = ${i}
+  }
 `
-        if (it.isRoot) {
-          re = re + `
-            _tp_removeRoot(_this, _lastTemplateId)
-`
-        }
-        re = re + `
-        }
-
-        _last[${it.saveId}] = ${dom.id}
-        _tp_after(_this, ${it.lineId}, ${dom.id})
-`
-        if (it.isRoot) {
-          re = re + `
-          _tp_setRoot(_this, ${dom.id})
-`
-        }
-        re = re + `
-      }
-      _template.update(${dom.args.join(', ')})
-    }
-`
-      } else {
-        re = re + `
-    ${dom.tag} ${condition} {
-      if (_last[${it.valueId}] !== ${i}) {
-        _last[${it.valueId}] = ${i}
-
-        var _lastTemplateId = _last[${it.saveId}]
-        var _lastTemplate = _tp_getTemplate(_this, _lastTemplateId)
-        if (_lastTemplate) {
-          _lastTemplate.remove()
-`
-        if (it.isRoot) {
-          re = re + `
-            _tp_removeRoot(_this, _lastTemplateId)
-`
-        }
-        re = re + `
-        }
-        _last[${it.saveId}] = null
-      }
-    }
-`
-      }
     })
+    re = re + `
+
+if (_last[${it.valueId}] !== _index) {
+  _last[${it.valueId}] = _index
+
+  if (_template) {
+    _template.remove()
+`
+    if (it.isRoot) {
+      re = re + `
+      _tp_setRoot(_this, _templateId, false)
+`
+    }
+    re = re + `
+  }
+
+  var _currentTemplateId
+  var _TemplateConstructor
+`
+    _.each(it.doms, (dom, i) => {
+      var condition = ''
+      if (dom.tag !== 'else')
+        condition = `(${dom.condition})`
+      re = re + `
+    ${dom.tag} ${condition} {
+      _currentTemplateId = ${dom.id ? dom.id : null}
+      _TemplateConstructor = ${dom.id ? dom.templateName : null}
+    }
+`
+    })
+    re = re + `
+  if (_TemplateConstructor) {
+    _last[${it.saveId}] = _currentTemplateId
+    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+    _tp_after(_this, ${it.lineId}, _currentTemplateId)
+  } else {
+    _last[${it.saveId}] = null
+    _template = null
+  }
+}
+if (_template) _template.update(it)
+`
 
     return re
   },

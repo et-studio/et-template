@@ -1,6 +1,5 @@
 'use strict'
 
-import _ from './util'
 import worker from './worker'
 
 class Compiler {
@@ -8,6 +7,7 @@ class Compiler {
     this.options = options
   }
   pickData (root) {
+    var options = this.options
     var dependencies = root.getDependencies()
     dependencies.unshift({
       name: options.dependencyName,

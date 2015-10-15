@@ -18,3 +18,4 @@ node_modules
 bower_components
 design/**/source.js
 test/design/**/source.js
+design/**/*.min.js

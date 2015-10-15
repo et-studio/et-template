@@ -63,10 +63,11 @@ function tp_getTemplate (template, id) {
   return template.elements[id]
 }
 
-function tp_getOrCreateTemplate (template, parentId, id, Constructor, options) {
+function tp_getConditionTemplate (template, id, Constructor, options) {
   var et = tp_getTemplate(template, id)
   if (!et) {
-    et = tp_createTemplate(template, parentId, id, Constructor, options)
+    var elements = template.elements
+    et = elements[id] = new Constructor(options)
   }
   return et
 }
@@ -165,6 +166,19 @@ function tp_setRoot (template, id, length) {
     template.roots[id] = length
   } else {
     template.roots[id] = true
+  }
+}
+
+function tp_setModel (template, type, key, value) {
+  switch (type) {
+    case 'model':
+      template.scope.set(key, value)
+      break
+    case 'object':
+      template.scope[key] = value
+      break
+    default:
+      template.trigger('et-model', key, value)
   }
 }
 
@@ -320,7 +334,7 @@ exports['default'] = {
   tp_createText: tp_createText,
   tp_createTemplate: tp_createTemplate,
   tp_getTemplate: tp_getTemplate,
-  tp_getOrCreateTemplate: tp_getOrCreateTemplate,
+  tp_getConditionTemplate: tp_getConditionTemplate,
   tp_html: tp_html,
   tp_remove: tp_remove,
   tp_removeAttribute: tp_removeAttribute,
@@ -331,6 +345,7 @@ exports['default'] = {
   tp_setProperty: tp_setProperty,
   tp_setRoot: tp_setRoot,
   tp_text: tp_text,
+  tp_setModel: tp_setModel,
   dep_createTemplate: dep_createTemplate
 }
 module.exports = exports['default']

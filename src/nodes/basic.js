@@ -122,8 +122,6 @@ class Basic extends NodeInterface {
     this.each(eachHandler)
   }
 
-
-
   // functions could be override
   parse (source) {}
   init () {}

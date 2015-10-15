@@ -15,17 +15,6 @@ _.each(it.newDoms, (dom) => {
   var ${templateName} = _dep_createTemplate({
     create: function () {
       var _this = this
-      // }}
-      if (it.hasModelKey && (it.modelType === 'model' || it.modelType === 'object')) {
-        // {{
-        var _scope = this.options.scope
-        // }}
-      } else if (it.hasModelKey) {
-        // {{
-        var _scope = this
-        // }}
-      }
-      // {{
       ${createList.join('\n')}
     }${updateList.length?',':''}
     // }}

@@ -58,7 +58,7 @@ require([
     return testAll
   })()
 
-  window.testCompile = function (expect, result) {
+  window.testCompile = function (expect, result, withoutMocha) {
     expect = expect.trim().replace(/\n\s*\n/g, '\n')
     result = result.trim().replace(/\n\s*\n/g, '\n')
 
@@ -87,8 +87,7 @@ require([
         }
       }
     }
-
-    window.assert.equal(expectError, resultError)
+    if (!withoutMocha) window.assert.equal(expectError, resultError)
   }
 
   if (window.location.pathname !== '/') {

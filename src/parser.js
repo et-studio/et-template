@@ -25,17 +25,17 @@ class Parser {
       node.setIndex(index++)
       return node
     }
-    var createChildren = (parent) => {
-      var children = parent.children || []
+    var createChildren = (parent, origin) => {
+      var children = origin.children || []
       _.each(children, (child) => {
         var node = createNode(child.source, child.expressions)
+        createChildren(node, child)
         parent.append(node)
-        createChildren(child, child.children)
       })
     }
 
     var root = createNode()
-    createChildren(root, originNode.children)
+    createChildren(root, originNode)
     root.initAll()
     return root
   }

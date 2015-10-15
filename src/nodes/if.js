@@ -31,7 +31,7 @@ class IfNode extends Basic {
         currentNode.after(child)
         currentNode = child
       } else {
-        currentNode.appendChild(child)
+        currentNode.append(child)
       }
     })
   }

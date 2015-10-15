@@ -29,21 +29,7 @@ if (propertiesString !== nullString) {
 if (it.modelKey) {
   // {{
   _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-    // }}
-    if (it.modelType === 'model') {
-      // {{
-      _scope.set('${_.translateMarks(it.modelKey)}', e.target.value)
-      // }}
-    } else if (it.modelType === 'object') {
-      // {{
-      _scope${it.modelKey} = e.target.value
-      // }}
-    } else {
-      // {{
-      _scope.trigger('et-model', '${_.translateMarks(it.modelKey)}', e.target.value, e)
-      // }}
-    }
-    // {{
+    _tp_setModel(_this, '${it.modelType}', '${_.translateMarks(it.modelKey)}', e.target.value)
   })
   // }}
 }

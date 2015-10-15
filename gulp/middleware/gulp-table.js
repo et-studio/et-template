@@ -116,7 +116,7 @@ var ${name}TableOptions = {
     var fileContents = ''
     try {
       fileContents = fs.readFileSync(path, 'utf-8')
-    } catch(err) {
+    } catch (err) {
       console.log(`file not found: ${path}`)
     }
 

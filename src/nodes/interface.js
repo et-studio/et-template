@@ -141,6 +141,7 @@ class Interface {
   checkRoot () {
     var parent = this.parent
     if (!parent) return true
+    if (parent.getId() === 0) return true
     if (parent.isNewTemplate) return true
     return false
   }
