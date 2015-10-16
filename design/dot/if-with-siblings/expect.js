@@ -11,9 +11,9 @@ var _tp_after = _dep.tp_after
 
 var Template_0 = _dep_createTemplate({
   create: function() {
-      var _this = this
-      _tp_createText(_this, null, 2, 'It is before.')
-      _tp_createLine(_this, null, 3)
+    var _this = this
+    _tp_createText(_this, null, 2, 'It is before.')
+    _tp_createLine(_this, null, 3)
   },
   update: function(it) {
     var _this = this
@@ -46,6 +46,7 @@ var Template_0 = _dep_createTemplate({
         _last[1] = _currentTemplateId
         _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
         _tp_after(_this, 3, _currentTemplateId)
+        _tp_setRoot(_this, _currentTemplateId, true)
       } else {
         _last[1] = null
         _template = null

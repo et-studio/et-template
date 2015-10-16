@@ -18,7 +18,7 @@ var Template_0 = _dep_createTemplate({
   update: function(it) {
     var _this = this
     var _last = this.last
-    
+
     var _index
     var _templateId = last[1]
     var _template = _tp_getTemplate(_this, _templateId)
@@ -30,24 +30,24 @@ var Template_0 = _dep_createTemplate({
     if (_last[0] !== _index) {
       _last[0] = _index
       if (_template) {
-          _template.remove()
+        _template.remove()
       }
       var _currentTemplateId
       var _TemplateConstructor
       if (it.number > 1) {
-          _currentTemplateId = 4
-          _TemplateConstructor = Template_4
+        _currentTemplateId = 4
+        _TemplateConstructor = Template_4
       } else {
-          _currentTemplateId = 8
-          _TemplateConstructor = Template_8
+        _currentTemplateId = 8
+        _TemplateConstructor = Template_8
       }
       if (_TemplateConstructor) {
-          _last[1] = _currentTemplateId
-          _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
-          _tp_after(_this, 3, _currentTemplateId)
+        _last[1] = _currentTemplateId
+        _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+        _tp_after(_this, 3, _currentTemplateId)
       } else {
-          _last[1] = null
-          _template = null
+        _last[1] = null
+        _template = null
       }
     }
     if (_template) _template.update(it)

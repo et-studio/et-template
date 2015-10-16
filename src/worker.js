@@ -94,7 +94,6 @@ export default {
     re = re + `
 ;define(function(require, exports, module){
   ${requires.join('\n')}
-  var _dep = require('${it.dependency}')
   ${this.compile_template(it)}
   module.exports = exports['default'] = ${it.templateName}
 })
@@ -136,7 +135,7 @@ module.exports = exports['default'] = ${it.templateName}
 ;(function(global){
   ${requires.join('\n')}
   ${this.compile_template(it)}
-  global.${it.moduleId} = ${it.templateName}
+  global['${it.moduleId}'] = ${it.templateName}
 })(window)
 `
 
@@ -451,7 +450,7 @@ if (_last[${it.valueId}] !== _index) {
 `
     if (it.isRoot) {
       re = re + `
-      _tp_setRoot(_this, _currentTemplateId, false)
+      _tp_setRoot(_this, _currentTemplateId, true)
 `
     }
     re = re + `

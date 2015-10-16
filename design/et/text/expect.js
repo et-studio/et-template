@@ -19,7 +19,7 @@ var Template_0 = _dep_createTemplate({
   update: function(it) {
     var _this = this
     var _last = this.last
-    
+
     var _tmp = 'aaaa[' + it.src + ']'
     if (_last[0] !== _tmp) {
       _last[0] = _tmp

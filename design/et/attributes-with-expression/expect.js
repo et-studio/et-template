@@ -32,13 +32,13 @@ var Template_0 = _dep_createTemplate({
     }
 
     var _tmp = 'It is ' + (function() {
-      if (it.isTrue) {
-        return 'true'
-      } else {
-        return 'false'
-      }
-      return ''
-    })() + '!!!'
+        if (it.isTrue) {
+          return 'true'
+        } else {
+          return 'false'
+        }
+        return ''
+      })() + '!!!'
     if (_last[2] !== _tmp) {
       _last[2] = _tmp
       _tp_setAttribute(_this, 2, 'data-title', _tmp)

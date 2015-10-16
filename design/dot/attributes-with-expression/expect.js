@@ -30,16 +30,16 @@ var Template_0 = _dep_createTemplate({
       _last[1] = _tmp
       _tp_setAttribute(_this, 2, 'data-type', _tmp)
     }
-    
+
     if (it.isTrue) {
       if (_last[2] !== 0) {
-          _last[2] = 0
-          _tp_setAttribute(_this, 2, 'class', 'class-true')
+        _last[2] = 0
+        _tp_setAttribute(_this, 2, 'class', 'class-true')
       }
     } else {
       if (_last[2] !== 1) {
-          _last[2] = 1
-          _tp_removeAttribute(_this, 2, 'class')
+        _last[2] = 1
+        _tp_removeAttribute(_this, 2, 'class')
       }
     }
   }

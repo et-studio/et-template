@@ -6,7 +6,7 @@ class Compiler {
   constructor (options) {
     this.options = options
   }
-  pickData (root) {
+  pickData (root, compileOptions) {
     var options = this.options
     var dependencies = root.getDependencies()
     dependencies.unshift({
@@ -16,14 +16,15 @@ class Compiler {
     return {
       templateName: root.getTemplateName(),
       dependencies: dependencies,
-      angularModuleName: options.angularModuleName,
+      moduleId: compileOptions.moduleId,
+      angularModuleName: compileOptions.angularModuleName,
       modelType: options.modelType,
       newDoms: root.getNewTemplateDoms()
     }
   }
-  compile (dom) {
+  compile (dom, compileOptions) {
     var options = this.options
-    var it = this.pickData(dom, options)
+    var it = this.pickData(dom, compileOptions)
     switch (options.modules) {
       case 'angular':
         return worker.compile_angular(it)

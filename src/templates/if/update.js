@@ -51,7 +51,7 @@ if (_last[${it.valueId}] !== _index) {
     // }}
     if (it.isRoot) {
       // {{
-      _tp_setRoot(_this, _currentTemplateId, false)
+      _tp_setRoot(_this, _currentTemplateId, true)
       // }}
     }
     // {{

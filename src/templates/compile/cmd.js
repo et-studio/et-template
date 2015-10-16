@@ -9,7 +9,6 @@ for (var i = 0, len = dependencies.length; i < len; i++) {
 // {{
 ;define(function(require, exports, module){
   ${requires.join('\n')}
-  var _dep = require('${it.dependency}')
   ${this.compile_template(it)}
   module.exports = exports['default'] = ${it.templateName}
 })

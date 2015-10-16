@@ -51,8 +51,8 @@ var Template_2 = _dep_createTemplate({
 
     var _tmp = 'it is for loop ' + index
     if (_last[0] !== _tmp) {
-        _last[0] = _tmp
-        _tp_text(_this, 4, _tmp)
+      _last[0] = _tmp
+      _tp_text(_this, 4, _tmp)
     }
   }
 })

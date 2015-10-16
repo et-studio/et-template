@@ -10,6 +10,6 @@ for (var i = 0, len = dependencies.length; i < len; i++) {
 ;(function(global){
   ${requires.join('\n')}
   ${this.compile_template(it)}
-  global.${it.moduleId} = ${it.templateName}
+  global['${it.moduleId}'] = ${it.templateName}
 })(window)
 // }}
