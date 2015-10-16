@@ -22,7 +22,8 @@ var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
-var NODE_NAME = '#elseif';
+var NAME_SPACE = 'elseif';
+var NODE_NAME = '#' + NAME_SPACE;
 var TAG = 'else if';
 
 var ElseIfNode = (function (_Basic) {
@@ -32,6 +33,9 @@ var ElseIfNode = (function (_Basic) {
     _classCallCheck(this, ElseIfNode);
 
     _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, source, options);
+
+    this.namespace = NAME_SPACE;
+    this.isNewTemplate = true;
     this.nodeName = NODE_NAME;
   }
 

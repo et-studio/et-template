@@ -17,15 +17,15 @@ var _parsersFormat2 = _interopRequireDefault(_parsersFormat);
 var LINE_SPLIT = '\n';
 
 var Formatter = (function () {
-  function Formatter() {
+  function Formatter(options) {
     _classCallCheck(this, Formatter);
+
+    this.options = options;
   }
 
   _createClass(Formatter, [{
     key: 'format',
     value: function format(content) {
-      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
       content = _parsersFormat2['default'].parse(content);
       content = this.removeComments(content);
       return content;

@@ -34,7 +34,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -42,36 +42,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _getter = require('./getter');
+var _interface = require('./interface');
 
-var _getter2 = _interopRequireDefault(_getter);
+var _interface2 = _interopRequireDefault(_interface);
 
 var _util = require('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _worker = require('../worker');
+
+var _worker2 = _interopRequireDefault(_worker);
+
 var Basic = (function (_NodeInterface) {
   _inherits(Basic, _NodeInterface);
 
-  function Basic(source) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
+  function Basic(source, options) {
     _classCallCheck(this, Basic);
 
     _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, source, options);
 
     this._source = source;
-    this._index = options.index;
-    this.isVirtualNode = true;
+    this.options = options;
+
     this.isNewTemplate = false;
     this.args = [];
     this.nodeType = 'ET';
-
-    this.options = options;
-    this.parent = options.parent;
-    this.previous = options.previous;
-    this.next = null;
-    this.isRoot = !this.parent;
 
     this.children = [];
     this.parse(source);
@@ -81,13 +77,49 @@ var Basic = (function (_NodeInterface) {
     key: 'getNewTemplateDoms',
     value: function getNewTemplateDoms() {
       var results = [];
-      var eachHandler = function eachHandler(dom) {
-        if ((dom.isRoot || dom.isNewTemplate) && dom.checkIsCompile()) {
+      this.each(function (dom) {
+        if (!dom.parent || dom.isNewTemplate) {
           results.push(dom);
         }
-      };
-      this.each(eachHandler);
+      });
       return results;
+    }
+  }, {
+    key: 'getCreateList',
+    value: function getCreateList() {
+      var results = [];
+      _util2['default'].each(this.children, function (child) {
+        var tmp = child.deliverCreate();
+        if (tmp) results.push(tmp);
+
+        if (!child.isNewTemplate) {
+          _util2['default'].concat(results, child.getCreateList());
+        }
+      });
+      return results;
+    }
+  }, {
+    key: 'getUpdateList',
+    value: function getUpdateList() {
+      var results = [];
+      _util2['default'].each(this.children, function (child) {
+        var tmp = child.deliverUpdate();
+        if (tmp) results.push(tmp);
+
+        if (!child.isNewTemplate) {
+          _util2['default'].concat(results, child.getUpdateList());
+        }
+      });
+      return results;
+    }
+  }, {
+    key: 'getDependencies',
+    value: function getDependencies() {
+      var re = [];
+      this.each(function (dom) {
+        _util2['default'].concat(re, dom.deliverDependencies());
+      });
+      return re;
     }
   }, {
     key: 'getArguments',
@@ -115,19 +147,11 @@ var Basic = (function (_NodeInterface) {
       return this;
     }
   }, {
-    key: 'checkRoot',
-    value: function checkRoot() {
-      var parent = this.parent;
-      if (!parent || parent.isRoot || parent.isNewTemplate) return true;
-      if (parent.isVirtualNode && parent.checkRoot()) return true;
-      return false;
-    }
-  }, {
     key: 'each',
     value: function each(callback) {
       if (typeof callback !== 'function') return;
-      if (callback(this) === false) return;
 
+      if (callback(this) === false) return;
       if (this.children.length) {
         this.children[0].each(callback);
       }
@@ -143,52 +167,6 @@ var Basic = (function (_NodeInterface) {
       };
       this.each(eachHandler);
     }
-  }, {
-    key: 'getAllRequire',
-    value: function getAllRequire() {
-      var re = [];
-      var eachHandler = function eachHandler(dom) {
-        _util2['default'].concat(re, dom.deliverRequire());
-      };
-      this.each(eachHandler);
-      return re;
-    }
-  }, {
-    key: 'getChildrenCreate',
-    value: function getChildrenCreate() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverCreate());
-      });
-      return re;
-    }
-  }, {
-    key: 'getChildrenAppend',
-    value: function getChildrenAppend() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverAppend());
-      });
-      return re;
-    }
-  }, {
-    key: 'getChildrenUpdate',
-    value: function getChildrenUpdate() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverUpdate());
-      });
-      return re;
-    }
-  }, {
-    key: 'getChildrenRemove',
-    value: function getChildrenRemove() {
-      var re = [];
-      _util2['default'].each(this.children, function (child) {
-        _util2['default'].concat(re, child.deliverRemove());
-      });
-      return re;
-    }
 
     // functions could be override
   }, {
@@ -198,39 +176,37 @@ var Basic = (function (_NodeInterface) {
     key: 'init',
     value: function init() {}
   }, {
-    key: 'checkIsCompile',
-    value: function checkIsCompile() {
-      return true;
+    key: 'assembleWorkerData',
+    value: function assembleWorkerData() {
+      return {};
     }
   }, {
-    key: 'deliverRequire',
-    value: function deliverRequire() {
+    key: 'deliverDependencies',
+    value: function deliverDependencies() {
       return [];
     }
   }, {
     key: 'deliverCreate',
     value: function deliverCreate() {
-      return this.getChildrenCreate();
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      return this.getChildrenAppend();
+      var method = this.namespace + '_create';
+      var it = this.assembleWorkerData();
+      if (typeof _worker2['default'][method] === 'function') {
+        return _worker2['default'][method](it);
+      }
     }
   }, {
     key: 'deliverUpdate',
     value: function deliverUpdate() {
-      return this.getChildrenUpdate();
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      return this.getChildrenRemove();
+      var method = this.namespace + '_update';
+      var it = this.assembleWorkerData();
+      if (typeof _worker2['default'][method] === 'function') {
+        return _worker2['default'][method](it);
+      }
     }
   }]);
 
   return Basic;
-})(_getter2['default']);
+})(_interface2['default']);
 
 exports['default'] = Basic;
 module.exports = exports['default'];

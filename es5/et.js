@@ -27,40 +27,53 @@ var _formatter = require('./formatter');
 var _formatter2 = _interopRequireDefault(_formatter);
 
 var DEFAULTS = {
+  compiledTemplate: null, // ['dot', null]
   modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
-  dependency: 'et-dependency',
-  modelType: 'event', // ['model', 'object', 'event']
+  dependencyName: '_dep',
+  dependencyPath: 'et-dependency',
+  modelType: 'event' // ['model', 'object', 'event']
+};
+
+var DEFAULT_COMPILE_OPTIONS = {
   moduleId: 'Template',
   angularModuleName: 'moduleName'
 };
 
 var ET = (function () {
-  function ET() {
-    var initOptions = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
+  function ET(options) {
     _classCallCheck(this, ET);
 
-    this.initOptions = _util2['default'].extend({}, DEFAULTS, initOptions);
-    this.parser = new _parser2['default'](this.initOptions);
-    this.compiler = new _compiler2['default'](this.initOptions);
-    this.formatter = new _formatter2['default'](this.initOptions);
+    options = _util2['default'].extend({}, DEFAULTS, options);
+    this.options = options;
+    this.parser = new _parser2['default'](options);
+    this.compiler = new _compiler2['default'](options);
+    this.formatter = new _formatter2['default'](options);
   }
 
   _createClass(ET, [{
     key: 'compile',
     value: function compile(str, compileOptions) {
-      var options = _util2['default'].extend({}, this.initOptions, compileOptions);
-      var dom = this.parser.parse(str, options);
-      var result = this.compiler.compile(dom, options);
-      return this.formatter.format(result, options);
+      compileOptions = _util2['default'].extend({}, DEFAULT_COMPILE_OPTIONS, compileOptions);
+      switch (this.options.compiledTemplate) {
+        case 'dot':
+          return this.compileDot(str, compileOptions);
+        default:
+          return this.compileET(str, compileOptions);
+      }
+    }
+  }, {
+    key: 'compileET',
+    value: function compileET(str, compileOptions) {
+      var dom = this.parser.parse(str);
+      var result = this.compiler.compile(dom, compileOptions);
+      return this.formatter.format(result);
     }
   }, {
     key: 'compileDot',
     value: function compileDot(str, compileOptions) {
-      var options = _util2['default'].extend({}, this.initOptions, compileOptions);
-      var dom = this.parser.parseDot(str, options);
-      var result = this.compiler.compile(dom, options);
-      return this.formatter.format(result, options);
+      var dom = this.parser.parseDot(str);
+      var result = this.compiler.compile(dom, compileOptions);
+      return this.formatter.format(result);
     }
   }]);
 

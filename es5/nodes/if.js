@@ -22,28 +22,13 @@ var _util = require('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
-var NODE_NAME = '#if';
-var TAG = 'if';
-
-var createExpression = function createExpression(tag, condition, startIndex, endIndex, appendList, updateList, removeList) {
-  return {
-    tag: tag,
-    condition: condition || '',
-    startIndex: startIndex || 0,
-    endIndex: endIndex || 0,
-    appendList: appendList || [],
-    updateList: updateList || [],
-    removeList: removeList || []
-  };
-};
+var NAME_SPACE = 'if';
+var NODE_NAME = '#' + NAME_SPACE;
+var TAG = NAME_SPACE;
 
 var IfNode = (function (_Basic) {
   _inherits(IfNode, _Basic);
@@ -52,6 +37,9 @@ var IfNode = (function (_Basic) {
     _classCallCheck(this, IfNode);
 
     _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, source, options);
+
+    this.namespace = NAME_SPACE;
+    this.isNewTemplate = true;
     this.nodeName = NODE_NAME;
   }
 
@@ -64,72 +52,66 @@ var IfNode = (function (_Basic) {
   }, {
     key: 'init',
     value: function init() {
-      var _this2 = this;
+      // 调整elseif 和 else的树形关系
+      var children = this.children;
+      this.children = [];
 
-      // first check format
-      var lastNodeName = this.nodeName;
-      var checkHandler = function checkHandler(dom, i) {
-        if (lastNodeName === '#else' && dom.nodeName === '#elseif') {
-          _this2.throwError('The elseif node shouldn\'t show after else.');
+      var currentNode = this;
+      _util2['default'].each(children, function (child) {
+        if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+          currentNode.after(child);
+          currentNode = child;
+        } else {
+          currentNode.append(child);
         }
-        lastNodeName = dom.nodeName;
-      };
-      _util2['default'].each(this.children, checkHandler);
+      });
+    }
+  }, {
+    key: 'getTag',
+    value: function getTag() {
+      return TAG;
+    }
+  }, {
+    key: 'getConditionDoms',
+    value: function getConditionDoms() {
+      var results = [this.translateDom(this)];
 
-      // second index the expressions
       var hasElse = false;
-      var expressions = [];
-      var expression = createExpression(TAG, this.condition);
-      expressions.push(expression);
-
-      var indexHandler = function indexHandler(dom, i) {
-        if (dom.nodeName === '#elseif' || dom.nodeName === '#else') {
-          var tag = dom.nodeName.substr(1);
-          if (tag === 'elseif') tag = 'else if';else hasElse = true;
-
-          expression = createExpression(tag, dom.condition, i, i);
-          expressions.push(expression);
+      var current = this.next;
+      while (current) {
+        var currentTag = current.getTag();
+        if (currentTag === 'else if' || currentTag === 'else') {
+          results.push(this.translateDom(current));
         }
-        if (dom.nodeName !== '#elseif' && dom.nodeName !== '#else') {
-          expression.endIndex++;
+        if (currentTag === 'else') {
+          hasElse = true;
         }
-      };
-      _util2['default'].each(this.children, indexHandler);
-      if (!hasElse) expressions.push(createExpression('else', '', 0, 0));
-
-      // third get the worker list
-      var _this = this;
-      var workerHander = function workerHander(expression) {
-        var exclusions = _this.children.filter(function () {
-          return true;
-        });
-        var inclusions = exclusions.splice(expression.startIndex, expression.endIndex);
-
-        _util2['default'].each(inclusions, function (dom) {
-          _util2['default'].concat(expression.appendList, dom.deliverAppend());
-          _util2['default'].concat(expression.updateList, dom.deliverUpdate());
-        });
-        _util2['default'].each(exclusions, function (dom) {
-          _util2['default'].concat(expression.removeList, dom.deliverRemove());
-        });
-      };
-      _util2['default'].each(expressions, workerHander);
-
-      this.ifExpressions = expressions;
+        if (currentTag !== 'else if') {
+          break;
+        }
+        current = current.next;
+      }
+      if (!hasElse) results.push(this.translateDom(null));
+      return results;
     }
   }, {
-    key: 'getIfExpressions',
-    value: function getIfExpressions() {
-      return this.ifExpressions;
-    }
-  }, {
-    key: 'getIfValueId',
-    value: function getIfValueId() {
-      var valueId = this._valueId;
-      if (valueId >= 0) return valueId;
-
-      valueId = this._valueId = this.getRootValueId();
-      return valueId;
+    key: 'translateDom',
+    value: function translateDom(dom) {
+      if (dom) {
+        return {
+          id: dom.getId(),
+          templateName: dom.getTemplateName(),
+          args: dom.getArguments(),
+          tag: dom.getTag(),
+          condition: dom.condition
+        };
+      } else {
+        return {
+          tag: 'else',
+          condition: '',
+          isDefaultElse: true
+        };
+      }
     }
   }, {
     key: 'assembleWorkerData',
@@ -141,45 +123,12 @@ var IfNode = (function (_Basic) {
         id: this.getId(),
         lineId: this.getLineId(),
         parentId: this.getParentId(),
-        valueId: this.getIfValueId(),
+        valueId: this.getRootValueId(),
+        saveId: this.getRootValueId(),
         isRoot: this.checkRoot(),
-        expressions: this.getIfExpressions()
+        doms: this.getConditionDoms()
       };
       return it;
-    }
-  }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var results = this.getChildrenCreate();
-      var it = this.assembleWorkerData();
-      var tmp = _worker2['default'].if_create(it);
-      if (tmp) results.unshift(tmp);
-      return results;
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      var results = [];
-      var it = this.assembleWorkerData();
-      var tmp = _worker2['default'].if_append(it);
-      if (tmp) results.unshift(tmp);
-      return results;
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].if_update(it)];
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      var it = this.assembleWorkerData();
-      if (it.isRoot) {
-        return [_worker2['default'].if_remove(it)];
-      } else {
-        return [];
-      }
     }
   }]);
 

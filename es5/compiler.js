@@ -10,46 +10,40 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _util = require('./util');
-
-var _util2 = _interopRequireDefault(_util);
-
 var _worker = require('./worker');
 
 var _worker2 = _interopRequireDefault(_worker);
 
 var Compiler = (function () {
-  function Compiler() {
+  function Compiler(options) {
     _classCallCheck(this, Compiler);
+
+    this.options = options;
   }
 
   _createClass(Compiler, [{
     key: 'pickData',
-    value: function pickData(root, options) {
-      var re = {
-        moduleId: options.moduleId,
-        dependency: options.dependency,
-        angularModuleName: options.angularModuleName,
-        modelType: options.modelType,
-        requires: root.getAllRequire(),
-        templateName: root.getTemplateName(),
-        newDoms: []
-      };
-      _util2['default'].each(root.getNewTemplateDoms(), function (dom) {
-        re.newDoms.push({
-          templateName: dom.getTemplateName(),
-          createList: dom.getChildrenCreate(),
-          appendList: dom.getChildrenAppend(),
-          updateList: dom.getChildrenUpdate(),
-          args: dom.getArguments()
-        });
+    value: function pickData(root, compileOptions) {
+      var options = this.options;
+      var dependencies = root.getDependencies();
+      dependencies.unshift({
+        name: options.dependencyName,
+        path: options.dependencyPath
       });
-      return re;
+      return {
+        templateName: root.getTemplateName(),
+        dependencies: dependencies,
+        moduleId: compileOptions.moduleId,
+        angularModuleName: compileOptions.angularModuleName,
+        modelType: options.modelType,
+        newDoms: root.getNewTemplateDoms()
+      };
     }
   }, {
     key: 'compile',
-    value: function compile(dom, options) {
-      var it = this.pickData(dom, options);
+    value: function compile(dom, compileOptions) {
+      var options = this.options;
+      var it = this.pickData(dom, compileOptions);
       switch (options.modules) {
         case 'angular':
           return _worker2['default'].compile_angular(it);

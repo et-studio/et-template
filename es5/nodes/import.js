@@ -18,15 +18,12 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 
-var NODE_NAME = '#import';
+var NAME_SPACE = 'import';
+var NODE_NAME = '#' + NAME_SPACE;
 var PARAMETER_SPLIT = ',';
 
 var ImportNode = (function (_Basic) {
@@ -36,6 +33,8 @@ var ImportNode = (function (_Basic) {
     _classCallCheck(this, ImportNode);
 
     _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, source, options);
+
+    this.namespace = NAME_SPACE;
     this.nodeName = NODE_NAME;
   }
 
@@ -90,36 +89,12 @@ var ImportNode = (function (_Basic) {
       return it;
     }
   }, {
-    key: 'deliverRequire',
-    value: function deliverRequire() {
+    key: 'deliverDependencies',
+    value: function deliverDependencies() {
       return [{
         name: this.getTemplateName(),
         path: this.getPath()
       }];
-    }
-  }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].import_create(it)];
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].import_append(it)];
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].import_update(it)];
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].import_remove(it)];
     }
   }]);
 

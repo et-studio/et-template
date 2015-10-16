@@ -33,7 +33,7 @@ var _worker2 = _interopRequireDefault(_worker);
 // @tableStart: format
 var formatTableOptions = {
   states: ['header', 'body', 'start', 'method', '_h1', '_h2', '_h3', '_str1', '_str2', '_str3'],
-  symbols: [/\s/, '@.', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', '// __bodyStart__', /\w/],
+  symbols: [/\s/, '_tp_', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', '// @_tp_mark', /\w/],
   table: [{ '0': 'header', '1': 'header', '2': 'header', '3': 'header', '4': 'header', '5': '_h1', '6': '_h2', '7': '_h3', '8': 'header', '9': 'body', '10': 'header', '-1': 'header' }, { '0': 'body', '1': 'start', '2': 'body', '3': 'body', '4': 'body', '5': '_str1', '6': '_str2', '7': '_str3', '8': 'body', '9': 'body', '10': 'body', '-1': 'body' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': 'method', '10': 'method', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': 'end:body', '9': 'method', '10': 'method', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '_last', '6': '', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '_last', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '_last', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '_last', '6': '', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '_last', '7': '', '8': '', '9': '', '10': '', '-1': '' }, { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '_last', '8': '', '9': '', '10': '', '-1': '' }]
 };
 // @tableEnd
@@ -78,14 +78,14 @@ var FormatParser = (function (_Parser) {
             body += token;
             break;
           case 'start':
-            method = '';
+            method = token;
             break;
           case 'method':
             method += token;
             break;
           case 'end':
             methods.push(method);
-            body = body + '_tp_' + method + token;
+            body = '' + body + method + token;
             break;
           default:
             console.log(state);

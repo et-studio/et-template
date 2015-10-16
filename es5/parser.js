@@ -27,52 +27,45 @@ var _nodesFactory = require('./nodes/factory');
 var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
 var Parser = (function () {
-  function Parser() {
+  function Parser(options) {
     _classCallCheck(this, Parser);
+
+    this.options = options;
   }
 
   _createClass(Parser, [{
     key: 'parse',
-    value: function parse(str, options) {
+    value: function parse(str) {
       var originNode = _parsersOrigin2['default'].parse(str);
-      return this.createDom(originNode, options);
+      return this.createDom(originNode);
     }
   }, {
     key: 'parseDot',
-    value: function parseDot(str, options) {
+    value: function parseDot(str) {
       str = _parsersDot2['default'].parse(str);
-      return this.parse(str, options);
+      return this.parse(str);
     }
   }, {
     key: 'createDom',
-    value: function createDom(originNode, createOptions) {
+    value: function createDom(originNode) {
+      var options = this.options;
       var index = 0;
-      var createNode = function createNode(source, parent, previous, origin) {
-        var options = {
-          index: index++,
-          parent: parent,
-          previous: previous
-        };
-        if (origin) {
-          options.lineNumber = origin.lineNumber;
-          options.expressions = origin.expressions;
-        }
-
-        var node = _nodesFactory2['default'].create(source, _util2['default'].extend({}, createOptions, options));
+      var createNode = function createNode(source, expressions) {
+        var node = _nodesFactory2['default'].create(source, options, expressions);
+        node.setIndex(index++);
         return node;
       };
-      var createChildren = function createChildren(children, parent) {
-        if (children === undefined) children = [];
-
-        var current = null;
+      var createChildren = function createChildren(parent, origin) {
+        var children = origin.children || [];
         _util2['default'].each(children, function (child) {
-          current = createNode(child.source, parent, current, child);
-          createChildren(child.children, current);
+          var node = createNode(child.source, child.expressions);
+          createChildren(node, child);
+          parent.append(node);
         });
-        return parent;
       };
+
       var root = createNode();
-      createChildren(originNode.children, root);
+      createChildren(root, originNode);
       root.initAll();
       return root;
     }

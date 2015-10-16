@@ -65,30 +65,9 @@ var Factory = (function () {
 
   _createClass(Factory, [{
     key: 'create',
-
-    /**
-     * options
-     * - index
-     * - parent
-     * - previous
-     * - expressions
-     * - lineNumber
-     */
-    value: function create(source) {
-      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      var parent = options.parent;
-      var previous = options.previous;
-
+    value: function create(source, options, expressions) {
       var Constructor = this.findConstuctor(source);
-      var node = new Constructor(source, options);
-
-      if (parent) {
-        parent.children.push(node);
-      }
-      if (previous) {
-        previous.next = node;
-      }
+      var node = new Constructor(source, options, expressions);
       return node;
     }
   }, {

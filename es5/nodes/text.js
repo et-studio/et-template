@@ -18,13 +18,11 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersValue = require('../parsers/value');
 
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
+
+var NAME_SPACE = 'text';
 
 var TextNode = (function (_Basic) {
   _inherits(TextNode, _Basic);
@@ -36,8 +34,8 @@ var TextNode = (function (_Basic) {
 
     _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
 
+    this.namespace = NAME_SPACE;
     this.nodeType = 3;
-    this.isVirtualNode = false;
   }
 
   _createClass(TextNode, [{
@@ -51,49 +49,21 @@ var TextNode = (function (_Basic) {
       var it = this._workerData;
       if (it) return it;
 
+      var text = this.getTextContent();
       it = {
         id: this.getId(),
         isRoot: this.checkRoot(),
         parentId: this.getParentId(),
-        text: ''
+        isErratic: _parsersValue2['default'].isErratic(text),
+        text: text
       };
-      var text = this.getTextContent();
-      if (_parsersValue2['default'].isErratic(text)) {
+      if (it.isErratic) {
         it.valueId = this.getRootValueId();
         it.valueString = _parsersValue2['default'].parse(text);
-      } else {
-        it.text = text;
       }
+
       this._workerData = it;
       return it;
-    }
-  }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].text_create(it)];
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].text_append(it)];
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var it = this.assembleWorkerData();
-      if (it.valueString) {
-        return [_worker2['default'].text_update(it)];
-      } else {
-        return [];
-      }
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].text_remove(it)];
     }
   }]);
 

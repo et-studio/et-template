@@ -18,10 +18,6 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
@@ -29,6 +25,9 @@ var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
 var _parsersValue = require('../parsers/value');
 
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
+
+var NAME_SPACE = 'html';
+var NODE_NAME = '#' + NAME_SPACE;
 
 var HtmlNode = (function (_Basic) {
   _inherits(HtmlNode, _Basic);
@@ -42,10 +41,10 @@ var HtmlNode = (function (_Basic) {
   _createClass(HtmlNode, [{
     key: 'parse',
     value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, {
-        expectNodeName: '#html'
-      });
-      this.nodeName = tmp.nodeName;
+      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
+
+      this.namespace = NAME_SPACE;
+      this.nodeName = NODE_NAME;
       var expression = tmp.condition;
       this.expression = expression.slice(1, expression.length - 1);
     }
@@ -63,41 +62,25 @@ var HtmlNode = (function (_Basic) {
       }
     }
   }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var re = [];
+    key: 'assembleWorkerData',
+    value: function assembleWorkerData() {
+      var it = this._workerData;
+      if (it) return it;
+
       var expression = this.expression;
-      if (expression && !_parsersValue2['default'].isErratic(expression)) {
-        re.push(_worker2['default'].html_create({
-          parentId: this.getParentId(),
-          expression: this.expression
-        }));
+      it = {
+        parentId: this.getParentId(),
+        isErratic: _parsersValue2['default'].isErratic(expression),
+        expression: this.expression
+      };
+
+      if (it.isErratic) {
+        it.valueId = this.getRootValueId();
+        it.valueString = _parsersValue2['default'].parse(expression);
       }
-      return re;
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      return [];
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var re = [];
-      var expression = this.expression;
-      if (_parsersValue2['default'].isErratic(expression)) {
-        re.push(_worker2['default'].html_update({
-          parentId: this.getParentId(),
-          valueId: this.getRootValueId(),
-          valueString: _parsersValue2['default'].parse(expression)
-        }));
-      }
-      return re;
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      return [];
+
+      this._workerData = it;
+      return it;
     }
   }]);
 
