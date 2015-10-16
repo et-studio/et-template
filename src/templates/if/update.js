@@ -48,6 +48,13 @@ if (_last[${it.valueId}] !== _index) {
     _last[${it.saveId}] = _currentTemplateId
     _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
     _tp_after(_this, ${it.lineId}, _currentTemplateId)
+    // }}
+    if (it.isRoot) {
+      // {{
+      _tp_setRoot(_this, _currentTemplateId, false)
+      // }}
+    }
+    // {{
   } else {
     _last[${it.saveId}] = null
     _template = null

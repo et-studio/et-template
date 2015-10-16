@@ -20,14 +20,14 @@ function testCompile (expect, result) {
   }
 }
 
-function test (path, method) {
+function test (path) {
   var exist = fs.existsSync(rootDir + path)
   if (!exist) return
   var designDirs = fs.readdirSync(rootDir + path)
   designDirs.forEach(function (folder) {
     var folderPath = path + '/' + folder
     var stats = fs.statSync(rootDir + folderPath)
-    if (stats.isDirectory()) test(folderPath, method)
+    if (stats.isDirectory()) test(folderPath)
   })
 
   var expectPath = rootDir + path + '/expect.js'
@@ -43,7 +43,7 @@ function test (path, method) {
     var options = {}
     if (fs.existsSync(optionsPath)) options = require(optionsPath)
     var et = new ET(options)
-    var result = et[method](html)
+    var result = et.compile(html, options)
 
     expect = formatter.format(expect)
     result = formatter.format(result)
@@ -51,5 +51,4 @@ function test (path, method) {
   })
 }
 
-test('/design/et', 'compile')
-test('/design/dot', 'compileDot')
+test('/design')

@@ -6,6 +6,7 @@ import Compiler from './compiler'
 import Formatter from './formatter'
 
 var DEFAULTS = {
+  compiledTemplate: null, // ['dot', null]
   modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
   dependencyName: '_dep',
   dependencyPath: 'et-dependency',
@@ -22,14 +23,20 @@ class ET {
     this.compiler = new Compiler(options)
     this.formatter = new Formatter(options)
   }
-  compile (str) {
+  compile (str, cOptions) {
+    switch (this.options.compiledTemplate) {
+      case 'dot': return this.compileDot(str, cOptions)
+      default: return this.compileET(str, cOptions)
+    }
+  }
+  compileET (str, cOptions) {
     var dom = this.parser.parse(str)
-    var result = this.compiler.compile(dom)
+    var result = this.compiler.compile(dom, cOptions)
     return this.formatter.format(result)
   }
-  compileDot (str) {
+  compileDot (str, cOptions) {
     var dom = this.parser.parseDot(str)
-    var result = this.compiler.compile(dom)
+    var result = this.compiler.compile(dom, cOptions)
     return this.formatter.format(result)
   }
 }
