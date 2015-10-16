@@ -1,16 +1,18 @@
 'use strict'
 
 import Basic from './basic'
-import worker from '../worker'
 import conditionParser from '../parsers/condition'
 import valueParser from '../parsers/value'
 
+var NAME_SPACE = 'html'
+var NODE_NAME = `#${NAME_SPACE}`
+
 class HtmlNode extends Basic {
   parse (source) {
-    var tmp = conditionParser.parse(source, {
-      expectNodeName: '#html'
-    })
-    this.nodeName = tmp.nodeName
+    var tmp = conditionParser.parse(source, {expectNodeName: NODE_NAME})
+
+    this.namespace = NAME_SPACE
+    this.nodeName = NODE_NAME
     var expression = tmp.condition
     this.expression = expression.slice(1, expression.length - 1)
   }
@@ -26,34 +28,24 @@ class HtmlNode extends Basic {
     }
   }
 
-  deliverCreate () {
-    var re = []
+  assembleWorkerData () {
+    var it = this._workerData
+    if (it) return it
+
     var expression = this.expression
-    if (expression && !valueParser.isErratic(expression)) {
-      re.push(worker.html_create({
-        parentId: this.getParentId(),
-        expression: this.expression
-      }))
+    it = {
+      parentId: this.getParentId(),
+      isErratic: valueParser.isErratic(expression),
+      expression: this.expression
     }
-    return re
-  }
-  deliverAppend () {
-    return []
-  }
-  deliverUpdate () {
-    var re = []
-    var expression = this.expression
-    if (valueParser.isErratic(expression)) {
-      re.push(worker.html_update({
-        parentId: this.getParentId(),
-        valueId: this.getRootValueId(),
-        valueString: valueParser.parse(expression)
-      }))
+
+    if (it.isErratic) {
+      it.valueId = this.getRootValueId()
+      it.valueString = valueParser.parse(expression)
     }
-    return re
-  }
-  deliverRemove () {
-    return []
+
+    this._workerData = it
+    return it
   }
 }
 export default HtmlNode

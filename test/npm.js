@@ -20,57 +20,35 @@ function testCompile (expect, result) {
   }
 }
 
-var pathList = ['/design/et']
-pathList.forEach(function (path) {
-  global.describe(path, function () {
-    var exist = fs.existsSync(rootDir + path)
-    if (!exist) {
-      return
-    }
-    var designDirs = fs.readdirSync(rootDir + path)
-    designDirs.forEach(function (folder) {
-      global.it(folder, function () {
-        var expect = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
-        var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
-
-        var optionsPath = rootDir + path + '/' + folder + '/options.json'
-        var options = {}
-        if (fs.existsSync(optionsPath)) options = require(optionsPath)
-        var et = new ET(options)
-        var result = et.compile(html)
-
-        expect = formatter.format(expect)
-        result = formatter.format(result)
-        testCompile(expect, result)
-      })
-    })
+function test (path) {
+  var exist = fs.existsSync(rootDir + path)
+  if (!exist) return
+  var designDirs = fs.readdirSync(rootDir + path)
+  designDirs.forEach(function (folder) {
+    var folderPath = path + '/' + folder
+    var stats = fs.statSync(rootDir + folderPath)
+    if (stats.isDirectory()) test(folderPath)
   })
-})
 
-var dotPaths = ['/design/dot']
-dotPaths.forEach(function (path) {
-  global.describe(path, function () {
-    var exist = fs.existsSync(rootDir + path)
-    if (!exist) {
-      return
-    }
-    var designDirs = fs.readdirSync(rootDir + path)
-    designDirs.forEach(function (folder) {
-      global.it(folder, function () {
-        var expect = fs.readFileSync(rootDir + path + '/' + folder + '/expect.js', 'utf-8')
-        var html = fs.readFileSync(rootDir + path + '/' + folder + '/source.html', 'utf-8')
+  var expectPath = rootDir + path + '/expect.js'
+  var htmlPath = rootDir + path + '/source.html'
+  var isExpectExist = fs.existsSync(expectPath)
+  var isHtmlExist = fs.existsSync(htmlPath)
+  if (!isExpectExist || !isHtmlExist) return
 
-        var optionsPath = rootDir + path + '/' + folder + '/options.json'
-        var options = {}
-        if (fs.existsSync(optionsPath)) options = require(optionsPath)
-        var et = new ET(options)
-        var result = et.compileDot(html)
+  global.it(path, function () {
+    var expect = fs.readFileSync(expectPath, 'utf-8')
+    var html = fs.readFileSync(htmlPath, 'utf-8')
+    var optionsPath = rootDir + path + '/options.json'
+    var options = {}
+    if (fs.existsSync(optionsPath)) options = require(optionsPath)
+    var et = new ET(options)
+    var result = et.compile(html, options)
 
-        expect = formatter.format(expect)
-        result = formatter.format(result)
-
-        testCompile(expect, result)
-      })
-    })
+    expect = formatter.format(expect)
+    result = formatter.format(result)
+    testCompile(expect, result)
   })
-})
+}
+
+test('/design')

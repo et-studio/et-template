@@ -1,4 +1,5 @@
 
 // {{
-_this.doms[${it.id}].update(${it.args.join(', ')})
+var _template = _tp_getTemlate(_this, ${it.id})
+_template.update(${it.args.join(', ')})
 // }}

@@ -2,27 +2,18 @@
 
 import Basic from './basic'
 import _ from '../util'
-import worker from '../worker'
 import conditionParser from '../parsers/condition'
 
-var NODE_NAME = '#if'
-var TAG = 'if'
-
-var createExpression = (tag, condition, startIndex, endIndex, appendList, updateList, removeList) => {
-  return {
-    tag: tag,
-    condition: condition || '',
-    startIndex: startIndex || 0,
-    endIndex: endIndex || 0,
-    appendList: appendList || [],
-    updateList: updateList || [],
-    removeList: removeList || []
-  }
-}
+var NAME_SPACE = 'if'
+var NODE_NAME = `#${NAME_SPACE}`
+var TAG = NAME_SPACE
 
 class IfNode extends Basic {
   constructor (source, options) {
     super(source, options)
+
+    this.namespace = NAME_SPACE
+    this.isNewTemplate = true
     this.nodeName = NODE_NAME
   }
   parse (source) {
@@ -30,66 +21,61 @@ class IfNode extends Basic {
     this.condition = tmp.condition
   }
   init () {
-    // first check format
-    var lastNodeName = this.nodeName
-    var checkHandler = (dom, i) => {
-      if (lastNodeName === '#else' && dom.nodeName === '#elseif') {
-        this.throwError('The elseif node shouldn\'t show after else.')
-      }
-      lastNodeName = dom.nodeName
-    }
-    _.each(this.children, checkHandler)
+    // 调整elseif 和 else的树形关系
+    var children = this.children
+    this.children = []
 
-    // second index the expressions
+    var currentNode = this
+    _.each(children, (child) => {
+      if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+        currentNode.after(child)
+        currentNode = child
+      } else {
+        currentNode.append(child)
+      }
+    })
+  }
+
+  getTag () {
+    return TAG
+  }
+  getConditionDoms () {
+    var results = [this.translateDom(this)]
+
     var hasElse = false
-    var expressions = []
-    var expression = createExpression(TAG, this.condition)
-    expressions.push(expression)
-
-    var indexHandler = (dom, i) => {
-      if (dom.nodeName === '#elseif' || dom.nodeName === '#else') {
-        var tag = dom.nodeName.substr(1)
-        if (tag === 'elseif') tag = 'else if'
-        else hasElse = true
-
-        expression = createExpression(tag, dom.condition, i, i)
-        expressions.push(expression)
+    var current = this.next
+    while (current) {
+      var currentTag = current.getTag()
+      if (currentTag === 'else if' || currentTag === 'else') {
+        results.push(this.translateDom(current))
       }
-      if (dom.nodeName !== '#elseif' && dom.nodeName !== '#else') {
-        expression.endIndex++
+      if (currentTag === 'else') {
+        hasElse = true
+      }
+      if (currentTag !== 'else if') {
+        break
+      }
+      current = current.next
+    }
+    if (!hasElse) results.push(this.translateDom(null))
+    return results
+  }
+  translateDom (dom) {
+    if (dom) {
+      return {
+        id: dom.getId(),
+        templateName: dom.getTemplateName(),
+        args: dom.getArguments(),
+        tag: dom.getTag(),
+        condition: dom.condition
+      }
+    } else {
+      return {
+        tag: 'else',
+        condition: '',
+        isDefaultElse: true
       }
     }
-    _.each(this.children, indexHandler)
-    if (!hasElse) expressions.push(createExpression('else', '', 0, 0))
-
-    // third get the worker list
-    var _this = this
-    var workerHander = (expression) => {
-      var exclusions = _this.children.filter(() => { return true })
-      var inclusions = exclusions.splice(expression.startIndex, expression.endIndex)
-
-      _.each(inclusions, (dom) => {
-        _.concat(expression.appendList, dom.deliverAppend())
-        _.concat(expression.updateList, dom.deliverUpdate())
-      })
-      _.each(exclusions, (dom) => {
-        _.concat(expression.removeList, dom.deliverRemove())
-      })
-    }
-    _.each(expressions, workerHander)
-
-    this.ifExpressions = expressions
-  }
-
-  getIfExpressions () {
-    return this.ifExpressions
-  }
-  getIfValueId () {
-    var valueId = this._valueId
-    if (valueId >= 0) return valueId
-
-    valueId = this._valueId = this.getRootValueId()
-    return valueId
   }
   assembleWorkerData () {
     var it = this._workerData
@@ -99,37 +85,12 @@ class IfNode extends Basic {
       id: this.getId(),
       lineId: this.getLineId(),
       parentId: this.getParentId(),
-      valueId: this.getIfValueId(),
+      valueId: this.getRootValueId(),
+      saveId: this.getRootValueId(),
       isRoot: this.checkRoot(),
-      expressions: this.getIfExpressions()
+      doms: this.getConditionDoms()
     }
     return it
-  }
-  deliverCreate () {
-    var results = this.getChildrenCreate()
-    var it = this.assembleWorkerData()
-    var tmp = worker.if_create(it)
-    if (tmp) results.unshift(tmp)
-    return results
-  }
-  deliverAppend () {
-    var results = []
-    var it = this.assembleWorkerData()
-    var tmp = worker.if_append(it)
-    if (tmp) results.unshift(tmp)
-    return results
-  }
-  deliverUpdate () {
-    var it = this.assembleWorkerData()
-    return [worker.if_update(it)]
-  }
-  deliverRemove () {
-    var it = this.assembleWorkerData()
-    if (it.isRoot) {
-      return [worker.if_remove(it)]
-    } else {
-      return []
-    }
   }
 }
 export default IfNode

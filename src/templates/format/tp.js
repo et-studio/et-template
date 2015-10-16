@@ -1,6 +1,6 @@
 
 var declares = it.methods.map((method) => {
-  return `var _tp_${method} = _dep.tp_${method}`
+  return `var ${method} = _dep.${method.substr(1)}`
 })
 // {{
 ${it.header}

@@ -1,34 +1,42 @@
 'use strict'
 
-import _ from './util'
 import worker from './worker'
 
 class Compiler {
-  constructor (options = {}) {
+  constructor (options) {
     this.options = options
   }
-  pickData (root) {
-    var re = {
-      dependency: this.options.dependency,
-      modelType: this.options.modelType,
-      requires: root.getAllRequire(),
-      templateName: root.getTemplateName(),
-      newDoms: []
-    }
-    _.each(root.getNewTemplateDoms(), (dom) => {
-      re.newDoms.push({
-        templateName: dom.getTemplateName(),
-        createList: dom.getChildrenCreate(),
-        appendList: dom.getChildrenAppend(),
-        updateList: dom.getChildrenUpdate(),
-        args: dom.getArguments()
-      })
+  pickData (root, compileOptions) {
+    var options = this.options
+    var dependencies = root.getDependencies()
+    dependencies.unshift({
+      name: options.dependencyName,
+      path: options.dependencyPath
     })
-    return re
+    return {
+      templateName: root.getTemplateName(),
+      dependencies: dependencies,
+      moduleId: compileOptions.moduleId,
+      angularModuleName: compileOptions.angularModuleName,
+      modelType: options.modelType,
+      newDoms: root.getNewTemplateDoms()
+    }
   }
-  compile (dom) {
-    var it = this.pickData(dom)
-    return worker.template(it)
+  compile (dom, compileOptions) {
+    var options = this.options
+    var it = this.pickData(dom, compileOptions)
+    switch (options.modules) {
+      case 'angular':
+        return worker.compile_angular(it)
+      case 'cmd':
+        return worker.compile_cmd(it)
+      case 'amd':
+        return worker.compile_amd(it)
+      case 'global':
+        return worker.compile_global(it)
+      default:
+        return worker.compile_common(it)
+    }
   }
 }
 

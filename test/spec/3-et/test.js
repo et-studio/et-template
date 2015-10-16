@@ -1,23 +1,31 @@
 'use strict'
 
 var RUN_MOCHA = false
+var WITHOUT_MOCHA = true
 var ET = require('src/et')
 var jsFormatter = require('jsFormatter')
 
 exports.register = function () {
-  var $options = document.getElementById('options')
-  var $input = document.getElementById('input')
-  var $btn = document.getElementById('btn')
+  var $expect = document.querySelector('#expect')
+  var $options = document.querySelector('#options')
+  var $input = document.querySelector('#input')
+  var $btn = document.querySelector('#btn')
+
+  var expect = window.localStorage.getItem('expect')
+  if (expect) $expect.value = expect
+  $expect.addEventListener('input', function (e) {
+    window.localStorage.setItem('expect', e.target.value)
+  })
 
   var oldOpts = window.localStorage.getItem('options')
   if (oldOpts) $options.value = oldOpts
-  $options.addEventListener('keyup', function (e) {
+  $options.addEventListener('input', function (e) {
     window.localStorage.setItem('options', e.target.value)
   })
 
   var oldInput = window.localStorage.getItem('input')
   if (oldInput) $input.value = oldInput
-  $input.addEventListener('keyup', function (e) {
+  $input.addEventListener('input', function (e) {
     window.localStorage.setItem('input', e.target.value)
   })
 
@@ -36,6 +44,9 @@ exports.register = function () {
     result = jsFormatter.js_beautify(result)
     result = result.trim().replace(/\n\s*\n/g, '\n')
     console.log(result)
+
+    var expect = jsFormatter.js_beautify($expect.value)
+    window.testCompile(expect, result, WITHOUT_MOCHA)
   })
 
   return RUN_MOCHA

@@ -8,7 +8,7 @@ import worker from '../worker'
 // @tableStart: format
 var formatTableOptions = {
   states: ['header', 'body', 'start', 'method', '_h1', '_h2', '_h3', '_str1', '_str2', '_str3'],
-  symbols: [/\s/, '@.', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', 'function', /\w/],
+  symbols: [/\s/, '_tp_', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', '// @_tp_mark', /\w/],
   table: [
     {'0': 'header', '1': 'header', '2': 'header', '3': 'header', '4': 'header', '5': '_h1', '6': '_h2', '7': '_h3', '8': 'header', '9': 'body', '10': 'header', '-1': 'header'},
     {'0': 'body', '1': 'start', '2': 'body', '3': 'body', '4': 'body', '5': '_str1', '6': '_str2', '7': '_str3', '8': 'body', '9': 'body', '10': 'body', '-1': 'body'},
@@ -52,14 +52,14 @@ class FormatParser extends Parser {
           body += token
           break
         case 'start':
-          method = ''
+          method = token
           break
         case 'method':
           method += token
           break
         case 'end':
           methods.push(method)
-          body = `${body}_tp_${method}${token}`
+          body = `${body}${method}${token}`
           break
         default:
           console.log(state)

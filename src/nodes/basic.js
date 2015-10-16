@@ -28,38 +28,63 @@
  *  - indexName
  */
 
-import NodeInterface from './getter'
+import NodeInterface from './interface'
 import _ from '../util'
+import worker from '../worker'
 
 class Basic extends NodeInterface {
-  constructor (source, options = {}) {
+  constructor (source, options) {
     super(source, options)
 
     this._source = source
-    this._index = options.index
-    this.isVirtualNode = true
+    this.options = options
+
     this.isNewTemplate = false
     this.args = []
     this.nodeType = 'ET'
-
-    this.options = options
-    this.parent = options.parent
-    this.previous = options.previous
-    this.next = null
-    this.isRoot = !this.parent
 
     this.children = []
     this.parse(source)
   }
   getNewTemplateDoms () {
     var results = []
-    var eachHandler = (dom) => {
-      if ((dom.isRoot || dom.isNewTemplate) && dom.checkIsCompile()) {
+    this.each((dom) => {
+      if (!dom.parent || dom.isNewTemplate) {
         results.push(dom)
       }
-    }
-    this.each(eachHandler)
+    })
     return results
+  }
+  getCreateList () {
+    var results = []
+    _.each(this.children, (child) => {
+      var tmp = child.deliverCreate()
+      if (tmp) results.push(tmp)
+
+      if (!child.isNewTemplate) {
+        _.concat(results, child.getCreateList())
+      }
+    })
+    return results
+  }
+  getUpdateList () {
+    var results = []
+    _.each(this.children, (child) => {
+      var tmp = child.deliverUpdate()
+      if (tmp) results.push(tmp)
+
+      if (!child.isNewTemplate) {
+        _.concat(results, child.getUpdateList())
+      }
+    })
+    return results
+  }
+  getDependencies () {
+    var re = []
+    this.each((dom) => {
+      _.concat(re, dom.deliverDependencies())
+    })
+    return re
   }
   getArguments () {
     var re = ['it']
@@ -79,16 +104,10 @@ class Basic extends NodeInterface {
     return this
   }
 
-  checkRoot () {
-    var parent = this.parent
-    if (!parent || parent.isRoot || parent.isNewTemplate) return true
-    if (parent.isVirtualNode && parent.checkRoot()) return true
-    return false
-  }
   each (callback) {
     if (typeof callback !== 'function') return
-    if (callback(this) === false) return
 
+    if (callback(this) === false) return
     if (this.children.length) {
       this.children[0].each(callback)
     }
@@ -96,70 +115,35 @@ class Basic extends NodeInterface {
       this.next.each(callback)
     }
   }
-
   initAll () {
     var eachHandler = (dom) => {
       dom.init()
     }
     this.each(eachHandler)
   }
-  getAllRequire () {
-    var re = []
-    var eachHandler = (dom) => {
-      _.concat(re, dom.deliverRequire())
-    }
-    this.each(eachHandler)
-    return re
-  }
-  getChildrenCreate () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverCreate())
-    })
-    return re
-  }
-  getChildrenAppend () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverAppend())
-    })
-    return re
-  }
-  getChildrenUpdate () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverUpdate())
-    })
-    return re
-  }
-  getChildrenRemove () {
-    var re = []
-    _.each(this.children, (child) => {
-      _.concat(re, child.deliverRemove())
-    })
-    return re
-  }
 
   // functions could be override
   parse (source) {}
   init () {}
-  checkIsCompile () {
-    return true
+  assembleWorkerData () {
+    return {}
   }
-  deliverRequire () {
+  deliverDependencies () {
     return []
   }
   deliverCreate () {
-    return this.getChildrenCreate()
-  }
-  deliverAppend () {
-    return this.getChildrenAppend()
+    var method = `${this.namespace}_create`
+    var it = this.assembleWorkerData()
+    if (typeof worker[method] === 'function') {
+      return worker[method](it)
+    }
   }
   deliverUpdate () {
-    return this.getChildrenUpdate()
-  }
-  deliverRemove () {
-    return this.getChildrenRemove()
+    var method = `${this.namespace}_update`
+    var it = this.assembleWorkerData()
+    if (typeof worker[method] === 'function') {
+      return worker[method](it)
+    }
   }
 }
 

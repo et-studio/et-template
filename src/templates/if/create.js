@@ -1,5 +1,6 @@
 
+var parentElementId = it.parentId
+if (it.isRoot) parentElementId = null
 // {{
-@.createLine(_elements, ${it.lineId})
-@.createFragment(_elements, ${it.id})
+_tp_createLine(_this, ${parentElementId}, ${it.lineId})
 // }}

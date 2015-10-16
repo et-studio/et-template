@@ -27,9 +27,7 @@ var _nodesFactory = require('./nodes/factory');
 var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
 var Parser = (function () {
-  function Parser() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
+  function Parser(options) {
     _classCallCheck(this, Parser);
 
     this.options = options;
@@ -50,35 +48,24 @@ var Parser = (function () {
   }, {
     key: 'createDom',
     value: function createDom(originNode) {
-      var _this = this;
-
+      var options = this.options;
       var index = 0;
-      var createNode = function createNode(source, parent, previous, origin) {
-        var options = {
-          index: index++,
-          parent: parent,
-          previous: previous
-        };
-        if (origin) {
-          options.lineNumber = origin.lineNumber;
-          options.expressions = origin.expressions;
-        }
-
-        var node = _nodesFactory2['default'].create(source, _util2['default'].extend({}, _this.options, options));
+      var createNode = function createNode(source, expressions) {
+        var node = _nodesFactory2['default'].create(source, options, expressions);
+        node.setIndex(index++);
         return node;
       };
-      var createChildren = function createChildren(children, parent) {
-        if (children === undefined) children = [];
-
-        var current = null;
+      var createChildren = function createChildren(parent, origin) {
+        var children = origin.children || [];
         _util2['default'].each(children, function (child) {
-          current = createNode(child.source, parent, current, child);
-          createChildren(child.children, current);
+          var node = createNode(child.source, child.expressions);
+          createChildren(node, child);
+          parent.append(node);
         });
-        return parent;
       };
+
       var root = createNode();
-      createChildren(originNode.children, root);
+      createChildren(root, originNode);
       root.initAll();
       return root;
     }

@@ -1,33 +1,26 @@
 'use strict'
 
 import formatParser from './parsers/format'
-import worker from './worker'
 
-var DEFAULT_TEMPLATE_ID = 'Template'
+var LINE_SPLIT = '\n'
 
 class Formatter {
-  constructor (options = {}) {
+  constructor (options) {
     this.options = options
   }
-  format (content, options = {}) {
+  format (content) {
     content = formatParser.parse(content)
-    return this.wrap(content, this.options.modules, options)
-  }
-  wrap (content, modules, options) {
-    var it = {
-      content: content,
-      moduleId: options.moduleId || DEFAULT_TEMPLATE_ID,
-      moduleIds: options.moduleIds || []
-    }
-    switch (modules) {
-      case 'cmd':
-        return worker.format_cmd(it)
-      case 'amd':
-        return worker.format_amd(it)
-      case 'global':
-        return worker.format_global(it)
-    }
+    content = this.removeComments(content)
     return content
+  }
+  removeComments (content) {
+    var list = content.split(LINE_SPLIT)
+    var results = []
+    for (var i = 0, len = list.length; i < len; i++) {
+      var item = list[i].trim()
+      if (!item.startsWith('//')) results.push(item)
+    }
+    return results.join(LINE_SPLIT)
   }
 }
 

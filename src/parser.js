@@ -6,7 +6,7 @@ import dotParser from './parsers/dot'
 import factory from './nodes/factory'
 
 class Parser {
-  constructor (options = {}) {
+  constructor (options) {
     this.options = options
   }
   parse (str) {
@@ -18,31 +18,24 @@ class Parser {
     return this.parse(str)
   }
   createDom (originNode) {
+    var options = this.options
     var index = 0
-    var createNode = (source, parent, previous, origin) => {
-      var options = {
-        index: index++,
-        parent: parent,
-        previous: previous
-      }
-      if (origin) {
-        options.lineNumber = origin.lineNumber
-        options.expressions = origin.expressions
-      }
-
-      var node = factory.create(source, _.extend({}, this.options, options))
+    var createNode = (source, expressions) => {
+      var node = factory.create(source, options, expressions)
+      node.setIndex(index++)
       return node
     }
-    var createChildren = (children = [], parent) => {
-      var current = null
+    var createChildren = (parent, origin) => {
+      var children = origin.children || []
       _.each(children, (child) => {
-        current = createNode(child.source, parent, current, child)
-        createChildren(child.children, current)
+        var node = createNode(child.source, child.expressions)
+        createChildren(node, child)
+        parent.append(node)
       })
-      return parent
     }
+
     var root = createNode()
-    createChildren(originNode.children, root)
+    createChildren(root, originNode)
     root.initAll()
     return root
   }

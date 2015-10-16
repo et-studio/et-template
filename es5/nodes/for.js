@@ -18,14 +18,12 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _worker = require('../worker');
-
-var _worker2 = _interopRequireDefault(_worker);
-
 var _parsersFor = require('../parsers/for');
 
 var _parsersFor2 = _interopRequireDefault(_parsersFor);
 
+var NAME_SPACE = 'for';
+var NODE_NAME = '#' + NAME_SPACE;
 var defaults = {
   itemName: 'item',
   indexName: 'i',
@@ -39,8 +37,10 @@ var ForNode = (function (_Basic) {
     _classCallCheck(this, ForNode);
 
     _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, source, options);
+
+    this.namespace = NAME_SPACE;
     this.isNewTemplate = true;
-    this.nodeName = '#for';
+    this.nodeName = NODE_NAME;
   }
 
   _createClass(ForNode, [{
@@ -58,34 +58,9 @@ var ForNode = (function (_Basic) {
       }
     }
   }, {
-    key: 'getId',
-    value: function getId() {
-      return this._index * 2 - 1;
-    }
-  }, {
-    key: 'getLineId',
-    value: function getLineId() {
-      var id = this.getId();
-      return id + 1;
-    }
-  }, {
-    key: 'getForValueId',
-    value: function getForValueId() {
-      var valueId = this._valueId;
-      if (valueId >= 0) return valueId;
-
-      valueId = this._valueId = this.getRootValueId();
-      return valueId;
-    }
-  }, {
     key: 'checkIsImportTemplate',
     value: function checkIsImportTemplate() {
       return this.children.length === 1 && this.children[0].nodeName === '#import';
-    }
-  }, {
-    key: 'checkIsCompile',
-    value: function checkIsCompile() {
-      return !this.checkIsImportTemplate();
     }
   }, {
     key: 'assembleWorkerData',
@@ -97,7 +72,7 @@ var ForNode = (function (_Basic) {
         id: this.getId(),
         lineId: this.getLineId(),
         parentId: this.getParentId(),
-        valueId: this.getForValueId(),
+        valueId: this.getRootValueId(),
         isRoot: this.checkRoot(),
         expression: this.expression || this.condition,
         indexName: this.indexName || defaults.indexName,
@@ -114,30 +89,6 @@ var ForNode = (function (_Basic) {
 
       this._workerData = it;
       return it;
-    }
-  }, {
-    key: 'deliverCreate',
-    value: function deliverCreate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].for_create(it)];
-    }
-  }, {
-    key: 'deliverAppend',
-    value: function deliverAppend() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].for_append(it)];
-    }
-  }, {
-    key: 'deliverUpdate',
-    value: function deliverUpdate() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].for_update(it)];
-    }
-  }, {
-    key: 'deliverRemove',
-    value: function deliverRemove() {
-      var it = this.assembleWorkerData();
-      return [_worker2['default'].for_remove(it)];
     }
   }]);
 

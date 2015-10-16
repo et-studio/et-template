@@ -1,4 +1,5 @@
 
+if (it.isErratic) return ''
 // {{
-@.html(_elements, ${it.parentId}, '${_.translateMarks(it.expression)}')
+_tp_html(_this, ${it.parentId}, '${_.translateMarks(it.expression)}')
 // }}

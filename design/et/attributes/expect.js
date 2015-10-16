@@ -1,27 +1,17 @@
 'use strict'
 
 var _dep = require('et-dependency')
-var _prototype = _dep.template
-var _extend = _dep.extend
-
+var _dep_createTemplate = _dep.dep_createTemplate
 var _tp_createElement = _dep.tp_createElement
-var _tp_setRoot = _dep.tp_setRoot
 
-function Template_0(options) {
-  this.init(options)
-}
-_extend(Template_0.prototype, _prototype, {
-  create: function create() {
-    var _elements = this.elements
-    var _scope = this
-
-    _tp_createElement(_elements, 2, 'DIV', {
+var Template_0 = _dep_createTemplate({
+  create: function() {
+    var _this = this
+    _tp_createElement(_this, null, 2, 'DIV', {
       "id": "test",
       "data-title": "Sorry, you can't do it."
     })
-    _tp_createElement(_elements, 4, 'BR')
-    _tp_setRoot(this, 2)
-    _tp_setRoot(this, 4)
+    _tp_createElement(_this, null, 4, 'BR')
   }
 })
 module.exports = exports['default'] = Template_0
