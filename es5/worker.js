@@ -190,7 +190,7 @@ exports['default'] = {
   for_update: function for_update(it) {
     var re = '';
 
-    re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\n  var ' + it.indexName + ' = _index\n  var ' + it.itemName + ' = _list[_index]\n  var _itemId = \'' + it.id + '_\' + _index\n  var _template = _tp_getConditionTemplate(_this, _itemId, ' + it.templateName + ', this.options)\n\n  if (_index >= _lastLength) {\n    var _prevId = _index?(\'' + it.id + '_\' + (_index - 1)) : ' + it.lineId + '\n    _tp_after(_this, _prevId, _itemId)\n  }\n  _template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n  _tp_remove(_elements, \'' + it.id + '_\' + _index)\n}\n');
+    re = re + ('\nvar _lastLength = _last[' + it.valueId + '] || 0\nvar _list = ' + it.expression + ' || []\n\nvar _index = 0\nvar _len = _last[' + it.valueId + '] = _list.length\nfor (; _index < _len; _index++) {\n  var ' + it.indexName + ' = _index\n  var ' + it.itemName + ' = _list[_index]\n  var _itemId = \'' + it.id + '_\' + _index\n  var _template = _tp_getConditionTemplate(_this, _itemId, ' + it.templateName + ', this.options)\n\n  if (_index >= _lastLength) {\n    var _prevId = _index?(\'' + it.id + '_\' + (_index - 1)) : ' + it.lineId + '\n    _tp_after(_this, _prevId, _itemId)\n  }\n  _template.update(' + it.args.join(', ') + ')\n}\nfor (; _index < _lastLength; _index++) {\n  _tp_remove(_this, \'' + it.id + '_\' + _index)\n}\n');
 
     if (it.isRoot) {
       re = re + ('\n  _tp_setRoot(this, ' + it.id + ', _len)\n');
@@ -260,7 +260,7 @@ exports['default'] = {
   if_update: function if_update(it) {
     var re = '';
 
-    re = re + ('\nvar _index\nvar _templateId = last[' + it.saveId + ']\nvar _template = _tp_getTemplate(_this, _templateId)\n\n');
+    re = re + ('\nvar _index\nvar _templateId = _last[' + it.saveId + ']\nvar _template = _tp_getTemplate(_this, _templateId)\n\n');
     _util2['default'].each(it.doms, function (dom, i) {
       var condition = '';
       if (dom.tag !== 'else') condition = '(' + dom.condition + ')';
@@ -268,7 +268,7 @@ exports['default'] = {
     });
     re = re + ('\n\nif (_last[' + it.valueId + '] !== _index) {\n  _last[' + it.valueId + '] = _index\n\n  if (_template) {\n    _template.remove()\n');
     if (it.isRoot) {
-      re = re + '\n      _tp_setRoot(_this, _templateId, false)\n';
+      re = re + '\n      _tp_removeRoot(_this, _templateId)\n';
     }
     re = re + '\n  }\n\n  var _currentTemplateId\n  var _TemplateConstructor\n';
     _util2['default'].each(it.doms, function (dom, i) {
@@ -278,7 +278,7 @@ exports['default'] = {
     });
     re = re + ('\n  if (_TemplateConstructor) {\n    _last[' + it.saveId + '] = _currentTemplateId\n    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)\n    _tp_after(_this, ' + it.lineId + ', _currentTemplateId)\n');
     if (it.isRoot) {
-      re = re + '\n      _tp_setRoot(_this, _currentTemplateId, true)\n';
+      re = re + '\n      _tp_setRoot(_this, _currentTemplateId)\n';
     }
     re = re + ('\n  } else {\n    _last[' + it.saveId + '] = null\n    _template = null\n  }\n}\nif (_template) _template.update(it)\n');
 

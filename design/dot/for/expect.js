@@ -35,7 +35,7 @@ var Template_0 = _dep_createTemplate({
       _template.update(it, item, index)
     }
     for (; _index < _lastLength; _index++) {
-      _tp_remove(_elements, '2_' + _index)
+      _tp_remove(_this, '2_' + _index)
     }
     _tp_setRoot(this, 2, _len)
   }

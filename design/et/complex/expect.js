@@ -28,7 +28,7 @@ var Template_0 = _dep_createTemplate({
     var _last = this.last
 
     var _index
-    var _templateId = last[1]
+    var _templateId = _last[1]
     var _template = _tp_getTemplate(_this, _templateId)
     if (it.isTrue) {
       _index = 0
@@ -80,7 +80,7 @@ var Template_0 = _dep_createTemplate({
       _template.update(it, item, index)
     }
     for (; _index < _lastLength; _index++) {
-      _tp_remove(_elements, '16_' + _index)
+      _tp_remove(_this, '16_' + _index)
     }
   }
 })

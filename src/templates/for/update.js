@@ -18,7 +18,7 @@ for (; _index < _len; _index++) {
   _template.update(${it.args.join(', ')})
 }
 for (; _index < _lastLength; _index++) {
-  _tp_remove(_elements, '${it.id}_' + _index)
+  _tp_remove(_this, '${it.id}_' + _index)
 }
 // }}
 

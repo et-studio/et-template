@@ -22,7 +22,7 @@ function extend () {
 
 function tp_create_parentHander (template, parentId, id) {
   if (parentId) {
-    tp_after(template, parentId, id)
+    tp_append(template, parentId, id)
   } else {
     tp_setRoot(template, id)
   }
@@ -279,10 +279,10 @@ var template = {
       if (!isRoot) continue
 
       if (isRoot === true) {
-        tp_remove(elements, id)
+        tp_remove(this, id)
       } else {
         for (var j = 0, childrenLength = isRoot; j < childrenLength; j++) {
-          tp_remove(elements, id + '_' + j)
+          tp_remove(this, id + '_' + j)
         }
       }
     }

@@ -1,7 +1,7 @@
 
 // {{
 var _index
-var _templateId = last[${it.saveId}]
+var _templateId = _last[${it.saveId}]
 var _template = _tp_getTemplate(_this, _templateId)
 
 // }}
@@ -24,7 +24,7 @@ if (_last[${it.valueId}] !== _index) {
     // }}
     if (it.isRoot) {
       // {{
-      _tp_setRoot(_this, _templateId, false)
+      _tp_removeRoot(_this, _templateId)
       // }}
     }
     // {{
@@ -51,7 +51,7 @@ if (_last[${it.valueId}] !== _index) {
     // }}
     if (it.isRoot) {
       // {{
-      _tp_setRoot(_this, _currentTemplateId, true)
+      _tp_setRoot(_this, _currentTemplateId)
       // }}
     }
     // {{

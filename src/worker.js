@@ -284,7 +284,7 @@ for (; _index < _len; _index++) {
   _template.update(${it.args.join(', ')})
 }
 for (; _index < _lastLength; _index++) {
-  _tp_remove(_elements, '${it.id}_' + _index)
+  _tp_remove(_this, '${it.id}_' + _index)
 }
 `
 
@@ -398,7 +398,7 @@ _tp_createLine(_this, ${parentElementId}, ${it.lineId})
 
     re = re + `
 var _index
-var _templateId = last[${it.saveId}]
+var _templateId = _last[${it.saveId}]
 var _template = _tp_getTemplate(_this, _templateId)
 
 `
@@ -422,7 +422,7 @@ if (_last[${it.valueId}] !== _index) {
 `
     if (it.isRoot) {
       re = re + `
-      _tp_setRoot(_this, _templateId, false)
+      _tp_removeRoot(_this, _templateId)
 `
     }
     re = re + `
@@ -450,7 +450,7 @@ if (_last[${it.valueId}] !== _index) {
 `
     if (it.isRoot) {
       re = re + `
-      _tp_setRoot(_this, _currentTemplateId, true)
+      _tp_setRoot(_this, _currentTemplateId)
 `
     }
     re = re + `

@@ -20,7 +20,7 @@ var Template_0 = _dep_createTemplate({
     var _last = this.last
 
     var _index
-    var _templateId = last[1]
+    var _templateId = _last[1]
     var _template = _tp_getTemplate(_this, _templateId)
     if (it.number > 1) {
       _index = 0
