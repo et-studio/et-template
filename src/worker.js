@@ -81,6 +81,27 @@ export default {
 
     return re
   },
+  compile_angular(it) {
+    var re = ''
+
+    var dependencies = it.dependencies || []
+    var paths = []
+    var variables = []
+    for (var i = 0, len = dependencies.length; i < len; i++) {
+      var item = dependencies[i]
+      paths.push(`'${item.path}'`)
+      variables.push(item.name)
+    }
+
+    re = re + `
+angular.module('${it.angularModuleName}').factory('${it.moduleId}', [${paths.join(',')}, function(${variables.join(',')}) {
+  ${this.compile_template(it)}
+  return ${it.templateName}
+}]);
+`
+
+    return re
+  },
   compile_cmd(it) {
     var re = ''
 

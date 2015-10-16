@@ -340,6 +340,22 @@
 
         return re;
       },
+      compile_angular: function compile_angular(it) {
+        var re = '';
+
+        var dependencies = it.dependencies || [];
+        var paths = [];
+        var variables = [];
+        for (var i = 0, len = dependencies.length; i < len; i++) {
+          var item = dependencies[i];
+          paths.push('\'' + item.path + '\'');
+          variables.push(item.name);
+        }
+
+        re = re + ('\nangular.module(\'' + it.angularModuleName + '\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n' + this.compile_template(it) + '\nreturn ' + it.templateName + '\n}]);\n');
+
+        return re;
+      },
       compile_cmd: function compile_cmd(it) {
         var re = '';
 
