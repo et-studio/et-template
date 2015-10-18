@@ -269,7 +269,6 @@ var template = {
   update: function update () {},
 
   remove: function remove () {
-    var elements = this.elements
     var roots = this.roots
     var ids = Object.keys(roots)
 
