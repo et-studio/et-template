@@ -3,7 +3,7 @@
 **et-template** 是一个供Web使用的Dom模板，他的设计启发于[doT](https://github.com/olado/doT)。
 但是那是一个字符串模板，字符串模板在Web应用中难免会遇见很多问题，比如说Dom的生命周期在每次更新的时候都无法控制，
 然而正常的期望在更新模板的时候能够进行差异更新的时候最小程度上的属性变化，这样既能提高性能又能合理控制Dom的生命周期。
-所以，**et-template** 设计的初衷就是在模板中控制Dom的生命周期，尽可能的高性能进行差异更新，并且保留模板具备的简单借口容易使用的特性。
+所以，**et-template** 设计的初衷就是在模板中控制Dom的生命周期，尽可能的高性能进行差异更新，并且保留模板具备的简单接口容易使用的特性。
 
 
 ## Installation
@@ -68,10 +68,10 @@ import 是引用子模板的语法，后面跟着的第一个参数是子模板�
 </div>
 ```
 html 使用时会将内容字符或者变量作为innerHTML赋值给对应的父节点，所以这个语法使用有很多限制:
-1. 必须拥有父节点。
-2. 父节点的nodeType必须是1，是一个element对象。
-3. 没有兄弟节点，意味着父节点只有这一个节点。
-4. html 子内容会被当作字符串处理，只能做字符串判断，而不能进行复杂的逻辑处理。
+* 必须拥有父节点。
+* 父节点的nodeType必须是1，是一个element对象。
+* 没有兄弟节点，意味着父节点只有这一个节点。
+* html 子内容会被当作字符串处理，只能做字符串判断，而不能进行复杂的逻辑处理。
 
 ### doT模板语法
 ```html
@@ -92,9 +92,9 @@ html 使用时会将内容字符或者变量作为innerHTML赋值给对应的父
 </div>
 ```
 doT的语法现在支持了基本的几个语法:
-1. 插值
-2. if判断
-3. for遍历
+* 插值
+* if判断
+* for遍历
 
 ### 编译模板代码
 
@@ -188,20 +188,18 @@ $body.appendChild(template.get())
 
 ## Options
 ### 初始化参数
-
-名称|默认值|可选值|解释
-----|--|---|----
-compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法
-modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范
-dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲
-modelType | 'event' | ['model', 'object', 'event'] | 事件注册类型
+|名称|默认值|可选值|解释|
+|----|--|---|----|
+|compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法|
+|modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范|
+|dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲|
+|modelType | 'event' | ['model', 'object', 'event'] | 事件注册类型|
 
 ### 编译时参数
-
-名称|默认值|可选值|解释
-----|--|---|----
-moduleId| 'Template' | String | 编辑之后模板对象的模块化id
-angularModuleName | 'moduleName' | String | angular会使用
+|名称|默认值|可选值|解释|
+|----|--|---|----|
+|moduleId| 'Template' | String | 编辑之后模板对象的模块化id|
+|angularModuleName | 'moduleName' | String | angular会使用|
 
 ## License
 MIT
