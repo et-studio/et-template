@@ -188,18 +188,18 @@ $body.appendChild(template.get())
 
 ## Options
 ### 初始化参数
-|名称|默认值|可选值|解释|
-|----|--|---|----|
-|compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法|
-|modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范|
-|dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲|
-|modelType | 'event' | ['model', 'object', 'event'] | 事件注册类型|
+| 名称 | 默认值 | 可选值 | 解释 |
+|---|---|---|---|
+| compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法 |
+| modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范 |
+| dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲 |
+| modelType | 'event' | ['model', 'object', 'event'] | 事件注册类型 |
 
 ### 编译时参数
-|名称|默认值|可选值|解释|
-|----|--|---|----|
-|moduleId| 'Template' | String | 编辑之后模板对象的模块化id|
-|angularModuleName | 'moduleName' | String | angular会使用|
+| 名称 | 默认值 | 可选值 | 解释 |
+|---|---|---|---|
+| moduleId| 'Template' | String | 编辑之后模板对象的模块化id |
+| angularModuleName | 'moduleName' | String | angular会使用 |
 
 ## License
 MIT
