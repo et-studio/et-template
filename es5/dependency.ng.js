@@ -336,7 +336,7 @@ angular.module('et.template', [])
       return Template
     }
 
-    var et_dependency = new Object()
+    var et_dependency = Object.create({})
 
     et_dependency.tp_before = tp_before
     et_dependency.tp_after = tp_after
