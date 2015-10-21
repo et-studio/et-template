@@ -49,7 +49,7 @@ var Template_2 = _dep_createTemplate({
     var _this = this
     var _last = this.last
 
-    var _tmp = 'it is for loop ' + index
+    var _tmp = 'it is for loop ' + (index)
     if (_last[0] !== _tmp) {
       _last[0] = _tmp
       _tp_text(_this, 4, _tmp)

@@ -35,8 +35,7 @@ var DEFAULTS = {
 };
 
 var DEFAULT_COMPILE_OPTIONS = {
-  moduleId: 'Template',
-  angularModuleName: 'moduleName'
+  moduleId: 'Template'
 };
 
 var ET = (function () {

@@ -17,7 +17,7 @@ var Template_0 = _dep_createTemplate({
     var _this = this
     var _last = this.last
 
-    var _tmp = 'aaaa' + it.src
+    var _tmp = 'aaaa' + (it.src)
     if (_last[0] !== _tmp) {
       _last[0] = _tmp
       _tp_text(_this, 4, _tmp)

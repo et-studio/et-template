@@ -344,30 +344,30 @@
     return Template
   }
 
-  exports['default'] = {
-    tp_before: tp_before,
-    tp_after: tp_after,
-    tp_append: tp_append,
-    tp_bind: tp_bind,
-    tp_createElement: tp_createElement,
-    tp_createLine: tp_createLine,
-    tp_createText: tp_createText,
-    tp_createTemplate: tp_createTemplate,
-    tp_getTemplate: tp_getTemplate,
-    tp_getConditionTemplate: tp_getConditionTemplate,
-    tp_html: tp_html,
-    tp_remove: tp_remove,
-    tp_removeAttribute: tp_removeAttribute,
-    tp_removeAttributes: tp_removeAttributes,
-    tp_removeRoot: tp_removeRoot,
-    tp_setAttribute: tp_setAttribute,
-    tp_getProperty: tp_getProperty,
-    tp_setProperty: tp_setProperty,
-    tp_setRoot: tp_setRoot,
-    tp_text: tp_text,
-    tp_setModel: tp_setModel,
-    dep_createTemplate: dep_createTemplate
-  }
-  module.exports = exports['default']
+  var et_dependency = new Object()
 
+  et_dependency.tp_before = tp_before
+  et_dependency.tp_after = tp_after
+  et_dependency.tp_append = tp_append
+  et_dependency.tp_bind = tp_bind
+  et_dependency.tp_createElement = tp_createElement
+  et_dependency.tp_createLine = tp_createLine
+  et_dependency.tp_createText = tp_createText
+  et_dependency.tp_createTemplate = tp_createTemplate
+  et_dependency.tp_getTemplate = tp_getTemplate
+  et_dependency.tp_getConditionTemplate = tp_getConditionTemplate
+  et_dependency.tp_html = tp_html
+  et_dependency.tp_remove = tp_remove
+  et_dependency.tp_removeAttribute = tp_removeAttribute
+  et_dependency.tp_removeAttributes = tp_removeAttributes
+  et_dependency.tp_removeRoot = tp_removeRoot
+  et_dependency.tp_setAttribute = tp_setAttribute
+  et_dependency.tp_getProperty = tp_getProperty
+  et_dependency.tp_setProperty = tp_setProperty
+  et_dependency.tp_setRoot = tp_setRoot
+  et_dependency.tp_text = tp_text
+  et_dependency.tp_setModel = tp_setModel
+  et_dependency.dep_createTemplate = dep_createTemplate
+
+  module.exports = et_dependency
 });
