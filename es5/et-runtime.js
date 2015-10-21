@@ -352,7 +352,7 @@
           variables.push(item.name);
         }
 
-        re = re + ('\nangular.module(\'' + it.angularModuleName + '\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n' + this.compile_template(it) + '\nreturn ' + it.templateName + '\n}]);\n');
+        re = re + ('\nangular.module(\'et.template\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n' + this.compile_template(it) + '\nreturn function(option) {\nreturn new ' + it.templateName + '(option)\n}\n}]);\n');
 
         return re;
       },
@@ -662,7 +662,6 @@
             templateName: root.getTemplateName(),
             dependencies: dependencies,
             moduleId: compileOptions.moduleId,
-            angularModuleName: compileOptions.angularModuleName,
             modelType: options.modelType,
             newDoms: root.getNewTemplateDoms()
           };
@@ -2387,7 +2386,7 @@
         value: function pushExpression(obj, str) {
           if (!str) return;
 
-          obj.list.push(str);
+          obj.list.push('(' + str + ')');
           obj.isErractic = true;
         }
       }, {
@@ -3664,4 +3663,5 @@
     module.exports = ET;
   });
   module.exports = modules.et;
+  module.exports = et_dependency
 });

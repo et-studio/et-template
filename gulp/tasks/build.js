@@ -5,7 +5,9 @@ var babel = require('gulp-babel')
 var del = require('del')
 var esformatter = require('gulp-esformatter')
 var wrap = require('../middleware/cmd-wrap')
+var ngWrap = require('../middleware/ng-wrap')
 var runtime = require('../middleware/gulp-runtime')
+var rename = require('gulp-rename')
 
 var destDir = 'es5'
 var srcDir = 'src'
@@ -44,5 +46,13 @@ module.exports = function (gulp) {
       .pipe(gulp.dest(destDir))
   })
 
-  gulp.task('build', sequence('dev', 'build-clean', 'build-js', 'build-dep', 'build-runtime'))
+  gulp.task('build-angular', function () {
+    return gulp.src(srcDir + '/dependency.js')
+      .pipe(ngWrap('et-dependency'))
+      .pipe(esformatter())
+      .pipe(rename('dependency.ng.js'))
+      .pipe(gulp.dest(destDir))
+  })
+
+  gulp.task('build', sequence('dev', 'build-clean', ['build-js', 'build-dep', 'build-runtime', 'build-angular']))
 }

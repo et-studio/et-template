@@ -111,7 +111,7 @@ class ValueParser extends Parser {
   pushExpression (obj, str) {
     if (!str) return
 
-    obj.list.push(str)
+    obj.list.push(`(${str})`)
     obj.isErractic = true
   }
   pushIf (obj, str) {

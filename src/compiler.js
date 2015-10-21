@@ -17,7 +17,6 @@ class Compiler {
       templateName: root.getTemplateName(),
       dependencies: dependencies,
       moduleId: compileOptions.moduleId,
-      angularModuleName: compileOptions.angularModuleName,
       modelType: options.modelType,
       newDoms: root.getNewTemplateDoms()
     }

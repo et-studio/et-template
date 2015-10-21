@@ -17,15 +17,15 @@ var Template_0 = _dep_createTemplate({
     var _this = this
     var _last = this.last
 
-    var _tmp = 'aaa' + it.id + 'bbb' + it.getSrc()
+    var _tmp = 'aaa' + (it.id) + 'bbb' + (it.getSrc())
     if (_last[0] !== _tmp) {
       _last[0] = _tmp
       _tp_setAttribute(_this, 2, 'id', _tmp)
     }
 
-    var _tmp = (function() {
+    var _tmp = ((function() {
       return it.a + it.b;
-    })()
+    })())
     if (_last[1] !== _tmp) {
       _last[1] = _tmp
       _tp_setAttribute(_this, 2, 'data-type', _tmp)

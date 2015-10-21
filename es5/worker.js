@@ -77,7 +77,7 @@ exports['default'] = {
       variables.push(item.name);
     }
 
-    re = re + ('\nangular.module(\'' + it.angularModuleName + '\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n  ' + this.compile_template(it) + '\n  return ' + it.templateName + '\n}]);\n');
+    re = re + ('\nangular.module(\'et.template\').factory(\'' + it.moduleId + '\', [' + paths.join(',') + ', function(' + variables.join(',') + ') {\n  ' + this.compile_template(it) + '\n  return function(option) {\n    return new ' + it.templateName + '(option)\n  }\n}]);\n');
 
     return re;
   },

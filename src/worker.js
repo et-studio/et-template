@@ -94,9 +94,11 @@ export default {
     }
 
     re = re + `
-angular.module('${it.angularModuleName}').factory('${it.moduleId}', [${paths.join(',')}, function(${variables.join(',')}) {
+angular.module('et.template').factory('${it.moduleId}', [${paths.join(',')}, function(${variables.join(',')}) {
   ${this.compile_template(it)}
-  return ${it.templateName}
+  return function(option) {
+    return new ${it.templateName}(option)
+  }
 }]);
 `
 

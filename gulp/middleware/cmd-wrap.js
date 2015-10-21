@@ -21,6 +21,7 @@ module.exports = function (moduleId) {
       }
     })(window, function(require, exports, module) {
       ${contents}
+      module.exports = et_dependency
     });`
     contents = esformatter.format(contents)
 

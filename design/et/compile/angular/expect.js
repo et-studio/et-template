@@ -1,4 +1,4 @@
-angular.module('moduleName').factory('Template', ['et-dependency', function(_dep) {
+angular.module('et.template').factory('Template', ['et-dependency', function(_dep) {
 
   var _dep_createTemplate = _dep.dep_createTemplate
   var _tp_createElement = _dep.tp_createElement
@@ -11,5 +11,7 @@ angular.module('moduleName').factory('Template', ['et-dependency', function(_dep
       _tp_createText(_this, 2, 4, 'test')
     }
   })
-  return Template_0
+  return function(option) {
+    return new Template_0(option)
+  }
 }]);
