@@ -1,12 +1,12 @@
 ;(function(global, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('etRuntime', factory)
+    define('et-runtime', factory)
   } else {
     var require = function() {}
     var module = {}
     var exports = {}
     factory(require, exports, module)
-    global['etRuntime'] = module.exports
+    global['et-runtime'] = module.exports
   }
 })(window, function(require, exports, module) {
   'use strict';
@@ -3663,5 +3663,4 @@
     module.exports = ET;
   });
   module.exports = modules.et;
-  module.exports = et_dependency
 });

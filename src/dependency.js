@@ -1,6 +1,7 @@
 'use strict'
 
-var EVENT_SPLITTER = /\s+/
+var EVENT_SPLITTER = /\s+|,/
+var EVENT_PREFIX = 'on-'
 
 function LOOP () {}
 
@@ -28,15 +29,13 @@ function tp_create_parentHander (template, parentId, id) {
   }
 }
 function tp_createElement (template, parentId, id, tag, attributes, properties) {
-  var elements = template.elements
-  var element = document.createElement(tag)
+  template.elements[id] = document.createElement(tag)
   for (var attrName in attributes) {
-    element.setAttribute(attrName, attributes[attrName])
+    tp_setAttribute(template, id, attrName, attributes[attrName])
   }
   for (var propName in properties) {
-    element[propName] = properties[propName]
+    tp_setProperty(template, id, propName, properties[propName])
   }
-  elements[id] = element
   tp_create_parentHander(template, parentId, id)
 }
 
@@ -101,11 +100,38 @@ function tp_append (template, parentId, id) {
   parent.appendChild(current)
 }
 
+function parseCallbacks (events, eventNameString) {
+  var callbacks = []
+  if (events) {
+    var array = eventNameString.split(EVENT_SPLITTER)
+    for (var i = 0, len = array.length; i < len; i++) {
+      var name = array[i]
+      var callback = events[name]
+      if (typeof callback === 'function') {
+        callbacks.push(callback)
+      }
+    }
+  }
+  return callbacks
+}
 function tp_bind (template, id, eventString, callback) {
   var element = template.elements[id]
+  if (!element.addEventListener) {
+    // console.warning('The element has no addEventListener method', element)
+    return
+  }
+
+  template._eventsLogger[id] = true
   var eventNames = eventString.split(EVENT_SPLITTER)
   for (var i = 0, len = eventNames.length; i < len; i++) {
-    element.addEventListener(eventNames[i], callback)
+    if (typeof callback === 'function') {
+      element.addEventListener(eventNames[i], callback, false)
+    } else {
+      var callbacks = parseCallbacks(template.options.events, callback)
+      for (var j = 0, len2 = callbacks.length; j < len2; j++) {
+        element.addEventListener(eventNames[i], callbacks[j], false)
+      }
+    }
   }
 }
 
@@ -121,6 +147,9 @@ function tp_text (template, id, text) {
 
 function tp_setAttribute (template, id, attrName, attrValue) {
   var elements = template.elements
+  if (attrName.indexOf(EVENT_PREFIX) === 0) {
+    tp_bind(template, id, attrName.substr(EVENT_PREFIX.length), attrValue)
+  }
   elements[id].setAttribute(attrName, attrValue)
 }
 
@@ -183,8 +212,9 @@ function tp_setModel (template, type, key, value) {
 }
 
 var event = {
-  events: {},
+  events: null,
   on: function on (eventString, callback) {
+    if (!this.events) this.events = {}
     var eventNames = eventString.split(EVENT_SPLITTER)
     var events = this.events
     for (var i = 0, len = eventNames.length; i < len; i++) {
@@ -195,6 +225,8 @@ var event = {
     return this
   },
   trigger: function trigger (eventName) {
+    if (!this.events) return
+
     var args = []
     for (var j = 1, argLen = arguments.length; j < argLen; j++) {
       args.push(arguments[j])
@@ -226,16 +258,17 @@ var template = {
     this.templateEnd = document.createComment('End Template')
 
     this.options = options
-    this.roots = {}  // 记录某个id是不是root，如果纪录的是数字，那么认为是一个所属集合
-    this.elements = {}   // 记录所有的节点对象
-    this.last = {}   // 记录上一次判断是什么值，用于差异更新
+    this._eventsLogger = {} // 纪录哪些id的节点绑定了事件
+    this.roots = {}         // 记录某个id是不是root，如果纪录的是数字，那么认为是一个所属集合
+    this.elements = {}      // 记录所有的节点对象
+    this.last = {}          // 记录上一次判断是什么值，用于差异更新
     this.create()
   },
   get: function get () {
     var result = this.rootFrag
     var elements = this.elements
     var roots = this.roots
-    var ids = Object.keys(roots).map(function (key) { return +key }).sort()
+    var ids = Object.keys(roots).sort(function (a, b) { return (+a) - (+b) })
 
     result.appendChild(this.templateStart)
     for (var i = 0, len = ids.length; i < len; i++) {
@@ -316,8 +349,8 @@ var template = {
 }
 
 function dep_createTemplate (prop) {
-  var Template = function () {
-    this.init()
+  var Template = function (options) {
+    this.init(options)
   }
   extend(Template.prototype, template, event, prop)
   return Template
@@ -347,3 +380,5 @@ et_dependency.tp_setRoot = tp_setRoot
 et_dependency.tp_text = tp_text
 et_dependency.tp_setModel = tp_setModel
 et_dependency.dep_createTemplate = dep_createTemplate
+
+module.exports = et_dependency

@@ -1,9 +1,8 @@
 'use strict'
 
 var through = require('through2')
-var esformatter = require('esformatter')
 
-module.exports = function (moduleName) {
+module.exports = function (moduleId) {
   return through.obj(function (file, enc, next) {
     if (!file.isBuffer()) {
       return next()
@@ -11,11 +10,11 @@ module.exports = function (moduleName) {
     var contents = file.contents.toString()
     contents = `;
     angular.module('et.template', [])
-    .factory('et-dependency', [function() {
+    .factory('${moduleId}', [function() {
+      var module = {}
       ${contents}
-      return et_dependency
+      return module.exports
     }])`
-    contents = esformatter.format(contents)
 
     file.contents = new Buffer(contents)
     this.push(file)
