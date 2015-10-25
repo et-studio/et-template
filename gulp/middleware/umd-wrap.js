@@ -1,7 +1,6 @@
 'use strict'
 
 var through = require('through2')
-var esformatter = require('esformatter')
 
 module.exports = function (moduleId) {
   return through.obj(function (file, enc, next) {
@@ -21,9 +20,7 @@ module.exports = function (moduleId) {
       }
     })(window, function(require, exports, module) {
       ${contents}
-      module.exports = et_dependency
     });`
-    contents = esformatter.format(contents)
 
     file.contents = new Buffer(contents)
     this.push(file)
