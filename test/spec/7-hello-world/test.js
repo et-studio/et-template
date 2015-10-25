@@ -6,6 +6,8 @@ exports.register = function () {
   var content = document.getElementById('content')
   var Template = require('template/hello-world.html')
   var scope = {name: 'world', index: 0}
+  var t
+
   var events = {
     'add': function (e) {
       scope.index++
@@ -14,15 +16,15 @@ exports.register = function () {
     'subtract': function (e) {
       scope.index--
       t.update(scope)
+    },
+    'setName': function (e) {
+      var value = e.target.value
+      scope.name = value
+      t.update(scope)
     }
   }
-  var t = new Template({events: events})
 
-  t.on('et-model', function (key, value) {
-    scope[key] = value
-    t.update(scope)
-  })
-
+  t = new Template({events: events})
   content.appendChild(t.get())
   t.update(scope)
 
