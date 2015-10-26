@@ -1,7 +1,6 @@
 'use strict'
 
 import Basic from './basic'
-import _ from '../util'
 import conditionParser from '../parsers/condition'
 
 var NAME_SPACE = 'if'
@@ -19,21 +18,6 @@ class IfNode extends Basic {
   parse (source) {
     var tmp = conditionParser.parse(source, {expectNodeName: NODE_NAME})
     this.condition = tmp.condition
-  }
-  init () {
-    // 调整elseif 和 else的树形关系
-    var children = this.children
-    this.children = []
-
-    var currentNode = this
-    _.each(children, (child) => {
-      if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-        currentNode.after(child)
-        currentNode = child
-      } else {
-        currentNode.append(child)
-      }
-    })
   }
 
   getTag () {

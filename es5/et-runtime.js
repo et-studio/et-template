@@ -817,6 +817,13 @@
       '&nbsp;': ' '
     };
 
+    // OriginNode
+    // - nodeName     节点名称
+    // - nodeType     节点类型 [1, 3, 8, 'ET']
+    // - header       除了节点名称的部分
+    // - expressions  属性表达式
+    // - children     后代节点
+
     var OriginNode = (function() {
       function OriginNode(parent) {
         var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
@@ -1716,31 +1723,16 @@
         key: 'each',
         value: function each(callback) {
           if (typeof callback !== 'function') return;
-
           if (callback(this) === false) return;
-          if (this.children.length) {
-            this.children[0].each(callback);
-          }
-          if (this.next) {
-            this.next.each(callback);
-          }
-        }
-      }, {
-        key: 'initAll',
-        value: function initAll() {
-          var eachHandler = function eachHandler(dom) {
-            dom.init();
-          };
-          this.each(eachHandler);
+          this.children.map(function(node) {
+            return node.each(callback);
+          });
         }
 
       // functions could be override
       }, {
         key: 'parse',
         value: function parse(source) {}
-      }, {
-        key: 'init',
-        value: function init() {}
       }, {
         key: 'assembleWorkerData',
         value: function assembleWorkerData() {
@@ -2594,8 +2586,6 @@
       parseMultiple: function parseMultiple(condition, nodes) {
         var _this4 = this;
 
-        this.checkFormat(nodes);
-
         var results = [];
         var hasElse = false;
         var allAttributes = {};
@@ -2628,30 +2618,6 @@
         };
         _.each(results, exclusionHandler);
         return results;
-      },
-      checkFormat: function checkFormat(nodes) {
-        var _this5 = this;
-
-        var lastTag = 'if';
-        var checkHandler = function checkHandler(node) {
-          var source = node.source || '';
-          var isET = source.indexOf('[#') === 0;
-          var isElse = source.indexOf('[#else') === 0;
-          var isElseIf = source.indexOf('[#elseif') === 0;
-
-          if (isET && !isElseIf && !isElse) {
-            _this5.throwError('The attributes expression just support if, else and elseif.');
-          } else if (node.source.indexOf('[#elseif') === 0 && lastTag === 'else') {
-            _this5.throwError('The elseif node shouldn\'t show after else.');
-          } else if (isElseIf) {
-            lastTag = 'elseif';
-          } else if (isElse) {
-            lastTag = 'else';
-          } else {
-            lastTag = '';
-          }
-        };
-        _.each(nodes, checkHandler);
       }
     };
 
@@ -2882,7 +2848,6 @@
     'use strict';
 
     var Basic = innerRequire('./basic');
-    var _ = innerRequire('../util');
     var conditionParser = innerRequire('../parsers/condition');
 
     var NAME_SPACE = 'if';
@@ -2909,23 +2874,6 @@
             expectNodeName: NODE_NAME
           });
           this.condition = tmp.condition;
-        }
-      }, {
-        key: 'init',
-        value: function init() {
-          // 调整elseif 和 else的树形关系
-          var children = this.children;
-          this.children = [];
-
-          var currentNode = this;
-          _.each(children, function(child) {
-            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-              currentNode.after(child);
-              currentNode = child;
-            } else {
-              currentNode.append(child);
-            }
-          });
         }
       }, {
         key: 'getTag',
@@ -3374,19 +3322,6 @@
           this.expression = expression.slice(1, expression.length - 1);
         }
       }, {
-        key: 'init',
-        value: function init() {
-          if (!this.parent) {
-            this.throwError('html node need a parent');
-          }
-          if (this.parent.nodeType !== 1) {
-            this.throwError('the parent of html node should be element node');
-          }
-          if (this.parent.children.length > 1) {
-            this.throwError('html node should not has siblings');
-          }
-        }
-      }, {
         key: 'assembleWorkerData',
         value: function assembleWorkerData() {
           var it = this._workerData;
@@ -3582,6 +3517,146 @@
 
     module.exports = new Factory();
   });
+  innerDefine('builder', function(innerRequire, exports, module) {
+    'use strict';
+
+    var _ = innerRequire('./util');
+
+    var Builder = (function() {
+      function Builder() {
+        _classCallCheck(this, Builder);
+      }
+
+      _createClass(Builder, [{
+        key: 'rebuild',
+        value: function rebuild(node) {
+          while (this.rebuildAll(node)) {
+          }
+          return node;
+        }
+      }, {
+        key: 'rebuildAll',
+        value: function rebuildAll(node) {
+          var _this5 = this;
+
+          var isChangeConstructor = false;
+          node.each(function(currentNode) {
+            switch (currentNode.nodeName) {
+              case '#if':
+                isChangeConstructor = _this5.rebuildIfNode(currentNode);
+                if (isChangeConstructor) return false; // break each loop
+                break;
+            }
+          });
+          return isChangeConstructor;
+        }
+      }, {
+        key: 'rebuildIfNode',
+        value: function rebuildIfNode(node) {
+          var isChangeConstructor = false;
+
+          var children = node.children;
+          node.children = [];
+          var currentNode = node;
+          _.each(children, function(child) {
+            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+              currentNode.after(child);
+              currentNode = child;
+              isChangeConstructor = true;
+            } else {
+              currentNode.append(child);
+            }
+          });
+          return isChangeConstructor;
+        }
+      }]);
+
+      return Builder;
+    })();
+
+    module.exports = new Builder();
+  });
+  innerDefine('checker', function(innerRequire, exports, module) {
+    'use strict';
+
+    var _ = innerRequire('./util');
+
+    var Checker = (function() {
+      function Checker() {
+        _classCallCheck(this, Checker);
+      }
+
+      _createClass(Checker, [{
+        key: 'check',
+        value: function check(node) {
+          node.each(this.checkHandler.bind(this));
+          return node;
+        }
+      }, {
+        key: 'checkHandler',
+        value: function checkHandler(node) {
+          switch (node.nodeName) {
+            case '#html':
+              this.checkHtml(node);
+              break;
+          }
+        // if (node.expressions) this.checkExpressions(node, node.expressions)
+        }
+      }, {
+        key: 'checkExpressions',
+        value: function checkExpressions(node, expressions) {
+          var _this6 = this;
+
+          _.each(expressions, function(expressionNode) {
+            if (expressionNode.nodeName !== '#if') {
+              _this6.throwError(node, 'The attributes expression just support if, else and elseif.');
+            }
+
+            var lastTag = 'if';
+            _.each(expressionNode.children, function(childNode) {
+              var isET = childNode.nodeType === 'ET';
+              var isElse = childNode.nodeName === '#else';
+              var isElseIf = childNode.nodeName === '#elseif';
+
+              if (isET && !isElseIf && !isElse) {
+                _this6.throwError(node, 'The attributes expression just support if, else and elseif.');
+              } else if (isElseIf && lastTag === 'else') {
+                _this6.throwError(node, 'The elseif node shouldn\'t show after else.');
+              } else if (isElseIf) {
+                lastTag = 'elseif';
+              } else if (isElse) {
+                lastTag = 'else';
+              } else {
+                lastTag = '';
+              }
+            });
+          });
+        }
+      }, {
+        key: 'checkHtml',
+        value: function checkHtml(node) {
+          if (!node.parent) {
+            this.throwError(node, 'html node need a parent');
+          }
+          if (node.parent.nodeType !== 1) {
+            this.throwError(node, 'the parent of html node should be element node');
+          }
+          if (node.parent.children.length > 1) {
+            this.throwError(node, 'html node should not has siblings');
+          }
+        }
+      }, {
+        key: 'throwError',
+        value: function throwError(node, message) {
+          throw new Error(message);
+        }
+      }]);
+
+      return Checker;
+    })();
+
+    module.exports = new Checker();
+  });
   innerDefine('parser', function(innerRequire, exports, module) {
     'use strict';
 
@@ -3589,6 +3664,8 @@
     var originParser = innerRequire('./parsers/origin');
     var dotParser = innerRequire('./parsers/dot');
     var factory = innerRequire('./nodes/factory');
+    var builder = innerRequire('./builder');
+    var checker = innerRequire('./checker');
 
     var Parser = (function() {
       function Parser(options) {
@@ -3601,7 +3678,11 @@
         key: 'parse',
         value: function parse(str) {
           var originNode = originParser.parse(str);
-          return this.createDom(originNode);
+          var node = this.createDom(originNode);
+
+          builder.rebuild(node);
+          checker.check(node);
+          return node;
         }
       }, {
         key: 'parseDot',
@@ -3626,12 +3707,11 @@
               createChildren(node, child);
               parent.append(node);
             });
+            return parent;
           };
 
           var root = createNode();
-          createChildren(root, originNode);
-          root.initAll();
-          return root;
+          return createChildren(root, originNode);
         }
       }]);
 

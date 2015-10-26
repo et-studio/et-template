@@ -26,6 +26,14 @@ var _nodesFactory = require('./nodes/factory');
 
 var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
+var _builder = require('./builder');
+
+var _builder2 = _interopRequireDefault(_builder);
+
+var _checker = require('./checker');
+
+var _checker2 = _interopRequireDefault(_checker);
+
 var Parser = (function () {
   function Parser(options) {
     _classCallCheck(this, Parser);
@@ -37,7 +45,11 @@ var Parser = (function () {
     key: 'parse',
     value: function parse(str) {
       var originNode = _parsersOrigin2['default'].parse(str);
-      return this.createDom(originNode);
+      var node = this.createDom(originNode);
+
+      _builder2['default'].rebuild(node);
+      _checker2['default'].check(node);
+      return node;
     }
   }, {
     key: 'parseDot',
@@ -62,12 +74,11 @@ var Parser = (function () {
           createChildren(node, child);
           parent.append(node);
         });
+        return parent;
       };
 
       var root = createNode();
-      createChildren(root, originNode);
-      root.initAll();
-      return root;
+      return createChildren(root, originNode);
     }
   }]);
 

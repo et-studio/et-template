@@ -22,6 +22,13 @@ var transMap = {
   '&nbsp;': ' '
 };
 
+// OriginNode
+// - nodeName     节点名称
+// - nodeType     节点类型 [1, 3, 8, 'ET']
+// - header       除了节点名称的部分
+// - expressions  属性表达式
+// - children     后代节点
+
 var OriginNode = (function () {
   function OriginNode(parent) {
     var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];

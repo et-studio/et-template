@@ -49,19 +49,6 @@ var HtmlNode = (function (_Basic) {
       this.expression = expression.slice(1, expression.length - 1);
     }
   }, {
-    key: 'init',
-    value: function init() {
-      if (!this.parent) {
-        this.throwError('html node need a parent');
-      }
-      if (this.parent.nodeType !== 1) {
-        this.throwError('the parent of html node should be element node');
-      }
-      if (this.parent.children.length > 1) {
-        this.throwError('html node should not has siblings');
-      }
-    }
-  }, {
     key: 'assembleWorkerData',
     value: function assembleWorkerData() {
       var it = this._workerData;

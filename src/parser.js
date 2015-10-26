@@ -4,6 +4,8 @@ import _ from './util'
 import originParser from './parsers/origin'
 import dotParser from './parsers/dot'
 import factory from './nodes/factory'
+import builder from './builder'
+import checker from './checker'
 
 class Parser {
   constructor (options) {
@@ -11,7 +13,11 @@ class Parser {
   }
   parse (str) {
     var originNode = originParser.parse(str)
-    return this.createDom(originNode)
+    var node = this.createDom(originNode)
+
+    builder.rebuild(node)
+    checker.check(node)
+    return node
   }
   parseDot (str) {
     str = dotParser.parse(str)
@@ -32,12 +38,11 @@ class Parser {
         createChildren(node, child)
         parent.append(node)
       })
+      return parent
     }
 
     var root = createNode()
-    createChildren(root, originNode)
-    root.initAll()
-    return root
+    return createChildren(root, originNode)
   }
 }
 

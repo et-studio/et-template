@@ -106,25 +106,12 @@ class Basic extends NodeInterface {
 
   each (callback) {
     if (typeof callback !== 'function') return
-
     if (callback(this) === false) return
-    if (this.children.length) {
-      this.children[0].each(callback)
-    }
-    if (this.next) {
-      this.next.each(callback)
-    }
-  }
-  initAll () {
-    var eachHandler = (dom) => {
-      dom.init()
-    }
-    this.each(eachHandler)
+    this.children.map((node) => node.each(callback))
   }
 
   // functions could be override
   parse (source) {}
-  init () {}
   assembleWorkerData () {
     return {}
   }
