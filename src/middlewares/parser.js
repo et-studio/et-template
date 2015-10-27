@@ -1,30 +1,17 @@
 'use strict'
 
-import _ from './util'
-import originParser from './parsers/origin'
-import dotParser from './parsers/dot'
-import factory from './nodes/factory'
-import builder from './builder'
-import checker from './checker'
+import Basic from './basic-middleware'
+import _ from '../util'
+import originParser from '../parsers/origin'
+import factory from '../nodes/factory'
 
-class Parser {
-  constructor (options) {
-    this.options = options
-  }
-  parse (str) {
+class MiddlewareParser extends Basic {
+  run (str, options) {
     var originNode = originParser.parse(str)
-    var node = this.createDom(originNode)
-
-    builder.rebuild(node)
-    checker.check(node)
+    var node = this.createDom(originNode, options)
     return node
   }
-  parseDot (str) {
-    str = dotParser.parse(str)
-    return this.parse(str)
-  }
-  createDom (originNode) {
-    var options = this.options
+  createDom (originNode, options) {
     var index = 0
     var createNode = (source, expressions) => {
       var node = factory.create(source, options, expressions)
@@ -45,5 +32,4 @@ class Parser {
     return createChildren(root, originNode)
   }
 }
-
-export default Parser
+export default new MiddlewareParser()

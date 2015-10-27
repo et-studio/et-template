@@ -1,9 +1,10 @@
 'use strict'
 
-import _ from './util'
+import Basic from './basic-middleware'
+import _ from '../util'
 
-class Builder {
-  rebuild (node) {
+class MiddlewareRebuilder extends Basic {
+  run (node, options) {
     while (this.rebuildAll(node)) { }
     return node
   }
@@ -37,5 +38,4 @@ class Builder {
     return isChangeConstructor
   }
 }
-
-export default new Builder()
+export default new MiddlewareRebuilder()

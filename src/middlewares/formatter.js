@@ -1,14 +1,12 @@
 'use strict'
 
-import formatParser from './parsers/format'
+import Basic from './basic-middleware'
+import formatParser from '../parsers/format'
 
 var LINE_SPLIT = '\n'
 
-class Formatter {
-  constructor (options) {
-    this.options = options
-  }
-  format (content) {
+class MiddlewareFormatter extends Basic {
+  run (content, options) {
     content = formatParser.parse(content)
     content = this.removeComments(content)
     return content
@@ -23,5 +21,4 @@ class Formatter {
     return results.join(LINE_SPLIT)
   }
 }
-
-export default Formatter
+export default new MiddlewareFormatter()

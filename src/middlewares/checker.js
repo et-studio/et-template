@@ -1,9 +1,10 @@
 'use strict'
 
-import _ from './util'
+import _ from '../util'
+import Basic from './basic-middleware'
 
-class Checker {
-  check (node) {
+class MiddlewareChecker extends Basic {
+  run (node, options) {
     node.each(this.checkHandler.bind(this))
     return node
   }
@@ -56,5 +57,4 @@ class Checker {
     throw new Error(message)
   }
 }
-
-export default new Checker()
+export default new MiddlewareChecker()
