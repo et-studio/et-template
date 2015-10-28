@@ -2,14 +2,11 @@
 
 import Basic from './basic-middleware'
 import _ from '../util'
-import originParser from '../parsers/origin'
 import factory from '../nodes/factory'
 
 class MiddlewareParser extends Basic {
-  run (str, options) {
-    var originNode = originParser.parse(str)
-    var node = this.createDom(originNode, options)
-    return node
+  run (origin, options) {
+    return this.createDom(origin, options)
   }
   createDom (originNode, options) {
     var index = 0

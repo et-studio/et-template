@@ -14,37 +14,32 @@ var _util = require('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var transMap = {
-  '&quot;': '\\"',
-  '&amp;': '\\&',
-  '&lt;': '\\<',
-  '&gt;': '\\>',
-  '&nbsp;': ' '
-};
-
-// OriginNode
-// - nodeName     节点名称
-// - nodeType     节点类型 [1, 3, 8, 'ET']
+// OriginNode first parse
+// - source
+// - children
+// - expressions
+//
+// OriginNode second parse
+// - nodeName
+// - header
+// - nodeType     [1, 3, 'ET']
+//
+// OriginNode second parse
 // - attributes   {key, value}
-// - header       除了节点名称的部分
-// - expressions  属性表达式
-// - children     后代节点
+//
 
 var OriginNode = (function () {
-  function OriginNode(parent) {
-    var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
+  function OriginNode(source) {
     _classCallCheck(this, OriginNode);
 
-    this.rowNumber = options.rowNumber;
-    this.colNumber = options.colNumber;
-
-    this.nodeType = options.nodeType;
-    this.source = source;
-    this.parent = parent;
+    this.source = source || '';
     this.children = [];
     this.expressions = [];
+
+    this.nodeName = null;
+    this.header = null;
+    this.nodeType = null;
+    this.attributes = null;
 
     this.isHeaderClosed = false;
     this.isClosed = false;
@@ -57,24 +52,11 @@ var OriginNode = (function () {
     }
   }, {
     key: 'createChild',
-    value: function createChild(source, options) {
-      var parent = this.parent || this;
-      if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
-        parent = this;
-      }
-      var node = new OriginNode(parent, source, options);
-      parent.children.push(node);
+    value: function createChild(source) {
+      var node = new OriginNode(source);
+      this.children.push(node);
+      node.parent = this;
       return node;
-    }
-  }, {
-    key: 'saveText',
-    value: function saveText(text, options) {
-      if (text === undefined) text = '';
-
-      if (text) {
-        this.createChild(text, options);
-      }
-      return this;
     }
   }, {
     key: 'closeHeader',
@@ -89,18 +71,13 @@ var OriginNode = (function () {
       var current = this;
       while (current.parent) {
         if (current.matchClose(tail)) {
-          current.transSource();
           current.isClosed = true;
           break;
         }
         current = current.parent;
       }
       current.closeAll();
-      if (current.parent) {
-        return current.parent;
-      } else {
-        return current;
-      }
+      return current.parent || current;
     }
   }, {
     key: 'closeAll',
@@ -110,7 +87,6 @@ var OriginNode = (function () {
       });
 
       if (this.parent && !this.isClosed) {
-        this.transSource();
         _util2['default'].concat(this.parent.children, this.children);
         this.isClosed = true;
         this.children = [];
@@ -149,8 +125,8 @@ var OriginNode = (function () {
     key: 'removeEmptyNode',
     value: function removeEmptyNode() {
       var newChildren = [];
-      this.children.forEach(function (child) {
-        if (child && child.source) {
+      this.children.map(function (child) {
+        if (child && child.source.trim()) {
           child.removeEmptyNode();
           newChildren.push(child);
         }
@@ -158,24 +134,12 @@ var OriginNode = (function () {
       this.children = newChildren;
     }
   }, {
-    key: 'transSource',
-    value: function transSource() {
-      var source = this.source || '';
-      source = source.trim().replace(/\s+/g, ' ');
-      for (var key in transMap) {
-        source = source.replace(new RegExp(key, 'g'), transMap[key]);
-      }
-      this.source = source;
-    }
-  }, {
     key: 'each',
     value: function each(callback) {
-      if (typeof callback === 'function') {
-        callback(this);
-        this.children.forEach(function (child) {
-          child.each(callback);
-        });
-      }
+      callback(this);
+      this.children.map(function (child) {
+        child.each(callback);
+      });
     }
   }]);
 

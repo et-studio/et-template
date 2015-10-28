@@ -18,60 +18,48 @@ var _basicMiddleware = require('./basic-middleware');
 
 var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
-var _util = require('../util');
+var TRANSLATE_MAP = {
+  '&quot;': '\\"',
+  '&amp;': '\\&',
+  '&lt;': '\\<',
+  '&gt;': '\\>',
+  '&nbsp;': ' '
+};
 
-var _util2 = _interopRequireDefault(_util);
+var MiddlewareSourceTranslator = (function (_Basic) {
+  _inherits(MiddlewareSourceTranslator, _Basic);
 
-var _parsersOrigin = require('../parsers/origin');
+  function MiddlewareSourceTranslator() {
+    _classCallCheck(this, MiddlewareSourceTranslator);
 
-var _parsersOrigin2 = _interopRequireDefault(_parsersOrigin);
-
-var _nodesFactory = require('../nodes/factory');
-
-var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
-
-var MiddlewareParser = (function (_Basic) {
-  _inherits(MiddlewareParser, _Basic);
-
-  function MiddlewareParser() {
-    _classCallCheck(this, MiddlewareParser);
-
-    _get(Object.getPrototypeOf(MiddlewareParser.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(MiddlewareSourceTranslator.prototype), 'constructor', this).apply(this, arguments);
   }
 
-  _createClass(MiddlewareParser, [{
+  _createClass(MiddlewareSourceTranslator, [{
     key: 'run',
-    value: function run(str, options) {
-      var originNode = _parsersOrigin2['default'].parse(str);
-      var node = this.createDom(originNode, options);
-      return node;
+    value: function run(origin, options) {
+      var _this = this;
+
+      origin.each(function (node) {
+        var source = node.source.trim();
+        node.source = _this.translateSource(source);
+      });
+      return origin;
     }
   }, {
-    key: 'createDom',
-    value: function createDom(originNode, options) {
-      var index = 0;
-      var createNode = function createNode(source, expressions) {
-        var node = _nodesFactory2['default'].create(source, options, expressions);
-        node.setIndex(index++);
-        return node;
-      };
-      var createChildren = function createChildren(parent, origin) {
-        var children = origin.children || [];
-        _util2['default'].each(children, function (child) {
-          var node = createNode(child.source, child.expressions);
-          createChildren(node, child);
-          parent.append(node);
-        });
-        return parent;
-      };
-
-      var root = createNode();
-      return createChildren(root, originNode);
+    key: 'translateSource',
+    value: function translateSource(source) {
+      source = source.trim().replace(/\s+/g, ' ');
+      for (var key in TRANSLATE_MAP) {
+        var value = TRANSLATE_MAP[key];
+        source = source.replace(new RegExp(key, 'g'), value);
+      }
+      return source;
     }
   }]);
 
-  return MiddlewareParser;
+  return MiddlewareSourceTranslator;
 })(_basicMiddleware2['default']);
 
-exports['default'] = new MiddlewareParser();
+exports['default'] = new MiddlewareSourceTranslator();
 module.exports = exports['default'];

@@ -11,13 +11,13 @@
 })(window, function(require, exports, module) {
   'use strict';
 
-  var _get = function get(_x11, _x12, _x13) {
+  var _get = function get(_x9, _x10, _x11) {
     var _again = true;
     _function:
     while (_again) {
-      var object = _x11,
-        property = _x12,
-        receiver = _x13;
+      var object = _x9,
+        property = _x10,
+        receiver = _x11;
       desc = parent = getter = undefined;
       _again = false;
       if (object === null)
@@ -28,9 +28,9 @@
         if (parent === null) {
           return undefined;
         } else {
-          _x11 = parent;
-          _x12 = property;
-          _x13 = receiver;
+          _x9 = parent;
+          _x10 = property;
+          _x11 = receiver;
           _again = true; continue _function;
         }
       } else if ('value' in desc) {
@@ -1334,524 +1334,95 @@
 
     module.exports = new MiddlewareFormatter();
   });
-  innerDefine('nodes/origin', function(innerRequire, exports, module) {
+  innerDefine('middlewares/rebuilder', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
     var _ = innerRequire('../util');
 
-    var transMap = {
-      '&quot;': '\\"',
-      '&amp;': '\\&',
-      '&lt;': '\\<',
-      '&gt;': '\\>',
-      '&nbsp;': ' '
-    };
+    var MiddlewareRebuilder = (function(_Basic6) {
+      _inherits(MiddlewareRebuilder, _Basic6);
 
-    // OriginNode
-    // - nodeName     节点名称
-    // - nodeType     节点类型 [1, 3, 8, 'ET']
-    // - attributes   {key, value}
-    // - header       除了节点名称的部分
-    // - expressions  属性表达式
-    // - children     后代节点
+      function MiddlewareRebuilder() {
+        _classCallCheck(this, MiddlewareRebuilder);
 
-    var OriginNode = (function() {
-      function OriginNode(parent) {
-        var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-        _classCallCheck(this, OriginNode);
-
-        this.rowNumber = options.rowNumber;
-        this.colNumber = options.colNumber;
-
-        this.nodeType = options.nodeType;
-        this.source = source;
-        this.parent = parent;
-        this.children = [];
-        this.expressions = [];
-
-        this.isHeaderClosed = false;
-        this.isClosed = false;
+        _get(Object.getPrototypeOf(MiddlewareRebuilder.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(OriginNode, [{
-        key: 'addSource',
-        value: function addSource(str) {
-          this.source += str;
-        }
-      }, {
-        key: 'createChild',
-        value: function createChild(source, options) {
-          var parent = this.parent || this;
-          if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
-            parent = this;
+      _createClass(MiddlewareRebuilder, [{
+        key: 'run',
+        value: function run(node, options) {
+          while (this.rebuildAll(node)) {
           }
-          var node = new OriginNode(parent, source, options);
-          parent.children.push(node);
           return node;
         }
       }, {
-        key: 'saveText',
-        value: function saveText(text, options) {
-          if (text === undefined)
-            text = '';
+        key: 'rebuildAll',
+        value: function rebuildAll(node) {
+          var _this4 = this;
 
-          if (text) {
-            this.createChild(text, options);
-          }
-          return this;
-        }
-      }, {
-        key: 'closeHeader',
-        value: function closeHeader(token) {
-          this.addSource(token);
-          this.saveChildrenToExpressions();
-          this.isHeaderClosed = true;
-        }
-      }, {
-        key: 'closeNode',
-        value: function closeNode(tail) {
-          var current = this;
-          while (current.parent) {
-            if (current.matchClose(tail)) {
-              current.transSource();
-              current.isClosed = true;
-              break;
-            }
-            current = current.parent;
-          }
-          current.closeAll();
-          if (current.parent) {
-            return current.parent;
-          } else {
-            return current;
-          }
-        }
-      }, {
-        key: 'closeAll',
-        value: function closeAll() {
-          _.each(this.children, function(child) {
-            child.closeAll();
-          });
-
-          if (this.parent && !this.isClosed) {
-            this.transSource();
-            _.concat(this.parent.children, this.children);
-            this.isClosed = true;
-            this.children = [];
-          }
-          return this;
-        }
-      }, {
-        key: 'matchClose',
-        value: function matchClose() {
-          var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-
-          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
-          var source = this.source.trim();
-          return source.indexOf(start) === 0;
-        }
-      }, {
-        key: 'saveChildrenToExpressions',
-        value: function saveChildrenToExpressions() {
-          this.expressions = this.children;
-          this.children = [];
-        }
-      }, {
-        key: 'levelChildren',
-        value: function levelChildren() {
-          var root = this;
-          var children = [];
-          while (root.parent) {
-            _.concat(children, root.children);
-            root.children = [];
-            root = root.parent;
-          }
-          _.concat(root.children, children);
-          return this;
-        }
-      }, {
-        key: 'removeEmptyNode',
-        value: function removeEmptyNode() {
-          var newChildren = [];
-          this.children.forEach(function(child) {
-            if (child && child.source) {
-              child.removeEmptyNode();
-              newChildren.push(child);
+          var isChangeConstructor = false;
+          node.each(function(currentNode) {
+            switch (currentNode.nodeName) {
+              case '#if':
+                isChangeConstructor = _this4.rebuildIfNode(currentNode);
+                if (isChangeConstructor) return false; // break each loop
+                break;
             }
           });
-          this.children = newChildren;
+          return isChangeConstructor;
         }
       }, {
-        key: 'transSource',
-        value: function transSource() {
-          var source = this.source || '';
-          source = source.trim().replace(/\s+/g, ' ');
-          for (var key in transMap) {
-            source = source.replace(new RegExp(key, 'g'), transMap[key]);
-          }
-          this.source = source;
-        }
-      }, {
-        key: 'each',
-        value: function each(callback) {
-          if (typeof callback === 'function') {
-            callback(this);
-            this.children.forEach(function(child) {
-              child.each(callback);
-            });
-          }
+        key: 'rebuildIfNode',
+        value: function rebuildIfNode(node) {
+          var isChangeConstructor = false;
+
+          var children = node.children;
+          node.children = [];
+          var currentNode = node;
+          _.each(children, function(child) {
+            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+              currentNode.after(child);
+              currentNode = child;
+              isChangeConstructor = true;
+            } else {
+              currentNode.append(child);
+            }
+          });
+          return isChangeConstructor;
         }
       }]);
 
-      return OriginNode;
-    })();
+      return MiddlewareRebuilder;
+    })(Basic);
 
-    module.exports = OriginNode;
+    module.exports = new MiddlewareRebuilder();
   });
-  innerDefine('parsers/origin', function(innerRequire, exports, module) {
+  innerDefine('middlewares/ng-rebuilder', function(innerRequire, exports, module) {
     'use strict';
 
-    var Machine = innerRequire('./machine');
-    var OriginNode = innerRequire('../nodes/origin');
+    var Basic = innerRequire('./basic-middleware');
 
-    // @tableStart: origin
-    var originTableOptions = {
-      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
-      symbols: ['<!--', '-->', '<', '</', '>', '[/#', '[#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', /\s/],
-      table: [{
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '-1': 'text'
-      }, {
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '-1': 'text'
-      }, {
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '-1': 'text'
-      }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'htmlHeader',
-        '5': 'htmlHeader',
-        '6': 'htmlHeader',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': 'htmlHeader',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': 'htmlHeader',
-        '13': 'htmlHeader',
-        '14': 'htmlHeader',
-        '15': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'headerEnd',
-        '5': 'htmlHeader',
-        '6': 'etStart',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': '_str{{',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': '_str\'',
-        '13': 'htmlHeader',
-        '14': '_str\"',
-        '15': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlTail',
-        '1': 'htmlTail',
-        '2': 'htmlTail',
-        '3': 'htmlTail',
-        '4': 'tailEnd',
-        '5': 'htmlTail',
-        '6': 'htmlTail',
-        '7': 'htmlTail',
-        '8': 'htmlTail',
-        '9': 'htmlTail',
-        '10': 'htmlTail',
-        '11': 'htmlTail',
-        '12': 'htmlTail',
-        '13': 'htmlTail',
-        '14': 'htmlTail',
-        '15': 'htmlTail',
-        '-1': 'htmlTail'
-      }, {
-        '0': 'etHeader',
-        '1': 'etHeader',
-        '2': 'etHeader',
-        '3': 'etHeader',
-        '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
-        '7': 'etHeader',
-        '8': 'etHeader',
-        '9': 'etHeader',
-        '10': 'etHeader',
-        '11': 'etHeader',
-        '12': 'etHeader',
-        '13': 'etHeader',
-        '14': 'etHeader',
-        '15': 'etHeader',
-        '-1': 'etHeader'
-      }, {
-        '0': 'etHeader',
-        '1': 'etHeader',
-        '2': 'etHeader',
-        '3': 'etHeader',
-        '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
-        '7': '_str[',
-        '8': 'headerEnd',
-        '9': '_str{{',
-        '10': 'etHeader',
-        '11': 'etHeader',
-        '12': '_str\'',
-        '13': 'etHeader',
-        '14': '_str\"',
-        '15': 'etHeader',
-        '-1': 'etHeader'
-      }, {
-        '0': 'etTail',
-        '1': 'etTail',
-        '2': 'etTail',
-        '3': 'etTail',
-        '4': 'etTail',
-        '5': 'etTail',
-        '6': 'etTail',
-        '7': 'etTail',
-        '8': 'tailEnd',
-        '9': 'etTail',
-        '10': 'etTail',
-        '11': 'etTail',
-        '12': 'etTail',
-        '13': 'etTail',
-        '14': 'etTail',
-        '15': 'etTail',
-        '-1': 'etTail'
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '_str[',
-        '8': '_last',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '_last',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '_last',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '_last',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '_last',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }]
-    };
-    // @tableEnd
-    var originMachine = new Machine(originTableOptions);
+    var MiddlewareNgRebuilder = (function(_Basic7) {
+      _inherits(MiddlewareNgRebuilder, _Basic7);
 
-    var OriginParser = (function() {
-      function OriginParser() {
-        _classCallCheck(this, OriginParser);
+      function MiddlewareNgRebuilder() {
+        _classCallCheck(this, MiddlewareNgRebuilder);
+
+        _get(Object.getPrototypeOf(MiddlewareNgRebuilder.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(OriginParser, [{
-        key: 'parse',
-        value: function parse(str) {
-          var root = new OriginNode();
-          var currentNode = root.createChild();
-
-          var tail = '';
-          originMachine.each(str, function(state, token) {
-            var backState = null;
-            switch (state) {
-              case '_comment':
-                break;
-              case 'text':
-              case '_str\'':
-              case '_str"':
-              case '_str{{':
-              case '_str[':
-              case 'htmlHeader':
-              case 'etHeader':
-                currentNode.addSource(token);
-                break;
-              case 'htmlStart':
-                currentNode = currentNode.createChild(token, {
-                  nodeType: 'HTML'
-                });
-                break;
-              case 'etStart':
-                currentNode = currentNode.createChild(token, {
-                  nodeType: 'ET'
-                });
-                break;
-              case 'headerEnd':
-                currentNode.closeHeader(token);
-                currentNode = currentNode.createChild();
-                break;
-              case 'htmlTail':
-              case 'etTail':
-                tail += token;
-                break;
-              case 'tailEnd':
-                currentNode = currentNode.closeNode(tail + token);
-                tail = '';
-                backState = null;
-                if (!currentNode.isHeaderClosed) {
-                  switch (currentNode.nodeType) {
-                    case 'HTML':
-                      backState = 'htmlHeader';
-                      break;
-                    case 'ET':
-                      backState = 'etHeader';
-                      break;
-                  }
-                }
-                if (!backState)
-                  currentNode = currentNode.createChild();
-                break;
-              default:
-                throw new Error('The state: \'' + state + '\' is not defined.');
-            }
-            return backState;
-          });
-          currentNode.saveText(tail);
-          root.closeAll();
-          root.removeEmptyNode();
-          return root;
+      _createClass(MiddlewareNgRebuilder, [{
+        key: 'run',
+        value: function run(last, options) {
+          return last;
         }
       }]);
 
-      return OriginParser;
-    })();
+      return MiddlewareNgRebuilder;
+    })(Basic);
 
-    module.exports = new OriginParser();
+    module.exports = new MiddlewareNgRebuilder();
   });
   innerDefine('nodes/interface', function(innerRequire, exports, module) {
     'use strict';
@@ -2514,7 +2085,7 @@
       }, {
         key: 'translateAttributes',
         value: function translateAttributes(attrs, options) {
-          var _this4 = this;
+          var _this5 = this;
 
           if (attrs === undefined)
             attrs = {};
@@ -2523,7 +2094,7 @@
           var filter = this.getAttributeFilter(options);
 
           attrs.map(function(attr) {
-            if (!attr.key) _this4.throwError();
+            if (!attr.key) _this5.throwError();
             if (filter(attr.key))
               re[attr.key] = attr.value || '';
           });
@@ -2994,7 +2565,7 @@
         return items;
       },
       parseMultiple: function parseMultiple(condition, nodes) {
-        var _this5 = this;
+        var _this6 = this;
 
         var results = [];
         var hasElse = false;
@@ -3007,10 +2578,10 @@
           if (node.source.indexOf('[#') === 0) {
             var cNode = conditionParser.parse(node.source);
             if (cNode.tag === 'else') {
-              item = _this5.createItem(cNode.tag);
+              item = _this6.createItem(cNode.tag);
               hasElse = true;
             } else {
-              item = _this5.createItem(cNode.tag, cNode.condition);
+              item = _this6.createItem(cNode.tag, cNode.condition);
             }
             results.push(item);
           } else {
@@ -3050,8 +2621,8 @@
       'TEXTAREA': ['value']
     };
 
-    var Element = (function(_Basic6) {
-      _inherits(Element, _Basic6);
+    var Element = (function(_Basic8) {
+      _inherits(Element, _Basic8);
 
       function Element(source, options, expressions) {
         _classCallCheck(this, Element);
@@ -3206,8 +2777,8 @@
 
     var NAME_SPACE = 'text';
 
-    var TextNode = (function(_Basic7) {
-      _inherits(TextNode, _Basic7);
+    var TextNode = (function(_Basic9) {
+      _inherits(TextNode, _Basic9);
 
       function TextNode(source) {
         var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -3264,8 +2835,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = NAME_SPACE;
 
-    var IfNode = (function(_Basic8) {
-      _inherits(IfNode, _Basic8);
+    var IfNode = (function(_Basic10) {
+      _inherits(IfNode, _Basic10);
 
       function IfNode(source, options) {
         _classCallCheck(this, IfNode);
@@ -3366,8 +2937,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = 'else if';
 
-    var ElseIfNode = (function(_Basic9) {
-      _inherits(ElseIfNode, _Basic9);
+    var ElseIfNode = (function(_Basic11) {
+      _inherits(ElseIfNode, _Basic11);
 
       function ElseIfNode(source, options) {
         _classCallCheck(this, ElseIfNode);
@@ -3414,8 +2985,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = NAME_SPACE;
 
-    var ElseNode = (function(_Basic10) {
-      _inherits(ElseNode, _Basic10);
+    var ElseNode = (function(_Basic12) {
+      _inherits(ElseNode, _Basic12);
 
       function ElseNode(source, options) {
         _classCallCheck(this, ElseNode);
@@ -3633,8 +3204,8 @@
       lengthName: 'len'
     };
 
-    var ForNode = (function(_Basic11) {
-      _inherits(ForNode, _Basic11);
+    var ForNode = (function(_Basic13) {
+      _inherits(ForNode, _Basic13);
 
       function ForNode(source, options) {
         _classCallCheck(this, ForNode);
@@ -3710,8 +3281,8 @@
     var NAME_SPACE = 'html';
     var NODE_NAME = '#' + NAME_SPACE;
 
-    var HtmlNode = (function(_Basic12) {
-      _inherits(HtmlNode, _Basic12);
+    var HtmlNode = (function(_Basic14) {
+      _inherits(HtmlNode, _Basic14);
 
       function HtmlNode() {
         _classCallCheck(this, HtmlNode);
@@ -3769,8 +3340,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var PARAMETER_SPLIT = ',';
 
-    var ImportNode = (function(_Basic13) {
-      _inherits(ImportNode, _Basic13);
+    var ImportNode = (function(_Basic15) {
+      _inherits(ImportNode, _Basic15);
 
       function ImportNode(source, options) {
         _classCallCheck(this, ImportNode);
@@ -3927,16 +3498,15 @@
 
     module.exports = new Factory();
   });
-  innerDefine('middlewares/parser', function(innerRequire, exports, module) {
+  innerDefine('middlewares/node-creator', function(innerRequire, exports, module) {
     'use strict';
 
     var Basic = innerRequire('./basic-middleware');
     var _ = innerRequire('../util');
-    var originParser = innerRequire('../parsers/origin');
     var factory = innerRequire('../nodes/factory');
 
-    var MiddlewareParser = (function(_Basic14) {
-      _inherits(MiddlewareParser, _Basic14);
+    var MiddlewareParser = (function(_Basic16) {
+      _inherits(MiddlewareParser, _Basic16);
 
       function MiddlewareParser() {
         _classCallCheck(this, MiddlewareParser);
@@ -3946,10 +3516,8 @@
 
       _createClass(MiddlewareParser, [{
         key: 'run',
-        value: function run(str, options) {
-          var originNode = originParser.parse(str);
-          var node = this.createDom(originNode, options);
-          return node;
+        value: function run(origin, options) {
+          return this.createDom(origin, options);
         }
       }, {
         key: 'createDom',
@@ -3980,108 +3548,626 @@
 
     module.exports = new MiddlewareParser();
   });
-  innerDefine('middlewares/rebuilder', function(innerRequire, exports, module) {
-    'use strict';
-
-    var Basic = innerRequire('./basic-middleware');
+  innerDefine('nodes/origin', function(innerRequire, exports, module) {
     var _ = innerRequire('../util');
 
-    var MiddlewareRebuilder = (function(_Basic15) {
-      _inherits(MiddlewareRebuilder, _Basic15);
+    // OriginNode first parse
+    // - source
+    // - children
+    // - expressions
+    //
+    // OriginNode second parse
+    // - nodeName
+    // - header
+    // - nodeType     [1, 3, 'ET']
+    //
+    // OriginNode second parse
+    // - attributes   {key, value}
+    //
 
-      function MiddlewareRebuilder() {
-        _classCallCheck(this, MiddlewareRebuilder);
+    var OriginNode = (function() {
+      function OriginNode(source) {
+        _classCallCheck(this, OriginNode);
 
-        _get(Object.getPrototypeOf(MiddlewareRebuilder.prototype), 'constructor', this).apply(this, arguments);
+        this.source = source || '';
+        this.children = [];
+        this.expressions = [];
+
+        this.nodeName = null;
+        this.header = null;
+        this.nodeType = null;
+        this.attributes = null;
+
+        this.isHeaderClosed = false;
+        this.isClosed = false;
       }
 
-      _createClass(MiddlewareRebuilder, [{
-        key: 'run',
-        value: function run(node, options) {
-          while (this.rebuildAll(node)) {
-          }
+      _createClass(OriginNode, [{
+        key: 'addSource',
+        value: function addSource(str) {
+          this.source += str;
+        }
+      }, {
+        key: 'createChild',
+        value: function createChild(source) {
+          var node = new OriginNode(source);
+          this.children.push(node);
+          node.parent = this;
           return node;
         }
       }, {
-        key: 'rebuildAll',
-        value: function rebuildAll(node) {
-          var _this6 = this;
-
-          var isChangeConstructor = false;
-          node.each(function(currentNode) {
-            switch (currentNode.nodeName) {
-              case '#if':
-                isChangeConstructor = _this6.rebuildIfNode(currentNode);
-                if (isChangeConstructor) return false; // break each loop
-                break;
-            }
-          });
-          return isChangeConstructor;
+        key: 'closeHeader',
+        value: function closeHeader(token) {
+          this.addSource(token);
+          this.saveChildrenToExpressions();
+          this.isHeaderClosed = true;
         }
       }, {
-        key: 'rebuildIfNode',
-        value: function rebuildIfNode(node) {
-          var isChangeConstructor = false;
+        key: 'closeNode',
+        value: function closeNode(tail) {
+          var current = this;
+          while (current.parent) {
+            if (current.matchClose(tail)) {
+              current.isClosed = true;
+              break;
+            }
+            current = current.parent;
+          }
+          current.closeAll();
+          return current.parent || current;
+        }
+      }, {
+        key: 'closeAll',
+        value: function closeAll() {
+          _.each(this.children, function(child) {
+            child.closeAll();
+          });
 
-          var children = node.children;
-          node.children = [];
-          var currentNode = node;
-          _.each(children, function(child) {
-            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-              currentNode.after(child);
-              currentNode = child;
-              isChangeConstructor = true;
-            } else {
-              currentNode.append(child);
+          if (this.parent && !this.isClosed) {
+            _.concat(this.parent.children, this.children);
+            this.isClosed = true;
+            this.children = [];
+          }
+          return this;
+        }
+      }, {
+        key: 'matchClose',
+        value: function matchClose() {
+          var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
+          var source = this.source.trim();
+          return source.indexOf(start) === 0;
+        }
+      }, {
+        key: 'saveChildrenToExpressions',
+        value: function saveChildrenToExpressions() {
+          this.expressions = this.children;
+          this.children = [];
+        }
+      }, {
+        key: 'levelChildren',
+        value: function levelChildren() {
+          var root = this;
+          var children = [];
+          while (root.parent) {
+            _.concat(children, root.children);
+            root.children = [];
+            root = root.parent;
+          }
+          _.concat(root.children, children);
+          return this;
+        }
+      }, {
+        key: 'removeEmptyNode',
+        value: function removeEmptyNode() {
+          var newChildren = [];
+          this.children.map(function(child) {
+            if (child && child.source.trim()) {
+              child.removeEmptyNode();
+              newChildren.push(child);
             }
           });
-          return isChangeConstructor;
+          this.children = newChildren;
+        }
+      }, {
+        key: 'each',
+        value: function each(callback) {
+          callback(this);
+          this.children.map(function(child) {
+            child.each(callback);
+          });
         }
       }]);
 
-      return MiddlewareRebuilder;
+      return OriginNode;
+    })();
+
+    module.exports = OriginNode;
+  });
+  innerDefine('parsers/origin', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Machine = innerRequire('./machine');
+    var OriginNode = innerRequire('../nodes/origin');
+
+    // @tableStart: origin
+    var originTableOptions = {
+      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
+      symbols: ['<!--', '-->', '<', '</', '>', '[#', '[/#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', /\s/],
+      table: [{
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'htmlHeader',
+        '3': 'htmlHeader',
+        '4': 'htmlHeader',
+        '5': 'htmlHeader',
+        '6': 'htmlHeader',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': 'htmlHeader',
+        '10': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': 'htmlHeader',
+        '13': 'htmlHeader',
+        '14': 'htmlHeader',
+        '15': 'htmlHeader',
+        '-1': 'htmlHeader'
+      }, {
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'htmlHeader',
+        '3': 'htmlHeader',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'htmlHeader',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': '_str{{',
+        '10': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': '_str\'',
+        '13': 'htmlHeader',
+        '14': '_str\"',
+        '15': 'htmlHeader',
+        '-1': 'htmlHeader'
+      }, {
+        '0': 'htmlTail',
+        '1': 'htmlTail',
+        '2': 'htmlTail',
+        '3': 'htmlTail',
+        '4': 'tailEnd',
+        '5': 'htmlTail',
+        '6': 'htmlTail',
+        '7': 'htmlTail',
+        '8': 'htmlTail',
+        '9': 'htmlTail',
+        '10': 'htmlTail',
+        '11': 'htmlTail',
+        '12': 'htmlTail',
+        '13': 'htmlTail',
+        '14': 'htmlTail',
+        '15': 'htmlTail',
+        '-1': 'htmlTail'
+      }, {
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': 'etHeader',
+        '8': 'etHeader',
+        '9': 'etHeader',
+        '10': 'etHeader',
+        '11': 'etHeader',
+        '12': 'etHeader',
+        '13': 'etHeader',
+        '14': 'etHeader',
+        '15': 'etHeader',
+        '-1': 'etHeader'
+      }, {
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': '_str[',
+        '8': 'headerEnd',
+        '9': '_str{{',
+        '10': 'etHeader',
+        '11': 'etHeader',
+        '12': '_str\'',
+        '13': 'etHeader',
+        '14': '_str\"',
+        '15': 'etHeader',
+        '-1': 'etHeader'
+      }, {
+        '0': 'etTail',
+        '1': 'etTail',
+        '2': 'etTail',
+        '3': 'etTail',
+        '4': 'etTail',
+        '5': 'etTail',
+        '6': 'etTail',
+        '7': 'etTail',
+        '8': 'tailEnd',
+        '9': 'etTail',
+        '10': 'etTail',
+        '11': 'etTail',
+        '12': 'etTail',
+        '13': 'etTail',
+        '14': 'etTail',
+        '15': 'etTail',
+        '-1': 'etTail'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '_str[',
+        '8': '_last',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '_last',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '_last',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '_last',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '_last',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }]
+    };
+    // @tableEnd
+    var originMachine = new Machine(originTableOptions);
+
+    var OriginParser = (function() {
+      function OriginParser() {
+        _classCallCheck(this, OriginParser);
+      }
+
+      _createClass(OriginParser, [{
+        key: 'parse',
+        value: function parse(str) {
+          var root = new OriginNode();
+          var currentNode = root.createChild();
+
+          var tail = '';
+          originMachine.each(str, function(state, token) {
+            var backState = null;
+            switch (state) {
+              case '_comment':
+                break;
+              case 'text':
+              case '_str\'':
+              case '_str"':
+              case '_str{{':
+              case '_str[':
+              case 'htmlHeader':
+              case 'etHeader':
+                currentNode.addSource(token);
+                break;
+              case 'etStart':
+              case 'htmlStart':
+                currentNode = currentNode.createChild(token);
+                break;
+              case 'headerEnd':
+                currentNode.closeHeader(token);
+                currentNode = currentNode.createChild();
+                break;
+              case 'htmlTail':
+              case 'etTail':
+                tail += token;
+                break;
+              case 'tailEnd':
+                currentNode = currentNode.closeNode(tail + token);
+                tail = '';
+                backState = null;
+                if (!currentNode.isHeaderClosed) {
+                  var source = currentNode.source;
+                  if (source.indexOf('[#') === 0) {
+                    backState = 'etHeader';
+                  } else if (source.indexOf('<') === 0) {
+                    backState = 'htmlHeader';
+                  }
+                }
+                if (!backState)
+                  currentNode = currentNode.createChild();
+                break;
+              default:
+                throw new Error('The state: \'' + state + '\' is not defined.');
+            }
+            return backState;
+          });
+          currentNode.createChild(tail);
+          root.closeAll();
+          root.removeEmptyNode();
+          return root;
+        }
+      }]);
+
+      return OriginParser;
+    })();
+
+    module.exports = new OriginParser();
+  });
+  innerDefine('middlewares/origin-parser', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+    var originParser = innerRequire('../parsers/origin');
+
+    var MiddlewareParser = (function(_Basic17) {
+      _inherits(MiddlewareParser, _Basic17);
+
+      function MiddlewareParser() {
+        _classCallCheck(this, MiddlewareParser);
+
+        _get(Object.getPrototypeOf(MiddlewareParser.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareParser, [{
+        key: 'run',
+        value: function run(str, options) {
+          return originParser.parse(str);
+        }
+      }]);
+
+      return MiddlewareParser;
     })(Basic);
 
-    module.exports = new MiddlewareRebuilder();
+    module.exports = new MiddlewareParser();
   });
-  innerDefine('middlewares/ng-rebuilder', function(innerRequire, exports, module) {
+  innerDefine('middlewares/source-translator', function(innerRequire, exports, module) {
     'use strict';
 
     var Basic = innerRequire('./basic-middleware');
 
-    var MiddlewareNgRebuilder = (function(_Basic16) {
-      _inherits(MiddlewareNgRebuilder, _Basic16);
+    var TRANSLATE_MAP = {
+      '&quot;': '\\"',
+      '&amp;': '\\&',
+      '&lt;': '\\<',
+      '&gt;': '\\>',
+      '&nbsp;': ' '
+    };
 
-      function MiddlewareNgRebuilder() {
-        _classCallCheck(this, MiddlewareNgRebuilder);
+    var MiddlewareSourceTranslator = (function(_Basic18) {
+      _inherits(MiddlewareSourceTranslator, _Basic18);
 
-        _get(Object.getPrototypeOf(MiddlewareNgRebuilder.prototype), 'constructor', this).apply(this, arguments);
+      function MiddlewareSourceTranslator() {
+        _classCallCheck(this, MiddlewareSourceTranslator);
+
+        _get(Object.getPrototypeOf(MiddlewareSourceTranslator.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(MiddlewareNgRebuilder, [{
+      _createClass(MiddlewareSourceTranslator, [{
         key: 'run',
-        value: function run(last, options) {
-          return last;
+        value: function run(origin, options) {
+          var _this7 = this;
+
+          origin.each(function(node) {
+            var source = node.source.trim();
+            node.source = _this7.translateSource(source);
+          });
+          return origin;
+        }
+      }, {
+        key: 'translateSource',
+        value: function translateSource(source) {
+          source = source.trim().replace(/\s+/g, ' ');
+          for (var key in TRANSLATE_MAP) {
+            var value = TRANSLATE_MAP[key];
+            source = source.replace(new RegExp(key, 'g'), value);
+          }
+          return source;
         }
       }]);
 
-      return MiddlewareNgRebuilder;
+      return MiddlewareSourceTranslator;
     })(Basic);
 
-    module.exports = new MiddlewareNgRebuilder();
+    module.exports = new MiddlewareSourceTranslator();
+  });
+  innerDefine('middlewares/middleware-getter', function(innerRequire, exports, module) {
+    'use strict';
+
+    var attributes = innerRequire('./attributes');
+    var checker = innerRequire('./checker');
+    var compiler = innerRequire('./compiler');
+    var dot = innerRequire('./dot');
+    var formatter = innerRequire('./formatter');
+    var rebuilder = innerRequire('./rebuilder');
+    var ngRebuilder = innerRequire('./ng-rebuilder');
+    var nodeCreator = innerRequire('./node-creator');
+    var originParser = innerRequire('./origin-parser');
+    var sourceTrasnlator = innerRequire('./source-translator');
+
+    var MIDDLEWARES = {
+      'attributes': attributes,
+      'checker': checker,
+      'compiler': compiler,
+      'dot': dot,
+      'formatter': formatter,
+      'rebuilder': rebuilder,
+      'ng-rebuilder': ngRebuilder,
+      'node-creator': nodeCreator,
+      'origin-parser': originParser,
+      'source-translator': sourceTrasnlator
+    };
+
+    var MiddlewareGetter = (function() {
+      function MiddlewareGetter() {
+        _classCallCheck(this, MiddlewareGetter);
+      }
+
+      _createClass(MiddlewareGetter, [{
+        key: 'get',
+        value: function get(key) {
+          var middleware = MIDDLEWARES[key];
+          if (!middleware) {
+            throw new Error('not found middleware: ' + key);
+          }
+          return middleware;
+        }
+      }, {
+        key: 'getList',
+        value: function getList() {
+          var _this8 = this;
+
+          var results = [];
+
+          for (var _len5 = arguments.length, arr = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+            arr[_key5] = arguments[_key5];
+          }
+
+          arr.map(function(key) {
+            results.push(_this8.get(key));
+          });
+          return results;
+        }
+      }]);
+
+      return MiddlewareGetter;
+    })();
+
+    module.exports = new MiddlewareGetter();
   });
   innerDefine('et', function(innerRequire, exports, module) {
     'use strict';
 
     var _ = innerRequire('./util');
-    var middle_attributes = innerRequire('./middlewares/attributes');
-    var middle_checker = innerRequire('./middlewares/checker');
-    var middle_compiler = innerRequire('./middlewares/compiler');
-    var middle_dot = innerRequire('./middlewares/dot');
-    var middle_formatter = innerRequire('./middlewares/formatter');
-    var middle_parser = innerRequire('./middlewares/parser');
-    var middle_rebuilder = innerRequire('./middlewares/rebuilder');
-    var middle_ngRebuilder = innerRequire('./middlewares/ng-rebuilder');
+    var middlewareGetter = innerRequire('./middlewares/middleware-getter');
 
     var DEFAULTS = {
       compiledTemplate: null, // ['dot', null]
@@ -4095,7 +4181,7 @@
       moduleId: 'Template'
     };
 
-    var DEFAULT_MIDDLEWARES = [middle_parser, middle_attributes, middle_rebuilder, middle_ngRebuilder, middle_checker, middle_compiler, middle_formatter];
+    var DEFAULT_MIDDLEWARES = ['origin-parser', 'source-translator', 'node-creator', 'attributes', 'rebuilder', 'ng-rebuilder', 'checker', 'compiler', 'formatter'];
 
     var ET = (function() {
       function ET(options) {
@@ -4111,7 +4197,7 @@
           var middlewares = [];
           switch (this.options.compiledTemplate) {
             case 'dot':
-              middlewares = this.getMiddlewares([middle_dot]);
+              middlewares = this.getMiddlewares(['dot']);
               break;
             default:
               middlewares = this.getMiddlewares([]);
@@ -4123,7 +4209,8 @@
         value: function runMiddlewares(str, middlewares, runtimeOptions) {
           var options = _.extend({}, this.options, runtimeOptions);
           var result = str;
-          middlewares.map(function(middleware) {
+          middlewares.map(function(name) {
+            var middleware = middlewareGetter.get(name);
             result = middleware.run(result, options);
           });
           return result;
