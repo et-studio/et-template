@@ -47,7 +47,7 @@ class ET {
         middlewares = this.getMiddlewares([])
     }
     return this.runMiddlewares(str, middlewares, options)
-  }
+  } 
   runMiddlewares (str, middlewares, runtimeOptions) {
     var options = _.extend({}, this.options, runtimeOptions)
     var result = str

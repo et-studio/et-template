@@ -89,27 +89,17 @@ module.exports = function () {
 
       ${moduleList.join('\n')}
 
-      innerDefine('et', function(innerRequire, exports, module){
-        var Compiler = innerRequire('./compiler')
-        var Parser = innerRequire('./parser')
-        var ET = function(options){
-          if (!options) options = {}
-          this.options = options
-          this.parser = new Parser(options.parser)
-          this.compiler = new Compiler(options.compiler)
-        }
-        ET.prototype.compile = function (str, options) {
-          var dom = this.parser.parse(str)
-          var result = this.compiler.compile(dom)
-          var fn = new Function('require', 'exports', 'module', result)
-          var _module = {}
-          var _exports = {}
-          fn(require, _exports, _module)
-          return _module.exports || _exports
-        }
-        module.exports = ET
-      })
-      module.exports = modules.et`
+      var RumtimeET = modules.et
+      RumtimeET.prototype.compileString = RumtimeET.prototype.compile
+      RumtimeET.prototype.compile = function (str, options) {
+        var result = this.compileString(str, options)
+        var fn = new Function('require', 'exports', 'module', result)
+        var _module = {}
+        var _exports = {}
+        fn(require, _exports, _module)
+        return _module.exports || _exports
+      }
+      module.exports = RumtimeET`
 
     outputStream.push(new gutil.File({
       path: 'et-runtime.js',

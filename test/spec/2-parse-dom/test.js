@@ -1,6 +1,6 @@
 'use strict'
 
-var Parser = require('src/parser')
+var parser = require('src/middlewares/parser')
 var settings = require('./settings.js')
 
 exports.register = function () {
@@ -9,8 +9,7 @@ exports.register = function () {
       window.it(setting.title, function (done) {
         if (setting.title.indexOf('error') >= 0) {
           try {
-            var errParser = new Parser(setting.options)
-            errParser.parse(setting.html)
+            parser.run(setting.html, setting.options)
           } catch (e) {
             done()
           } finally {
@@ -18,8 +17,7 @@ exports.register = function () {
           }
         }
 
-        var parser = new Parser(setting.options)
-        var node = parser.parse(setting.html)
+        var node = parser.run(setting.html, setting.options)
         var expect = setting.expect
 
         console.log(node)

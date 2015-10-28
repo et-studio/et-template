@@ -1,10 +1,10 @@
 
       | text       | headerEnd  | tailEnd    | htmlStart  | htmlHeader  | htmlTail | etStart  | etHeader  | etTail  | _str[ |_str{{ | _str\' | _str\" | _comment
 ----- | ----       | ----       | ----       | ---------  | ----------- | -------- | -------  | --------- | ------- | ----- | ----- | ------ | ------ | --------
-'</'  | htmlTail   | htmlTail   | htmlTail   | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '<!--'| _comment   | _comment   | _comment   | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '-->' | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        | _last
 '<'   | htmlStart  | htmlStart  | htmlStart  | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
+'</'  | htmlTail   | htmlTail   | htmlTail   | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '>'   | headerEnd  | headerEnd  | headerEnd  | htmlHeader | headerEnd   | tailEnd  | etHeader | etHeader  | etTail  |       |       |        |        |
 '[/#' | etTail     | etTail     | etTail     | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '[#'  | etStart    | etStart    | etStart    | htmlHeader | etStart     | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
@@ -16,7 +16,5 @@
 '\''  | text       | text       | text       | htmlHeader | _str\'      | htmlTail | etHeader | _str\'    | etTail  |       |       | _last  |        |
 '\\"' | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
 '"'   | text       | text       | text       | htmlHeader | _str\"      | htmlTail | etHeader | _str\"    | etTail  |       |       |        | _last  |
-' '   | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
-'\r'  | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
-'\n'  | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
+/\s/  | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |
       | text       | text       | text       | htmlHeader | htmlHeader  | htmlTail | etHeader | etHeader  | etTail  |       |       |        |        |

@@ -82,16 +82,14 @@ module.exports = [
         condition: 'it.isTrue',
         children: [{
           textContent: 'It is true.'
-        }]
-      }, {
-        nodeName: '#elseif',
-        condition: 'it.elseTrue',
-        children: [{
+        }, {
+          nodeName: '#elseif',
+          condition: 'it.elseTrue'
+        }, {
           textContent: 'It is elseTrue.'
-        }]
-      }, {
-        nodeName: '#else',
-        children: [{
+        }, {
+          nodeName: '#else'
+        }, {
           textContent: 'It is else.'
         }]
       }]

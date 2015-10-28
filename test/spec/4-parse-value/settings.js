@@ -2,7 +2,7 @@ module.exports = [
   {
     title: 'aaa{{it.id}}bbb{{it.getSrc()}}',
     source: 'aaa{{it.id}}bbb{{it.getSrc()}}',
-    expect: `'aaa' + it.id + 'bbb' + it.getSrc()`
+    expect: `'aaa' + (it.id) + 'bbb' + (it.getSrc())`
   },
   {
     title: 'It is [#if it.isTrue]true[#else]false[/#if]!!!',

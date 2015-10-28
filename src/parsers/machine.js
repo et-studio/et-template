@@ -10,34 +10,55 @@ var STATE_CHILD_REG = /^_/
 class Machine {
   constructor (options = {}) {
     this.options = options
+    this.symbolsMap = this.mapSymbals(options.symbols || [])
+    this.symbols = this.sortSymbols(options.symbols || [])
     this.states = options.states || []
-    this.symbols = options.symbols || []
     this.table = options.table || []
     this.startState = options.startState || this.states[0]
+  }
+  mapSymbals (symbols) {
+    var map = new Map()
+    _.each(symbols, (symbol, i) => {
+      map.set(symbol, i)
+    })
+    return map
+  }
+  sortSymbols (symbols) {
+    return symbols.sort(function (left, right) {
+      if (left.test && !right.test) return 1
+      else if (!left.test && right.test) return -1
+      else if (left.test && right.test) return 0
+
+      if (left.indexOf(right) === 0) return -1
+      else if (right.indexOf(left) === 0) return 1
+      else return 0
+    })
   }
   getTokenSet (str, index) {
     var symbols = this.symbols
     var char = str[index]
     var token = char
-    var symbolIndex = -1
+    var kickSymbol = ''
 
     _.each(symbols, (symbol, i) => {
       if (symbol && typeof symbol.test === 'function') {
         if (symbol.test(char)) {
           token = char
-          symbolIndex = i
+          kickSymbol = symbol
           return false
         }
       } else if (symbol && symbol.length) {
         var tmp = str.substr(index, symbol.length)
         if (tmp === symbol) {
           token = symbol
-          symbolIndex = i
+          kickSymbol = symbol
           return false
         }
       }
     })
 
+    var symbolIndex = this.symbolsMap.get(kickSymbol)
+    if (!(symbolIndex >= 0)) symbolIndex = -1
     return {token: token, index: symbolIndex}
   }
   switchState (currentState, symbolIndex, stateStack) {
