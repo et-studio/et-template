@@ -33,37 +33,59 @@ var OriginNode = (function () {
     _classCallCheck(this, OriginNode);
 
     this.source = source || '';
+    this.nodeName = '';
+    this.header = '';
+
     this.children = [];
     this.expressions = [];
 
-    this.nodeName = null;
-    this.header = null;
     this.nodeType = null;
     this.attributes = null;
 
+    this.state = null;
     this.isHeaderClosed = false;
     this.isClosed = false;
   }
 
   _createClass(OriginNode, [{
     key: 'addSource',
-    value: function addSource(str) {
-      this.source += str;
+    value: function addSource(token) {
+      this.source += token;
+      switch (this.state) {
+        case 'nodeName':
+          this.nodeName += token;
+          break;
+        case 'header':
+          this.header += token;
+          break;
+      }
     }
   }, {
-    key: 'createChild',
-    value: function createChild(source) {
-      var node = new OriginNode(source);
-      this.children.push(node);
-      node.parent = this;
-      return node;
+    key: 'setState',
+    value: function setState(state) {
+      this.state = state;
+    }
+  }, {
+    key: 'startNodeName',
+    value: function startNodeName(token) {
+      if (token === '[#') this.nodeName = '#';
+      this.addSource(token);
+      this.setState('nodeName');
+    }
+  }, {
+    key: 'startHeader',
+    value: function startHeader(token) {
+      this.setState('header');
+      this.addSource(token);
     }
   }, {
     key: 'closeHeader',
     value: function closeHeader(token) {
+      this.setState('headerClosed');
+      this.isHeaderClosed = true;
+
       this.addSource(token);
       this.saveChildrenToExpressions();
-      this.isHeaderClosed = true;
     }
   }, {
     key: 'closeNode',
@@ -78,6 +100,14 @@ var OriginNode = (function () {
       }
       current.closeAll();
       return current.parent || current;
+    }
+  }, {
+    key: 'createChild',
+    value: function createChild(source) {
+      var node = new OriginNode(source);
+      this.children.push(node);
+      node.parent = this;
+      return node;
     }
   }, {
     key: 'closeAll',
@@ -98,9 +128,9 @@ var OriginNode = (function () {
     value: function matchClose() {
       var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
-      var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
-      var source = this.source.trim();
-      return source.indexOf(start) === 0;
+      var currentNodeName = this.nodeName;
+      var tailNodeName = tail.slice(1, tail.length - 1).trim();
+      return '/' + currentNodeName === tailNodeName;
     }
   }, {
     key: 'saveChildrenToExpressions',

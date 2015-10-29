@@ -13,8 +13,13 @@ var TRANSLATE_MAP = {
 class MiddlewareSourceTranslator extends Basic {
   run (origin, options) {
     origin.each((node) => {
+      var nodeName = node.nodeName
       var source = node.source.trim()
+      var header = node.header.trim()
+
+      node.header = this.translateSource(header)
       node.source = this.translateSource(source)
+      node.nodeType = this.getNodeType(nodeName, source)
     })
     return origin
   }
@@ -25,6 +30,15 @@ class MiddlewareSourceTranslator extends Basic {
       source = source.replace(new RegExp(key, 'g'), value)
     }
     return source
+  }
+  getNodeType (nodeName, source) {
+    if (nodeName.indexOf('#') === 0 || !source) {
+      return 'ET'
+    } else if (nodeName) {
+      return 1
+    } else {
+      return 3
+    }
   }
 }
 

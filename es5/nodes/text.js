@@ -27,12 +27,12 @@ var NAME_SPACE = 'text';
 var TextNode = (function (_Basic) {
   _inherits(TextNode, _Basic);
 
-  function TextNode(source) {
+  function TextNode(origin) {
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     _classCallCheck(this, TextNode);
 
-    _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.nodeType = 3;

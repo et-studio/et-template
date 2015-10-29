@@ -8,8 +8,8 @@ var NODE_NAME = `#${NAME_SPACE}`
 var TAG = NAME_SPACE
 
 class ElseNode extends Basic {
-  constructor (source, options) {
-    super(source, options)
+  constructor (origin, options) {
+    super(origin, options)
 
     this.namespace = 'else'
     this.isNewTemplate = true

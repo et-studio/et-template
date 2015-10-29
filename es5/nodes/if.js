@@ -29,10 +29,10 @@ var TAG = NAME_SPACE;
 var IfNode = (function (_Basic) {
   _inherits(IfNode, _Basic);
 
-  function IfNode(source, options) {
+  function IfNode(origin, options) {
     _classCallCheck(this, IfNode);
 
-    _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.isNewTemplate = true;

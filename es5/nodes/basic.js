@@ -57,20 +57,21 @@ var _worker2 = _interopRequireDefault(_worker);
 var Basic = (function (_NodeInterface) {
   _inherits(Basic, _NodeInterface);
 
-  function Basic(source, options) {
+  function Basic(origin, options) {
     _classCallCheck(this, Basic);
 
-    _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, origin, options);
 
-    this._source = source;
+    this.origin = origin;
     this.options = options;
+    this.nodeType = origin.nodeType || 'ET';
+    this.nodeName = origin.nodeName;
 
     this.isNewTemplate = false;
     this.args = [];
-    this.nodeType = 'ET';
 
     this.children = [];
-    this.parse(source);
+    this.parse(origin.source);
   }
 
   _createClass(Basic, [{

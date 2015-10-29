@@ -33,10 +33,10 @@ var defaults = {
 var ForNode = (function (_Basic) {
   _inherits(ForNode, _Basic);
 
-  function ForNode(source, options) {
+  function ForNode(origin, options) {
     _classCallCheck(this, ForNode);
 
-    _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.isNewTemplate = true;

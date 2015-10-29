@@ -6,8 +6,8 @@ import valueParser from '../parsers/value'
 var NAME_SPACE = 'text'
 
 class TextNode extends Basic {
-  constructor (source, options = {}) {
-    super(source, options)
+  constructor (origin, options = {}) {
+    super(origin, options)
 
     this.namespace = NAME_SPACE
     this.nodeType = 3

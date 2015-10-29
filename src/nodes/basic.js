@@ -33,18 +33,19 @@ import _ from '../util'
 import worker from '../worker'
 
 class Basic extends NodeInterface {
-  constructor (source, options) {
-    super(source, options)
+  constructor (origin, options) {
+    super(origin, options)
 
-    this._source = source
+    this.origin = origin
     this.options = options
+    this.nodeType = origin.nodeType || 'ET'
+    this.nodeName = origin.nodeName
 
     this.isNewTemplate = false
     this.args = []
-    this.nodeType = 'ET'
 
     this.children = []
-    this.parse(source)
+    this.parse(origin.source)
   }
   getNewTemplateDoms () {
     var results = []

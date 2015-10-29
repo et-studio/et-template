@@ -29,10 +29,10 @@ var TAG = NAME_SPACE;
 var ElseNode = (function (_Basic) {
   _inherits(ElseNode, _Basic);
 
-  function ElseNode(source, options) {
+  function ElseNode(origin, options) {
     _classCallCheck(this, ElseNode);
 
-    _get(Object.getPrototypeOf(ElseNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(ElseNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = 'else';
     this.isNewTemplate = true;

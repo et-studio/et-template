@@ -44,16 +44,16 @@ var MiddlewareParser = (function (_Basic) {
     key: 'createNode',
     value: function createNode(originNode, options) {
       var index = 0;
-      var createNode = function createNode(source, expressions) {
-        var node = _nodesFactory2['default'].create(source, options, expressions);
+      var createNode = function createNode(originNode) {
+        var node = _nodesFactory2['default'].create(originNode, options);
         node.setIndex(index++);
         return node;
       };
       var createChildren = function createChildren(parent, origin) {
         var children = origin.children || [];
-        _util2['default'].each(children, function (child) {
-          var node = createNode(child.source, child.expressions);
-          createChildren(node, child);
+        _util2['default'].each(children, function (originNode) {
+          var node = createNode(originNode);
+          createChildren(node, originNode);
           parent.append(node);
         });
         return parent;

@@ -41,8 +41,13 @@ var MiddlewareSourceTranslator = (function (_Basic) {
       var _this = this;
 
       origin.each(function (node) {
+        var nodeName = node.nodeName;
         var source = node.source.trim();
+        var header = node.header.trim();
+
+        node.header = _this.translateSource(header);
         node.source = _this.translateSource(source);
+        node.nodeType = _this.getNodeType(nodeName, source);
       });
       return origin;
     }
@@ -55,6 +60,17 @@ var MiddlewareSourceTranslator = (function (_Basic) {
         source = source.replace(new RegExp(key, 'g'), value);
       }
       return source;
+    }
+  }, {
+    key: 'getNodeType',
+    value: function getNodeType(nodeName, source) {
+      if (nodeName.indexOf('#') === 0 || !source) {
+        return 'ET';
+      } else if (nodeName) {
+        return 1;
+      } else {
+        return 3;
+      }
     }
   }]);
 

@@ -44,14 +44,14 @@ var PROPERTIY_SET = {
 var Element = (function (_Basic) {
   _inherits(Element, _Basic);
 
-  function Element(source, options, expressions) {
+  function Element(origin, options) {
     _classCallCheck(this, Element);
 
-    _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.nodeType = 1;
-    this.expressions = _elementHandler2['default'].parse(expressions);
+    this.expressions = _elementHandler2['default'].parse(origin.expressions);
   }
 
   // 这部分方法和代码是为初始化的时候写的

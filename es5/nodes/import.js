@@ -29,10 +29,10 @@ var PARAMETER_SPLIT = ',';
 var ImportNode = (function (_Basic) {
   _inherits(ImportNode, _Basic);
 
-  function ImportNode(source, options) {
+  function ImportNode(origin, options) {
     _classCallCheck(this, ImportNode);
 
-    _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.nodeName = NODE_NAME;

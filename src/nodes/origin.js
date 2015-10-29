@@ -16,32 +16,49 @@ import _ from '../util'
 class OriginNode {
   constructor (source) {
     this.source = source || ''
+    this.nodeName = ''
+    this.header = ''
+
     this.children = []
     this.expressions = []
 
-    this.nodeName = null
-    this.header = null
     this.nodeType = null
     this.attributes = null
 
+    this.state = null
     this.isHeaderClosed = false
     this.isClosed = false
   }
 
-  addSource (str) {
-    this.source += str
+  addSource (token) {
+    this.source += token
+    switch (this.state) {
+      case 'nodeName':
+        this.nodeName += token
+        break
+      case 'header':
+        this.header += token
+        break
+    }
   }
-  createChild (source) {
-    var node = new OriginNode(source)
-    this.children.push(node)
-    node.parent = this
-    return node
+  setState (state) {
+    this.state = state
   }
-
+  startNodeName (token) {
+    if (token === '[#') this.nodeName = '#'
+    this.addSource(token)
+    this.setState('nodeName')
+  }
+  startHeader (token) {
+    this.setState('header')
+    this.addSource(token)
+  }
   closeHeader (token) {
+    this.setState('headerClosed')
+    this.isHeaderClosed = true
+
     this.addSource(token)
     this.saveChildrenToExpressions()
-    this.isHeaderClosed = true
   }
   closeNode (tail) {
     var current = this
@@ -54,6 +71,13 @@ class OriginNode {
     }
     current.closeAll()
     return current.parent || current
+  }
+
+  createChild (source) {
+    var node = new OriginNode(source)
+    this.children.push(node)
+    node.parent = this
+    return node
   }
   closeAll () {
     _.each(this.children, (child) => {
@@ -68,9 +92,9 @@ class OriginNode {
     return this
   }
   matchClose (tail = '') {
-    var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim()
-    var source = this.source.trim()
-    return source.indexOf(start) === 0
+    var currentNodeName = this.nodeName
+    var tailNodeName = tail.slice(1, tail.length - 1).trim()
+    return `/${currentNodeName}` === tailNodeName
   }
   saveChildrenToExpressions () {
     this.expressions = this.children

@@ -4,8 +4,11 @@ module.exports = [
     html: '<div id="test" data-type=xxxx class="{{it.class}}" diabled\r\n></div>123456',
     expect: {
       children: [{
+        nodeType: 1,
+        header: 'id="test" data-type=xxxx class="{{it.class}}" diabled',
         source: '<div id="test" data-type=xxxx class="{{it.class}}" diabled >'
       }, {
+        nodeType: 3,
         source: '123456'
       }]
     }
@@ -27,8 +30,8 @@ module.exports = [
     title: 'ET if node.',
     html: '[#if it.isTrue]It is true.[#elseif it.num > 10]It is elseTrue.[#else]It is else.[/#if]',
     expect: {
-      source: '',
       children: [{
+        nodeType: 'ET',
         source: '[#if it.isTrue]',
         children: [{
           source: 'It is true.'

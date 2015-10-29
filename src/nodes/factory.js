@@ -23,41 +23,20 @@ var nodes = {
 }
 
 class Factory {
-  create (source, options, expressions) {
-    var Constructor = this.findConstuctor(source)
-    var node = new Constructor(source, options, expressions)
+  create (originNode = {}, options) {
+    var Constructor = this.findConstuctor(originNode.nodeType, originNode.nodeName)
+    var node = new Constructor(originNode, options)
     return node
   }
-  getNodeName (source) {
-    var htmlMatch = /^<(\w+)[ >]|^<(\w+)$/.exec(source)
-    var etMatch = /^\[(#\w+)[ \]]|^\[(#\w+)\]$/.exec(source)
-    if (!source) {
-      return ''
-    } else if (htmlMatch) {
-      return htmlMatch[1] || htmlMatch[2]
-    } else if (etMatch) {
-      return etMatch[1] || etMatch[2]
+  findConstuctor (nodeType, nodeName) {
+    switch (nodeType) {
+      case 1:
+        return nodes._element
+      case 3:
+        return nodes._text
+      default:
+        return nodes[nodeName] || nodes._base
     }
-    return ''
-  }
-  findConstuctor (source) {
-    var nodeName = this.getNodeName(source).toLowerCase()
-    var Constructor = null
-
-    if (!source) {
-      Constructor = nodes._base
-    } else if (!nodeName) {
-      Constructor = nodes._text
-    } else if (nodeName.indexOf('#') === 0) {
-      Constructor = nodes[nodeName]
-    } else {
-      Constructor = nodes._element
-    }
-
-    if (!Constructor) {
-      Constructor = nodes._base
-    }
-    return Constructor
   }
 }
 

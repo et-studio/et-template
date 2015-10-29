@@ -29,10 +29,10 @@ var TAG = 'else if';
 var ElseIfNode = (function (_Basic) {
   _inherits(ElseIfNode, _Basic);
 
-  function ElseIfNode(source, options) {
+  function ElseIfNode(origin, options) {
     _classCallCheck(this, ElseIfNode);
 
-    _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, source, options);
+    _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
     this.isNewTemplate = true;

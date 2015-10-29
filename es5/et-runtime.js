@@ -1653,20 +1653,21 @@
     var Basic = (function(_NodeInterface) {
       _inherits(Basic, _NodeInterface);
 
-      function Basic(source, options) {
+      function Basic(origin, options) {
         _classCallCheck(this, Basic);
 
-        _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(Basic.prototype), 'constructor', this).call(this, origin, options);
 
-        this._source = source;
+        this.origin = origin;
         this.options = options;
+        this.nodeType = origin.nodeType || 'ET';
+        this.nodeName = origin.nodeName;
 
         this.isNewTemplate = false;
         this.args = [];
-        this.nodeType = 'ET';
 
         this.children = [];
-        this.parse(source);
+        this.parse(origin.source);
       }
 
       _createClass(Basic, [{
@@ -2624,14 +2625,14 @@
     var Element = (function(_Basic8) {
       _inherits(Element, _Basic8);
 
-      function Element(source, options, expressions) {
+      function Element(origin, options) {
         _classCallCheck(this, Element);
 
-        _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.nodeType = 1;
-        this.expressions = elementHandler.parse(expressions);
+        this.expressions = elementHandler.parse(origin.expressions);
       }
 
       // 这部分方法和代码是为初始化的时候写的
@@ -2780,12 +2781,12 @@
     var TextNode = (function(_Basic9) {
       _inherits(TextNode, _Basic9);
 
-      function TextNode(source) {
+      function TextNode(origin) {
         var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
         _classCallCheck(this, TextNode);
 
-        _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(TextNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.nodeType = 3;
@@ -2838,10 +2839,10 @@
     var IfNode = (function(_Basic10) {
       _inherits(IfNode, _Basic10);
 
-      function IfNode(source, options) {
+      function IfNode(origin, options) {
         _classCallCheck(this, IfNode);
 
-        _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(IfNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.isNewTemplate = true;
@@ -2940,10 +2941,10 @@
     var ElseIfNode = (function(_Basic11) {
       _inherits(ElseIfNode, _Basic11);
 
-      function ElseIfNode(source, options) {
+      function ElseIfNode(origin, options) {
         _classCallCheck(this, ElseIfNode);
 
-        _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(ElseIfNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.isNewTemplate = true;
@@ -2988,10 +2989,10 @@
     var ElseNode = (function(_Basic12) {
       _inherits(ElseNode, _Basic12);
 
-      function ElseNode(source, options) {
+      function ElseNode(origin, options) {
         _classCallCheck(this, ElseNode);
 
-        _get(Object.getPrototypeOf(ElseNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(ElseNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = 'else';
         this.isNewTemplate = true;
@@ -3207,10 +3208,10 @@
     var ForNode = (function(_Basic13) {
       _inherits(ForNode, _Basic13);
 
-      function ForNode(source, options) {
+      function ForNode(origin, options) {
         _classCallCheck(this, ForNode);
 
-        _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(ForNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.isNewTemplate = true;
@@ -3343,10 +3344,10 @@
     var ImportNode = (function(_Basic15) {
       _inherits(ImportNode, _Basic15);
 
-      function ImportNode(source, options) {
+      function ImportNode(origin, options) {
         _classCallCheck(this, ImportNode);
 
-        _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, source, options);
+        _get(Object.getPrototypeOf(ImportNode.prototype), 'constructor', this).call(this, origin, options);
 
         this.namespace = NAME_SPACE;
         this.nodeName = NODE_NAME;
@@ -3451,45 +3452,25 @@
 
       _createClass(Factory, [{
         key: 'create',
-        value: function create(source, options, expressions) {
-          var Constructor = this.findConstuctor(source);
-          var node = new Constructor(source, options, expressions);
+        value: function create(originNode, options) {
+          if (originNode === undefined)
+            originNode = {};
+
+          var Constructor = this.findConstuctor(originNode.nodeType, originNode.nodeName);
+          var node = new Constructor(originNode, options);
           return node;
         }
       }, {
-        key: 'getNodeName',
-        value: function getNodeName(source) {
-          var htmlMatch = /^<(\w+)[ >]|^<(\w+)$/.exec(source);
-          var etMatch = /^\[(#\w+)[ \]]|^\[(#\w+)\]$/.exec(source);
-          if (!source) {
-            return '';
-          } else if (htmlMatch) {
-            return htmlMatch[1] || htmlMatch[2];
-          } else if (etMatch) {
-            return etMatch[1] || etMatch[2];
-          }
-          return '';
-        }
-      }, {
         key: 'findConstuctor',
-        value: function findConstuctor(source) {
-          var nodeName = this.getNodeName(source).toLowerCase();
-          var Constructor = null;
-
-          if (!source) {
-            Constructor = nodes._base;
-          } else if (!nodeName) {
-            Constructor = nodes._text;
-          } else if (nodeName.indexOf('#') === 0) {
-            Constructor = nodes[nodeName];
-          } else {
-            Constructor = nodes._element;
+        value: function findConstuctor(nodeType, nodeName) {
+          switch (nodeType) {
+            case 1:
+              return nodes._element;
+            case 3:
+              return nodes._text;
+            default:
+              return nodes[nodeName] || nodes._base;
           }
-
-          if (!Constructor) {
-            Constructor = nodes._base;
-          }
-          return Constructor;
         }
       }]);
 
@@ -3523,16 +3504,16 @@
         key: 'createNode',
         value: function createNode(originNode, options) {
           var index = 0;
-          var createNode = function createNode(source, expressions) {
-            var node = factory.create(source, options, expressions);
+          var createNode = function createNode(originNode) {
+            var node = factory.create(originNode, options);
             node.setIndex(index++);
             return node;
           };
           var createChildren = function createChildren(parent, origin) {
             var children = origin.children || [];
-            _.each(children, function(child) {
-              var node = createNode(child.source, child.expressions);
-              createChildren(node, child);
+            _.each(children, function(originNode) {
+              var node = createNode(originNode);
+              createChildren(node, originNode);
               parent.append(node);
             });
             return parent;
@@ -3570,37 +3551,60 @@
         _classCallCheck(this, OriginNode);
 
         this.source = source || '';
+        this.nodeName = '';
+        this.header = '';
+
         this.children = [];
         this.expressions = [];
 
-        this.nodeName = null;
-        this.header = null;
         this.nodeType = null;
         this.attributes = null;
 
+        this.state = null;
         this.isHeaderClosed = false;
         this.isClosed = false;
       }
 
       _createClass(OriginNode, [{
         key: 'addSource',
-        value: function addSource(str) {
-          this.source += str;
+        value: function addSource(token) {
+          this.source += token;
+          switch (this.state) {
+            case 'nodeName':
+              this.nodeName += token;
+              break;
+            case 'header':
+              this.header += token;
+              break;
+          }
         }
       }, {
-        key: 'createChild',
-        value: function createChild(source) {
-          var node = new OriginNode(source);
-          this.children.push(node);
-          node.parent = this;
-          return node;
+        key: 'setState',
+        value: function setState(state) {
+          this.state = state;
+        }
+      }, {
+        key: 'startNodeName',
+        value: function startNodeName(token) {
+          if (token === '[#')
+            this.nodeName = '#';
+          this.addSource(token);
+          this.setState('nodeName');
+        }
+      }, {
+        key: 'startHeader',
+        value: function startHeader(token) {
+          this.setState('header');
+          this.addSource(token);
         }
       }, {
         key: 'closeHeader',
         value: function closeHeader(token) {
+          this.setState('headerClosed');
+          this.isHeaderClosed = true;
+
           this.addSource(token);
           this.saveChildrenToExpressions();
-          this.isHeaderClosed = true;
         }
       }, {
         key: 'closeNode',
@@ -3615,6 +3619,14 @@
           }
           current.closeAll();
           return current.parent || current;
+        }
+      }, {
+        key: 'createChild',
+        value: function createChild(source) {
+          var node = new OriginNode(source);
+          this.children.push(node);
+          node.parent = this;
+          return node;
         }
       }, {
         key: 'closeAll',
@@ -3635,9 +3647,9 @@
         value: function matchClose() {
           var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
-          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
-          var source = this.source.trim();
-          return source.indexOf(start) === 0;
+          var currentNodeName = this.nodeName;
+          var tailNodeName = tail.slice(1, tail.length - 1).trim();
+          return '/' + currentNodeName === tailNodeName;
         }
       }, {
         key: 'saveChildrenToExpressions',
@@ -3693,152 +3705,134 @@
 
     // @tableStart: origin
     var originTableOptions = {
-      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
-      symbols: ['<!--', '-->', '<', '</', '>', '[#', '[/#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', /\s/],
+      states: ['text', 'nnStart', 'nodeName', 'hHeader', 'etHeader', 'hTail', 'etTail', '_str[', '_str{{', '_str1', '_str2', '_str3', '_comment'],
+      symbols: ['<', '</', '>', '[#', '[/#', '[', ']', '<!--', '-->', '\'', '\\\'', '"', '\\"', '`', '\\`', '{{', '}}', /\s/, /\w/],
       table: [{
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etStart',
-        '6': 'etTail',
-        '7': 'text',
+        '0': 'nnStart',
+        '1': 'hTail',
+        '2': 'text',
+        '3': 'nnStart',
+        '4': 'etTail',
+        '5': 'text',
+        '6': 'text',
+        '7': '_comment',
         '8': 'text',
-        '9': '_str{{',
+        '9': 'text',
         '10': 'text',
         '11': 'text',
         '12': 'text',
         '13': 'text',
         '14': 'text',
-        '15': 'text',
+        '15': '_str{{',
+        '16': 'text',
+        '17': 'text',
+        '18': 'text',
         '-1': 'text'
       }, {
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etStart',
-        '6': 'etTail',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '-1': 'text'
+        '0': 'nodeName',
+        '1': 'nodeName',
+        '2': 'nodeName',
+        '3': 'nodeName',
+        '4': 'nodeName',
+        '5': 'nodeName',
+        '6': 'nodeName',
+        '7': 'nodeName',
+        '8': 'nodeName',
+        '9': 'nodeName',
+        '10': 'nodeName',
+        '11': 'nodeName',
+        '12': 'nodeName',
+        '13': 'nodeName',
+        '14': 'nodeName',
+        '15': 'nodeName',
+        '16': 'nodeName',
+        '17': '1',
+        '18': 'nodeName',
+        '-1': 'nodeName'
       }, {
-        '0': '_comment',
-        '1': 'text',
-        '2': 'htmlStart',
-        '3': 'htmlTail',
-        '4': 'headerEnd',
-        '5': 'etStart',
-        '6': 'etTail',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '-1': 'text'
+        '0': 'nodeName',
+        '1': 'nodeName',
+        '2': 'hEnd:text',
+        '3': 'nodeName',
+        '4': 'nodeName',
+        '5': 'nodeName',
+        '6': 'hEnd:text',
+        '7': 'nodeName',
+        '8': 'nodeName',
+        '9': 'nodeName',
+        '10': 'nodeName',
+        '11': 'nodeName',
+        '12': 'nodeName',
+        '13': 'nodeName',
+        '14': 'nodeName',
+        '15': 'nodeName',
+        '16': 'nodeName',
+        '17': 'nnEnd',
+        '18': 'nodeName',
+        '-1': 'nodeName'
       }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'htmlHeader',
-        '5': 'htmlHeader',
-        '6': 'htmlHeader',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': 'htmlHeader',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': 'htmlHeader',
-        '13': 'htmlHeader',
-        '14': 'htmlHeader',
-        '15': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'headerEnd',
-        '5': 'etStart',
-        '6': 'htmlHeader',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': '_str{{',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': '_str\'',
-        '13': 'htmlHeader',
-        '14': '_str\"',
-        '15': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlTail',
-        '1': 'htmlTail',
-        '2': 'htmlTail',
-        '3': 'htmlTail',
-        '4': 'tailEnd',
-        '5': 'htmlTail',
-        '6': 'htmlTail',
-        '7': 'htmlTail',
-        '8': 'htmlTail',
-        '9': 'htmlTail',
-        '10': 'htmlTail',
-        '11': 'htmlTail',
-        '12': 'htmlTail',
-        '13': 'htmlTail',
-        '14': 'htmlTail',
-        '15': 'htmlTail',
-        '-1': 'htmlTail'
+        '0': 'hHeader',
+        '1': 'hHeader',
+        '2': 'hEnd:text',
+        '3': 'nnStart',
+        '4': 'hHeader',
+        '5': 'hHeader',
+        '6': 'hHeader',
+        '7': 'hHeader',
+        '8': 'hHeader',
+        '9': '_str1',
+        '10': 'hHeader',
+        '11': '_str2',
+        '12': 'hHeader',
+        '13': '_str3',
+        '14': 'hHeader',
+        '15': '_str{{',
+        '16': 'hHeader',
+        '17': 'hHeader',
+        '18': 'hHeader',
+        '-1': 'hHeader'
       }, {
         '0': 'etHeader',
         '1': 'etHeader',
         '2': 'etHeader',
         '3': 'etHeader',
         '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
+        '5': '_str[',
+        '6': 'hEnd:text',
         '7': 'etHeader',
         '8': 'etHeader',
-        '9': 'etHeader',
+        '9': '_str1',
         '10': 'etHeader',
-        '11': 'etHeader',
+        '11': '_str2',
         '12': 'etHeader',
-        '13': 'etHeader',
+        '13': '_str3',
         '14': 'etHeader',
         '15': 'etHeader',
+        '16': 'etHeader',
+        '17': 'etHeader',
+        '18': 'etHeader',
         '-1': 'etHeader'
       }, {
-        '0': 'etHeader',
-        '1': 'etHeader',
-        '2': 'etHeader',
-        '3': 'etHeader',
-        '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
-        '7': '_str[',
-        '8': 'headerEnd',
-        '9': '_str{{',
-        '10': 'etHeader',
-        '11': 'etHeader',
-        '12': '_str\'',
-        '13': 'etHeader',
-        '14': '_str\"',
-        '15': 'etHeader',
-        '-1': 'etHeader'
+        '0': 'hTail',
+        '1': 'hTail',
+        '2': 'tEnd:text',
+        '3': 'hTail',
+        '4': 'hTail',
+        '5': 'hTail',
+        '6': 'hTail',
+        '7': 'hTail',
+        '8': 'hTail',
+        '9': 'hTail',
+        '10': 'hTail',
+        '11': 'hTail',
+        '12': 'hTail',
+        '13': 'hTail',
+        '14': 'hTail',
+        '15': 'hTail',
+        '16': 'hTail',
+        '17': '2',
+        '18': 'hTail',
+        '-1': 'hTail'
       }, {
         '0': 'etTail',
         '1': 'etTail',
@@ -3846,9 +3840,9 @@
         '3': 'etTail',
         '4': 'etTail',
         '5': 'etTail',
-        '6': 'etTail',
+        '6': 'tEnd:text',
         '7': 'etTail',
-        '8': 'tailEnd',
+        '8': 'etTail',
         '9': 'etTail',
         '10': 'etTail',
         '11': 'etTail',
@@ -3856,7 +3850,31 @@
         '13': 'etTail',
         '14': 'etTail',
         '15': 'etTail',
+        '16': 'etTail',
+        '17': '2',
+        '18': 'etTail',
         '-1': 'etTail'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '_str[',
+        '6': '_last',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '18': '',
+        '-1': ''
       }, {
         '0': '',
         '1': '',
@@ -3865,7 +3883,91 @@
         '4': '',
         '5': '',
         '6': '',
-        '7': '_str[',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '_last',
+        '17': '',
+        '18': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '_last',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '18': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '_last',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '18': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '_last',
+        '14': '',
+        '15': '',
+        '16': '',
+        '17': '',
+        '18': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
         '8': '_last',
         '9': '',
         '10': '',
@@ -3874,78 +3976,9 @@
         '13': '',
         '14': '',
         '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '_last',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '_last',
-        '13': '',
-        '14': '',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '_last',
-        '15': '',
-        '-1': ''
-      }, {
-        '0': '',
-        '1': '_last',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '',
-        '8': '',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
+        '16': '',
+        '17': '',
+        '18': '',
         '-1': ''
       }]
     };
@@ -3965,50 +3998,56 @@
 
           var tail = '';
           originMachine.each(str, function(state, token) {
-            var backState = null;
             switch (state) {
               case '_comment':
                 break;
               case 'text':
-              case '_str\'':
-              case '_str"':
-              case '_str{{':
               case '_str[':
-              case 'htmlHeader':
+              case '_str{{':
+              case '_str1':
+              case '_str2':
+              case '_str3':
+              case 'nodeName':
+              case 'hHeader':
               case 'etHeader':
                 currentNode.addSource(token);
                 break;
-              case 'etStart':
-              case 'htmlStart':
-                currentNode = currentNode.createChild(token);
+              case 'nnStart':
+                currentNode = currentNode.createChild();
+                currentNode.startNodeName(token);
                 break;
-              case 'headerEnd':
+              case 'nnEnd':
+                currentNode.startHeader(token);
+                if (currentNode.nodeName.indexOf('#') === 0) {
+                  return 'etHeader';
+                } else if (currentNode.nodeName) {
+                  return 'hHeader';
+                }
+                break;
+              case 'hEnd':
                 currentNode.closeHeader(token);
                 currentNode = currentNode.createChild();
                 break;
-              case 'htmlTail':
+              case 'hTail':
               case 'etTail':
                 tail += token;
                 break;
-              case 'tailEnd':
+              case 'tEnd':
+                // return of closeNode method is the parent of the closed node
                 currentNode = currentNode.closeNode(tail + token);
                 tail = '';
-                backState = null;
                 if (!currentNode.isHeaderClosed) {
-                  var source = currentNode.source;
-                  if (source.indexOf('[#') === 0) {
-                    backState = 'etHeader';
-                  } else if (source.indexOf('<') === 0) {
-                    backState = 'htmlHeader';
+                  if (currentNode.nodeName.indexOf('#') === 0) {
+                    return 'etHeader';
+                  } else if (currentNode.nodeName) {
+                    return 'hHeader';
                   }
                 }
-                if (!backState)
-                  currentNode = currentNode.createChild();
+                currentNode = currentNode.createChild();
                 break;
               default:
                 throw new Error('The state: \'' + state + '\' is not defined.');
             }
-            return backState;
           });
           currentNode.createChild(tail);
           root.closeAll();
@@ -4077,8 +4116,13 @@
           var _this7 = this;
 
           origin.each(function(node) {
+            var nodeName = node.nodeName;
             var source = node.source.trim();
+            var header = node.header.trim();
+
+            node.header = _this7.translateSource(header);
             node.source = _this7.translateSource(source);
+            node.nodeType = _this7.getNodeType(nodeName, source);
           });
           return origin;
         }
@@ -4091,6 +4135,17 @@
             source = source.replace(new RegExp(key, 'g'), value);
           }
           return source;
+        }
+      }, {
+        key: 'getNodeType',
+        value: function getNodeType(nodeName, source) {
+          if (nodeName.indexOf('#') === 0 || !source) {
+            return 'ET';
+          } else if (nodeName) {
+            return 1;
+          } else {
+            return 3;
+          }
         }
       }]);
 

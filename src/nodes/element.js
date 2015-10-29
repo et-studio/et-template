@@ -15,12 +15,12 @@ var PROPERTIY_SET = {
 }
 
 class Element extends Basic {
-  constructor (source, options, expressions) {
-    super(source, options)
+  constructor (origin, options) {
+    super(origin, options)
 
     this.namespace = NAME_SPACE
     this.nodeType = 1
-    this.expressions = elementHandler.parse(expressions)
+    this.expressions = elementHandler.parse(origin.expressions)
   }
 
   // 这部分方法和代码是为初始化的时候写的

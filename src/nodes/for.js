@@ -12,8 +12,8 @@ var defaults = {
 }
 
 class ForNode extends Basic {
-  constructor (source, options) {
-    super(source, options)
+  constructor (origin, options) {
+    super(origin, options)
 
     this.namespace = NAME_SPACE
     this.isNewTemplate = true

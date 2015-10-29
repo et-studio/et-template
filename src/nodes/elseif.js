@@ -8,8 +8,8 @@ var NODE_NAME = `#${NAME_SPACE}`
 var TAG = 'else if'
 
 class ElseIfNode extends Basic {
-  constructor (source, options) {
-    super(source, options)
+  constructor (origin, options) {
+    super(origin, options)
 
     this.namespace = NAME_SPACE
     this.isNewTemplate = true

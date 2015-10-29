@@ -10,16 +10,16 @@ class MiddlewareParser extends Basic {
   }
   createNode (originNode, options) {
     var index = 0
-    var createNode = (source, expressions) => {
-      var node = factory.create(source, options, expressions)
+    var createNode = (originNode) => {
+      var node = factory.create(originNode, options)
       node.setIndex(index++)
       return node
     }
     var createChildren = (parent, origin) => {
       var children = origin.children || []
-      _.each(children, (child) => {
-        var node = createNode(child.source, child.expressions)
-        createChildren(node, child)
+      _.each(children, (originNode) => {
+        var node = createNode(originNode)
+        createChildren(node, originNode)
         parent.append(node)
       })
       return parent
