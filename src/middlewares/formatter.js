@@ -16,7 +16,7 @@ class MiddlewareFormatter extends Basic {
     var results = []
     for (var i = 0, len = list.length; i < len; i++) {
       var item = list[i].trim()
-      if (!item.startsWith('//')) results.push(item)
+      if (item.indexOf('//') !== 0) results.push(item)
     }
     return results.join(LINE_SPLIT)
   }

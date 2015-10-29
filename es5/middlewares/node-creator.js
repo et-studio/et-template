@@ -38,11 +38,11 @@ var MiddlewareParser = (function (_Basic) {
   _createClass(MiddlewareParser, [{
     key: 'run',
     value: function run(origin, options) {
-      return this.createDom(origin, options);
+      return this.createNode(origin, options);
     }
   }, {
-    key: 'createDom',
-    value: function createDom(originNode, options) {
+    key: 'createNode',
+    value: function createNode(originNode, options) {
       var index = 0;
       var createNode = function createNode(source, expressions) {
         var node = _nodesFactory2['default'].create(source, options, expressions);

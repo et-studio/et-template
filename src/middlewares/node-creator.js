@@ -6,9 +6,9 @@ import factory from '../nodes/factory'
 
 class MiddlewareParser extends Basic {
   run (origin, options) {
-    return this.createDom(origin, options)
+    return this.createNode(origin, options)
   }
-  createDom (originNode, options) {
+  createNode (originNode, options) {
     var index = 0
     var createNode = (source, expressions) => {
       var node = factory.create(source, options, expressions)

@@ -1323,7 +1323,7 @@
           var results = [];
           for (var i = 0, len = list.length; i < len; i++) {
             var item = list[i].trim();
-            if (!item.startsWith('//')) results.push(item);
+            if (item.indexOf('//') !== 0) results.push(item);
           }
           return results.join(LINE_SPLIT);
         }
@@ -3517,11 +3517,11 @@
       _createClass(MiddlewareParser, [{
         key: 'run',
         value: function run(origin, options) {
-          return this.createDom(origin, options);
+          return this.createNode(origin, options);
         }
       }, {
-        key: 'createDom',
-        value: function createDom(originNode, options) {
+        key: 'createNode',
+        value: function createNode(originNode, options) {
           var index = 0;
           var createNode = function createNode(source, expressions) {
             var node = factory.create(source, options, expressions);
