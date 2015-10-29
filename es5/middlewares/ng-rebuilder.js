@@ -14,65 +14,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _basic = require('./basic');
+var _basicMiddleware = require('./basic-middleware');
 
-var _basic2 = _interopRequireDefault(_basic);
+var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
-var _parsersCondition = require('../parsers/condition');
+var MiddlewareNgRebuilder = (function (_Basic) {
+  _inherits(MiddlewareNgRebuilder, _Basic);
 
-var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
+  function MiddlewareNgRebuilder() {
+    _classCallCheck(this, MiddlewareNgRebuilder);
 
-var _parsersValue = require('../parsers/value');
-
-var _parsersValue2 = _interopRequireDefault(_parsersValue);
-
-var NAME_SPACE = 'html';
-var NODE_NAME = '#' + NAME_SPACE;
-
-var HtmlNode = (function (_Basic) {
-  _inherits(HtmlNode, _Basic);
-
-  function HtmlNode() {
-    _classCallCheck(this, HtmlNode);
-
-    _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(MiddlewareNgRebuilder.prototype), 'constructor', this).apply(this, arguments);
   }
 
-  _createClass(HtmlNode, [{
-    key: 'parse',
-    value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
-
-      this.namespace = NAME_SPACE;
-      this.nodeName = NODE_NAME;
-      var expression = tmp.condition;
-      this.expression = expression.slice(1, expression.length - 1);
-    }
-  }, {
-    key: 'assembleWorkerData',
-    value: function assembleWorkerData() {
-      var it = this._workerData;
-      if (it) return it;
-
-      var expression = this.expression;
-      it = {
-        parentId: this.getParentId(),
-        isErratic: _parsersValue2['default'].isErratic(expression),
-        expression: this.expression
-      };
-
-      if (it.isErratic) {
-        it.valueId = this.getRootValueId();
-        it.valueString = _parsersValue2['default'].parse(expression);
-      }
-
-      this._workerData = it;
-      return it;
+  _createClass(MiddlewareNgRebuilder, [{
+    key: 'run',
+    value: function run(last, options) {
+      return last;
     }
   }]);
 
-  return HtmlNode;
-})(_basic2['default']);
+  return MiddlewareNgRebuilder;
+})(_basicMiddleware2['default']);
 
-exports['default'] = HtmlNode;
+exports['default'] = new MiddlewareNgRebuilder();
 module.exports = exports['default'];

@@ -60,8 +60,6 @@ var handler = {
   parseMultiple: function parseMultiple(condition, nodes) {
     var _this2 = this;
 
-    this.checkFormat(nodes);
-
     var results = [];
     var hasElse = false;
     var allAttributes = {};
@@ -94,30 +92,6 @@ var handler = {
     };
     _util2['default'].each(results, exclusionHandler);
     return results;
-  },
-  checkFormat: function checkFormat(nodes) {
-    var _this3 = this;
-
-    var lastTag = 'if';
-    var checkHandler = function checkHandler(node) {
-      var source = node.source || '';
-      var isET = source.indexOf('[#') === 0;
-      var isElse = source.indexOf('[#else') === 0;
-      var isElseIf = source.indexOf('[#elseif') === 0;
-
-      if (isET && !isElseIf && !isElse) {
-        _this3.throwError('The attributes expression just support if, else and elseif.');
-      } else if (node.source.indexOf('[#elseif') === 0 && lastTag === 'else') {
-        _this3.throwError('The elseif node shouldn\'t show after else.');
-      } else if (isElseIf) {
-        lastTag = 'elseif';
-      } else if (isElse) {
-        lastTag = 'else';
-      } else {
-        lastTag = '';
-      }
-    };
-    _util2['default'].each(nodes, checkHandler);
   }
 };
 

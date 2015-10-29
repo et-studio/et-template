@@ -1,9 +1,7 @@
 'use strict'
 
 import _ from './util'
-import Parser from './parser'
-import Compiler from './compiler'
-import Formatter from './formatter'
+import middlewareGetter from './middlewares/middleware-getter'
 
 var DEFAULTS = {
   compiledTemplate: null, // ['dot', null]
@@ -17,30 +15,45 @@ var DEFAULT_COMPILE_OPTIONS = {
   moduleId: 'Template'
 }
 
+var DEFAULT_MIDDLEWARES = [
+  'origin-parser',
+  'source-translator',
+  'node-creator',
+  'attributes',
+  'rebuilder',
+  'ng-rebuilder',
+  'checker',
+  'compiler',
+  'formatter'
+]
+
 class ET {
   constructor (options) {
-    options = _.extend({}, DEFAULTS, options)
-    this.options = options
-    this.parser = new Parser(options)
-    this.compiler = new Compiler(options)
-    this.formatter = new Formatter(options)
+    this.options = _.extend({}, DEFAULTS, options)
   }
-  compile (str, compileOptions) {
-    compileOptions = _.extend({}, DEFAULT_COMPILE_OPTIONS, compileOptions)
+  compile (str, runtimeOptions) {
+    var options = _.extend({}, DEFAULT_COMPILE_OPTIONS, runtimeOptions)
+    var middlewares = []
     switch (this.options.compiledTemplate) {
-      case 'dot': return this.compileDot(str, compileOptions)
-      default: return this.compileET(str, compileOptions)
+      case 'dot':
+        middlewares = this.getMiddlewares(['dot'])
+        break
+      default:
+        middlewares = this.getMiddlewares([])
     }
+    return this.runMiddlewares(str, middlewares, options)
   }
-  compileET (str, compileOptions) {
-    var dom = this.parser.parse(str)
-    var result = this.compiler.compile(dom, compileOptions)
-    return this.formatter.format(result)
+  runMiddlewares (str, middlewares, runtimeOptions) {
+    var options = _.extend({}, this.options, runtimeOptions)
+    var result = str
+    middlewares.map((name) => {
+      var middleware = middlewareGetter.get(name)
+      result = middleware.run(result, options)
+    })
+    return result
   }
-  compileDot (str, compileOptions) {
-    var dom = this.parser.parseDot(str)
-    var result = this.compiler.compile(dom, compileOptions)
-    return this.formatter.format(result)
+  getMiddlewares (array = []) {
+    return _.concat(array, DEFAULT_MIDDLEWARES)
   }
 }
 

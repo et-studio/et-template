@@ -14,17 +14,9 @@ var _util = require('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var _parser = require('./parser');
+var _middlewaresMiddlewareGetter = require('./middlewares/middleware-getter');
 
-var _parser2 = _interopRequireDefault(_parser);
-
-var _compiler = require('./compiler');
-
-var _compiler2 = _interopRequireDefault(_compiler);
-
-var _formatter = require('./formatter');
-
-var _formatter2 = _interopRequireDefault(_formatter);
+var _middlewaresMiddlewareGetter2 = _interopRequireDefault(_middlewaresMiddlewareGetter);
 
 var DEFAULTS = {
   compiledTemplate: null, // ['dot', null]
@@ -38,41 +30,46 @@ var DEFAULT_COMPILE_OPTIONS = {
   moduleId: 'Template'
 };
 
+var DEFAULT_MIDDLEWARES = ['origin-parser', 'source-translator', 'node-creator', 'attributes', 'rebuilder', 'ng-rebuilder', 'checker', 'compiler', 'formatter'];
+
 var ET = (function () {
   function ET(options) {
     _classCallCheck(this, ET);
 
-    options = _util2['default'].extend({}, DEFAULTS, options);
-    this.options = options;
-    this.parser = new _parser2['default'](options);
-    this.compiler = new _compiler2['default'](options);
-    this.formatter = new _formatter2['default'](options);
+    this.options = _util2['default'].extend({}, DEFAULTS, options);
   }
 
   _createClass(ET, [{
     key: 'compile',
-    value: function compile(str, compileOptions) {
-      compileOptions = _util2['default'].extend({}, DEFAULT_COMPILE_OPTIONS, compileOptions);
+    value: function compile(str, runtimeOptions) {
+      var options = _util2['default'].extend({}, DEFAULT_COMPILE_OPTIONS, runtimeOptions);
+      var middlewares = [];
       switch (this.options.compiledTemplate) {
         case 'dot':
-          return this.compileDot(str, compileOptions);
+          middlewares = this.getMiddlewares(['dot']);
+          break;
         default:
-          return this.compileET(str, compileOptions);
+          middlewares = this.getMiddlewares([]);
       }
+      return this.runMiddlewares(str, middlewares, options);
     }
   }, {
-    key: 'compileET',
-    value: function compileET(str, compileOptions) {
-      var dom = this.parser.parse(str);
-      var result = this.compiler.compile(dom, compileOptions);
-      return this.formatter.format(result);
+    key: 'runMiddlewares',
+    value: function runMiddlewares(str, middlewares, runtimeOptions) {
+      var options = _util2['default'].extend({}, this.options, runtimeOptions);
+      var result = str;
+      middlewares.map(function (name) {
+        var middleware = _middlewaresMiddlewareGetter2['default'].get(name);
+        result = middleware.run(result, options);
+      });
+      return result;
     }
   }, {
-    key: 'compileDot',
-    value: function compileDot(str, compileOptions) {
-      var dom = this.parser.parseDot(str);
-      var result = this.compiler.compile(dom, compileOptions);
-      return this.formatter.format(result);
+    key: 'getMiddlewares',
+    value: function getMiddlewares() {
+      var array = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+      return _util2['default'].concat(array, DEFAULT_MIDDLEWARES);
     }
   }]);
 

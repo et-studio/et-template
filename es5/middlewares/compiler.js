@@ -14,65 +14,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _basic = require('./basic');
+var _basicMiddleware = require('./basic-middleware');
 
-var _basic2 = _interopRequireDefault(_basic);
+var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
-var _parsersCondition = require('../parsers/condition');
+var _worker = require('../worker');
 
-var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
+var _worker2 = _interopRequireDefault(_worker);
 
-var _parsersValue = require('../parsers/value');
+var MiddlewareCompiler = (function (_Basic) {
+  _inherits(MiddlewareCompiler, _Basic);
 
-var _parsersValue2 = _interopRequireDefault(_parsersValue);
+  function MiddlewareCompiler() {
+    _classCallCheck(this, MiddlewareCompiler);
 
-var NAME_SPACE = 'html';
-var NODE_NAME = '#' + NAME_SPACE;
-
-var HtmlNode = (function (_Basic) {
-  _inherits(HtmlNode, _Basic);
-
-  function HtmlNode() {
-    _classCallCheck(this, HtmlNode);
-
-    _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(MiddlewareCompiler.prototype), 'constructor', this).apply(this, arguments);
   }
 
-  _createClass(HtmlNode, [{
-    key: 'parse',
-    value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
-
-      this.namespace = NAME_SPACE;
-      this.nodeName = NODE_NAME;
-      var expression = tmp.condition;
-      this.expression = expression.slice(1, expression.length - 1);
+  _createClass(MiddlewareCompiler, [{
+    key: 'run',
+    value: function run(node, options) {
+      var it = this.pickData(node, options);
+      switch (options.modules) {
+        case 'angular':
+          return _worker2['default'].compile_angular(it);
+        case 'cmd':
+          return _worker2['default'].compile_cmd(it);
+        case 'amd':
+          return _worker2['default'].compile_amd(it);
+        case 'global':
+          return _worker2['default'].compile_global(it);
+        default:
+          return _worker2['default'].compile_common(it);
+      }
     }
   }, {
-    key: 'assembleWorkerData',
-    value: function assembleWorkerData() {
-      var it = this._workerData;
-      if (it) return it;
-
-      var expression = this.expression;
-      it = {
-        parentId: this.getParentId(),
-        isErratic: _parsersValue2['default'].isErratic(expression),
-        expression: this.expression
+    key: 'pickData',
+    value: function pickData(root, options) {
+      var dependencies = root.getDependencies();
+      dependencies.unshift({
+        name: options.dependencyName,
+        path: options.dependencyPath
+      });
+      return {
+        templateName: root.getTemplateName(),
+        dependencies: dependencies,
+        moduleId: options.moduleId,
+        modelType: options.modelType,
+        newDoms: root.getNewTemplateDoms()
       };
-
-      if (it.isErratic) {
-        it.valueId = this.getRootValueId();
-        it.valueString = _parsersValue2['default'].parse(expression);
-      }
-
-      this._workerData = it;
-      return it;
     }
   }]);
 
-  return HtmlNode;
-})(_basic2['default']);
+  return MiddlewareCompiler;
+})(_basicMiddleware2['default']);
 
-exports['default'] = HtmlNode;
+exports['default'] = new MiddlewareCompiler();
 module.exports = exports['default'];

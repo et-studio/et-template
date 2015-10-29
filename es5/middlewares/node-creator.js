@@ -14,65 +14,58 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _basic = require('./basic');
+var _basicMiddleware = require('./basic-middleware');
 
-var _basic2 = _interopRequireDefault(_basic);
+var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
-var _parsersCondition = require('../parsers/condition');
+var _util = require('../util');
 
-var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
+var _util2 = _interopRequireDefault(_util);
 
-var _parsersValue = require('../parsers/value');
+var _nodesFactory = require('../nodes/factory');
 
-var _parsersValue2 = _interopRequireDefault(_parsersValue);
+var _nodesFactory2 = _interopRequireDefault(_nodesFactory);
 
-var NAME_SPACE = 'html';
-var NODE_NAME = '#' + NAME_SPACE;
+var MiddlewareParser = (function (_Basic) {
+  _inherits(MiddlewareParser, _Basic);
 
-var HtmlNode = (function (_Basic) {
-  _inherits(HtmlNode, _Basic);
+  function MiddlewareParser() {
+    _classCallCheck(this, MiddlewareParser);
 
-  function HtmlNode() {
-    _classCallCheck(this, HtmlNode);
-
-    _get(Object.getPrototypeOf(HtmlNode.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(MiddlewareParser.prototype), 'constructor', this).apply(this, arguments);
   }
 
-  _createClass(HtmlNode, [{
-    key: 'parse',
-    value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
-
-      this.namespace = NAME_SPACE;
-      this.nodeName = NODE_NAME;
-      var expression = tmp.condition;
-      this.expression = expression.slice(1, expression.length - 1);
+  _createClass(MiddlewareParser, [{
+    key: 'run',
+    value: function run(origin, options) {
+      return this.createNode(origin, options);
     }
   }, {
-    key: 'assembleWorkerData',
-    value: function assembleWorkerData() {
-      var it = this._workerData;
-      if (it) return it;
-
-      var expression = this.expression;
-      it = {
-        parentId: this.getParentId(),
-        isErratic: _parsersValue2['default'].isErratic(expression),
-        expression: this.expression
+    key: 'createNode',
+    value: function createNode(originNode, options) {
+      var index = 0;
+      var createNode = function createNode(source, expressions) {
+        var node = _nodesFactory2['default'].create(source, options, expressions);
+        node.setIndex(index++);
+        return node;
+      };
+      var createChildren = function createChildren(parent, origin) {
+        var children = origin.children || [];
+        _util2['default'].each(children, function (child) {
+          var node = createNode(child.source, child.expressions);
+          createChildren(node, child);
+          parent.append(node);
+        });
+        return parent;
       };
 
-      if (it.isErratic) {
-        it.valueId = this.getRootValueId();
-        it.valueString = _parsersValue2['default'].parse(expression);
-      }
-
-      this._workerData = it;
-      return it;
+      var root = createNode();
+      return createChildren(root, originNode);
     }
   }]);
 
-  return HtmlNode;
-})(_basic2['default']);
+  return MiddlewareParser;
+})(_basicMiddleware2['default']);
 
-exports['default'] = HtmlNode;
+exports['default'] = new MiddlewareParser();
 module.exports = exports['default'];

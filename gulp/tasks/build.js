@@ -29,8 +29,7 @@ module.exports = function (gulp) {
 
   gulp.task('build-runtime', function () {
     return gulp.src([
-      srcDir + '/compiler.js',
-      srcDir + '/parser.js'
+      srcDir + '/et.js'
     ])
       .pipe(runtime())
       .pipe(babel())
@@ -54,5 +53,6 @@ module.exports = function (gulp) {
       .pipe(gulp.dest(destDir))
   })
 
-  gulp.task('build', sequence('dev', 'build-clean', ['build-js', 'build-dep', 'build-runtime', 'build-angular']))
+  gulp.task('build', sequence('dev', 'build-clean', ['build-js', 'build-dep', 'build-angular'],
+'build-runtime'))
 }

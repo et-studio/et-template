@@ -44,8 +44,6 @@ var handler = {
     return items
   },
   parseMultiple (condition, nodes) {
-    this.checkFormat(nodes)
-
     var results = []
     var hasElse = false
     var allAttributes = {}
@@ -78,28 +76,6 @@ var handler = {
     }
     _.each(results, exclusionHandler)
     return results
-  },
-  checkFormat (nodes) {
-    var lastTag = 'if'
-    var checkHandler = (node) => {
-      var source = node.source || ''
-      var isET = source.indexOf('[#') === 0
-      var isElse = source.indexOf('[#else') === 0
-      var isElseIf = source.indexOf('[#elseif') === 0
-
-      if (isET && !isElseIf && !isElse) {
-        this.throwError('The attributes expression just support if, else and elseif.')
-      } else if (node.source.indexOf('[#elseif') === 0 && lastTag === 'else') {
-        this.throwError('The elseif node shouldn\'t show after else.')
-      } else if (isElseIf) {
-        lastTag = 'elseif'
-      } else if (isElse) {
-        lastTag = 'else'
-      } else {
-        lastTag = ''
-      }
-    }
-    _.each(nodes, checkHandler)
   }
 }
 

@@ -1,45 +1,43 @@
 import _ from '../util'
 
-var transMap = {
-  '&quot;': '\\"',
-  '&amp;': '\\&',
-  '&lt;': '\\<',
-  '&gt;': '\\>',
-  '&nbsp;': ' '
-}
-
+// OriginNode first parse
+// - source
+// - children
+// - expressions
+//
+// OriginNode second parse
+// - nodeName
+// - header
+// - nodeType     [1, 3, 'ET']
+//
+// OriginNode second parse
+// - attributes   {key, value}
+//
 class OriginNode {
-  constructor (parent, source = '', options = {}) {
-    this.rowNumber = options.rowNumber
-    this.colNumber = options.colNumber
-
-    this.nodeType = options.nodeType
-    this.source = source
-    this.parent = parent
+  constructor (source) {
+    this.source = source || ''
     this.children = []
     this.expressions = []
+
+    this.nodeName = null
+    this.header = null
+    this.nodeType = null
+    this.attributes = null
 
     this.isHeaderClosed = false
     this.isClosed = false
   }
+
   addSource (str) {
     this.source += str
   }
-  createChild (source, options) {
-    var parent = this.parent || this
-    if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
-      parent = this
-    }
-    var node = new OriginNode(parent, source, options)
-    parent.children.push(node)
+  createChild (source) {
+    var node = new OriginNode(source)
+    this.children.push(node)
+    node.parent = this
     return node
   }
-  saveText (text = '', options) {
-    if (text) {
-      this.createChild(text, options)
-    }
-    return this
-  }
+
   closeHeader (token) {
     this.addSource(token)
     this.saveChildrenToExpressions()
@@ -49,18 +47,13 @@ class OriginNode {
     var current = this
     while (current.parent) {
       if (current.matchClose(tail)) {
-        current.transSource()
         current.isClosed = true
         break
       }
       current = current.parent
     }
     current.closeAll()
-    if (current.parent) {
-      return current.parent
-    } else {
-      return current
-    }
+    return current.parent || current
   }
   closeAll () {
     _.each(this.children, (child) => {
@@ -68,7 +61,6 @@ class OriginNode {
     })
 
     if (this.parent && !this.isClosed) {
-      this.transSource()
       _.concat(this.parent.children, this.children)
       this.isClosed = true
       this.children = []
@@ -97,29 +89,19 @@ class OriginNode {
   }
   removeEmptyNode () {
     var newChildren = []
-    this.children.forEach((child) => {
-      if (child && child.source) {
+    this.children.map((child) => {
+      if (child && child.source.trim()) {
         child.removeEmptyNode()
         newChildren.push(child)
       }
     })
     this.children = newChildren
   }
-  transSource () {
-    var source = this.source || ''
-    source = source.trim().replace(/\s+/g, ' ')
-    for (var key in transMap) {
-      source = source.replace(new RegExp(key, 'g'), transMap[key])
-    }
-    this.source = source
-  }
   each (callback) {
-    if (typeof callback === 'function') {
-      callback(this)
-      this.children.forEach((child) => {
-        child.each(callback)
-      })
-    }
+    callback(this)
+    this.children.map((child) => {
+      child.each(callback)
+    })
   }
 }
 

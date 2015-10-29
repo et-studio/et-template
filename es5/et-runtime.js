@@ -11,13 +11,13 @@
 })(window, function(require, exports, module) {
   'use strict';
 
-  var _get = function get(_x10, _x11, _x12) {
+  var _get = function get(_x9, _x10, _x11) {
     var _again = true;
     _function:
     while (_again) {
-      var object = _x10,
-        property = _x11,
-        receiver = _x12;
+      var object = _x9,
+        property = _x10,
+        receiver = _x11;
       desc = parent = getter = undefined;
       _again = false;
       if (object === null)
@@ -28,9 +28,9 @@
         if (parent === null) {
           return undefined;
         } else {
-          _x10 = parent;
-          _x11 = property;
-          _x12 = receiver;
+          _x9 = parent;
+          _x10 = property;
+          _x11 = receiver;
           _again = true; continue _function;
         }
       } else if ('value' in desc) {
@@ -280,6 +280,138 @@
 
     module.exports = new Util();
   });
+  innerDefine('middlewares/basic-middleware', function(innerRequire, exports, module) {
+    'use strict';
+
+    var BasicMiddleware = (function() {
+      function BasicMiddleware() {
+        _classCallCheck(this, BasicMiddleware);
+      }
+
+      _createClass(BasicMiddleware, [{
+        key: 'run',
+        value: function run(last, options) {
+          return last;
+        }
+      }]);
+
+      return BasicMiddleware;
+    })();
+
+    module.exports = BasicMiddleware;
+  });
+  innerDefine('middlewares/attributes', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+
+    var MiddlewareAttributes = (function(_Basic) {
+      _inherits(MiddlewareAttributes, _Basic);
+
+      function MiddlewareAttributes() {
+        _classCallCheck(this, MiddlewareAttributes);
+
+        _get(Object.getPrototypeOf(MiddlewareAttributes.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareAttributes, [{
+        key: 'run',
+        value: function run(last, options) {
+          return last;
+        }
+      }]);
+
+      return MiddlewareAttributes;
+    })(Basic);
+
+    module.exports = new MiddlewareAttributes();
+  });
+  innerDefine('middlewares/checker', function(innerRequire, exports, module) {
+    'use strict';
+
+    var _ = innerRequire('../util');
+    var Basic = innerRequire('./basic-middleware');
+
+    var MiddlewareChecker = (function(_Basic2) {
+      _inherits(MiddlewareChecker, _Basic2);
+
+      function MiddlewareChecker() {
+        _classCallCheck(this, MiddlewareChecker);
+
+        _get(Object.getPrototypeOf(MiddlewareChecker.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareChecker, [{
+        key: 'run',
+        value: function run(node, options) {
+          node.each(this.checkHandler.bind(this));
+          return node;
+        }
+      }, {
+        key: 'checkHandler',
+        value: function checkHandler(node) {
+          switch (node.nodeName) {
+            case '#html':
+              this.checkHtml(node);
+              break;
+          }
+        // if (node.expressions) this.checkExpressions(node, node.expressions)
+        }
+      }, {
+        key: 'checkExpressions',
+        value: function checkExpressions(node, expressions) {
+          var _this2 = this;
+
+          _.each(expressions, function(expressionNode) {
+            if (expressionNode.nodeName !== '#if') {
+              _this2.throwError(node, 'The attributes expression just support if, else and elseif.');
+            }
+
+            var lastTag = 'if';
+            _.each(expressionNode.children, function(childNode) {
+              var isET = childNode.nodeType === 'ET';
+              var isElse = childNode.nodeName === '#else';
+              var isElseIf = childNode.nodeName === '#elseif';
+
+              if (isET && !isElseIf && !isElse) {
+                _this2.throwError(node, 'The attributes expression just support if, else and elseif.');
+              } else if (isElseIf && lastTag === 'else') {
+                _this2.throwError(node, 'The elseif node shouldn\'t show after else.');
+              } else if (isElseIf) {
+                lastTag = 'elseif';
+              } else if (isElse) {
+                lastTag = 'else';
+              } else {
+                lastTag = '';
+              }
+            });
+          });
+        }
+      }, {
+        key: 'checkHtml',
+        value: function checkHtml(node) {
+          if (!node.parent) {
+            this.throwError(node, 'html node need a parent');
+          }
+          if (node.parent.nodeType !== 1) {
+            this.throwError(node, 'the parent of html node should be element node');
+          }
+          if (node.parent.children.length > 1) {
+            this.throwError(node, 'html node should not has siblings');
+          }
+        }
+      }, {
+        key: 'throwError',
+        value: function throwError(node, message) {
+          throw new Error(message);
+        }
+      }]);
+
+      return MiddlewareChecker;
+    })(Basic);
+
+    module.exports = new MiddlewareChecker();
+  });
   innerDefine('worker', function(innerRequire, exports, module) {
 
     'use strict';
@@ -450,7 +582,7 @@
         return re;
       },
       element_update: function element_update(it) {
-        var _this2 = this;
+        var _this3 = this;
 
         var re = '';
 
@@ -463,7 +595,7 @@
               if (item.tag !== 'else') {
                 condition = '(' + item.condition + ')';
               }
-              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last[' + item.valueId + '] !== ' + i + ') {\n_last[' + item.valueId + '] = ' + i + '\n' + _this2.attributes_update(it, item.residentAttributes) + '\n' + _this2.attributes_remove(it, item.exclusions) + '\n}\n' + _this2.attributes_update(it, item.erraticAttributes) + '\n}\n');
+              re = re + ('\n' + item.tag + ' ' + condition + ' {\nif (_last[' + item.valueId + '] !== ' + i + ') {\n_last[' + item.valueId + '] = ' + i + '\n' + _this3.attributes_update(it, item.residentAttributes) + '\n' + _this3.attributes_remove(it, item.exclusions) + '\n}\n' + _this3.attributes_update(it, item.erraticAttributes) + '\n}\n');
             });
           });
         }
@@ -637,40 +769,25 @@
 
     };
   });
-  innerDefine('compiler', function(innerRequire, exports, module) {
+  innerDefine('middlewares/compiler', function(innerRequire, exports, module) {
     'use strict';
 
-    var worker = innerRequire('./worker');
+    var Basic = innerRequire('./basic-middleware');
+    var worker = innerRequire('../worker');
 
-    var Compiler = (function() {
-      function Compiler(options) {
-        _classCallCheck(this, Compiler);
+    var MiddlewareCompiler = (function(_Basic3) {
+      _inherits(MiddlewareCompiler, _Basic3);
 
-        this.options = options;
+      function MiddlewareCompiler() {
+        _classCallCheck(this, MiddlewareCompiler);
+
+        _get(Object.getPrototypeOf(MiddlewareCompiler.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(Compiler, [{
-        key: 'pickData',
-        value: function pickData(root, compileOptions) {
-          var options = this.options;
-          var dependencies = root.getDependencies();
-          dependencies.unshift({
-            name: options.dependencyName,
-            path: options.dependencyPath
-          });
-          return {
-            templateName: root.getTemplateName(),
-            dependencies: dependencies,
-            moduleId: compileOptions.moduleId,
-            modelType: options.modelType,
-            newDoms: root.getNewTemplateDoms()
-          };
-        }
-      }, {
-        key: 'compile',
-        value: function compile(dom, compileOptions) {
-          var options = this.options;
-          var it = this.pickData(dom, compileOptions);
+      _createClass(MiddlewareCompiler, [{
+        key: 'run',
+        value: function run(node, options) {
+          var it = this.pickData(node, options);
           switch (options.modules) {
             case 'angular':
               return worker.compile_angular(it);
@@ -684,12 +801,146 @@
               return worker.compile_common(it);
           }
         }
+      }, {
+        key: 'pickData',
+        value: function pickData(root, options) {
+          var dependencies = root.getDependencies();
+          dependencies.unshift({
+            name: options.dependencyName,
+            path: options.dependencyPath
+          });
+          return {
+            templateName: root.getTemplateName(),
+            dependencies: dependencies,
+            moduleId: options.moduleId,
+            modelType: options.modelType,
+            newDoms: root.getNewTemplateDoms()
+          };
+        }
       }]);
 
-      return Compiler;
+      return MiddlewareCompiler;
+    })(Basic);
+
+    module.exports = new MiddlewareCompiler();
+  });
+  innerDefine('parsers/dot', function(innerRequire, exports, module) {
+    'use strict';
+
+    var settings = {
+      interpolate: /\{\{=([\s\S]+?)\}\}/g,
+      encode: /\{\{!([\s\S]+?)\}\}/g,
+      conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+      iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+      evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
+      use: /\{\{#([\s\S]+?)\}\}/g,
+      useParams: /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+      define: /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+      defineParams: /^\s*([\w$]+):([\s\S]+)/
+    };
+
+    var DotParser = (function() {
+      function DotParser() {
+        _classCallCheck(this, DotParser);
+      }
+
+      _createClass(DotParser, [{
+        key: 'parse',
+        value: function parse(str) {
+          var c = settings;
+          return str.replace(c.interpolate, function(m, code) {
+            return '{{' + code + '}}';
+          }).replace(c.encode, function(m, code) {
+            return '{{' + code + '}}';
+          }).replace(c.conditional, function(m, elsecase, code) {
+            if (elsecase) {
+              return code ? '[#elseif ' + code + ']' : '[#else]';
+            } else {
+              return code ? '[#if ' + code + ']' : '[/#if]';
+            }
+          }).replace(c.iterate, function(m, iterate, vname, iname) {
+            if (iterate) {
+              return iname ? '[#for ' + vname + ', ' + iname + ' in ' + iterate + ']' : '[#for ' + vname + ' in ' + iterate + ']';
+            } else {
+              return '[/#for]';
+            }
+          });
+        }
+      }]);
+
+      return DotParser;
     })();
 
-    module.exports = Compiler;
+    module.exports = new DotParser();
+  });
+  innerDefine('middlewares/dot', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+    var dotParser = innerRequire('../parsers/dot');
+
+    var MiddlewareDot = (function(_Basic4) {
+      _inherits(MiddlewareDot, _Basic4);
+
+      function MiddlewareDot() {
+        _classCallCheck(this, MiddlewareDot);
+
+        _get(Object.getPrototypeOf(MiddlewareDot.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareDot, [{
+        key: 'run',
+        value: function run(str, options) {
+          return dotParser.parse(str);
+        }
+      }]);
+
+      return MiddlewareDot;
+    })(Basic);
+
+    module.exports = new MiddlewareDot();
+  });
+  innerDefine('parsers/parser', function(innerRequire, exports, module) {
+    'use strict';
+
+    var BasicParser = (function() {
+      function BasicParser(source, options) {
+        _classCallCheck(this, BasicParser);
+
+        this.name = 'basic';
+        this.source = source;
+        this.rowNumber = 0;
+        this.colNumber = 0;
+      }
+
+      _createClass(BasicParser, [{
+        key: 'set',
+        value: function set(name, source) {
+          var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+          this.name = name;
+          this.source = source;
+          this.rowNumber = options.rowNumber || 0;
+          this.colNumber = options.colNumber || 0;
+        }
+      }, {
+        key: 'getErrorMessage',
+        value: function getErrorMessage(code) {
+          return '';
+        }
+      }, {
+        key: 'throwError',
+        value: function throwError(code) {
+          var source = this.source;
+          var message = this.getErrorMessage(code);
+          throw new Error(message + ' ===> ' + source);
+        }
+      }]);
+
+      return BasicParser;
+    })();
+
+    module.exports = BasicParser;
   });
   innerDefine('parsers/machine', function(innerRequire, exports, module) {
     'use strict';
@@ -708,37 +959,59 @@
         _classCallCheck(this, Machine);
 
         this.options = options;
+        this.symbolsMap = this.mapSymbals(options.symbols || []);
+        this.symbols = this.sortSymbols(options.symbols || []);
         this.states = options.states || [];
-        this.symbols = options.symbols || [];
         this.table = options.table || [];
         this.startState = options.startState || this.states[0];
       }
 
       _createClass(Machine, [{
+        key: 'mapSymbals',
+        value: function mapSymbals(symbols) {
+          var map = new Map();
+          _.each(symbols, function(symbol, i) {
+            map.set(symbol, i);
+          });
+          return map;
+        }
+      }, {
+        key: 'sortSymbols',
+        value: function sortSymbols(symbols) {
+          return symbols.sort(function(left, right) {
+            if (left.test && !right.test) return 1;else if (!left.test && right.test) return -1;else if (left.test && right.test) return 0;
+
+            if (left.indexOf(right) === 0) return -1;else if (right.indexOf(left) === 0) return 1;else return 0;
+          });
+        }
+      }, {
         key: 'getTokenSet',
         value: function getTokenSet(str, index) {
           var symbols = this.symbols;
           var char = str[index];
           var token = char;
-          var symbolIndex = -1;
+          var kickSymbol = '';
 
           _.each(symbols, function(symbol, i) {
             if (symbol && typeof symbol.test === 'function') {
               if (symbol.test(char)) {
                 token = char;
-                symbolIndex = i;
+                kickSymbol = symbol;
                 return false;
               }
             } else if (symbol && symbol.length) {
               var tmp = str.substr(index, symbol.length);
               if (tmp === symbol) {
                 token = symbol;
-                symbolIndex = i;
+                kickSymbol = symbol;
                 return false;
               }
             }
           });
 
+          var symbolIndex = this.symbolsMap.get(kickSymbol);
+          if (!(symbolIndex >= 0))
+            symbolIndex = -1;
           return {
             token: token,
             index: symbolIndex
@@ -806,382 +1079,44 @@
 
     module.exports = Machine;
   });
-  innerDefine('nodes/origin', function(innerRequire, exports, module) {
-    var _ = innerRequire('../util');
-
-    var transMap = {
-      '&quot;': '\\"',
-      '&amp;': '\\&',
-      '&lt;': '\\<',
-      '&gt;': '\\>',
-      '&nbsp;': ' '
-    };
-
-    var OriginNode = (function() {
-      function OriginNode(parent) {
-        var source = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-        _classCallCheck(this, OriginNode);
-
-        this.rowNumber = options.rowNumber;
-        this.colNumber = options.colNumber;
-
-        this.nodeType = options.nodeType;
-        this.source = source;
-        this.parent = parent;
-        this.children = [];
-        this.expressions = [];
-
-        this.isHeaderClosed = false;
-        this.isClosed = false;
-      }
-
-      _createClass(OriginNode, [{
-        key: 'addSource',
-        value: function addSource(str) {
-          this.source += str;
-        }
-      }, {
-        key: 'createChild',
-        value: function createChild(source, options) {
-          var parent = this.parent || this;
-          if (this.nodeType === 'HTML' || this.nodeType === 'ET') {
-            parent = this;
-          }
-          var node = new OriginNode(parent, source, options);
-          parent.children.push(node);
-          return node;
-        }
-      }, {
-        key: 'saveText',
-        value: function saveText(text, options) {
-          if (text === undefined)
-            text = '';
-
-          if (text) {
-            this.createChild(text, options);
-          }
-          return this;
-        }
-      }, {
-        key: 'closeHeader',
-        value: function closeHeader(token) {
-          this.addSource(token);
-          this.saveChildrenToExpressions();
-          this.isHeaderClosed = true;
-        }
-      }, {
-        key: 'closeNode',
-        value: function closeNode(tail) {
-          var current = this;
-          while (current.parent) {
-            if (current.matchClose(tail)) {
-              current.transSource();
-              current.isClosed = true;
-              break;
-            }
-            current = current.parent;
-          }
-          current.closeAll();
-          if (current.parent) {
-            return current.parent;
-          } else {
-            return current;
-          }
-        }
-      }, {
-        key: 'closeAll',
-        value: function closeAll() {
-          _.each(this.children, function(child) {
-            child.closeAll();
-          });
-
-          if (this.parent && !this.isClosed) {
-            this.transSource();
-            _.concat(this.parent.children, this.children);
-            this.isClosed = true;
-            this.children = [];
-          }
-          return this;
-        }
-      }, {
-        key: 'matchClose',
-        value: function matchClose() {
-          var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-
-          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
-          var source = this.source.trim();
-          return source.indexOf(start) === 0;
-        }
-      }, {
-        key: 'saveChildrenToExpressions',
-        value: function saveChildrenToExpressions() {
-          this.expressions = this.children;
-          this.children = [];
-        }
-      }, {
-        key: 'levelChildren',
-        value: function levelChildren() {
-          var root = this;
-          var children = [];
-          while (root.parent) {
-            _.concat(children, root.children);
-            root.children = [];
-            root = root.parent;
-          }
-          _.concat(root.children, children);
-          return this;
-        }
-      }, {
-        key: 'removeEmptyNode',
-        value: function removeEmptyNode() {
-          var newChildren = [];
-          this.children.forEach(function(child) {
-            if (child && child.source) {
-              child.removeEmptyNode();
-              newChildren.push(child);
-            }
-          });
-          this.children = newChildren;
-        }
-      }, {
-        key: 'transSource',
-        value: function transSource() {
-          var source = this.source || '';
-          source = source.trim().replace(/\s+/g, ' ');
-          for (var key in transMap) {
-            source = source.replace(new RegExp(key, 'g'), transMap[key]);
-          }
-          this.source = source;
-        }
-      }, {
-        key: 'each',
-        value: function each(callback) {
-          if (typeof callback === 'function') {
-            callback(this);
-            this.children.forEach(function(child) {
-              child.each(callback);
-            });
-          }
-        }
-      }]);
-
-      return OriginNode;
-    })();
-
-    module.exports = OriginNode;
-  });
-  innerDefine('parsers/origin', function(innerRequire, exports, module) {
+  innerDefine('parsers/format', function(innerRequire, exports, module) {
     'use strict';
 
+    var Parser = innerRequire('./parser');
     var Machine = innerRequire('./machine');
-    var OriginNode = innerRequire('../nodes/origin');
+    var _ = innerRequire('../util');
+    var worker = innerRequire('../worker');
 
-    // @tableStart: origin
-    var originTableOptions = {
-      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
-      symbols: ['</', '<!--', '-->', '<', '>', '[/#', '[#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', ' ', '\r', '\n'],
+    // @tableStart: format
+    var formatTableOptions = {
+      states: ['header', 'body', 'start', 'method', '_h1', '_h2', '_h3', '_str1', '_str2', '_str3'],
+      symbols: [/\s/, '_tp_', '\\\'', '\\"', '\\`', '\'', '"', '`', '(', '// @_tp_mark', /\w/],
       table: [{
-        '0': 'htmlTail',
-        '1': '_comment',
-        '2': 'text',
-        '3': 'htmlStart',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '16': 'text',
-        '17': 'text',
-        '-1': 'text'
+        '0': 'header',
+        '1': 'header',
+        '2': 'header',
+        '3': 'header',
+        '4': 'header',
+        '5': '_h1',
+        '6': '_h2',
+        '7': '_h3',
+        '8': 'header',
+        '9': 'body',
+        '10': 'header',
+        '-1': 'header'
       }, {
-        '0': 'htmlTail',
-        '1': '_comment',
-        '2': 'text',
-        '3': 'htmlStart',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '16': 'text',
-        '17': 'text',
-        '-1': 'text'
-      }, {
-        '0': 'htmlTail',
-        '1': '_comment',
-        '2': 'text',
-        '3': 'htmlStart',
-        '4': 'headerEnd',
-        '5': 'etTail',
-        '6': 'etStart',
-        '7': 'text',
-        '8': 'text',
-        '9': '_str{{',
-        '10': 'text',
-        '11': 'text',
-        '12': 'text',
-        '13': 'text',
-        '14': 'text',
-        '15': 'text',
-        '16': 'text',
-        '17': 'text',
-        '-1': 'text'
-      }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'htmlHeader',
-        '5': 'htmlHeader',
-        '6': 'htmlHeader',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': 'htmlHeader',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': 'htmlHeader',
-        '13': 'htmlHeader',
-        '14': 'htmlHeader',
-        '15': 'htmlHeader',
-        '16': 'htmlHeader',
-        '17': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlHeader',
-        '1': 'htmlHeader',
-        '2': 'htmlHeader',
-        '3': 'htmlHeader',
-        '4': 'headerEnd',
-        '5': 'htmlHeader',
-        '6': 'etStart',
-        '7': 'htmlHeader',
-        '8': 'htmlHeader',
-        '9': '_str{{',
-        '10': 'htmlHeader',
-        '11': 'htmlHeader',
-        '12': '_str\'',
-        '13': 'htmlHeader',
-        '14': '_str\"',
-        '15': 'htmlHeader',
-        '16': 'htmlHeader',
-        '17': 'htmlHeader',
-        '-1': 'htmlHeader'
-      }, {
-        '0': 'htmlTail',
-        '1': 'htmlTail',
-        '2': 'htmlTail',
-        '3': 'htmlTail',
-        '4': 'tailEnd',
-        '5': 'htmlTail',
-        '6': 'htmlTail',
-        '7': 'htmlTail',
-        '8': 'htmlTail',
-        '9': 'htmlTail',
-        '10': 'htmlTail',
-        '11': 'htmlTail',
-        '12': 'htmlTail',
-        '13': 'htmlTail',
-        '14': 'htmlTail',
-        '15': 'htmlTail',
-        '16': 'htmlTail',
-        '17': 'htmlTail',
-        '-1': 'htmlTail'
-      }, {
-        '0': 'etHeader',
-        '1': 'etHeader',
-        '2': 'etHeader',
-        '3': 'etHeader',
-        '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
-        '7': 'etHeader',
-        '8': 'etHeader',
-        '9': 'etHeader',
-        '10': 'etHeader',
-        '11': 'etHeader',
-        '12': 'etHeader',
-        '13': 'etHeader',
-        '14': 'etHeader',
-        '15': 'etHeader',
-        '16': 'etHeader',
-        '17': 'etHeader',
-        '-1': 'etHeader'
-      }, {
-        '0': 'etHeader',
-        '1': 'etHeader',
-        '2': 'etHeader',
-        '3': 'etHeader',
-        '4': 'etHeader',
-        '5': 'etHeader',
-        '6': 'etHeader',
-        '7': '_str[',
-        '8': 'headerEnd',
-        '9': '_str{{',
-        '10': 'etHeader',
-        '11': 'etHeader',
-        '12': '_str\'',
-        '13': 'etHeader',
-        '14': '_str\"',
-        '15': 'etHeader',
-        '16': 'etHeader',
-        '17': 'etHeader',
-        '-1': 'etHeader'
-      }, {
-        '0': 'etTail',
-        '1': 'etTail',
-        '2': 'etTail',
-        '3': 'etTail',
-        '4': 'etTail',
-        '5': 'etTail',
-        '6': 'etTail',
-        '7': 'etTail',
-        '8': 'tailEnd',
-        '9': 'etTail',
-        '10': 'etTail',
-        '11': 'etTail',
-        '12': 'etTail',
-        '13': 'etTail',
-        '14': 'etTail',
-        '15': 'etTail',
-        '16': 'etTail',
-        '17': 'etTail',
-        '-1': 'etTail'
-      }, {
-        '0': '',
-        '1': '',
-        '2': '',
-        '3': '',
-        '4': '',
-        '5': '',
-        '6': '',
-        '7': '_str[',
-        '8': '_last',
-        '9': '',
-        '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '16': '',
-        '17': '',
-        '-1': ''
+        '0': 'body',
+        '1': 'start',
+        '2': 'body',
+        '3': 'body',
+        '4': 'body',
+        '5': '_str1',
+        '6': '_str2',
+        '7': '_str3',
+        '8': 'body',
+        '9': 'body',
+        '10': 'body',
+        '-1': 'body'
       }, {
         '0': '',
         '1': '',
@@ -1192,15 +1127,8 @@
         '6': '',
         '7': '',
         '8': '',
-        '9': '',
-        '10': '_last',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '16': '',
-        '17': '',
+        '9': 'method',
+        '10': 'method',
         '-1': ''
       }, {
         '0': '',
@@ -1211,16 +1139,35 @@
         '5': '',
         '6': '',
         '7': '',
+        '8': 'end:body',
+        '9': 'method',
+        '10': 'method',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '_last',
+        '6': '',
+        '7': '',
         '8': '',
         '9': '',
         '10': '',
-        '11': '',
-        '12': '_last',
-        '13': '',
-        '14': '',
-        '15': '',
-        '16': '',
-        '17': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '_last',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
         '-1': ''
       }, {
         '0': '',
@@ -1230,169 +1177,252 @@
         '4': '',
         '5': '',
         '6': '',
-        '7': '',
+        '7': '_last',
         '8': '',
         '9': '',
         '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '_last',
-        '15': '',
-        '16': '',
-        '17': '',
         '-1': ''
       }, {
         '0': '',
         '1': '',
-        '2': '_last',
+        '2': '',
         '3': '',
         '4': '',
-        '5': '',
+        '5': '_last',
         '6': '',
         '7': '',
         '8': '',
         '9': '',
         '10': '',
-        '11': '',
-        '12': '',
-        '13': '',
-        '14': '',
-        '15': '',
-        '16': '',
-        '17': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '_last',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '_last',
+        '8': '',
+        '9': '',
+        '10': '',
         '-1': ''
       }]
     };
     // @tableEnd
-    var originMachine = new Machine(originTableOptions);
+    var formatMachine = new Machine(formatTableOptions);
 
-    var OriginParser = (function() {
-      function OriginParser() {
-        _classCallCheck(this, OriginParser);
+    var FormatParser = (function(_Parser) {
+      _inherits(FormatParser, _Parser);
+
+      function FormatParser() {
+        _classCallCheck(this, FormatParser);
+
+        _get(Object.getPrototypeOf(FormatParser.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(OriginParser, [{
+      _createClass(FormatParser, [{
         key: 'parse',
         value: function parse(str) {
-          var root = new OriginNode();
-          var currentNode = root.createChild();
+          var it = this.parseData(str);
+          return worker.format_tp(it);
+        }
+      }, {
+        key: 'parseData',
+        value: function parseData(str) {
+          var header = '';
+          var methods = [];
+          var body = '';
 
-          var tail = '';
-          originMachine.each(str, function(state, token) {
-            var backState = null;
+          var method = '';
+          var _this = this;
+          formatMachine.each(str, function(state, token) {
             switch (state) {
-              case '_comment':
+              case 'header':
+              case '_h1':
+              case '_h2':
+              case '_h3':
+                header += token;
                 break;
-              case 'text':
-              case '_str\'':
-              case '_str"':
-              case '_str{{':
-              case '_str[':
-              case 'htmlHeader':
-              case 'etHeader':
-                currentNode.addSource(token);
+              case 'body':
+              case '_str1':
+              case '_str2':
+              case '_str3':
+                body += token;
                 break;
-              case 'htmlStart':
-                currentNode = currentNode.createChild(token, {
-                  nodeType: 'HTML'
-                });
+              case 'start':
+                method = token;
                 break;
-              case 'etStart':
-                currentNode = currentNode.createChild(token, {
-                  nodeType: 'ET'
-                });
+              case 'method':
+                method += token;
                 break;
-              case 'headerEnd':
-                currentNode.closeHeader(token);
-                currentNode = currentNode.createChild();
-                break;
-              case 'htmlTail':
-              case 'etTail':
-                tail += token;
-                break;
-              case 'tailEnd':
-                currentNode = currentNode.closeNode(tail + token);
-                tail = '';
-                backState = null;
-                if (!currentNode.isHeaderClosed) {
-                  switch (currentNode.nodeType) {
-                    case 'HTML':
-                      backState = 'htmlHeader';
-                      break;
-                    case 'ET':
-                      backState = 'etHeader';
-                      break;
-                  }
-                }
-                if (!backState)
-                  currentNode = currentNode.createChild();
+              case 'end':
+                methods.push(method);
+                body = '' + body + method + token;
                 break;
               default:
-                throw new Error('The state: \'' + state + '\' is not defined.');
+                console.log(state);
+                _this.throwError(state);
             }
-            return backState;
           });
-          currentNode.saveText(tail);
-          root.closeAll();
-          root.removeEmptyNode();
-          return root;
+          return {
+            header: header,
+            methods: _.uniq(methods),
+            body: body
+          };
         }
       }]);
 
-      return OriginParser;
-    })();
+      return FormatParser;
+    })(Parser);
 
-    module.exports = new OriginParser();
+    module.exports = new FormatParser();
   });
-  innerDefine('parsers/dot', function(innerRequire, exports, module) {
+  innerDefine('middlewares/formatter', function(innerRequire, exports, module) {
     'use strict';
 
-    var settings = {
-      interpolate: /\{\{=([\s\S]+?)\}\}/g,
-      encode: /\{\{!([\s\S]+?)\}\}/g,
-      conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-      iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-      evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
-      use: /\{\{#([\s\S]+?)\}\}/g,
-      useParams: /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-      define: /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-      defineParams: /^\s*([\w$]+):([\s\S]+)/
-    };
+    var Basic = innerRequire('./basic-middleware');
+    var formatParser = innerRequire('../parsers/format');
 
-    var DotParser = (function() {
-      function DotParser() {
-        _classCallCheck(this, DotParser);
+    var LINE_SPLIT = '\n';
+
+    var MiddlewareFormatter = (function(_Basic5) {
+      _inherits(MiddlewareFormatter, _Basic5);
+
+      function MiddlewareFormatter() {
+        _classCallCheck(this, MiddlewareFormatter);
+
+        _get(Object.getPrototypeOf(MiddlewareFormatter.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(DotParser, [{
-        key: 'parse',
-        value: function parse(str) {
-          var c = settings;
-          return str.replace(c.interpolate, function(m, code) {
-            return '{{' + code + '}}';
-          }).replace(c.encode, function(m, code) {
-            return '{{' + code + '}}';
-          }).replace(c.conditional, function(m, elsecase, code) {
-            if (elsecase) {
-              return code ? '[#elseif ' + code + ']' : '[#else]';
-            } else {
-              return code ? '[#if ' + code + ']' : '[/#if]';
-            }
-          }).replace(c.iterate, function(m, iterate, vname, iname) {
-            if (iterate) {
-              return iname ? '[#for ' + vname + ', ' + iname + ' in ' + iterate + ']' : '[#for ' + vname + ' in ' + iterate + ']';
-            } else {
-              return '[/#for]';
-            }
-          });
+      _createClass(MiddlewareFormatter, [{
+        key: 'run',
+        value: function run(content, options) {
+          content = formatParser.parse(content);
+          content = this.removeComments(content);
+          return content;
+        }
+      }, {
+        key: 'removeComments',
+        value: function removeComments(content) {
+          var list = content.split(LINE_SPLIT);
+          var results = [];
+          for (var i = 0, len = list.length; i < len; i++) {
+            var item = list[i].trim();
+            if (item.indexOf('//') !== 0) results.push(item);
+          }
+          return results.join(LINE_SPLIT);
         }
       }]);
 
-      return DotParser;
-    })();
+      return MiddlewareFormatter;
+    })(Basic);
 
-    module.exports = new DotParser();
+    module.exports = new MiddlewareFormatter();
+  });
+  innerDefine('middlewares/rebuilder', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+    var _ = innerRequire('../util');
+
+    var MiddlewareRebuilder = (function(_Basic6) {
+      _inherits(MiddlewareRebuilder, _Basic6);
+
+      function MiddlewareRebuilder() {
+        _classCallCheck(this, MiddlewareRebuilder);
+
+        _get(Object.getPrototypeOf(MiddlewareRebuilder.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareRebuilder, [{
+        key: 'run',
+        value: function run(node, options) {
+          while (this.rebuildAll(node)) {
+          }
+          return node;
+        }
+      }, {
+        key: 'rebuildAll',
+        value: function rebuildAll(node) {
+          var _this4 = this;
+
+          var isChangeConstructor = false;
+          node.each(function(currentNode) {
+            switch (currentNode.nodeName) {
+              case '#if':
+                isChangeConstructor = _this4.rebuildIfNode(currentNode);
+                if (isChangeConstructor) return false; // break each loop
+                break;
+            }
+          });
+          return isChangeConstructor;
+        }
+      }, {
+        key: 'rebuildIfNode',
+        value: function rebuildIfNode(node) {
+          var isChangeConstructor = false;
+
+          var children = node.children;
+          node.children = [];
+          var currentNode = node;
+          _.each(children, function(child) {
+            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
+              currentNode.after(child);
+              currentNode = child;
+              isChangeConstructor = true;
+            } else {
+              currentNode.append(child);
+            }
+          });
+          return isChangeConstructor;
+        }
+      }]);
+
+      return MiddlewareRebuilder;
+    })(Basic);
+
+    module.exports = new MiddlewareRebuilder();
+  });
+  innerDefine('middlewares/ng-rebuilder', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+
+    var MiddlewareNgRebuilder = (function(_Basic7) {
+      _inherits(MiddlewareNgRebuilder, _Basic7);
+
+      function MiddlewareNgRebuilder() {
+        _classCallCheck(this, MiddlewareNgRebuilder);
+
+        _get(Object.getPrototypeOf(MiddlewareNgRebuilder.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareNgRebuilder, [{
+        key: 'run',
+        value: function run(last, options) {
+          return last;
+        }
+      }]);
+
+      return MiddlewareNgRebuilder;
+    })(Basic);
+
+    module.exports = new MiddlewareNgRebuilder();
   });
   innerDefine('nodes/interface', function(innerRequire, exports, module) {
     'use strict';
@@ -1716,31 +1746,16 @@
         key: 'each',
         value: function each(callback) {
           if (typeof callback !== 'function') return;
-
           if (callback(this) === false) return;
-          if (this.children.length) {
-            this.children[0].each(callback);
-          }
-          if (this.next) {
-            this.next.each(callback);
-          }
-        }
-      }, {
-        key: 'initAll',
-        value: function initAll() {
-          var eachHandler = function eachHandler(dom) {
-            dom.init();
-          };
-          this.each(eachHandler);
+          this.children.map(function(node) {
+            return node.each(callback);
+          });
         }
 
       // functions could be override
       }, {
         key: 'parse',
         value: function parse(source) {}
-      }, {
-        key: 'init',
-        value: function init() {}
       }, {
         key: 'assembleWorkerData',
         value: function assembleWorkerData() {
@@ -1775,48 +1790,6 @@
     })(NodeInterface);
 
     module.exports = Basic;
-  });
-  innerDefine('parsers/parser', function(innerRequire, exports, module) {
-    'use strict';
-
-    var BasicParser = (function() {
-      function BasicParser(source, options) {
-        _classCallCheck(this, BasicParser);
-
-        this.name = 'basic';
-        this.source = source;
-        this.rowNumber = 0;
-        this.colNumber = 0;
-      }
-
-      _createClass(BasicParser, [{
-        key: 'set',
-        value: function set(name, source) {
-          var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-          this.name = name;
-          this.source = source;
-          this.rowNumber = options.rowNumber || 0;
-          this.colNumber = options.colNumber || 0;
-        }
-      }, {
-        key: 'getErrorMessage',
-        value: function getErrorMessage(code) {
-          return '';
-        }
-      }, {
-        key: 'throwError',
-        value: function throwError(code) {
-          var source = this.source;
-          var message = this.getErrorMessage(code);
-          throw new Error(message + ' ===> ' + source);
-        }
-      }]);
-
-      return BasicParser;
-    })();
-
-    module.exports = BasicParser;
   });
   innerDefine('parsers/element', function(innerRequire, exports, module) {
     'use strict';
@@ -1991,8 +1964,8 @@
     var BLACK_LIST = ['/'];
     var WHITE_LIST = [];
 
-    var ElementParser = (function(_Parser) {
-      _inherits(ElementParser, _Parser);
+    var ElementParser = (function(_Parser2) {
+      _inherits(ElementParser, _Parser2);
 
       function ElementParser() {
         _classCallCheck(this, ElementParser);
@@ -2112,7 +2085,7 @@
       }, {
         key: 'translateAttributes',
         value: function translateAttributes(attrs, options) {
-          var _this3 = this;
+          var _this5 = this;
 
           if (attrs === undefined)
             attrs = {};
@@ -2121,7 +2094,7 @@
           var filter = this.getAttributeFilter(options);
 
           attrs.map(function(attr) {
-            if (!attr.key) _this3.throwError();
+            if (!attr.key) _this5.throwError();
             if (filter(attr.key))
               re[attr.key] = attr.value || '';
           });
@@ -2290,8 +2263,8 @@
     var valueMachine = new Machine(valueTableOptions);
     var valueIfMatchine = new Machine(valueIfTableOptions);
 
-    var ValueParser = (function(_Parser2) {
-      _inherits(ValueParser, _Parser2);
+    var ValueParser = (function(_Parser3) {
+      _inherits(ValueParser, _Parser3);
 
       function ValueParser() {
         _classCallCheck(this, ValueParser);
@@ -2485,8 +2458,8 @@
     var conditionMachine = new Machine(conditionTableOptions);
     var CONDITION_REG = /^\[[\s\S]*\]$/;
 
-    var ConditionParser = (function(_Parser3) {
-      _inherits(ConditionParser, _Parser3);
+    var ConditionParser = (function(_Parser4) {
+      _inherits(ConditionParser, _Parser4);
 
       function ConditionParser() {
         _classCallCheck(this, ConditionParser);
@@ -2592,9 +2565,7 @@
         return items;
       },
       parseMultiple: function parseMultiple(condition, nodes) {
-        var _this4 = this;
-
-        this.checkFormat(nodes);
+        var _this6 = this;
 
         var results = [];
         var hasElse = false;
@@ -2607,10 +2578,10 @@
           if (node.source.indexOf('[#') === 0) {
             var cNode = conditionParser.parse(node.source);
             if (cNode.tag === 'else') {
-              item = _this4.createItem(cNode.tag);
+              item = _this6.createItem(cNode.tag);
               hasElse = true;
             } else {
-              item = _this4.createItem(cNode.tag, cNode.condition);
+              item = _this6.createItem(cNode.tag, cNode.condition);
             }
             results.push(item);
           } else {
@@ -2628,30 +2599,6 @@
         };
         _.each(results, exclusionHandler);
         return results;
-      },
-      checkFormat: function checkFormat(nodes) {
-        var _this5 = this;
-
-        var lastTag = 'if';
-        var checkHandler = function checkHandler(node) {
-          var source = node.source || '';
-          var isET = source.indexOf('[#') === 0;
-          var isElse = source.indexOf('[#else') === 0;
-          var isElseIf = source.indexOf('[#elseif') === 0;
-
-          if (isET && !isElseIf && !isElse) {
-            _this5.throwError('The attributes expression just support if, else and elseif.');
-          } else if (node.source.indexOf('[#elseif') === 0 && lastTag === 'else') {
-            _this5.throwError('The elseif node shouldn\'t show after else.');
-          } else if (isElseIf) {
-            lastTag = 'elseif';
-          } else if (isElse) {
-            lastTag = 'else';
-          } else {
-            lastTag = '';
-          }
-        };
-        _.each(nodes, checkHandler);
       }
     };
 
@@ -2674,8 +2621,8 @@
       'TEXTAREA': ['value']
     };
 
-    var Element = (function(_Basic) {
-      _inherits(Element, _Basic);
+    var Element = (function(_Basic8) {
+      _inherits(Element, _Basic8);
 
       function Element(source, options, expressions) {
         _classCallCheck(this, Element);
@@ -2830,8 +2777,8 @@
 
     var NAME_SPACE = 'text';
 
-    var TextNode = (function(_Basic2) {
-      _inherits(TextNode, _Basic2);
+    var TextNode = (function(_Basic9) {
+      _inherits(TextNode, _Basic9);
 
       function TextNode(source) {
         var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -2882,15 +2829,14 @@
     'use strict';
 
     var Basic = innerRequire('./basic');
-    var _ = innerRequire('../util');
     var conditionParser = innerRequire('../parsers/condition');
 
     var NAME_SPACE = 'if';
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = NAME_SPACE;
 
-    var IfNode = (function(_Basic3) {
-      _inherits(IfNode, _Basic3);
+    var IfNode = (function(_Basic10) {
+      _inherits(IfNode, _Basic10);
 
       function IfNode(source, options) {
         _classCallCheck(this, IfNode);
@@ -2909,23 +2855,6 @@
             expectNodeName: NODE_NAME
           });
           this.condition = tmp.condition;
-        }
-      }, {
-        key: 'init',
-        value: function init() {
-          // 调整elseif 和 else的树形关系
-          var children = this.children;
-          this.children = [];
-
-          var currentNode = this;
-          _.each(children, function(child) {
-            if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-              currentNode.after(child);
-              currentNode = child;
-            } else {
-              currentNode.append(child);
-            }
-          });
         }
       }, {
         key: 'getTag',
@@ -3008,8 +2937,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = 'else if';
 
-    var ElseIfNode = (function(_Basic4) {
-      _inherits(ElseIfNode, _Basic4);
+    var ElseIfNode = (function(_Basic11) {
+      _inherits(ElseIfNode, _Basic11);
 
       function ElseIfNode(source, options) {
         _classCallCheck(this, ElseIfNode);
@@ -3056,8 +2985,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var TAG = NAME_SPACE;
 
-    var ElseNode = (function(_Basic5) {
-      _inherits(ElseNode, _Basic5);
+    var ElseNode = (function(_Basic12) {
+      _inherits(ElseNode, _Basic12);
 
       function ElseNode(source, options) {
         _classCallCheck(this, ElseNode);
@@ -3184,8 +3113,8 @@
     // @tableEnd
     var forMachine = new Machine(forTableOptions);
 
-    var ForParser = (function(_Parser4) {
-      _inherits(ForParser, _Parser4);
+    var ForParser = (function(_Parser5) {
+      _inherits(ForParser, _Parser5);
 
       function ForParser() {
         _classCallCheck(this, ForParser);
@@ -3275,8 +3204,8 @@
       lengthName: 'len'
     };
 
-    var ForNode = (function(_Basic6) {
-      _inherits(ForNode, _Basic6);
+    var ForNode = (function(_Basic13) {
+      _inherits(ForNode, _Basic13);
 
       function ForNode(source, options) {
         _classCallCheck(this, ForNode);
@@ -3352,8 +3281,8 @@
     var NAME_SPACE = 'html';
     var NODE_NAME = '#' + NAME_SPACE;
 
-    var HtmlNode = (function(_Basic7) {
-      _inherits(HtmlNode, _Basic7);
+    var HtmlNode = (function(_Basic14) {
+      _inherits(HtmlNode, _Basic14);
 
       function HtmlNode() {
         _classCallCheck(this, HtmlNode);
@@ -3372,19 +3301,6 @@
           this.nodeName = NODE_NAME;
           var expression = tmp.condition;
           this.expression = expression.slice(1, expression.length - 1);
-        }
-      }, {
-        key: 'init',
-        value: function init() {
-          if (!this.parent) {
-            this.throwError('html node need a parent');
-          }
-          if (this.parent.nodeType !== 1) {
-            this.throwError('the parent of html node should be element node');
-          }
-          if (this.parent.children.length > 1) {
-            this.throwError('html node should not has siblings');
-          }
         }
       }, {
         key: 'assembleWorkerData',
@@ -3424,8 +3340,8 @@
     var NODE_NAME = '#' + NAME_SPACE;
     var PARAMETER_SPLIT = ',';
 
-    var ImportNode = (function(_Basic8) {
-      _inherits(ImportNode, _Basic8);
+    var ImportNode = (function(_Basic15) {
+      _inherits(ImportNode, _Basic15);
 
       function ImportNode(source, options) {
         _classCallCheck(this, ImportNode);
@@ -3582,37 +3498,30 @@
 
     module.exports = new Factory();
   });
-  innerDefine('parser', function(innerRequire, exports, module) {
+  innerDefine('middlewares/node-creator', function(innerRequire, exports, module) {
     'use strict';
 
-    var _ = innerRequire('./util');
-    var originParser = innerRequire('./parsers/origin');
-    var dotParser = innerRequire('./parsers/dot');
-    var factory = innerRequire('./nodes/factory');
+    var Basic = innerRequire('./basic-middleware');
+    var _ = innerRequire('../util');
+    var factory = innerRequire('../nodes/factory');
 
-    var Parser = (function() {
-      function Parser(options) {
-        _classCallCheck(this, Parser);
+    var MiddlewareParser = (function(_Basic16) {
+      _inherits(MiddlewareParser, _Basic16);
 
-        this.options = options;
+      function MiddlewareParser() {
+        _classCallCheck(this, MiddlewareParser);
+
+        _get(Object.getPrototypeOf(MiddlewareParser.prototype), 'constructor', this).apply(this, arguments);
       }
 
-      _createClass(Parser, [{
-        key: 'parse',
-        value: function parse(str) {
-          var originNode = originParser.parse(str);
-          return this.createDom(originNode);
+      _createClass(MiddlewareParser, [{
+        key: 'run',
+        value: function run(origin, options) {
+          return this.createNode(origin, options);
         }
       }, {
-        key: 'parseDot',
-        value: function parseDot(str) {
-          str = dotParser.parse(str);
-          return this.parse(str);
-        }
-      }, {
-        key: 'createDom',
-        value: function createDom(originNode) {
-          var options = this.options;
+        key: 'createNode',
+        value: function createNode(originNode, options) {
           var index = 0;
           var createNode = function createNode(source, expressions) {
             var node = factory.create(source, options, expressions);
@@ -3626,41 +3535,710 @@
               createChildren(node, child);
               parent.append(node);
             });
+            return parent;
           };
 
           var root = createNode();
-          createChildren(root, originNode);
-          root.initAll();
+          return createChildren(root, originNode);
+        }
+      }]);
+
+      return MiddlewareParser;
+    })(Basic);
+
+    module.exports = new MiddlewareParser();
+  });
+  innerDefine('nodes/origin', function(innerRequire, exports, module) {
+    var _ = innerRequire('../util');
+
+    // OriginNode first parse
+    // - source
+    // - children
+    // - expressions
+    //
+    // OriginNode second parse
+    // - nodeName
+    // - header
+    // - nodeType     [1, 3, 'ET']
+    //
+    // OriginNode second parse
+    // - attributes   {key, value}
+    //
+
+    var OriginNode = (function() {
+      function OriginNode(source) {
+        _classCallCheck(this, OriginNode);
+
+        this.source = source || '';
+        this.children = [];
+        this.expressions = [];
+
+        this.nodeName = null;
+        this.header = null;
+        this.nodeType = null;
+        this.attributes = null;
+
+        this.isHeaderClosed = false;
+        this.isClosed = false;
+      }
+
+      _createClass(OriginNode, [{
+        key: 'addSource',
+        value: function addSource(str) {
+          this.source += str;
+        }
+      }, {
+        key: 'createChild',
+        value: function createChild(source) {
+          var node = new OriginNode(source);
+          this.children.push(node);
+          node.parent = this;
+          return node;
+        }
+      }, {
+        key: 'closeHeader',
+        value: function closeHeader(token) {
+          this.addSource(token);
+          this.saveChildrenToExpressions();
+          this.isHeaderClosed = true;
+        }
+      }, {
+        key: 'closeNode',
+        value: function closeNode(tail) {
+          var current = this;
+          while (current.parent) {
+            if (current.matchClose(tail)) {
+              current.isClosed = true;
+              break;
+            }
+            current = current.parent;
+          }
+          current.closeAll();
+          return current.parent || current;
+        }
+      }, {
+        key: 'closeAll',
+        value: function closeAll() {
+          _.each(this.children, function(child) {
+            child.closeAll();
+          });
+
+          if (this.parent && !this.isClosed) {
+            _.concat(this.parent.children, this.children);
+            this.isClosed = true;
+            this.children = [];
+          }
+          return this;
+        }
+      }, {
+        key: 'matchClose',
+        value: function matchClose() {
+          var tail = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+          var start = (tail.slice(0, 1) + tail.slice(2, tail.length - 1)).trim();
+          var source = this.source.trim();
+          return source.indexOf(start) === 0;
+        }
+      }, {
+        key: 'saveChildrenToExpressions',
+        value: function saveChildrenToExpressions() {
+          this.expressions = this.children;
+          this.children = [];
+        }
+      }, {
+        key: 'levelChildren',
+        value: function levelChildren() {
+          var root = this;
+          var children = [];
+          while (root.parent) {
+            _.concat(children, root.children);
+            root.children = [];
+            root = root.parent;
+          }
+          _.concat(root.children, children);
+          return this;
+        }
+      }, {
+        key: 'removeEmptyNode',
+        value: function removeEmptyNode() {
+          var newChildren = [];
+          this.children.map(function(child) {
+            if (child && child.source.trim()) {
+              child.removeEmptyNode();
+              newChildren.push(child);
+            }
+          });
+          this.children = newChildren;
+        }
+      }, {
+        key: 'each',
+        value: function each(callback) {
+          callback(this);
+          this.children.map(function(child) {
+            child.each(callback);
+          });
+        }
+      }]);
+
+      return OriginNode;
+    })();
+
+    module.exports = OriginNode;
+  });
+  innerDefine('parsers/origin', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Machine = innerRequire('./machine');
+    var OriginNode = innerRequire('../nodes/origin');
+
+    // @tableStart: origin
+    var originTableOptions = {
+      states: ['text', 'headerEnd', 'tailEnd', 'htmlStart', 'htmlHeader', 'htmlTail', 'etStart', 'etHeader', 'etTail', '_str[', '_str{{', '_str\'', '_str\"', '_comment'],
+      symbols: ['<!--', '-->', '<', '</', '>', '[#', '[/#', '[', ']', '{{', '}}', '\\\'', '\'', '\\"', '"', /\s/],
+      table: [{
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': '_comment',
+        '1': 'text',
+        '2': 'htmlStart',
+        '3': 'htmlTail',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'etTail',
+        '7': 'text',
+        '8': 'text',
+        '9': '_str{{',
+        '10': 'text',
+        '11': 'text',
+        '12': 'text',
+        '13': 'text',
+        '14': 'text',
+        '15': 'text',
+        '-1': 'text'
+      }, {
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'htmlHeader',
+        '3': 'htmlHeader',
+        '4': 'htmlHeader',
+        '5': 'htmlHeader',
+        '6': 'htmlHeader',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': 'htmlHeader',
+        '10': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': 'htmlHeader',
+        '13': 'htmlHeader',
+        '14': 'htmlHeader',
+        '15': 'htmlHeader',
+        '-1': 'htmlHeader'
+      }, {
+        '0': 'htmlHeader',
+        '1': 'htmlHeader',
+        '2': 'htmlHeader',
+        '3': 'htmlHeader',
+        '4': 'headerEnd',
+        '5': 'etStart',
+        '6': 'htmlHeader',
+        '7': 'htmlHeader',
+        '8': 'htmlHeader',
+        '9': '_str{{',
+        '10': 'htmlHeader',
+        '11': 'htmlHeader',
+        '12': '_str\'',
+        '13': 'htmlHeader',
+        '14': '_str\"',
+        '15': 'htmlHeader',
+        '-1': 'htmlHeader'
+      }, {
+        '0': 'htmlTail',
+        '1': 'htmlTail',
+        '2': 'htmlTail',
+        '3': 'htmlTail',
+        '4': 'tailEnd',
+        '5': 'htmlTail',
+        '6': 'htmlTail',
+        '7': 'htmlTail',
+        '8': 'htmlTail',
+        '9': 'htmlTail',
+        '10': 'htmlTail',
+        '11': 'htmlTail',
+        '12': 'htmlTail',
+        '13': 'htmlTail',
+        '14': 'htmlTail',
+        '15': 'htmlTail',
+        '-1': 'htmlTail'
+      }, {
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': 'etHeader',
+        '8': 'etHeader',
+        '9': 'etHeader',
+        '10': 'etHeader',
+        '11': 'etHeader',
+        '12': 'etHeader',
+        '13': 'etHeader',
+        '14': 'etHeader',
+        '15': 'etHeader',
+        '-1': 'etHeader'
+      }, {
+        '0': 'etHeader',
+        '1': 'etHeader',
+        '2': 'etHeader',
+        '3': 'etHeader',
+        '4': 'etHeader',
+        '5': 'etHeader',
+        '6': 'etHeader',
+        '7': '_str[',
+        '8': 'headerEnd',
+        '9': '_str{{',
+        '10': 'etHeader',
+        '11': 'etHeader',
+        '12': '_str\'',
+        '13': 'etHeader',
+        '14': '_str\"',
+        '15': 'etHeader',
+        '-1': 'etHeader'
+      }, {
+        '0': 'etTail',
+        '1': 'etTail',
+        '2': 'etTail',
+        '3': 'etTail',
+        '4': 'etTail',
+        '5': 'etTail',
+        '6': 'etTail',
+        '7': 'etTail',
+        '8': 'tailEnd',
+        '9': 'etTail',
+        '10': 'etTail',
+        '11': 'etTail',
+        '12': 'etTail',
+        '13': 'etTail',
+        '14': 'etTail',
+        '15': 'etTail',
+        '-1': 'etTail'
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '_str[',
+        '8': '_last',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '_last',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '_last',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '_last',
+        '15': '',
+        '-1': ''
+      }, {
+        '0': '',
+        '1': '_last',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': '',
+        '6': '',
+        '7': '',
+        '8': '',
+        '9': '',
+        '10': '',
+        '11': '',
+        '12': '',
+        '13': '',
+        '14': '',
+        '15': '',
+        '-1': ''
+      }]
+    };
+    // @tableEnd
+    var originMachine = new Machine(originTableOptions);
+
+    var OriginParser = (function() {
+      function OriginParser() {
+        _classCallCheck(this, OriginParser);
+      }
+
+      _createClass(OriginParser, [{
+        key: 'parse',
+        value: function parse(str) {
+          var root = new OriginNode();
+          var currentNode = root.createChild();
+
+          var tail = '';
+          originMachine.each(str, function(state, token) {
+            var backState = null;
+            switch (state) {
+              case '_comment':
+                break;
+              case 'text':
+              case '_str\'':
+              case '_str"':
+              case '_str{{':
+              case '_str[':
+              case 'htmlHeader':
+              case 'etHeader':
+                currentNode.addSource(token);
+                break;
+              case 'etStart':
+              case 'htmlStart':
+                currentNode = currentNode.createChild(token);
+                break;
+              case 'headerEnd':
+                currentNode.closeHeader(token);
+                currentNode = currentNode.createChild();
+                break;
+              case 'htmlTail':
+              case 'etTail':
+                tail += token;
+                break;
+              case 'tailEnd':
+                currentNode = currentNode.closeNode(tail + token);
+                tail = '';
+                backState = null;
+                if (!currentNode.isHeaderClosed) {
+                  var source = currentNode.source;
+                  if (source.indexOf('[#') === 0) {
+                    backState = 'etHeader';
+                  } else if (source.indexOf('<') === 0) {
+                    backState = 'htmlHeader';
+                  }
+                }
+                if (!backState)
+                  currentNode = currentNode.createChild();
+                break;
+              default:
+                throw new Error('The state: \'' + state + '\' is not defined.');
+            }
+            return backState;
+          });
+          currentNode.createChild(tail);
+          root.closeAll();
+          root.removeEmptyNode();
           return root;
         }
       }]);
 
-      return Parser;
+      return OriginParser;
     })();
 
-    module.exports = Parser;
+    module.exports = new OriginParser();
   });
+  innerDefine('middlewares/origin-parser', function(innerRequire, exports, module) {
+    'use strict';
 
+    var Basic = innerRequire('./basic-middleware');
+    var originParser = innerRequire('../parsers/origin');
+
+    var MiddlewareParser = (function(_Basic17) {
+      _inherits(MiddlewareParser, _Basic17);
+
+      function MiddlewareParser() {
+        _classCallCheck(this, MiddlewareParser);
+
+        _get(Object.getPrototypeOf(MiddlewareParser.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareParser, [{
+        key: 'run',
+        value: function run(str, options) {
+          return originParser.parse(str);
+        }
+      }]);
+
+      return MiddlewareParser;
+    })(Basic);
+
+    module.exports = new MiddlewareParser();
+  });
+  innerDefine('middlewares/source-translator', function(innerRequire, exports, module) {
+    'use strict';
+
+    var Basic = innerRequire('./basic-middleware');
+
+    var TRANSLATE_MAP = {
+      '&quot;': '\\"',
+      '&amp;': '\\&',
+      '&lt;': '\\<',
+      '&gt;': '\\>',
+      '&nbsp;': ' '
+    };
+
+    var MiddlewareSourceTranslator = (function(_Basic18) {
+      _inherits(MiddlewareSourceTranslator, _Basic18);
+
+      function MiddlewareSourceTranslator() {
+        _classCallCheck(this, MiddlewareSourceTranslator);
+
+        _get(Object.getPrototypeOf(MiddlewareSourceTranslator.prototype), 'constructor', this).apply(this, arguments);
+      }
+
+      _createClass(MiddlewareSourceTranslator, [{
+        key: 'run',
+        value: function run(origin, options) {
+          var _this7 = this;
+
+          origin.each(function(node) {
+            var source = node.source.trim();
+            node.source = _this7.translateSource(source);
+          });
+          return origin;
+        }
+      }, {
+        key: 'translateSource',
+        value: function translateSource(source) {
+          source = source.trim().replace(/\s+/g, ' ');
+          for (var key in TRANSLATE_MAP) {
+            var value = TRANSLATE_MAP[key];
+            source = source.replace(new RegExp(key, 'g'), value);
+          }
+          return source;
+        }
+      }]);
+
+      return MiddlewareSourceTranslator;
+    })(Basic);
+
+    module.exports = new MiddlewareSourceTranslator();
+  });
+  innerDefine('middlewares/middleware-getter', function(innerRequire, exports, module) {
+    'use strict';
+
+    var attributes = innerRequire('./attributes');
+    var checker = innerRequire('./checker');
+    var compiler = innerRequire('./compiler');
+    var dot = innerRequire('./dot');
+    var formatter = innerRequire('./formatter');
+    var rebuilder = innerRequire('./rebuilder');
+    var ngRebuilder = innerRequire('./ng-rebuilder');
+    var nodeCreator = innerRequire('./node-creator');
+    var originParser = innerRequire('./origin-parser');
+    var sourceTrasnlator = innerRequire('./source-translator');
+
+    var MIDDLEWARES = {
+      'attributes': attributes,
+      'checker': checker,
+      'compiler': compiler,
+      'dot': dot,
+      'formatter': formatter,
+      'rebuilder': rebuilder,
+      'ng-rebuilder': ngRebuilder,
+      'node-creator': nodeCreator,
+      'origin-parser': originParser,
+      'source-translator': sourceTrasnlator
+    };
+
+    var MiddlewareGetter = (function() {
+      function MiddlewareGetter() {
+        _classCallCheck(this, MiddlewareGetter);
+      }
+
+      _createClass(MiddlewareGetter, [{
+        key: 'get',
+        value: function get(key) {
+          var middleware = MIDDLEWARES[key];
+          if (!middleware) {
+            throw new Error('not found middleware: ' + key);
+          }
+          return middleware;
+        }
+      }, {
+        key: 'getList',
+        value: function getList() {
+          var _this8 = this;
+
+          var results = [];
+
+          for (var _len5 = arguments.length, arr = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+            arr[_key5] = arguments[_key5];
+          }
+
+          arr.map(function(key) {
+            results.push(_this8.get(key));
+          });
+          return results;
+        }
+      }]);
+
+      return MiddlewareGetter;
+    })();
+
+    module.exports = new MiddlewareGetter();
+  });
   innerDefine('et', function(innerRequire, exports, module) {
-    var Compiler = innerRequire('./compiler');
-    var Parser = innerRequire('./parser');
-    var ET = function ET(options) {
-      if (!options)
-        options = {};
-      this.options = options;
-      this.parser = new Parser(options.parser);
-      this.compiler = new Compiler(options.compiler);
+    'use strict';
+
+    var _ = innerRequire('./util');
+    var middlewareGetter = innerRequire('./middlewares/middleware-getter');
+
+    var DEFAULTS = {
+      compiledTemplate: null, // ['dot', null]
+      modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
+      dependencyName: '_dep',
+      dependencyPath: 'et-dependency',
+      modelType: 'event' // ['model', 'object', 'event']
     };
-    ET.prototype.compile = function(str, options) {
-      var dom = this.parser.parse(str);
-      var result = this.compiler.compile(dom);
-      var fn = new Function('require', 'exports', 'module', result);
-      var _module = {};
-      var _exports = {};
-      fn(require, _exports, _module);
-      return _module.exports || _exports;
+
+    var DEFAULT_COMPILE_OPTIONS = {
+      moduleId: 'Template'
     };
+
+    var DEFAULT_MIDDLEWARES = ['origin-parser', 'source-translator', 'node-creator', 'attributes', 'rebuilder', 'ng-rebuilder', 'checker', 'compiler', 'formatter'];
+
+    var ET = (function() {
+      function ET(options) {
+        _classCallCheck(this, ET);
+
+        this.options = _.extend({}, DEFAULTS, options);
+      }
+
+      _createClass(ET, [{
+        key: 'compile',
+        value: function compile(str, runtimeOptions) {
+          var options = _.extend({}, DEFAULT_COMPILE_OPTIONS, runtimeOptions);
+          var middlewares = [];
+          switch (this.options.compiledTemplate) {
+            case 'dot':
+              middlewares = this.getMiddlewares(['dot']);
+              break;
+            default:
+              middlewares = this.getMiddlewares([]);
+          }
+          return this.runMiddlewares(str, middlewares, options);
+        }
+      }, {
+        key: 'runMiddlewares',
+        value: function runMiddlewares(str, middlewares, runtimeOptions) {
+          var options = _.extend({}, this.options, runtimeOptions);
+          var result = str;
+          middlewares.map(function(name) {
+            var middleware = middlewareGetter.get(name);
+            result = middleware.run(result, options);
+          });
+          return result;
+        }
+      }, {
+        key: 'getMiddlewares',
+        value: function getMiddlewares() {
+          var array = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+          return _.concat(array, DEFAULT_MIDDLEWARES);
+        }
+      }]);
+
+      return ET;
+    })();
+
     module.exports = ET;
   });
-  module.exports = modules.et;
+
+  var RumtimeET = modules.et;
+  RumtimeET.prototype.compileString = RumtimeET.prototype.compile;
+  RumtimeET.prototype.compile = function(str, options) {
+    var result = this.compileString(str, options);
+    var fn = new Function('require', 'exports', 'module', result);
+    var _module = {};
+    var _exports = {};
+    fn(require, _exports, _module);
+    return _module.exports || _exports;
+  };
+  module.exports = RumtimeET;
 });

@@ -18,10 +18,6 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _util = require('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
 var _parsersCondition = require('../parsers/condition');
 
 var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
@@ -48,23 +44,6 @@ var IfNode = (function (_Basic) {
     value: function parse(source) {
       var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
       this.condition = tmp.condition;
-    }
-  }, {
-    key: 'init',
-    value: function init() {
-      // 调整elseif 和 else的树形关系
-      var children = this.children;
-      this.children = [];
-
-      var currentNode = this;
-      _util2['default'].each(children, function (child) {
-        if (child.nodeName === '#elseif' || child.nodeName === '#else') {
-          currentNode.after(child);
-          currentNode = child;
-        } else {
-          currentNode.append(child);
-        }
-      });
     }
   }, {
     key: 'getTag',

@@ -150,31 +150,16 @@ var Basic = (function (_NodeInterface) {
     key: 'each',
     value: function each(callback) {
       if (typeof callback !== 'function') return;
-
       if (callback(this) === false) return;
-      if (this.children.length) {
-        this.children[0].each(callback);
-      }
-      if (this.next) {
-        this.next.each(callback);
-      }
-    }
-  }, {
-    key: 'initAll',
-    value: function initAll() {
-      var eachHandler = function eachHandler(dom) {
-        dom.init();
-      };
-      this.each(eachHandler);
+      this.children.map(function (node) {
+        return node.each(callback);
+      });
     }
 
     // functions could be override
   }, {
     key: 'parse',
     value: function parse(source) {}
-  }, {
-    key: 'init',
-    value: function init() {}
   }, {
     key: 'assembleWorkerData',
     value: function assembleWorkerData() {
