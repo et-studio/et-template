@@ -1,7 +1,23 @@
 'use strict'
 
-var parser = require('src/middlewares/parser')
 var settings = require('./settings.js')
+var middlewareGetter = require('src/middlewares/middleware-getter')
+
+function parse (str, options) {
+  var middlewares = middlewareGetter.getList(
+    'origin-parser',
+    'source-translator',
+    'node-creator',
+    'attributes',
+    'rebuilder',
+    'ng-rebuilder',
+    'checker')
+  var result = str
+  middlewares.map((middleware) => {
+    result = middleware.run(result, options)
+  })
+  return result
+}
 
 exports.register = function () {
   window.describe('Compiler test', function () {
@@ -9,7 +25,7 @@ exports.register = function () {
       window.it(setting.title, function (done) {
         if (setting.title.indexOf('error') >= 0) {
           try {
-            parser.run(setting.html, setting.options)
+            parse(setting.html, setting.options)
           } catch (e) {
             done()
           } finally {
@@ -17,7 +33,7 @@ exports.register = function () {
           }
         }
 
-        var node = parser.run(setting.html, setting.options)
+        var node = parse(setting.html, setting.options)
         var expect = setting.expect
 
         console.log(node)

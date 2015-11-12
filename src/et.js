@@ -7,8 +7,7 @@ var DEFAULTS = {
   compiledTemplate: null, // ['dot', null]
   modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
   dependencyName: '_dep',
-  dependencyPath: 'et-dependency',
-  modelType: 'event' // ['model', 'object', 'event']
+  dependencyPath: 'et-dependency'
 }
 
 var DEFAULT_COMPILE_OPTIONS = {

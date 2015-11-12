@@ -5,28 +5,34 @@ var RUN_MOCHA = false
 exports.register = function () {
   var content = document.getElementById('content')
   var Template = require('template/hello-world.html')
-  var scope = {name: 'world', index: 0}
-  var t
 
-  var events = {
-    'add': function (e) {
-      scope.index++
-      t.update(scope)
+  var view = {
+    template: null,
+    name: 'world',
+    index: 0,
+    add: function (e) {
+      this.index++
+      this.update()
     },
-    'subtract': function (e) {
-      scope.index--
-      t.update(scope)
+    subtract: function (e) {
+      this.index--
+      this.update()
     },
-    'setName': function (e) {
+    setName: function (e) {
       var value = e.target.value
-      scope.name = value
-      t.update(scope)
+      this.name = value
+      this.update()
+    },
+    update: function () {
+      if (this.template) {
+        this.template.update(this)
+      }
     }
   }
 
-  t = new Template({events: events})
-  content.appendChild(t.get())
-  t.update(scope)
+  view.template = new Template(view)
+  view.update()
+  content.appendChild(view.template.get())
 
   return RUN_MOCHA
 }

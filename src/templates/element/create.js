@@ -29,7 +29,7 @@ if (propertiesString !== nullString) {
 if (it.modelKey) {
   // {{
   _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-    _tp_setModel(_this, '${it.modelType}', '${_.translateMarks(it.modelKey)}', e.target.value)
+    _tp_setContext(_this, '${_.translateMarks(it.modelKey)}', e.target.value)
   })
   // }}
 }

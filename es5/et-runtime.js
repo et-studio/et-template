@@ -576,7 +576,7 @@
         }
 
         if (it.modelKey) {
-          re = re + ('\n_tp_bind(_this, ' + it.id + ', \'change keyup\', function (e) {\n_tp_setModel(_this, \'' + it.modelType + '\', \'' + _.translateMarks(it.modelKey) + '\', e.target.value)\n})\n');
+          re = re + ('\n_tp_bind(_this, ' + it.id + ', \'change keyup\', function (e) {\n_tp_setContext(_this, \'' + _.translateMarks(it.modelKey) + '\', e.target.value)\n})\n');
         }
 
         return re;
@@ -732,13 +732,7 @@
       node_createTemplate: function node_createTemplate(it) {
         var re = '';
 
-        re = re + ('\nvar ' + it.templateName + ' = _dep_createTemplate({\ncreate: function () {\nvar _this = this\n');
-        if (it.modelType === 'model' || it.modelType === 'object') {
-          re = re + '\nvar _scope = this.options.scope\n';
-        } else {
-          re = re + '\nvar _scope = this\n';
-        }
-        re = re + ('\n' + it.createList.join('\n') + '\n}' + (it.updateList.length ? ',' : '') + '\n');
+        re = re + ('\nvar ' + it.templateName + ' = _dep_createTemplate({\ncreate: function () {\nvar _this = this\n' + it.createList.join('\n') + '\n}' + (it.updateList.length ? ',' : '') + '\n');
         if (it.updateList.length) {
           re = re + ('\nupdate: function (' + it.args.join(', ') + ') {\nvar _this = this\nvar _last = this.last\n\n' + it.updateList.join('\n') + '\n}\n');
         }
@@ -813,7 +807,6 @@
             templateName: root.getTemplateName(),
             dependencies: dependencies,
             moduleId: options.moduleId,
-            modelType: options.modelType,
             newDoms: root.getNewTemplateDoms()
           };
         }
@@ -2754,7 +2747,6 @@
             parentId: this.getParentId(),
             nodeName: this.getNodeName(),
             modelKey: this.modelKey,
-            modelType: this.options.modelType,
 
             attributes: set.attributes,
             properties: set.properties,
@@ -4228,8 +4220,7 @@
       compiledTemplate: null, // ['dot', null]
       modules: 'common', // ['common', 'cmd', 'amd', 'global', 'angular']
       dependencyName: '_dep',
-      dependencyPath: 'et-dependency',
-      modelType: 'event' // ['model', 'object', 'event']
+      dependencyPath: 'et-dependency'
     };
 
     var DEFAULT_COMPILE_OPTIONS = {

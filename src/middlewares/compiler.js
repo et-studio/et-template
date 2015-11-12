@@ -29,7 +29,6 @@ class MiddlewareCompiler extends Basic {
       templateName: root.getTemplateName(),
       dependencies: dependencies,
       moduleId: options.moduleId,
-      modelType: options.modelType,
       newDoms: root.getNewTemplateDoms()
     }
   }

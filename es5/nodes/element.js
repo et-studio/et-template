@@ -169,7 +169,6 @@ var Element = (function (_Basic) {
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
         modelKey: this.modelKey,
-        modelType: this.options.modelType,
 
         attributes: set.attributes,
         properties: set.properties,

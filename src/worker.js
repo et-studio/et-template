@@ -236,7 +236,7 @@ var _dep_createTemplate = _dep.dep_createTemplate
     if (it.modelKey) {
       re = re + `
   _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-    _tp_setModel(_this, '${it.modelType}', '${_.translateMarks(it.modelKey)}', e.target.value)
+    _tp_setContext(_this, '${_.translateMarks(it.modelKey)}', e.target.value)
   })
 `
     }
@@ -516,17 +516,6 @@ _template.update(${it.args.join(', ')})
 var ${it.templateName} = _dep_createTemplate({
   create: function () {
     var _this = this
-`
-    if (it.modelType === 'model' || it.modelType === 'object') {
-      re = re + `
-      var _scope = this.options.scope
-`
-    } else {
-      re = re + `
-      var _scope = this
-`
-    }
-    re = re + `
     ${it.createList.join('\n')}
   }${it.updateList.length ? ',' : ''}
 `

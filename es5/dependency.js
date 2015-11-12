@@ -65,7 +65,7 @@
 
   function tp_createTemplate(template, parentId, id, Constructor, options) {
     var elements = template.elements
-    var et = elements[id] = new Constructor(options)
+    var et = elements[id] = new Constructor(template.context, template)
     if (!parentId) tp_setRoot(template, id)
     return et
   }
@@ -78,7 +78,7 @@
     var et = tp_getTemplate(template, id)
     if (!et) {
       var elements = template.elements
-      et = elements[id] = new Constructor(options)
+      et = elements[id] = new Constructor(template.context, template)
     }
     return et
   }
@@ -117,19 +117,9 @@
     parent.appendChild(current)
   }
 
-  function parseCallbacks(events, eventNameString) {
-    var callbacks = []
-    if (events) {
-      var array = eventNameString.split(EVENT_SPLITTER)
-      for (var i = 0, len = array.length; i < len; i++) {
-        var name = array[i]
-        var callback = events[name]
-        if (typeof callback === 'function') {
-          callbacks.push(callback)
-        }
-      }
-    }
-    return callbacks
+  function parseCallback(template, eventName) {
+    var context = template.context
+    return context[eventName]
   }
   function tp_bind(template, id, eventString, callback) {
     var element = template.elements[id]
@@ -137,18 +127,18 @@
       // console.warning('The element has no addEventListener method', element)
       return
     }
+    if (typeof callback !== 'function') {
+      callback = parseCallback(template, callback)
+    }
+    if (!callback) {
+      // console.warning('Could not find the listner handler', element)
+      return
+    }
 
     template._eventsLogger[id] = true
     var eventNames = eventString.split(EVENT_SPLITTER)
     for (var i = 0, len = eventNames.length; i < len; i++) {
-      if (typeof callback === 'function') {
-        element.addEventListener(eventNames[i], callback, false)
-      } else {
-        var callbacks = parseCallbacks(template.options.events, callback)
-        for (var j = 0, len2 = callbacks.length; j < len2; j++) {
-          element.addEventListener(eventNames[i], callbacks[j], false)
-        }
-      }
+      element.addEventListener(eventNames[i], callback.bind(template.context), false)
     }
   }
 
@@ -215,69 +205,20 @@
     }
   }
 
-  function tp_setModel(template, type, key, value) {
-    switch (type) {
-      case 'model':
-        template.scope.set(key, value)
-        break
-      case 'object':
-        template.scope[key] = value
-        break
-      default:
-        template.trigger('et-model', key, value)
-    }
-  }
-
-  var event = {
-    events: null,
-    on: function on(eventString, callback) {
-      if (!this.events)
-        this.events = {}
-      var eventNames = eventString.split(EVENT_SPLITTER)
-      var events = this.events
-      for (var i = 0, len = eventNames.length; i < len; i++) {
-        var eventName = eventNames[i]
-        if (!events[eventName])
-          events[eventName] = []
-        events[eventName].push(callback)
-      }
-      return this
-    },
-    trigger: function trigger(eventName) {
-      if (!this.events) return
-
-      var args = []
-      for (var j = 1, argLen = arguments.length; j < argLen; j++) {
-        args.push(arguments[j])
-      }
-
-      var root = this.root || this
-      var callbacks = root.events[eventName] || []
-      for (var i = 0, len = callbacks.length; i < len; i++) {
-        var callback = callbacks[i]
-        callback.apply(null, args)
-      }
-    }
+  function tp_setContext(template, key, value) {
+    template.context[key] = value
   }
 
   var template = {
     isET: true,
-    init: function init(options) {
-      if (!options)
-        options = {}
-
-      if (!options.root) {
-        options.root = this
-        extend(this, event)
-      } else {
-        this.root = options.root
-      }
+    init: function init(context, parent) {
+      this.context = context || {}
+      this.parent = parent
 
       this.rootFrag = document.createDocumentFragment()
       this.templateStart = document.createComment('Start Template')
       this.templateEnd = document.createComment('End Template')
 
-      this.options = options
       this._eventsLogger = {} // 纪录哪些id的节点绑定了事件
       this.roots = {} // 记录某个id是不是root，如果纪录的是数字，那么认为是一个所属集合
       this.elements = {} // 记录所有的节点对象
@@ -371,10 +312,10 @@
     }
 
     function dep_createTemplate(prop) {
-      var Template = function(options) {
-        this.init(options)
+      var Template = function(context, options) {
+        this.init(context, options)
       }
-      extend(Template.prototype, template, event, prop)
+      extend(Template.prototype, template, prop)
       return Template
     }
 
@@ -400,7 +341,7 @@
     et_dependency.tp_setProperty = tp_setProperty
     et_dependency.tp_setRoot = tp_setRoot
     et_dependency.tp_text = tp_text
-    et_dependency.tp_setModel = tp_setModel
+    et_dependency.tp_setContext = tp_setContext
     et_dependency.dep_createTemplate = dep_createTemplate
 
     module.exports = et_dependency

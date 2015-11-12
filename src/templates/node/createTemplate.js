@@ -3,17 +3,6 @@
 var ${it.templateName} = _dep_createTemplate({
   create: function () {
     var _this = this
-    // }}
-    if (it.modelType === 'model' || it.modelType === 'object') {
-      // {{
-      var _scope = this.options.scope
-      // }}
-    } else {
-      // {{
-      var _scope = this
-      // }}
-    }
-    // {{
     ${it.createList.join('\n')}
   }${it.updateList.length?',':''}
   // }}

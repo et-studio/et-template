@@ -168,7 +168,7 @@ exports['default'] = {
     }
 
     if (it.modelKey) {
-      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change keyup\', function (e) {\n    _tp_setModel(_this, \'' + it.modelType + '\', \'' + _util2['default'].translateMarks(it.modelKey) + '\', e.target.value)\n  })\n');
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change keyup\', function (e) {\n    _tp_setContext(_this, \'' + _util2['default'].translateMarks(it.modelKey) + '\', e.target.value)\n  })\n');
     }
 
     return re;
@@ -319,13 +319,7 @@ exports['default'] = {
   node_createTemplate: function node_createTemplate(it) {
     var re = '';
 
-    re = re + ('\nvar ' + it.templateName + ' = _dep_createTemplate({\n  create: function () {\n    var _this = this\n');
-    if (it.modelType === 'model' || it.modelType === 'object') {
-      re = re + '\n      var _scope = this.options.scope\n';
-    } else {
-      re = re + '\n      var _scope = this\n';
-    }
-    re = re + ('\n    ' + it.createList.join('\n') + '\n  }' + (it.updateList.length ? ',' : '') + '\n');
+    re = re + ('\nvar ' + it.templateName + ' = _dep_createTemplate({\n  create: function () {\n    var _this = this\n    ' + it.createList.join('\n') + '\n  }' + (it.updateList.length ? ',' : '') + '\n');
     if (it.updateList.length) {
       re = re + ('\n    update: function (' + it.args.join(', ') + ') {\n      var _this = this\n      var _last = this.last\n\n      ' + it.updateList.join('\n') + '\n    }\n');
     }
