@@ -16,7 +16,6 @@ require.config({
     'spec': './spec',
     'src': './src',
     'et-dependency': './src/dependency',
-    'et-runtime': './es5/et-runtime',
     'design': './design'
   }
 })
@@ -28,7 +27,6 @@ require([
   'underscore',
   'mocha',
   'et-dependency',
-  'et-runtime',
   'babel',
   'jsFormatter'
 ], function (test, chai, $, _) {

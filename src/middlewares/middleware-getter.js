@@ -1,27 +1,27 @@
 'use strict'
 
-import attributes from './attributes'
-import checker from './checker'
-import compiler from './compiler'
-import dot from './dot'
-import formatter from './formatter'
-import rebuilder from './rebuilder'
-import ngRebuilder from './ng-rebuilder'
-import nodeCreator from './node-creator'
-import originParser from './origin-parser'
-import sourceTrasnlator from './source-translator'
+import dot from './00-dot'
+import originParser from './01-origin-parser'
+import sourceTrasnlator from './02-source-translator'
+import nodeCreator from './03-node-creator'
+import attributes from './04-attributes'
+import rebuilder from './05-rebuilder'
+import ngRebuilder from './06-ng-rebuilder'
+import checker from './07-checker'
+import compiler from './08-compiler'
+import formatter from './09-formatter'
 
 var MIDDLEWARES = {
-  'attributes': attributes,
-  'checker': checker,
-  'compiler': compiler,
   'dot': dot,
-  'formatter': formatter,
+  'origin-parser': originParser,
+  'source-translator': sourceTrasnlator,
+  'node-creator': nodeCreator,
+  'attributes': attributes,
   'rebuilder': rebuilder,
   'ng-rebuilder': ngRebuilder,
-  'node-creator': nodeCreator,
-  'origin-parser': originParser,
-  'source-translator': sourceTrasnlator
+  'checker': checker,
+  'compiler': compiler,
+  'formatter': formatter
 }
 
 class MiddlewareGetter {

@@ -1,0 +1,8 @@
+<ul class="list">
+  [#for item, index in it.list]
+    <li class="item">
+      [#if index === 0]It is 0.[/#if]
+      {{item}}
+    </li>
+  [/#for]
+</ul>

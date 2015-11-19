@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -35,7 +35,6 @@ var _elementHandler = require('./element-handler');
 var _elementHandler2 = _interopRequireDefault(_elementHandler);
 
 var NAME_SPACE = 'element';
-var ET_MODEL = 'et-model';
 var PROPERTIY_SET = {
   'INPUT': ['value', 'checked'],
   'TEXTAREA': ['value']
@@ -50,6 +49,8 @@ var Element = (function (_Basic) {
     _get(Object.getPrototypeOf(Element.prototype), 'constructor', this).call(this, origin, options);
 
     this.namespace = NAME_SPACE;
+    this.output = null;
+    this.events = [];
     this.nodeType = 1;
     this.expressions = _elementHandler2['default'].parse(origin.expressions);
   }
@@ -60,8 +61,6 @@ var Element = (function (_Basic) {
     key: 'parse',
     value: function parse(source) {
       var tinyNode = _parsersElement2['default'].parse(source, this.options);
-      this.modelKey = tinyNode.attributes[ET_MODEL];
-      if (this.modelKey) delete tinyNode.attributes[ET_MODEL];
       this.attributes = tinyNode.attributes;
       this.nodeName = tinyNode.nodeName.toUpperCase();
     }
@@ -156,6 +155,40 @@ var Element = (function (_Basic) {
       }
       return results;
     }
+
+    // functions for value output
+  }, {
+    key: 'setOutput',
+    value: function setOutput(expression) {
+      this.output = expression;
+    }
+  }, {
+    key: 'getOutput',
+    value: function getOutput() {
+      return this.output;
+    }
+
+    // functions for events
+  }, {
+    key: 'setEvents',
+    value: function setEvents(newEventsMap) {
+      _util2['default'].extend(this.events, newEventsMap);
+    }
+  }, {
+    key: 'setEvent',
+    value: function setEvent(eventName, expression) {
+      var args = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
+
+      this.events[eventName] = {
+        expression: expression,
+        args: args
+      };
+    }
+  }, {
+    key: 'getEvents',
+    value: function getEvents() {
+      return this.events;
+    }
   }, {
     key: 'assembleWorkerData',
     value: function assembleWorkerData() {
@@ -168,7 +201,8 @@ var Element = (function (_Basic) {
         isRoot: this.checkRoot(),
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
-        modelKey: this.modelKey,
+        events: this.getEvents(),
+        output: this.getOutput(),
 
         attributes: set.attributes,
         properties: set.properties,

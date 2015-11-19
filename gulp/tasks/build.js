@@ -53,6 +53,5 @@ module.exports = function (gulp) {
       .pipe(gulp.dest(destDir))
   })
 
-  gulp.task('build', sequence('dev', 'build-clean', ['build-js', 'build-dep', 'build-angular'],
-'build-runtime'))
+  gulp.task('build', sequence('dev', 'build-clean', ['build-js', 'build-dep', 'build-angular']))
 }

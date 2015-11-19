@@ -1,12 +1,12 @@
 <div>
-  <input on-input="setName" value="{{it.name}}" >
+  <input [(value)]="it.name" (change)="it.onChange" (input)="it.onChange">
   <br>
   Hello {{it.name}}!!
 </div>
 <h2>
-  <a on-click="add">Click to add</a>
+  <a (click)="it.add">Click to add</a>
   <br>
-  <a on-click="subtract">Click to subtract</a>
+  <a (click)="it.subtract">Click to subtract</a>
 </h2>
 <h1>
   result: {{it.index}}

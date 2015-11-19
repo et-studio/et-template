@@ -8,7 +8,6 @@ import valueParser from '../parsers/value'
 import elementHandler from './element-handler'
 
 var NAME_SPACE = 'element'
-var ET_MODEL = 'et-model'
 var PROPERTIY_SET = {
   'INPUT': ['value', 'checked'],
   'TEXTAREA': ['value']
@@ -19,6 +18,8 @@ class Element extends Basic {
     super(origin, options)
 
     this.namespace = NAME_SPACE
+    this.output = null
+    this.events = []
     this.nodeType = 1
     this.expressions = elementHandler.parse(origin.expressions)
   }
@@ -26,8 +27,6 @@ class Element extends Basic {
   // 这部分方法和代码是为初始化的时候写的
   parse (source) {
     var tinyNode = elementParser.parse(source, this.options)
-    this.modelKey = tinyNode.attributes[ET_MODEL]
-    if (this.modelKey) delete tinyNode.attributes[ET_MODEL]
     this.attributes = tinyNode.attributes
     this.nodeName = tinyNode.nodeName.toUpperCase()
   }
@@ -108,6 +107,27 @@ class Element extends Basic {
     return results
   }
 
+  // functions for value output
+  setOutput (expression) {
+    this.output = expression
+  }
+  getOutput () {
+    return this.output
+  }
+  // functions for events
+  setEvents (newEventsMap) {
+    _.extend(this.events, newEventsMap)
+  }
+  setEvent (eventName, expression, args = []) {
+    this.events[eventName] = {
+      expression: expression,
+      args: args
+    }
+  }
+  getEvents () {
+    return this.events
+  }
+
   assembleWorkerData () {
     var it = this._workerData
     if (it) return it
@@ -118,7 +138,8 @@ class Element extends Basic {
       isRoot: this.checkRoot(),
       parentId: this.getParentId(),
       nodeName: this.getNodeName(),
-      modelKey: this.modelKey,
+      events: this.getEvents(),
+      output: this.getOutput(),
 
       attributes: set.attributes,
       properties: set.properties,

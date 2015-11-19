@@ -15,6 +15,8 @@ _.each(it.newDoms, (dom) => {
   var ${templateName} = _dep_createTemplate({
     create: function () {
       var _this = this
+      var it = _this.context
+
       ${createList.join('\n')}
     }${updateList.length?',':''}
     // }}
@@ -22,7 +24,7 @@ _.each(it.newDoms, (dom) => {
       // {{
       update: function (${args.join(',')}) {
         var _this = this
-        var _last = this.last
+        var _last = _this.last
         ${updateList.join('\n')}
       }
       // }}

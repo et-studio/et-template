@@ -26,10 +26,25 @@ if (propertiesString !== nullString) {
   // }}
 }
 
-if (it.modelKey) {
+if (it.output) {
   // {{
-  _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-    _tp_setContext(_this, '${_.translateMarks(it.modelKey)}', e.target.value)
+  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+    var it = this
+    ${_.translateMarks(it.output)} = e.target.value
   })
+  // }}
+}
+
+if (!_.isEmpty(it.events)) {
+  var eventsStringList = []
+  Object.keys(it.events).map((key, index, list) => {
+    var isLast = (list.length - 1) === index
+    var event = it.events[key]
+    var expression = event.expression
+    var args = event.args
+    eventsStringList.push(`'${_.translateMarks(key)}': [${expression}, ${args.length?true:false}] ${isLast?'':','}`)
+  })
+  // {{
+  _tp_bindEventsByMap(_this, ${it.id}, {${eventsStringList.join('\n')}})
   // }}
 }
