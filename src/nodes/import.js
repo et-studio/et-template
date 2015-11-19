@@ -32,7 +32,7 @@ class ImportNode extends Basic {
       str = str.trim()
       if (str) args.push(str)
     }
-    if (!args.length) args.push('it')
+    // if (!args.length) args.push('it')
     this.importArgs = args
   }
   getPath () {

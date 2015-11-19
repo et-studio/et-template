@@ -126,9 +126,9 @@
   }
   function wrapCallbackWithArguments(template, id, eventName, callback) {
     var context = template.context
-    if (typeof callback != 'function')
+    if (typeof callback !== 'function')
       callback = context[callback]
-    if (typeof callback != 'function') return null
+    if (typeof callback !== 'function') return null
     return function(e) {
       var args = tp_getEventArguments(template, id, eventName) || []
       args.unshift(e)
@@ -178,7 +178,7 @@
 
   function tp_isArrayEqual(arrayA, arrayB) {
     if (arrayA === arrayB) return true
-    if (arrayA == null && arrayA == arrayB) return true
+    if (!arrayA && !arrayB) return true
     if (arrayA.length !== arrayB.length) return false
 
     for (var i = 0, len = arrayA.length; i < len; i++) {

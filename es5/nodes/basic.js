@@ -125,7 +125,7 @@ var Basic = (function (_NodeInterface) {
   }, {
     key: 'getArguments',
     value: function getArguments() {
-      var re = ['it'];
+      var re = [];
 
       var lastRoot = this.getLastRoot();
       if (lastRoot) {

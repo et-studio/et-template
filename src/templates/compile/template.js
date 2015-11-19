@@ -25,6 +25,8 @@ _.each(it.newDoms, (dom) => {
       update: function (${args.join(',')}) {
         var _this = this
         var _last = _this.last
+        var it = _this.context
+
         ${updateList.join('\n')}
       }
       // }}

@@ -13,11 +13,14 @@ var _tp_text = _dep.tp_text
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createLine(_this, null, 1)
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _lastLength = _last[0] || 0
     var _list = it.matrix[it.members[1]] || []
@@ -32,7 +35,7 @@ var Template_0 = _dep_createTemplate({
         var _prevId = _index ? ('2_' + (_index - 1)) : 1
         _tp_after(_this, _prevId, _itemId)
       }
-      _template.update(it, item, index)
+      _template.update(item, index)
     }
     for (; _index < _lastLength; _index++) {
       _tp_remove(_this, '2_' + _index)
@@ -43,11 +46,15 @@ var Template_0 = _dep_createTemplate({
 var Template_2 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 4, '')
   },
-  update: function(it, item, index) {
+  update: function(item, index) {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
+
     var _tmp = 'it is for loop ' + (index)
     if (_last[0] !== _tmp) {
       _last[0] = _tmp

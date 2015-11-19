@@ -14,14 +14,18 @@ var _tp_text = _dep.tp_text
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 2, 'UL', {
       "class": "list"
     })
     _tp_createLine(_this, 2, 3)
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
+
     var _lastLength = _last[0] || 0
     var _list = it.list || []
     var _index = 0
@@ -35,7 +39,7 @@ var Template_0 = _dep_createTemplate({
         var _prevId = _index ? ('4_' + (_index - 1)) : 3
         _tp_after(_this, _prevId, _itemId)
       }
-      _template.update(it, item, index)
+      _template.update(item, index)
     }
     for (; _index < _lastLength; _index++) {
       _tp_remove(_this, '4_' + _index)
@@ -45,15 +49,19 @@ var Template_0 = _dep_createTemplate({
 var Template_4 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 6, 'LI', {
       "class": "item"
     })
     _tp_createLine(_this, 6, 7)
     _tp_createText(_this, 6, 12, '')
   },
-  update: function(it, item, index) {
+  update: function(item, index) {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
+
     var _index
     var _templateId = _last[1]
     var _template = _tp_getTemplate(_this, _templateId)
@@ -85,7 +93,7 @@ var Template_4 = _dep_createTemplate({
         _template = null
       }
     }
-    if (_template) _template.update(it, item, index)
+    if (_template) _template.update(item, index)
     var _tmp = (item)
     if (_last[2] !== _tmp) {
       _last[2] = _tmp
@@ -96,6 +104,8 @@ var Template_4 = _dep_createTemplate({
 var Template_8 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 10, 'It is 0.')
   }
 })

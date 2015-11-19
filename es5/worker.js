@@ -136,7 +136,7 @@ exports['default'] = {
 
       re = re + ('\n  var ' + templateName + ' = _dep_createTemplate({\n    create: function () {\n      var _this = this\n      var it = _this.context\n\n      ' + createList.join('\n') + '\n    }' + (updateList.length ? ',' : '') + '\n');
       if (updateList.length) {
-        re = re + ('\n      update: function (' + args.join(',') + ') {\n        var _this = this\n        var _last = _this.last\n        ' + updateList.join('\n') + '\n      }\n');
+        re = re + ('\n      update: function (' + args.join(',') + ') {\n        var _this = this\n        var _last = _this.last\n        var it = _this.context\n\n        ' + updateList.join('\n') + '\n      }\n');
       }
       re = re + '\n  })\n';
     });

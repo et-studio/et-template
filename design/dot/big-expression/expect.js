@@ -12,12 +12,15 @@ var _tp_createText = _dep.tp_createText
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 2, 'DIV')
     _tp_createLine(_this, 2, 3)
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _index
     var _templateId = _last[1]
@@ -50,18 +53,22 @@ var Template_0 = _dep_createTemplate({
         _template = null
       }
     }
-    if (_template) _template.update(it)
+    if (_template) _template.update()
   }
 })
 var Template_4 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 6, 'Bigger than 1.')
   }
 })
 var Template_8 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 10, 'Smaller than 1.')
   }
 })

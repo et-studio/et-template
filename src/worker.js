@@ -193,6 +193,8 @@ var _dep_createTemplate = _dep.dep_createTemplate
       update: function (${args.join(',')}) {
         var _this = this
         var _last = _this.last
+        var it = _this.context
+
         ${updateList.join('\n')}
       }
 `

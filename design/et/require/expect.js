@@ -12,13 +12,17 @@ var _tp_getTemlate = _dep.tp_getTemlate
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 2, 'DIV')
     _tp_createTemplate(_this, 2, Template_4, this.options)
     _tp_createText(_this, 2, 6, '1234567890')
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
+
     var _template = _tp_getTemlate(_this, 4)
     _template.update(it, it.test)
   }
