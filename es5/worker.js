@@ -134,9 +134,9 @@ exports['default'] = {
       var updateList = dom.getUpdateList();
       var args = dom.getArguments();
 
-      re = re + ('\n  var ' + templateName + ' = _dep_createTemplate({\n    create: function () {\n      var _this = this\n      ' + createList.join('\n') + '\n    }' + (updateList.length ? ',' : '') + '\n');
+      re = re + ('\n  var ' + templateName + ' = _dep_createTemplate({\n    create: function () {\n      var _this = this\n      var it = _this.context\n\n      ' + createList.join('\n') + '\n    }' + (updateList.length ? ',' : '') + '\n');
       if (updateList.length) {
-        re = re + ('\n      update: function (' + args.join(',') + ') {\n        var _this = this\n        var _last = this.last\n        ' + updateList.join('\n') + '\n      }\n');
+        re = re + ('\n      update: function (' + args.join(',') + ') {\n        var _this = this\n        var _last = _this.last\n        var it = _this.context\n\n        ' + updateList.join('\n') + '\n      }\n');
       }
       re = re + '\n  })\n';
     });
@@ -167,8 +167,20 @@ exports['default'] = {
       re = re + ('\n  _tp_createElement(_this, ' + parentElementId + ', ' + it.id + ', \'' + _util2['default'].translateMarks(it.nodeName) + '\')\n');
     }
 
-    if (it.modelKey) {
-      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change keyup\', function (e) {\n    _tp_setContext(_this, \'' + _util2['default'].translateMarks(it.modelKey) + '\', e.target.value)\n  })\n');
+    if (it.output) {
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n    var it = this\n    ' + _util2['default'].translateMarks(it.output) + ' = e.target.value\n  })\n');
+    }
+
+    if (!_util2['default'].isEmpty(it.events)) {
+      var eventsStringList = [];
+      Object.keys(it.events).map(function (key, index, list) {
+        var isLast = list.length - 1 === index;
+        var event = it.events[key];
+        var expression = event.expression;
+        var args = event.args;
+        eventsStringList.push('\'' + _util2['default'].translateMarks(key) + '\': [' + expression + ', ' + (args.length ? true : false) + '] ' + (isLast ? '' : ','));
+      });
+      re = re + ('\n  _tp_bindEventsByMap(_this, ' + it.id + ', {' + eventsStringList.join('\n') + '})\n');
     }
 
     return re;
@@ -191,6 +203,15 @@ exports['default'] = {
         });
       });
     }
+
+    Object.keys(it.events).map(function (key, index, list) {
+      var isLast = list.length - 1 === index;
+      var event = it.events[key];
+      var args = event.args;
+      if (args.length) {
+        re = re + ('\n    var _current = [' + args.join(', ') + ']\n    var _saved = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\')\n    if (!_tp_isArrayEqual(_saved, _current)) {\n      _tp_saveEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\', _current)\n    }\n');
+      }
+    });
 
     return re;
   },
@@ -296,7 +317,7 @@ exports['default'] = {
     if (it.isRoot) {
       re = re + '\n      _tp_setRoot(_this, _currentTemplateId)\n';
     }
-    re = re + ('\n  } else {\n    _last[' + it.saveId + '] = null\n    _template = null\n  }\n}\nif (_template) _template.update(it)\n');
+    re = re + ('\n  } else {\n    _last[' + it.saveId + '] = null\n    _template = null\n  }\n}\nif (_template) _template.update(' + it.args.join(', ') + ')\n');
 
     return re;
   },

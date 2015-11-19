@@ -13,12 +13,15 @@ var _tp_setRoot = _dep.tp_setRoot
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 2, 'It is before.')
     _tp_createLine(_this, null, 3)
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _index
     var _templateId = _last[1]
@@ -53,12 +56,14 @@ var Template_0 = _dep_createTemplate({
         _template = null
       }
     }
-    if (_template) _template.update(it)
+    if (_template) _template.update()
   }
 })
 var Template_4 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 6, 'It is number and is even')
   }
 })

@@ -88,7 +88,7 @@ class Basic extends NodeInterface {
     return re
   }
   getArguments () {
-    var re = ['it']
+    var re = []
 
     var lastRoot = this.getLastRoot()
     if (lastRoot) {

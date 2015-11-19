@@ -29,17 +29,17 @@ class IfNode extends Basic {
     var hasElse = false
     var current = this.next
     while (current) {
-      var currentTag = current.getTag()
-      if (currentTag === 'else if' || currentTag === 'else') {
+      var nodeName = current.getNodeName()
+      if (nodeName === '#ELSEIF') {
         results.push(this.translateDom(current))
-      }
-      if (currentTag === 'else') {
+        current = current.next
+      } else if (nodeName === '#ELSE') {
+        results.push(this.translateDom(current))
         hasElse = true
-      }
-      if (currentTag !== 'else if') {
+        break
+      } else {
         break
       }
-      current = current.next
     }
     if (!hasElse) results.push(this.translateDom(null))
     return results
@@ -72,7 +72,8 @@ class IfNode extends Basic {
       valueId: this.getRootValueId(),
       saveId: this.getRootValueId(),
       isRoot: this.checkRoot(),
-      doms: this.getConditionDoms()
+      doms: this.getConditionDoms(),
+      args: this.getArguments()
     }
     return it
   }

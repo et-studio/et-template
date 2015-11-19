@@ -18,9 +18,7 @@ exports.register = function () {
       this.index--
       this.update()
     },
-    setName: function (e) {
-      var value = e.target.value
-      this.name = value
+    onChange: function (e) {
       this.update()
     },
     update: function () {

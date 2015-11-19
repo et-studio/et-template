@@ -9,13 +9,16 @@ var _tp_removeAttribute = _dep.tp_removeAttribute
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 2, 'DIV', {
       "disabled": ""
     })
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _tmp = 'aaa' + (it.id) + 'bbb' + (it.getSrc())
     if (_last[0] !== _tmp) {

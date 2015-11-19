@@ -8,11 +8,14 @@ var _tp_html = _dep.tp_html
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createElement(_this, null, 2, 'DIV')
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _tmp = 'aaa' + (it.html) + 'bbb'
     if (_last[0] !== _tmp) {

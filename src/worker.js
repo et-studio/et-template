@@ -183,6 +183,8 @@ var _dep_createTemplate = _dep.dep_createTemplate
   var ${templateName} = _dep_createTemplate({
     create: function () {
       var _this = this
+      var it = _this.context
+
       ${createList.join('\n')}
     }${updateList.length ? ',' : ''}
 `
@@ -190,7 +192,9 @@ var _dep_createTemplate = _dep.dep_createTemplate
         re = re + `
       update: function (${args.join(',')}) {
         var _this = this
-        var _last = this.last
+        var _last = _this.last
+        var it = _this.context
+
         ${updateList.join('\n')}
       }
 `
@@ -233,11 +237,26 @@ var _dep_createTemplate = _dep.dep_createTemplate
 `
     }
 
-    if (it.modelKey) {
+    if (it.output) {
       re = re + `
-  _tp_bind(_this, ${it.id}, 'change keyup', function (e) {
-    _tp_setContext(_this, '${_.translateMarks(it.modelKey)}', e.target.value)
+  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+    var it = this
+    ${_.translateMarks(it.output)} = e.target.value
   })
+`
+    }
+
+    if (!_.isEmpty(it.events)) {
+      var eventsStringList = []
+      Object.keys(it.events).map((key, index, list) => {
+        var isLast = (list.length - 1) === index
+        var event = it.events[key]
+        var expression = event.expression
+        var args = event.args
+        eventsStringList.push(`'${_.translateMarks(key)}': [${expression}, ${args.length ? true : false}] ${isLast ? '' : ','}`)
+      })
+      re = re + `
+  _tp_bindEventsByMap(_this, ${it.id}, {${eventsStringList.join('\n')}})
 `
     }
 
@@ -270,6 +289,21 @@ var _dep_createTemplate = _dep.dep_createTemplate
         })
       })
     }
+
+    Object.keys(it.events).map((key, index, list) => {
+      var isLast = (list.length - 1) === index
+      var event = it.events[key]
+      var args = event.args
+      if (args.length) {
+        re = re + `
+    var _current = [${args.join(', ')}]
+    var _saved = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(key)}')
+    if (!_tp_isArrayEqual(_saved, _current)) {
+      _tp_saveEventArguments(_this, ${it.id}, '${_.translateMarks(key)}', _current)
+    }
+`
+      }
+    })
 
     return re
   },
@@ -482,7 +516,7 @@ if (_last[${it.valueId}] !== _index) {
     _template = null
   }
 }
-if (_template) _template.update(it)
+if (_template) _template.update(${it.args.join(', ')})
 `
 
     return re

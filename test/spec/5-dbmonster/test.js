@@ -7,15 +7,26 @@ var getDatabases = require('./db.js')
 var Template = require('template/dbmonster-table.html')
 var MAX_COUNT = Math.pow(10, 2)
 
+function extend (A, B) {
+  for (var key in B) {
+    A[key] = B[key]
+  }
+  return A
+}
+
 function testET () {
   var content = document.getElementById('test')
-  var t = new Template()
+  var context = {}
+
+  var t = new Template(context)
   content.appendChild(t.get())
+
   var count = 0
   var startTime = new Date().valueOf()
 
   function redraw () {
-    t.update({dbs: getDatabases()})
+    extend(context, {dbs: getDatabases()})
+    t.update()
     if (count < MAX_COUNT) {
       count++
       setTimeout(redraw, window.TIMEOUT)

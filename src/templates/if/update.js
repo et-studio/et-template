@@ -60,5 +60,5 @@ if (_last[${it.valueId}] !== _index) {
     _template = null
   }
 }
-if (_template) _template.update(it)
+if (_template) _template.update(${it.args.join(', ')})
 // }}

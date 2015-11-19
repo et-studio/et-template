@@ -18,6 +18,13 @@ var _basicMiddleware = require('./basic-middleware');
 
 var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
+var VALUE_BIND_KEY = '[(value)]';
+var OUTPUT_KEY = 'et-output';
+var EVENT_PREFIX = 'on-';
+var EVENT_LEFT_BRACKET = '(';
+var EVENT_RIGHT_BRACKET = ')';
+var EVENT_SPLIT = ',';
+
 var MiddlewareAttributes = (function (_Basic) {
   _inherits(MiddlewareAttributes, _Basic);
 
@@ -30,7 +37,70 @@ var MiddlewareAttributes = (function (_Basic) {
   _createClass(MiddlewareAttributes, [{
     key: 'run',
     value: function run(last, options) {
+      last.each(this.checkNode.bind(this));
       return last;
+    }
+  }, {
+    key: 'checkNode',
+    value: function checkNode(node) {
+      if (node.nodeType === 1) {
+        this.translateValueBind(node);
+        this.translateElementAttributes(node);
+      }
+    }
+  }, {
+    key: 'translateValueBind',
+    value: function translateValueBind(element) {
+      var attributes = element.attributes;
+      for (var key in attributes) {
+        var expression = attributes[key];
+        if (this.chargeIsValueBind(key)) {
+          delete attributes[key];
+          attributes['value'] = '{{' + expression + '}}';
+          attributes['et-output'] = expression;
+        }
+      }
+    }
+  }, {
+    key: 'translateElementAttributes',
+    value: function translateElementAttributes(element) {
+      var attributes = element.attributes || {};
+      for (var key in attributes) {
+        var expression = attributes[key];
+        var eventName = this.getEventFromKey(key);
+        var expressionList = expression.split(EVENT_SPLIT);
+
+        if (this.chargeIsOutput(key)) {
+          delete attributes[key];
+          element.setOutput(expression);
+        } else if (eventName) {
+          delete attributes[key];
+          element.setEvent(eventName, expressionList[0], expressionList.slice(1));
+        }
+      }
+    }
+  }, {
+    key: 'chargeIsValueBind',
+    value: function chargeIsValueBind(key) {
+      return key === VALUE_BIND_KEY;
+    }
+  }, {
+    key: 'chargeIsOutput',
+    value: function chargeIsOutput(key) {
+      return key === OUTPUT_KEY;
+    }
+  }, {
+    key: 'getEventFromKey',
+    value: function getEventFromKey(key) {
+      var isLeftMatch = key.indexOf(EVENT_LEFT_BRACKET) === 0;
+      var isRightMatch = key.indexOf(EVENT_RIGHT_BRACKET) === key.length - 1;
+
+      if (key.indexOf(EVENT_PREFIX) === 0) {
+        return key.substr(EVENT_PREFIX.length);
+      } else if (isLeftMatch && isRightMatch) {
+        return key.substr(1, key.length - 2);
+      }
+      return null;
     }
   }]);
 

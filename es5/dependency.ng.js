@@ -110,20 +110,32 @@ angular.module('et.template', [])
       parent.appendChild(current)
     }
 
-    function parseCallback(template, eventName) {
-      var context = template.context
-      return context[eventName]
+    function parseCallback(template, callback) {
+      if (typeof callback !== 'function') {
+        return template.context[callback]
+      } else {
+        return callback
+      }
     }
-    function tp_bind(template, id, eventString, callback) {
+    function wrapCallbackWithArguments(template, id, eventName, callback) {
+      var context = template.context
+      if (typeof callback !== 'function')
+        callback = context[callback]
+      if (typeof callback !== 'function') return null
+      return function(e) {
+        var args = tp_getEventArguments(template, id, eventName) || []
+        args.unshift(e)
+        callback.apply(context, args)
+      }
+    }
+    function tp_bind(template, id, eventString, callback, withArguments) {
       var element = template.elements[id]
       if (!element.addEventListener) {
         // console.warning('The element has no addEventListener method', element)
         return
       }
+      callback = parseCallback(template, callback)
       if (typeof callback !== 'function') {
-        callback = parseCallback(template, callback)
-      }
-      if (!callback) {
         // console.warning('Could not find the listner handler', element)
         return
       }
@@ -131,8 +143,41 @@ angular.module('et.template', [])
       template._eventsLogger[id] = true
       var eventNames = eventString.split(EVENT_SPLITTER)
       for (var i = 0, len = eventNames.length; i < len; i++) {
-        element.addEventListener(eventNames[i], callback.bind(template.context), false)
+        var eventName = eventNames[i]
+        if (withArguments) {
+          callback = wrapCallbackWithArguments(template, id, eventName, callback)
+        } else {
+          callback = callback.bind(template.context)
+        }
+        element.addEventListener(eventName, callback, false)
       }
+    }
+    function tp_bindEventsByMap(template, id, eventsMap) {
+      for (var key in eventsMap) {
+        var list = eventsMap[key]
+        var fn = list[0]
+        var withArguments = list[1]
+        tp_bind(template, id, key, fn, withArguments)
+      }
+    }
+
+    function tp_getEventArguments(template, id, eventName) {
+      return template.last['event_' + id + '_' + eventName] || []
+    }
+
+    function tp_saveEventArguments(template, id, eventName, args) {
+      template.last['event_' + id + '_' + eventName] = args
+    }
+
+    function tp_isArrayEqual(arrayA, arrayB) {
+      if (arrayA === arrayB) return true
+      if (!arrayA && !arrayB) return true
+      if (arrayA.length !== arrayB.length) return false
+
+      for (var i = 0, len = arrayA.length; i < len; i++) {
+        if (arrayA[i] !== arrayB[i]) return false
+      }
+      return true
     }
 
     function tp_html(template, id, html) {
@@ -336,6 +381,10 @@ angular.module('et.template', [])
       et_dependency.tp_text = tp_text
       et_dependency.tp_setContext = tp_setContext
       et_dependency.dep_createTemplate = dep_createTemplate
+      et_dependency.tp_bindEventsByMap = tp_bindEventsByMap
+      et_dependency.tp_getEventArguments = tp_getEventArguments
+      et_dependency.tp_saveEventArguments = tp_saveEventArguments
+      et_dependency.tp_isArrayEqual = tp_isArrayEqual
 
       module.exports = et_dependency
 

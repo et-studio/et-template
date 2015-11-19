@@ -10,57 +10,57 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _attributes = require('./attributes');
-
-var _attributes2 = _interopRequireDefault(_attributes);
-
-var _checker = require('./checker');
-
-var _checker2 = _interopRequireDefault(_checker);
-
-var _compiler = require('./compiler');
-
-var _compiler2 = _interopRequireDefault(_compiler);
-
-var _dot = require('./dot');
+var _dot = require('./00-dot');
 
 var _dot2 = _interopRequireDefault(_dot);
 
-var _formatter = require('./formatter');
-
-var _formatter2 = _interopRequireDefault(_formatter);
-
-var _rebuilder = require('./rebuilder');
-
-var _rebuilder2 = _interopRequireDefault(_rebuilder);
-
-var _ngRebuilder = require('./ng-rebuilder');
-
-var _ngRebuilder2 = _interopRequireDefault(_ngRebuilder);
-
-var _nodeCreator = require('./node-creator');
-
-var _nodeCreator2 = _interopRequireDefault(_nodeCreator);
-
-var _originParser = require('./origin-parser');
+var _originParser = require('./01-origin-parser');
 
 var _originParser2 = _interopRequireDefault(_originParser);
 
-var _sourceTranslator = require('./source-translator');
+var _sourceTranslator = require('./02-source-translator');
 
 var _sourceTranslator2 = _interopRequireDefault(_sourceTranslator);
 
+var _nodeCreator = require('./03-node-creator');
+
+var _nodeCreator2 = _interopRequireDefault(_nodeCreator);
+
+var _attributes = require('./04-attributes');
+
+var _attributes2 = _interopRequireDefault(_attributes);
+
+var _rebuilder = require('./05-rebuilder');
+
+var _rebuilder2 = _interopRequireDefault(_rebuilder);
+
+var _ngRebuilder = require('./06-ng-rebuilder');
+
+var _ngRebuilder2 = _interopRequireDefault(_ngRebuilder);
+
+var _checker = require('./07-checker');
+
+var _checker2 = _interopRequireDefault(_checker);
+
+var _compiler = require('./08-compiler');
+
+var _compiler2 = _interopRequireDefault(_compiler);
+
+var _formatter = require('./09-formatter');
+
+var _formatter2 = _interopRequireDefault(_formatter);
+
 var MIDDLEWARES = {
-  'attributes': _attributes2['default'],
-  'checker': _checker2['default'],
-  'compiler': _compiler2['default'],
   'dot': _dot2['default'],
-  'formatter': _formatter2['default'],
+  'origin-parser': _originParser2['default'],
+  'source-translator': _sourceTranslator2['default'],
+  'node-creator': _nodeCreator2['default'],
+  'attributes': _attributes2['default'],
   'rebuilder': _rebuilder2['default'],
   'ng-rebuilder': _ngRebuilder2['default'],
-  'node-creator': _nodeCreator2['default'],
-  'origin-parser': _originParser2['default'],
-  'source-translator': _sourceTranslator2['default']
+  'checker': _checker2['default'],
+  'compiler': _compiler2['default'],
+  'formatter': _formatter2['default']
 };
 
 var MiddlewareGetter = (function () {

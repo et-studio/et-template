@@ -14,6 +14,7 @@ var _tp_text = _dep.tp_text
 var Template_0 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
 
     _tp_createElement(_this, null, 2, 'DIV', {
       "id": "content"
@@ -23,9 +24,10 @@ var Template_0 = _dep_createTemplate({
     _tp_createText(_this, 12, 14, 'It is P label.')
     _tp_createLine(_this, 2, 15)
   },
-  update: function(it) {
+  update: function() {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _index
     var _templateId = _last[1]
@@ -62,7 +64,7 @@ var Template_0 = _dep_createTemplate({
         _template = null
       }
     }
-    if (_template) _template.update(it)
+    if (_template) _template.update()
 
     var _lastLength = _last[2] || 0
     var _list = it.matrix[it.members[1]] || []
@@ -77,7 +79,7 @@ var Template_0 = _dep_createTemplate({
         var _prevId = _index ? ('16_' + (_index - 1)) : 15
         _tp_after(_this, _prevId, _itemId)
       }
-      _template.update(it, item, index)
+      _template.update(item, index)
     }
     for (; _index < _lastLength; _index++) {
       _tp_remove(_this, '16_' + _index)
@@ -88,6 +90,8 @@ var Template_0 = _dep_createTemplate({
 var Template_4 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 6, 'It is true.')
   }
 })
@@ -95,6 +99,8 @@ var Template_4 = _dep_createTemplate({
 var Template_8 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 10, 'It is else.')
   }
 })
@@ -102,11 +108,14 @@ var Template_8 = _dep_createTemplate({
 var Template_16 = _dep_createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _tp_createText(_this, null, 18, '')
   },
-  update: function(it, item, index) {
+  update: function(item, index) {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _tmp = 'it is for loop ' + (index)
     if (_last[0] !== _tmp) {
