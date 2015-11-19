@@ -5,6 +5,8 @@
 然而正常的期望在更新模板的时候能够进行差异更新的时候最小程度上的属性变化，这样既能提高性能又能合理控制Dom的生命周期。
 所以，**et-template** 设计的初衷就是在模板中控制Dom的生命周期，尽可能的高性能进行差异更新，并且保留模板具备的简单接口容易使用的特性。
 
+这是一个编译工具，将html代码转换成一个固定的js结构，然后根据依赖的模板原型函数进行初始化，就像[babel](https://github.com/babel/babel)把es6代码编译成es5代码一样。
+
 
 ## Installation
 ```console
@@ -17,8 +19,7 @@ npm install et-template --save-dev
 
 [TodoMVC源码](https://github.com/et-studio/et-studio.github.io)
 
-**et-template** 是一个类函数，它被实例化之后的对象拥有编译一个模板代码到运行代码的接口，就像[babel](https://github.com/babel/babel)把es6代码编译成es5代码一样。
-通常情况下来说，模板代码都是有部分代码逻辑的html代码，而运行代码则是js可执行代码。
+**et-template** 是一个类函数，它需要被实例化，而不同的实例化方式取决于依赖的原型类函数。基本的ET模板类需要制定一个初始化上下文对象。定义模板的时候，进行插值或者事件绑定的时候都需要使用的对象。模板内部默认一个可访问对象，命名为it，指代初始化时传入的上下文对象。
 
 ### 基本语法
 ```html
@@ -28,6 +29,8 @@ npm install et-template --save-dev
 <div id="if-example">
   [#if it.isTrue]
     It is true.
+  [#elseif it.isElseIf]
+    It is else if.
   [#else]
     It is else.
   [/#if]
@@ -38,20 +41,22 @@ npm install et-template --save-dev
   [/#for]
 </div>
 ```
-这里的参数取值参考了doT的设计，能够从it这个外部传入的参数对象中获取传入的任何值。
+
 插入值的标记是装大括号包裹住的部分，中间部分会解释称为运行的取值代码。
+
 if条件判读和for遍历都使用了比较特殊的节点方式，[#]这样的节点进行设计的。
+
 这样设计的原因是把html语法判断使用节点的方式进行包裹，让作用域清晰，易于自定义语法拓展。
 
-### import语法
+
+### import语法(因为重新设计而没有实现)
 ```html
 <div>
-  [#import ./models/user, it, it.user]
+  [#import ./models/user, it.getUserContext()]
 </div>
 ```
 import 是引用子模板的语法，后面跟着的第一个参数是子模板的引用路径。
-从第二个参数起，就是模板在更新的时候会传递进去的参数。
-通常情况下，子模板需要传递的参数有且只有it，但是也会具有其它的特别情况。
+从第二个参数是初始化这个模板需要的上下文对象，这里可以是一个求值表达式；也可以不传递指定对象，这时会使用当前对象的上下文进行初始化。
 
 
 ### html语法(因为重新设计而没有实现)
@@ -113,12 +118,15 @@ var result = et.compile(html, compileOptions)
 var Template_0 = _createTemplate({
   create: function() {
     var _this = this
+    var it = _this.context
+
     _createElement(_this, null, 2, 'DIV')
     _createText(_this, 2, 4, '')
   },
   update: function(it) {
     var _this = this
-    var _last = this.last
+    var _last = _this.last
+    var it = _this.context
 
     var _tmp = 'Hello, ' + it.name + '!'
     if (_last[0] !== _tmp) {
@@ -135,8 +143,8 @@ var Template_0 = _createTemplate({
 这样去使用模板对象
 ```js
 var it = {name: 'Bob'}
-var template = new Template_0()
-template.update(it)
+var template = new Template_0(it)
+template.update()
 
 var $body = document.querySelector('body')
 $body.appendChild(template.get())
@@ -152,38 +160,16 @@ $body.appendChild(template.get())
 所以编译参数和初始化参数是相互冲突的，同一个参数只会出现在同一个地方。
 
 实例之后的对象具备以下的方法:
-* compile(htmlString, compileOptions)
-* compileET(htmlString, compileOptions)
-* compileDot(htmlString, compileOptions)
+* compile(htmlString, Options)
 
-如果初始化参数带有 compiledTemplate = 'dot' 这样的参数，那么compile方法会去调用compileDot。
-所有编译函数都会返回编辑的结果字符串。
+如果初始化参数带有 compiledTemplate = 'dot' 这样的参数，那么就认为被编译的html代码是doT格式的。
 
 ## 模板接口
 当模板被实例化之后，就具备了以下的方法函数:
 * get 从当前模板获取节点对象
-
-  参数：无
-
-  返回：documentFragment
-
 * update 使用新的数据更新模板
-
-  参数：it
-
-  返回：无
-
 * remove 把模板的节点从页面上移除掉
-
-  参数：无
-
-  返回：无
-
 * destory 整个对象属性销毁，释放内存
-
-  参数：无
-
-  返回：无
 
 
 ## Options
@@ -193,7 +179,6 @@ $body.appendChild(template.get())
 | compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法 |
 | modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范 |
 | dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲 |
-| modelType | 'event' | ['model', 'object', 'event'] | 事件注册类型 |
 
 ### 编译时参数
 | 名称 | 默认值 | 可选值 | 解释 |
