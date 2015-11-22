@@ -240,7 +240,6 @@ var _dep_createTemplate = _dep.dep_createTemplate
     if (it.output) {
       re = re + `
   _tp_bind(_this, ${it.id}, 'change input', function (e) {
-    var it = this
     ${_.translateMarks(it.output)} = e.target.value
   })
 `
@@ -248,15 +247,25 @@ var _dep_createTemplate = _dep.dep_createTemplate
 
     if (!_.isEmpty(it.events)) {
       var eventsStringList = []
-      Object.keys(it.events).map((key, index, list) => {
+      Object.keys(it.events).map((eventName, index, list) => {
         var isLast = (list.length - 1) === index
-        var event = it.events[key]
+        var event = it.events[eventName]
         var expression = event.expression
         var args = event.args
-        eventsStringList.push(`'${_.translateMarks(key)}': [${expression}, ${args.length ? true : false}] ${isLast ? '' : ','}`)
+        var argsStrList = args.map((item, index) => `args[${index}]`)
+        if (args.length) {
+          eventsStringList.push(`'${_.translateMarks(eventName)}': function (e) {
+        var args = _tp_getEventArguments('${_.translateMarks(eventName)}')
+        ${expression}(e, ${argsStrList.join(' ,')})
+      }`)
+        } else {
+          eventsStringList.push(`'${_.translateMarks(eventName)}': function (e) {
+        ${expression}(e)
+      }`)
+        }
       })
       re = re + `
-  _tp_bindEventsByMap(_this, ${it.id}, {${eventsStringList.join('\n')}})
+  _tp_bindEventsByMap(_this, ${it.id}, {${eventsStringList.join(',\n')}})
 `
     }
 

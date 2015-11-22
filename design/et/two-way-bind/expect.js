@@ -15,7 +15,6 @@ var Template_0 = _dep_createTemplate({
     _tp_createElement(_this, null, 2, 'DIV')
     _tp_createElement(_this, 2, 4, 'INPUT')
     _tp_bind(_this, 4, 'change input', function(e) {
-      var it = this
       it.name = e.target.value
     })
   },

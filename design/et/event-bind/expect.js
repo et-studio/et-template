@@ -4,8 +4,8 @@ var _dep = require('et-dependency')
 var _dep_createTemplate = _dep.dep_createTemplate
 var _tp_createElement = _dep.tp_createElement
 var _tp_bindEventsByMap = _dep.tp_bindEventsByMap
-var _tp_createText = _dep.tp_createText
 var _tp_getEventArguments = _dep.tp_getEventArguments
+var _tp_createText = _dep.tp_createText
 var _tp_isArrayEqual = _dep.tp_isArrayEqual
 var _tp_saveEventArguments = _dep.tp_saveEventArguments
 
@@ -17,12 +17,17 @@ var Template_0 = _dep_createTemplate({
     _tp_createElement(_this, null, 2, 'DIV')
     _tp_createElement(_this, 2, 4, 'A')
     _tp_bindEventsByMap(_this, 4, {
-      'click': [it.onClick, true]
+      'click': function(e) {
+        var args = _tp_getEventArguments('click')
+        it.onClick(e, args[0], args[1])
+      }
     })
     _tp_createText(_this, 4, 6, 'on-click')
     _tp_createElement(_this, 2, 8, 'A')
     _tp_bindEventsByMap(_this, 8, {
-      'click': [it.onClick, false]
+      'click': function(e) {
+        it.onClick(e)
+      }
     })
     _tp_createText(_this, 8, 10, '(click)')
   },

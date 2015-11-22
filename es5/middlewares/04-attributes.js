@@ -68,14 +68,14 @@ var MiddlewareAttributes = (function (_Basic) {
       for (var key in attributes) {
         var expression = attributes[key];
         var eventName = this.getEventFromKey(key);
-        var expressionList = expression.split(EVENT_SPLIT);
+        var expressions = this.parseEventExpression(expression);
 
         if (this.chargeIsOutput(key)) {
           delete attributes[key];
           element.setOutput(expression);
         } else if (eventName) {
           delete attributes[key];
-          element.setEvent(eventName, expressionList[0], expressionList.slice(1));
+          element.setEvent(eventName, expressions[0], expressions.slice(1));
         }
       }
     }
@@ -96,11 +96,21 @@ var MiddlewareAttributes = (function (_Basic) {
       var isRightMatch = key.indexOf(EVENT_RIGHT_BRACKET) === key.length - 1;
 
       if (key.indexOf(EVENT_PREFIX) === 0) {
+        // parse string like 'on-click'
         return key.substr(EVENT_PREFIX.length);
       } else if (isLeftMatch && isRightMatch) {
+        // parse string like (click)
         return key.substr(1, key.length - 2);
       }
       return null;
+    }
+  }, {
+    key: 'parseEventExpression',
+    value: function parseEventExpression(expression) {
+      var results = expression.split(EVENT_SPLIT);
+      return results.map(function (item) {
+        return item.trim();
+      });
     }
   }]);
 

@@ -168,19 +168,26 @@ exports['default'] = {
     }
 
     if (it.output) {
-      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n    var it = this\n    ' + _util2['default'].translateMarks(it.output) + ' = e.target.value\n  })\n');
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n    ' + _util2['default'].translateMarks(it.output) + ' = e.target.value\n  })\n');
     }
 
     if (!_util2['default'].isEmpty(it.events)) {
       var eventsStringList = [];
-      Object.keys(it.events).map(function (key, index, list) {
+      Object.keys(it.events).map(function (eventName, index, list) {
         var isLast = list.length - 1 === index;
-        var event = it.events[key];
+        var event = it.events[eventName];
         var expression = event.expression;
         var args = event.args;
-        eventsStringList.push('\'' + _util2['default'].translateMarks(key) + '\': [' + expression + ', ' + (args.length ? true : false) + '] ' + (isLast ? '' : ','));
+        var argsStrList = args.map(function (item, index) {
+          return 'args[' + index + ']';
+        });
+        if (args.length) {
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        var args = _tp_getEventArguments(\'' + _util2['default'].translateMarks(eventName) + '\')\n        ' + expression + '(e, ' + argsStrList.join(' ,') + ')\n      }');
+        } else {
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        ' + expression + '(e)\n      }');
+        }
       });
-      re = re + ('\n  _tp_bindEventsByMap(_this, ' + it.id + ', {' + eventsStringList.join('\n') + '})\n');
+      re = re + ('\n  _tp_bindEventsByMap(_this, ' + it.id + ', {' + eventsStringList.join(',\n') + '})\n');
     }
 
     return re;

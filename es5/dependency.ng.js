@@ -110,31 +110,12 @@ angular.module('et.template', [])
       parent.appendChild(current)
     }
 
-    function parseCallback(template, callback) {
-      if (typeof callback !== 'function') {
-        return template.context[callback]
-      } else {
-        return callback
-      }
-    }
-    function wrapCallbackWithArguments(template, id, eventName, callback) {
-      var context = template.context
-      if (typeof callback !== 'function')
-        callback = context[callback]
-      if (typeof callback !== 'function') return null
-      return function(e) {
-        var args = tp_getEventArguments(template, id, eventName) || []
-        args.unshift(e)
-        callback.apply(context, args)
-      }
-    }
-    function tp_bind(template, id, eventString, callback, withArguments) {
+    function tp_bind(template, id, eventString, callback) {
       var element = template.elements[id]
       if (!element.addEventListener) {
         // console.warning('The element has no addEventListener method', element)
         return
       }
-      callback = parseCallback(template, callback)
       if (typeof callback !== 'function') {
         // console.warning('Could not find the listner handler', element)
         return
@@ -143,21 +124,13 @@ angular.module('et.template', [])
       template._eventsLogger[id] = true
       var eventNames = eventString.split(EVENT_SPLITTER)
       for (var i = 0, len = eventNames.length; i < len; i++) {
-        var eventName = eventNames[i]
-        if (withArguments) {
-          callback = wrapCallbackWithArguments(template, id, eventName, callback)
-        } else {
-          callback = callback.bind(template.context)
-        }
-        element.addEventListener(eventName, callback, false)
+        element.addEventListener(eventNames[i], callback, false)
       }
     }
     function tp_bindEventsByMap(template, id, eventsMap) {
-      for (var key in eventsMap) {
-        var list = eventsMap[key]
-        var fn = list[0]
-        var withArguments = list[1]
-        tp_bind(template, id, key, fn, withArguments)
+      for (var eventName in eventsMap) {
+        var callback = eventsMap[eventName]
+        tp_bind(template, id, eventName, callback)
       }
     }
 
