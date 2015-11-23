@@ -24,6 +24,8 @@ var EVENT_PREFIX = 'on-';
 var EVENT_LEFT_BRACKET = '(';
 var EVENT_RIGHT_BRACKET = ')';
 var EVENT_SPLIT = ',';
+var OUTPUT_LEFT_BRACKET = '[';
+var OUTPUT_RIGHT_BRACKET = ']';
 
 var MiddlewareAttributes = (function (_Basic) {
   _inherits(MiddlewareAttributes, _Basic);
@@ -46,6 +48,7 @@ var MiddlewareAttributes = (function (_Basic) {
       if (node.nodeType === 1) {
         this.translateValueBind(node);
         this.translateElementAttributes(node);
+        this.translateOutputAttributes(node);
       }
     }
   }, {
@@ -57,7 +60,7 @@ var MiddlewareAttributes = (function (_Basic) {
         if (this.chargeIsValueBind(key)) {
           delete attributes[key];
           attributes['value'] = '{{' + expression + '}}';
-          attributes['et-output'] = expression;
+          attributes['[value]'] = expression;
         }
       }
     }
@@ -76,6 +79,19 @@ var MiddlewareAttributes = (function (_Basic) {
         } else if (eventName) {
           delete attributes[key];
           element.setEvent(eventName, expressions[0], expressions.slice(1));
+        }
+      }
+    }
+  }, {
+    key: 'translateOutputAttributes',
+    value: function translateOutputAttributes(element) {
+      var attributes = element.attributes || {};
+      for (var key in attributes) {
+        var outputName = this.getOutputFromKey(key);
+        var expression = attributes[key];
+        if (outputName) {
+          delete attributes[key];
+          element.addOutput(outputName, expression);
         }
       }
     }
@@ -111,6 +127,18 @@ var MiddlewareAttributes = (function (_Basic) {
       return results.map(function (item) {
         return item.trim();
       });
+    }
+  }, {
+    key: 'getOutputFromKey',
+    value: function getOutputFromKey(key) {
+      var isLeftMatch = key.indexOf(OUTPUT_LEFT_BRACKET) === 0;
+      var isRightMatch = key.indexOf(OUTPUT_RIGHT_BRACKET) === key.length - 1;
+
+      if (isLeftMatch && isRightMatch) {
+        // parse string like [value]
+        return key.substr(1, key.length - 2);
+      }
+      return null;
     }
   }]);
 

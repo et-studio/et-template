@@ -171,6 +171,16 @@ exports['default'] = {
       re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n    ' + _util2['default'].translateMarks(it.output) + ' = e.target.value\n  })\n');
     }
 
+    if (!_util2['default'].isEmpty(it.outputs)) {
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n');
+      it.outputs.map(function (output, index, list) {
+        var name = output.propName;
+        var expression = output.expression;
+        re = re + ('\n      ' + _util2['default'].translateMarks(expression) + ' = e.target.' + _util2['default'].translateMarks(name) + '\n');
+      });
+      re = re + '\n  })\n';
+    }
+
     if (!_util2['default'].isEmpty(it.events)) {
       var eventsStringList = [];
       Object.keys(it.events).map(function (eventName, index, list) {

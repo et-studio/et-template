@@ -245,6 +245,22 @@ var _dep_createTemplate = _dep.dep_createTemplate
 `
     }
 
+    if (!_.isEmpty(it.outputs)) {
+      re = re + `
+  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+`
+      it.outputs.map((output, index, list) => {
+        var name = output.propName
+        var expression = output.expression
+        re = re + `
+      ${_.translateMarks(expression)} = e.target.${_.translateMarks(name)}
+`
+      })
+      re = re + `
+  })
+`
+    }
+
     if (!_.isEmpty(it.events)) {
       var eventsStringList = []
       Object.keys(it.events).map((eventName, index, list) => {

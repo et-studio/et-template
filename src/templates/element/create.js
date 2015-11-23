@@ -34,6 +34,22 @@ if (it.output) {
   // }}
 }
 
+if (!_.isEmpty(it.outputs)) {
+  // {{
+  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+    // }}
+    it.outputs.map((output, index, list) => {
+      var name = output.propName
+      var expression = output.expression
+      // {{
+      ${_.translateMarks(expression)} = e.target.${_.translateMarks(name)}
+      // }}
+    })
+    // {{
+  })
+  // }}
+}
+
 if (!_.isEmpty(it.events)) {
   var eventsStringList = []
   Object.keys(it.events).map((eventName, index, list) => {
