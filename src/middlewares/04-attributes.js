@@ -3,7 +3,6 @@
 import Basic from './basic-middleware'
 
 const VALUE_BIND_KEY = '[(value)]'
-const OUTPUT_KEY = 'et-output'
 const EVENT_PREFIX = 'on-'
 const EVENT_LEFT_BRACKET = '('
 const EVENT_RIGHT_BRACKET = ')'
@@ -41,10 +40,7 @@ class MiddlewareAttributes extends Basic {
       var eventName = this.getEventFromKey(key)
       var expressions = this.parseEventExpression(expression)
 
-      if (this.chargeIsOutput(key)) {
-        delete attributes[key]
-        element.setOutput(expression)
-      } else if (eventName) {
+      if (eventName) {
         delete attributes[key]
         element.setEvent(eventName, expressions[0], expressions.slice(1))
       }
@@ -63,9 +59,6 @@ class MiddlewareAttributes extends Basic {
   }
   chargeIsValueBind (key) {
     return key === VALUE_BIND_KEY
-  }
-  chargeIsOutput (key) {
-    return key === OUTPUT_KEY
   }
   getEventFromKey (key) {
     var isLeftMatch = key.indexOf(EVENT_LEFT_BRACKET) === 0

@@ -19,7 +19,6 @@ var _basicMiddleware = require('./basic-middleware');
 var _basicMiddleware2 = _interopRequireDefault(_basicMiddleware);
 
 var VALUE_BIND_KEY = '[(value)]';
-var OUTPUT_KEY = 'et-output';
 var EVENT_PREFIX = 'on-';
 var EVENT_LEFT_BRACKET = '(';
 var EVENT_RIGHT_BRACKET = ')';
@@ -73,10 +72,7 @@ var MiddlewareAttributes = (function (_Basic) {
         var eventName = this.getEventFromKey(key);
         var expressions = this.parseEventExpression(expression);
 
-        if (this.chargeIsOutput(key)) {
-          delete attributes[key];
-          element.setOutput(expression);
-        } else if (eventName) {
+        if (eventName) {
           delete attributes[key];
           element.setEvent(eventName, expressions[0], expressions.slice(1));
         }
@@ -99,11 +95,6 @@ var MiddlewareAttributes = (function (_Basic) {
     key: 'chargeIsValueBind',
     value: function chargeIsValueBind(key) {
       return key === VALUE_BIND_KEY;
-    }
-  }, {
-    key: 'chargeIsOutput',
-    value: function chargeIsOutput(key) {
-      return key === OUTPUT_KEY;
     }
   }, {
     key: 'getEventFromKey',
