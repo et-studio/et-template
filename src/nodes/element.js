@@ -20,6 +20,7 @@ class Element extends Basic {
     this.namespace = NAME_SPACE
     this.output = null
     this.events = []
+    this.outputs = []
     this.nodeType = 1
     this.expressions = elementHandler.parse(origin.expressions)
   }
@@ -108,11 +109,14 @@ class Element extends Basic {
   }
 
   // functions for value output
-  setOutput (expression) {
-    this.output = expression
+  addOutput (propName, expression) {
+    this.outputs.push({
+      propName: propName,
+      expression: expression
+    })
   }
-  getOutput () {
-    return this.output
+  getOutputs () {
+    return this.outputs
   }
   // functions for events
   setEvents (newEventsMap) {
@@ -139,7 +143,7 @@ class Element extends Basic {
       parentId: this.getParentId(),
       nodeName: this.getNodeName(),
       events: this.getEvents(),
-      output: this.getOutput(),
+      outputs: this.getOutputs(),
 
       attributes: set.attributes,
       properties: set.properties,

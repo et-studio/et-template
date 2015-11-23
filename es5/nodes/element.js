@@ -51,6 +51,7 @@ var Element = (function (_Basic) {
     this.namespace = NAME_SPACE;
     this.output = null;
     this.events = [];
+    this.outputs = [];
     this.nodeType = 1;
     this.expressions = _elementHandler2['default'].parse(origin.expressions);
   }
@@ -158,14 +159,17 @@ var Element = (function (_Basic) {
 
     // functions for value output
   }, {
-    key: 'setOutput',
-    value: function setOutput(expression) {
-      this.output = expression;
+    key: 'addOutput',
+    value: function addOutput(propName, expression) {
+      this.outputs.push({
+        propName: propName,
+        expression: expression
+      });
     }
   }, {
-    key: 'getOutput',
-    value: function getOutput() {
-      return this.output;
+    key: 'getOutputs',
+    value: function getOutputs() {
+      return this.outputs;
     }
 
     // functions for events
@@ -202,7 +206,7 @@ var Element = (function (_Basic) {
         parentId: this.getParentId(),
         nodeName: this.getNodeName(),
         events: this.getEvents(),
-        output: this.getOutput(),
+        outputs: this.getOutputs(),
 
         attributes: set.attributes,
         properties: set.properties,
