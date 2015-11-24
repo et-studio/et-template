@@ -271,7 +271,7 @@ var _dep_createTemplate = _dep.dep_createTemplate
         var argsStrList = args.map((item, index) => `args[${index}]`)
         if (args.length) {
           eventsStringList.push(`'${_.translateMarks(eventName)}': function (e) {
-        var args = _tp_getEventArguments('${_.translateMarks(eventName)}')
+        var args = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(eventName)}')
         ${expression}(e, ${argsStrList.join(' ,')})
       }`)
         } else {

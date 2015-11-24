@@ -18,7 +18,7 @@ var Template_0 = _dep_createTemplate({
     _tp_createElement(_this, 2, 4, 'A')
     _tp_bindEventsByMap(_this, 4, {
       'click': function(e) {
-        var args = _tp_getEventArguments('click')
+        var args = _tp_getEventArguments(_this, 4, 'click')
         it.onClick(e, args[0], args[1])
       }
     })

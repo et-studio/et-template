@@ -192,7 +192,7 @@ exports['default'] = {
           return 'args[' + index + ']';
         });
         if (args.length) {
-          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        var args = _tp_getEventArguments(\'' + _util2['default'].translateMarks(eventName) + '\')\n        ' + expression + '(e, ' + argsStrList.join(' ,') + ')\n      }');
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        var args = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(eventName) + '\')\n        ' + expression + '(e, ' + argsStrList.join(' ,') + ')\n      }');
         } else {
           eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        ' + expression + '(e)\n      }');
         }
