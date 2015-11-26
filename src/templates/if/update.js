@@ -46,7 +46,7 @@ if (_last[${it.valueId}] !== _index) {
   // {{
   if (_TemplateConstructor) {
     _last[${it.saveId}] = _currentTemplateId
-    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor)
     _tp_after(_this, ${it.lineId}, _currentTemplateId)
     // }}
     if (it.isRoot) {

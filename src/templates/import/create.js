@@ -1,6 +1,12 @@
 
 var parentElementId = it.parentId
 if (it.isRoot) parentElementId = null
-// {{
-_tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, this.options)
-// }}
+if (it.context) {
+  // {{
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, ${it.context})
+  // }}
+} else {
+  // {{
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName})
+  // }}
+}

@@ -56,9 +56,9 @@ angular.module('et.template', [])
       tp_create_parentHander(template, parentId, id)
     }
 
-    function tp_createTemplate(template, parentId, id, Constructor, options) {
+    function tp_createTemplate(template, parentId, id, Constructor, context) {
       var elements = template.elements
-      var et = elements[id] = new Constructor(template.context, template)
+      var et = elements[id] = new Constructor(context || template.context, template)
       if (!parentId) tp_setRoot(template, id)
       return et
     }
@@ -67,11 +67,11 @@ angular.module('et.template', [])
       return template.elements[id]
     }
 
-    function tp_getConditionTemplate(template, id, Constructor, options) {
+    function tp_getConditionTemplate(template, id, Constructor, context) {
       var et = tp_getTemplate(template, id)
       if (!et) {
         var elements = template.elements
-        et = elements[id] = new Constructor(template.context, template)
+        et = elements[id] = new Constructor(context || template.context, template)
       }
       return et
     }
@@ -323,8 +323,8 @@ angular.module('et.template', [])
       }
 
       function dep_createTemplate(prop) {
-        var Template = function(context, options) {
-          this.init(context, options)
+        var Template = function(context, parent) {
+          this.init(context, parent)
         }
         extend(Template.prototype, template, prop)
         return Template

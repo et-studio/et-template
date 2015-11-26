@@ -25,21 +25,16 @@ class ImportNode extends Basic {
       path = path.slice(1, path.length - 1)
     }
     this.importPath = path
-
-    var args = []
-    for (var i = 1, len = list.length; i < len; i++) {
-      var str = list[i] || ''
-      str = str.trim()
-      if (str) args.push(str)
-    }
-    // if (!args.length) args.push('it')
-    this.importArgs = args
+    this.context = (list[1] || '').trim()
   }
   getPath () {
     return this.importPath
   }
   getArguments () {
-    return this.importArgs
+    return []
+  }
+  getContext () {
+    return this.context
   }
 
   assembleWorkerData () {
@@ -52,6 +47,7 @@ class ImportNode extends Basic {
       parentId: this.getParentId(),
       args: this.getArguments(),
       path: this.getPath(),
+      context: this.getContext(),
       templateName: this.getTemplateName()
     }
 

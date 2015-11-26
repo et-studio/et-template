@@ -51,6 +51,10 @@ class Basic extends NodeInterface {
     var results = []
     this.each((dom) => {
       if (!dom.parent || dom.isNewTemplate) {
+        if (dom.nodeName === '#for' && dom.checkIsImportTemplate()) {
+          // HACK for ForNode
+          return
+        }
         results.push(dom)
       }
     })

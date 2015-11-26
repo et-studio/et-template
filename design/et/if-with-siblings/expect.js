@@ -48,7 +48,7 @@ var Template_0 = _dep_createTemplate({
       }
       if (_TemplateConstructor) {
         _last[1] = _currentTemplateId
-        _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+        _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor)
         _tp_after(_this, 3, _currentTemplateId)
         _tp_setRoot(_this, _currentTemplateId)
       } else {

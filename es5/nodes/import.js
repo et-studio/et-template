@@ -51,15 +51,7 @@ var ImportNode = (function (_Basic) {
         path = path.slice(1, path.length - 1);
       }
       this.importPath = path;
-
-      var args = [];
-      for (var i = 1, len = list.length; i < len; i++) {
-        var str = list[i] || '';
-        str = str.trim();
-        if (str) args.push(str);
-      }
-      // if (!args.length) args.push('it')
-      this.importArgs = args;
+      this.context = (list[1] || '').trim();
     }
   }, {
     key: 'getPath',
@@ -69,7 +61,12 @@ var ImportNode = (function (_Basic) {
   }, {
     key: 'getArguments',
     value: function getArguments() {
-      return this.importArgs;
+      return [];
+    }
+  }, {
+    key: 'getContext',
+    value: function getContext() {
+      return this.context;
     }
   }, {
     key: 'assembleWorkerData',
@@ -83,6 +80,7 @@ var ImportNode = (function (_Basic) {
         parentId: this.getParentId(),
         args: this.getArguments(),
         path: this.getPath(),
+        context: this.getContext(),
         templateName: this.getTemplateName()
       };
 

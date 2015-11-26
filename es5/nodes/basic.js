@@ -80,6 +80,10 @@ var Basic = (function (_NodeInterface) {
       var results = [];
       this.each(function (dom) {
         if (!dom.parent || dom.isNewTemplate) {
+          if (dom.nodeName === '#for' && dom.checkIsImportTemplate()) {
+            // HACK for ForNode
+            return;
+          }
           results.push(dom);
         }
       });

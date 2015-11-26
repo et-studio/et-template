@@ -30,7 +30,7 @@ var Template_0 = _dep_createTemplate({
       var index = _index
       var item = _list[_index]
       var _itemId = '2_' + _index
-      var _template = _tp_getConditionTemplate(_this, _itemId, Template_2, this.options)
+      var _template = _tp_getConditionTemplate(_this, _itemId, Template_2)
       if (_index >= _lastLength) {
         var _prevId = _index ? ('2_' + (_index - 1)) : 1
         _tp_after(_this, _prevId, _itemId)

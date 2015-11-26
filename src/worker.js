@@ -357,7 +357,18 @@ for (; _index < _len; _index++) {
   var ${it.indexName} = _index
   var ${it.itemName} = _list[_index]
   var _itemId = '${it.id}_' + _index
-  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, this.options)
+
+`
+    if (it.context) {
+      re = re + `
+    var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, ${it.context})
+`
+    } else {
+      re = re + `
+    var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName})
+`
+    }
+    re = re + `
 
   if (_index >= _lastLength) {
     var _prevId = _index?('${it.id}_' + (_index - 1)) : ${it.lineId}
@@ -527,7 +538,7 @@ if (_last[${it.valueId}] !== _index) {
     re = re + `
   if (_TemplateConstructor) {
     _last[${it.saveId}] = _currentTemplateId
-    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+    _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor)
     _tp_after(_this, ${it.lineId}, _currentTemplateId)
 `
     if (it.isRoot) {
@@ -552,9 +563,15 @@ if (_template) _template.update(${it.args.join(', ')})
     var parentElementId = it.parentId
     if (it.isRoot)
       parentElementId = null
-    re = re + `
-_tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, this.options)
+    if (it.context) {
+      re = re + `
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, ${it.context})
 `
+    } else {
+      re = re + `
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName})
+`
+    }
 
     return re
   },
@@ -563,7 +580,7 @@ _tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, this.options)
 
     re = re + `
 var _template = _tp_getTemlate(_this, ${it.id})
-_template.update(${it.args.join(', ')})
+_template.update()
 `
 
     return re

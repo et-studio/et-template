@@ -34,7 +34,7 @@ var Template_0 = _dep_createTemplate({
       var index = _index
       var item = _list[_index]
       var _itemId = '4_' + _index
-      var _template = _tp_getConditionTemplate(_this, _itemId, Template_4, this.options)
+      var _template = _tp_getConditionTemplate(_this, _itemId, Template_4)
       if (_index >= _lastLength) {
         var _prevId = _index ? ('4_' + (_index - 1)) : 3
         _tp_after(_this, _prevId, _itemId)
@@ -86,7 +86,7 @@ var Template_4 = _dep_createTemplate({
       }
       if (_TemplateConstructor) {
         _last[1] = _currentTemplateId
-        _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor, this.options)
+        _template = _tp_getConditionTemplate(_this, _currentTemplateId, _TemplateConstructor)
         _tp_after(_this, 7, _currentTemplateId)
       } else {
         _last[1] = null

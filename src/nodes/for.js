@@ -55,6 +55,7 @@ class ForNode extends Basic {
       var child = this.children[0]
       it.templateName = child.getTemplateName()
       it.args = child.getArguments()
+      it.context = child.getContext()
     }
 
     this._workerData = it
