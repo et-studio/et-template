@@ -49,6 +49,36 @@ if条件判读和for遍历都使用了比较特殊的节点方式，[#]这样的
 这样设计的原因是把html语法判断使用节点的方式进行包裹，让作用域清晰，易于自定义语法拓展。
 
 
+### 事件绑定
+```html
+<a (click)="it.onClick, it.clickData">(click)</a>
+<a on-click="it.onClick">on-click</a>
+```
+这里有两种绑定事件的方式，一种是on-前缀，另一种是把事件名用()包裹起来。
+
+事件绑定对应的值用','分格可以传递动态参数。第一个参数会被作为回调函数在事件触发的时候调用。
+
+从第二个参数开始的值都会被当作参数传递给回调函数，但是注意！！，回调函数的参数都是从第二个开始的，第一个参数永远是Dom Event。
+
+### 反向绑定
+```html
+<input type="text" [value]="it.name">
+<input type="file" [file]="it.file">
+```
+反向绑定将会在change和input事件的时候触发，读取当前Dom节点的属性，并且赋值给绑定的对象属性。就比如上面的例子，实际的运行代码会是这样的：
+```javascript
+it.name = this.value
+it.file = this.file
+```
+
+### 双向绑定
+```html
+<input [(value)]="it.name">
+<input value="{{it.name}}" [value]="it.name">
+```
+双向绑定其实是一种便捷解释，目前只能使用[(value)]这样的关键值，并且会在编译过程中被解释称为相对应的插值和反向绑定。
+
+
 ### import语法(因为重新设计而没有实现)
 ```html
 <div>
