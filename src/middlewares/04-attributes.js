@@ -19,7 +19,6 @@ class MiddlewareAttributes extends Basic {
     if (node.nodeType === 1) {
       this.translateValueBind(node)
       this.translateElementAttributes(node)
-      this.translateOutputAttributes(node)
     }
   }
   translateValueBind (element) {
@@ -38,20 +37,13 @@ class MiddlewareAttributes extends Basic {
     for (var key in attributes) {
       var expression = attributes[key]
       var eventName = this.getEventFromKey(key)
-      var expressions = this.parseEventExpression(expression)
+      var outputName = this.getOutputFromKey(key)
 
       if (eventName) {
+        var event = this.parseEventFromExpression(expression)
         delete attributes[key]
-        element.setEvent(eventName, expressions[0], expressions.slice(1))
-      }
-    }
-  }
-  translateOutputAttributes (element) {
-    var attributes = element.attributes || {}
-    for (var key in attributes) {
-      var outputName = this.getOutputFromKey(key)
-      var expression = attributes[key]
-      if (outputName) {
+        element.setEvent(eventName, event.expression, event.args)
+      } else if (outputName) {
         delete attributes[key]
         element.addOutput(outputName, expression)
       }
@@ -73,9 +65,22 @@ class MiddlewareAttributes extends Basic {
     }
     return null
   }
-  parseEventExpression (expression) {
-    var results = expression.split(EVENT_SPLIT)
-    return results.map(item => item.trim())
+  parseEventFromExpression (expression) {
+    var startIndex = expression.indexOf(EVENT_LEFT_BRACKET)
+    var endIndex = expression.lastIndexOf(EVENT_RIGHT_BRACKET)
+
+    if (!(startIndex < endIndex)) {
+      return {expression: expression, args: []}
+    }
+
+    var methodExprssion = expression.substring(0, startIndex)
+    var argsExpression = expression.substring(startIndex + 1, endIndex)
+    var args = []
+    argsExpression.split(EVENT_SPLIT).map((item) => {
+      var tmp = item.trim()
+      if (tmp) args.push(tmp)
+    })
+    return {expression: methodExprssion, args: args}
   }
   getOutputFromKey (key) {
     var isLeftMatch = key.indexOf(OUTPUT_LEFT_BRACKET) === 0

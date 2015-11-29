@@ -57,19 +57,32 @@ if (!_.isEmpty(it.events)) {
     var event = it.events[eventName]
     var expression = event.expression
     var args = event.args
-    var argsStrList = args.map((item, index) => `args[${index}]`)
-    if (args.length) {
-      eventsStringList.push(`'${_.translateMarks(eventName)}': function (e) {
-        var args = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(eventName)}')
-        ${expression}(e, ${argsStrList.join(' ,')})
+    var isJustEvent = args.every(item => item === '$event')
+    var argsStrList = args.map((item, index) => {
+      if (item === '$event') {
+        return item
+      } else {
+        return `_args[${index}]`
+      }
+    })
+    if (!args.length) {
+      eventsStringList.push(`'${_.translateMarks(eventName)}': function () {
+        ${expression}()
+      }`)
+    } else if (isJustEvent) {
+      eventsStringList.push(`'${_.translateMarks(eventName)}': function ($event) {
+        ${expression}(${argsStrList.join(', ')})
       }`)
     } else {
-      eventsStringList.push(`'${_.translateMarks(eventName)}': function (e) {
-        ${expression}(e)
+      eventsStringList.push(`'${_.translateMarks(eventName)}': function ($event) {
+        var _args = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(eventName)}')
+        ${expression}(${argsStrList.join(', ')})
       }`)
     }
   })
   // {{
-  _tp_bindEventsByMap(_this, ${it.id}, {${eventsStringList.join(',\n')}})
+  _tp_bindEventsByMap(_this, ${it.id}, {
+    ${eventsStringList.join(',\n')}
+  })
   // }}
 }

@@ -188,16 +188,25 @@ exports['default'] = {
         var event = it.events[eventName];
         var expression = event.expression;
         var args = event.args;
-        var argsStrList = args.map(function (item, index) {
-          return 'args[' + index + ']';
+        var isJustEvent = args.every(function (item) {
+          return item === '$event';
         });
-        if (args.length) {
-          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        var args = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(eventName) + '\')\n        ' + expression + '(e, ' + argsStrList.join(' ,') + ')\n      }');
+        var argsStrList = args.map(function (item, index) {
+          if (item === '$event') {
+            return item;
+          } else {
+            return '_args[' + index + ']';
+          }
+        });
+        if (!args.length) {
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function () {\n        ' + expression + '()\n      }');
+        } else if (isJustEvent) {
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function ($event) {\n        ' + expression + '(' + argsStrList.join(', ') + ')\n      }');
         } else {
-          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function (e) {\n        ' + expression + '(e)\n      }');
+          eventsStringList.push('\'' + _util2['default'].translateMarks(eventName) + '\': function ($event) {\n        var _args = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(eventName) + '\')\n        ' + expression + '(' + argsStrList.join(', ') + ')\n      }');
         }
       });
-      re = re + ('\n  _tp_bindEventsByMap(_this, ' + it.id + ', {' + eventsStringList.join(',\n') + '})\n');
+      re = re + ('\n  _tp_bindEventsByMap(_this, ' + it.id + ', {\n    ' + eventsStringList.join(',\n') + '\n  })\n');
     }
 
     return re;
@@ -225,8 +234,18 @@ exports['default'] = {
       var isLast = list.length - 1 === index;
       var event = it.events[key];
       var args = event.args;
-      if (args.length) {
-        re = re + ('\n    var _current = [' + args.join(', ') + ']\n    var _saved = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\')\n    if (!_tp_isArrayEqual(_saved, _current)) {\n      _tp_saveEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\', _current)\n    }\n');
+      var isJustEvent = args.every(function (item) {
+        return item === '$event';
+      });
+      var argsStrList = args.map(function (item) {
+        if (item !== '$event') {
+          return item;
+        } else {
+          return 'null';
+        }
+      });
+      if (args.length && !isJustEvent) {
+        re = re + ('\n    var _current = [' + argsStrList.join(', ') + ']\n    var _saved = _tp_getEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\')\n    if (!_tp_isArrayEqual(_saved, _current)) {\n      _tp_saveEventArguments(_this, ' + it.id + ', \'' + _util2['default'].translateMarks(key) + '\', _current)\n    }\n');
       }
     });
 

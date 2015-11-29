@@ -141,22 +141,17 @@ module.exports = [
   {
     title: 'html',
     html: `<div>
-              [#html '<div></div>']
-            </div>
-            <div>
-              [#html 'aaa{{it.html}}bbb']
+              [#html]
+                <div></div>
+                aaa{{it.html}}bbb
+              [/#html]
             </div>
           `,
     expect: {
       children: [{
         children: [{
           nodeName: '#html',
-          expression: '<div></div>'
-        }]
-      }, {
-        children: [{
-          nodeName: '#html',
-          expression: 'aaa{{it.html}}bbb'
+          textContent: '<div></div>aaa{{it.html}}bbb'
         }]
       }]
     }
