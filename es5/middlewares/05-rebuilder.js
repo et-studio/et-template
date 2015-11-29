@@ -34,6 +34,8 @@ var MiddlewareRebuilder = (function (_Basic) {
   _createClass(MiddlewareRebuilder, [{
     key: 'run',
     value: function run(node, options) {
+      // the constuctor changed every time, the each loop is different
+      // so every time changed, the loop should be restarted
       while (this.rebuildAll(node)) {}
       return node;
     }
@@ -47,6 +49,10 @@ var MiddlewareRebuilder = (function (_Basic) {
         switch (currentNode.nodeName) {
           case '#if':
             isChangeConstructor = _this.rebuildIfNode(currentNode);
+            if (isChangeConstructor) return false; // break each loop
+            break;
+          case '#html':
+            isChangeConstructor = _this.rebuildHtmlNode(currentNode);
             if (isChangeConstructor) return false; // break each loop
             break;
         }
@@ -71,6 +77,17 @@ var MiddlewareRebuilder = (function (_Basic) {
         }
       });
       return isChangeConstructor;
+    }
+  }, {
+    key: 'rebuildHtmlNode',
+    value: function rebuildHtmlNode(node) {
+      // not changed
+      if (!node.children.length) return false;
+
+      // changed
+      node.textContent = node.getInnerHTML();
+      node.children = [];
+      return true;
     }
   }]);
 

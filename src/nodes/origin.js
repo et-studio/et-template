@@ -18,6 +18,7 @@ class OriginNode {
     this.source = source || ''
     this.nodeName = ''
     this.header = ''
+    this.tail = ''
 
     this.children = []
     this.expressions = []
@@ -65,6 +66,7 @@ class OriginNode {
     while (current.parent) {
       if (current.matchClose(tail)) {
         current.isClosed = true
+        current.tail = tail
         break
       }
       current = current.parent

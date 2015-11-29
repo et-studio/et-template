@@ -40,6 +40,8 @@ class Basic extends NodeInterface {
     this.options = options
     this.nodeType = origin.nodeType || 'ET'
     this.nodeName = origin.nodeName
+    this.source = origin.source
+    this.tail = origin.tail
 
     this.isNewTemplate = false
     this.args = []

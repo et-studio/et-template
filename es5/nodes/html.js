@@ -18,10 +18,6 @@ var _basic = require('./basic');
 
 var _basic2 = _interopRequireDefault(_basic);
 
-var _parsersCondition = require('../parsers/condition');
-
-var _parsersCondition2 = _interopRequireDefault(_parsersCondition);
-
 var _parsersValue = require('../parsers/value');
 
 var _parsersValue2 = _interopRequireDefault(_parsersValue);
@@ -41,12 +37,9 @@ var HtmlNode = (function (_Basic) {
   _createClass(HtmlNode, [{
     key: 'parse',
     value: function parse(source) {
-      var tmp = _parsersCondition2['default'].parse(source, { expectNodeName: NODE_NAME });
-
       this.namespace = NAME_SPACE;
       this.nodeName = NODE_NAME;
-      var expression = tmp.condition;
-      this.expression = expression.slice(1, expression.length - 1);
+      this.textContent = '';
     }
   }, {
     key: 'assembleWorkerData',
@@ -54,16 +47,16 @@ var HtmlNode = (function (_Basic) {
       var it = this._workerData;
       if (it) return it;
 
-      var expression = this.expression;
+      var textContent = this.textContent;
       it = {
         parentId: this.getParentId(),
-        isErratic: _parsersValue2['default'].isErratic(expression),
-        expression: this.expression
+        isErratic: _parsersValue2['default'].isErratic(textContent),
+        textContent: textContent
       };
 
       if (it.isErratic) {
         it.valueId = this.getRootValueId();
-        it.valueString = _parsersValue2['default'].parse(expression);
+        it.valueString = _parsersValue2['default'].parse(textContent);
       }
 
       this._workerData = it;

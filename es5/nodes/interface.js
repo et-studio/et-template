@@ -182,6 +182,27 @@ var Interface = (function () {
       this.parent.children = newChidren;
     }
   }, {
+    key: 'getOuterHTML',
+    value: function getOuterHTML() {
+      var header = this.source;
+      var tail = this.tail;
+
+      var body = '';
+      this.children.map(function (node) {
+        return body += node.getOuterHTML();
+      });
+      return '' + header + body + tail;
+    }
+  }, {
+    key: 'getInnerHTML',
+    value: function getInnerHTML() {
+      var html = '';
+      this.children.map(function (node) {
+        return html += node.getOuterHTML();
+      });
+      return html;
+    }
+  }, {
     key: 'checkRoot',
     value: function checkRoot() {
       var parent = this.parent;

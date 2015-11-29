@@ -1,7 +1,6 @@
 'use strict'
 
 import Basic from './basic'
-import conditionParser from '../parsers/condition'
 import valueParser from '../parsers/value'
 
 var NAME_SPACE = 'html'
@@ -9,28 +8,25 @@ var NODE_NAME = `#${NAME_SPACE}`
 
 class HtmlNode extends Basic {
   parse (source) {
-    var tmp = conditionParser.parse(source, {expectNodeName: NODE_NAME})
-
     this.namespace = NAME_SPACE
     this.nodeName = NODE_NAME
-    var expression = tmp.condition
-    this.expression = expression.slice(1, expression.length - 1)
+    this.textContent = ''
   }
 
   assembleWorkerData () {
     var it = this._workerData
     if (it) return it
 
-    var expression = this.expression
+    var textContent = this.textContent
     it = {
       parentId: this.getParentId(),
-      isErratic: valueParser.isErratic(expression),
-      expression: this.expression
+      isErratic: valueParser.isErratic(textContent),
+      textContent: textContent
     }
 
     if (it.isErratic) {
       it.valueId = this.getRootValueId()
-      it.valueString = valueParser.parse(expression)
+      it.valueString = valueParser.parse(textContent)
     }
 
     this._workerData = it

@@ -138,6 +138,20 @@ class Interface {
     this.parent.children = newChidren
   }
 
+  getOuterHTML () {
+    var header = this.source
+    var tail = this.tail
+
+    var body = ''
+    this.children.map(node => body += node.getOuterHTML())
+    return `${header}${body}${tail}`
+  }
+  getInnerHTML () {
+    var html = ''
+    this.children.map(node => html += node.getOuterHTML())
+    return html
+  }
+
   checkRoot () {
     var parent = this.parent
     if (!parent) return true

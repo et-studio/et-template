@@ -11,7 +11,17 @@ var Template_0 = _dep_createTemplate({
     var it = _this.context
 
     _tp_createElement(_this, null, 2, 'DIV')
-    _tp_html(_this, 2, '<div></div>')
+  },
+  update: function() {
+    var _this = this
+    var _last = _this.last
+    var it = _this.context
+
+    var _tmp = '<div></div>aaa' + (it.html) + 'bbb'
+    if (_last[0] !== _tmp) {
+      _last[0] = _tmp
+      _tp_html(_this, 2, _tmp)
+    }
   }
 })
 module.exports = exports['default'] = Template_0

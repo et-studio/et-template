@@ -5,6 +5,8 @@ import _ from '../util'
 
 class MiddlewareRebuilder extends Basic {
   run (node, options) {
+    // the constuctor changed every time, the each loop is different
+    // so every time changed, the loop should be restarted
     while (this.rebuildAll(node)) { }
     return node
   }
@@ -14,6 +16,10 @@ class MiddlewareRebuilder extends Basic {
       switch (currentNode.nodeName) {
         case '#if':
           isChangeConstructor = this.rebuildIfNode(currentNode)
+          if (isChangeConstructor) return false // break each loop
+          break
+        case '#html':
+          isChangeConstructor = this.rebuildHtmlNode(currentNode)
           if (isChangeConstructor) return false // break each loop
           break
       }
@@ -36,6 +42,15 @@ class MiddlewareRebuilder extends Basic {
       }
     })
     return isChangeConstructor
+  }
+  rebuildHtmlNode (node) {
+    // not changed
+    if (!node.children.length) return false
+
+    // changed
+    node.textContent = node.getInnerHTML()
+    node.children = []
+    return true
   }
 }
 export default new MiddlewareRebuilder()
