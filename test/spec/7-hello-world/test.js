@@ -10,15 +10,15 @@ exports.register = function () {
     template: null,
     name: 'world',
     index: 0,
-    add: function (e) {
+    add: function () {
       this.index++
       this.update()
     },
-    subtract: function (e) {
+    subtract: function () {
       this.index--
       this.update()
     },
-    onChange: function (e) {
+    onChange: function () {
       this.update()
     },
     update: function () {

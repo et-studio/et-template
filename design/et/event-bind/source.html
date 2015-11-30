@@ -1,6 +1,6 @@
 <div>
   <!--[#code]var name = 'My name is ' + it.name + '!'[/#code] -->
   <!--[#code]var city = 'I am from ' + it.city + '!'[/#code] -->
-  <a on-click="it.onClick, name, city">on-click</a>
-  <a (click)="it.onClick">(click)</a>
+  <a on-click="it.onClick(it.getName(), city, $event, city)">on-click</a>
+  <a (click)="it.onClick()">(click)</a>
 </div>

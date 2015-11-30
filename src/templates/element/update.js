@@ -28,9 +28,17 @@ Object.keys(it.events).map((key, index, list) => {
   var isLast = (list.length - 1) === index
   var event = it.events[key]
   var args = event.args
-  if (args.length) {
+  var isJustEvent = args.every(item => item === '$event')
+  var argsStrList = args.map((item) => {
+    if (item !== '$event') {
+      return item
+    } else {
+      return 'null'
+    }
+  })
+  if (args.length && !isJustEvent) {
     // {{
-    var _current = [${args.join(', ')}]
+    var _current = [${argsStrList.join(', ')}]
     var _saved = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(key)}')
     if (!_tp_isArrayEqual(_saved, _current)) {
       _tp_saveEventArguments(_this, ${it.id}, '${_.translateMarks(key)}', _current)
