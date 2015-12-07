@@ -8,3 +8,23 @@ node_js:
 
 before_script:
   - "npm install standard && npm install mocha -g && gulp"
+
+deploy:
+  provider: npm
+  api_key: "c4dfec96-3b73-4590-9871-0aace90854ae"
+  on:
+    # Most likely, you would only want to deploy to npm when a new version of
+    # your package is cut. To do this, you can tell Travis CI to only deploy on
+    # tagged commits, like so:
+    tags: true
+
+    #If you tag a commit locally, remember to run git push --tags to ensure that
+    #your tags are uploaded to Github.
+    # You can explicitly specify the branch to release from with the on option:
+    branch: master
+
+    # After your tests ran and before the release, Travis CI will clean up any
+    # additional files and changes you made.
+    # Maybe that is not what you want, as you might generate some artifacts that
+    # are supposed to be released, too. There is now an option to skip the clean up:
+    skip_cleanup: true
