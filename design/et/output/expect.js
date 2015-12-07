@@ -13,9 +13,9 @@ var Template_0 = _dep_createTemplate({
     _tp_createElement(_this, 2, 4, 'INPUT', {
       "type": "file"
     })
-    _tp_bind(_this, 4, 'change input', function(e) {
-      it.file = e.target.file
-      it.value = e.target.value
+    _tp_bind(_this, 4, 'change input', function() {
+      it.file = this.file
+      it.value = this.value
     })
   }
 })

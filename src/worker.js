@@ -239,21 +239,21 @@ var _dep_createTemplate = _dep.dep_createTemplate
 
     if (it.output) {
       re = re + `
-  _tp_bind(_this, ${it.id}, 'change input', function (e) {
-    ${_.translateMarks(it.output)} = e.target.value
+  _tp_bind(_this, ${it.id}, 'change input', function () {
+    ${_.translateMarks(it.output)} = this.value
   })
 `
     }
 
     if (!_.isEmpty(it.outputs)) {
       re = re + `
-  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+  _tp_bind(_this, ${it.id}, 'change input', function () {
 `
       it.outputs.map((output, index, list) => {
         var name = output.propName
         var expression = output.expression
         re = re + `
-      ${_.translateMarks(expression)} = e.target.${_.translateMarks(name)}
+      ${_.translateMarks(expression)} = this.${_.translateMarks(name)}
 `
       })
       re = re + `

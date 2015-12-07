@@ -168,15 +168,15 @@ exports['default'] = {
     }
 
     if (it.output) {
-      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n    ' + _util2['default'].translateMarks(it.output) + ' = e.target.value\n  })\n');
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function () {\n    ' + _util2['default'].translateMarks(it.output) + ' = this.value\n  })\n');
     }
 
     if (!_util2['default'].isEmpty(it.outputs)) {
-      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function (e) {\n');
+      re = re + ('\n  _tp_bind(_this, ' + it.id + ', \'change input\', function () {\n');
       it.outputs.map(function (output, index, list) {
         var name = output.propName;
         var expression = output.expression;
-        re = re + ('\n      ' + _util2['default'].translateMarks(expression) + ' = e.target.' + _util2['default'].translateMarks(name) + '\n');
+        re = re + ('\n      ' + _util2['default'].translateMarks(expression) + ' = this.' + _util2['default'].translateMarks(name) + '\n');
       });
       re = re + '\n  })\n';
     }

@@ -28,21 +28,21 @@ if (propertiesString !== nullString) {
 
 if (it.output) {
   // {{
-  _tp_bind(_this, ${it.id}, 'change input', function (e) {
-    ${_.translateMarks(it.output)} = e.target.value
+  _tp_bind(_this, ${it.id}, 'change input', function () {
+    ${_.translateMarks(it.output)} = this.value
   })
   // }}
 }
 
 if (!_.isEmpty(it.outputs)) {
   // {{
-  _tp_bind(_this, ${it.id}, 'change input', function (e) {
+  _tp_bind(_this, ${it.id}, 'change input', function () {
     // }}
     it.outputs.map((output, index, list) => {
       var name = output.propName
       var expression = output.expression
       // {{
-      ${_.translateMarks(expression)} = e.target.${_.translateMarks(name)}
+      ${_.translateMarks(expression)} = this.${_.translateMarks(name)}
       // }}
     })
     // {{
