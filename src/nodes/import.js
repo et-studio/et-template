@@ -5,7 +5,7 @@ import conditionParser from '../parsers/condition'
 
 var NAME_SPACE = 'import'
 var NODE_NAME = `#${NAME_SPACE}`
-var PARAMETER_SPLIT = ','
+var PARAMETER_SPLIT = ' from '
 
 class ImportNode extends Basic {
   constructor (origin, options) {
@@ -18,46 +18,28 @@ class ImportNode extends Basic {
     var tmp = conditionParser.parse(source, {expectNodeName: NODE_NAME})
     var list = tmp.condition.split(PARAMETER_SPLIT)
 
-    var path = list[0] || ''
+    var name = (list[0] || '').trim()
+    var path = (list[1] || '').trim()
+
     var isSingleQuotation = path[0] === '\'' && path[path.length - 1] === '\''
     var isDoubleQuotation = path[0] === '"' && path[path.length - 1] === '"'
     if (isSingleQuotation || isDoubleQuotation) {
       path = path.slice(1, path.length - 1)
     }
+
     this.importPath = path
-    this.context = (list[1] || '').trim()
-  }
-  getPath () {
-    return this.importPath
-  }
-  getArguments () {
-    return []
-  }
-  getContext () {
-    return this.context
+    this.importName = name
   }
 
-  assembleWorkerData () {
-    var it = this._workerData
-    if (it) return it
-
-    this._workerData = it = {
-      id: this.getId(),
-      lineId: this.getLineId(),
-      parentId: this.getParentId(),
-      args: this.getArguments(),
-      path: this.getPath(),
-      context: this.getContext(),
-      templateName: this.getTemplateName()
-    }
-
-    return it
-  }
   deliverDependencies () {
-    return [{
-      name: this.getTemplateName(),
-      path: this.getPath()
-    }]
+    if (this.importPath && this.importName) {
+      return [{
+        name: this.importName,
+        path: this.importPath
+      }]
+    } else {
+      return []
+    }
   }
 }
 export default ImportNode

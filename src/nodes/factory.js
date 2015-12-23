@@ -8,6 +8,7 @@ import NodeElseif from './elseif'
 import NodeElse from './else'
 import NodeFor from './for'
 import NodeHtml from './html'
+import NodeChild from './child'
 import NodeImport from './import'
 
 var nodes = {
@@ -19,6 +20,7 @@ var nodes = {
   '#else': NodeElse,
   '#for': NodeFor,
   '#html': NodeHtml,
+  '#child': NodeChild,
   '#import': NodeImport
 }
 

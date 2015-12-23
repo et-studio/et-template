@@ -60,6 +60,34 @@ export default {
 
     return re
   },
+  child_create(it) {
+    var re = ''
+
+    var parentElementId = it.parentId
+    if (it.isRoot)
+      parentElementId = null
+    if (it.context) {
+      re = re + `
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, ${it.context})
+`
+    } else {
+      re = re + `
+  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName})
+`
+    }
+
+    return re
+  },
+  child_update(it) {
+    var re = ''
+
+    re = re + `
+var _template = _tp_getTemlate(_this, ${it.id})
+_template.update()
+`
+
+    return re
+  },
   compile_amd(it) {
     var re = ''
 
@@ -574,34 +602,6 @@ if (_last[${it.valueId}] !== _index) {
   }
 }
 if (_template) _template.update(${it.args.join(', ')})
-`
-
-    return re
-  },
-  import_create(it) {
-    var re = ''
-
-    var parentElementId = it.parentId
-    if (it.isRoot)
-      parentElementId = null
-    if (it.context) {
-      re = re + `
-  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName}, ${it.context})
-`
-    } else {
-      re = re + `
-  _tp_createTemplate(_this, ${parentElementId}, ${it.templateName})
-`
-    }
-
-    return re
-  },
-  import_update(it) {
-    var re = ''
-
-    re = re + `
-var _template = _tp_getTemlate(_this, ${it.id})
-_template.update()
 `
 
     return re

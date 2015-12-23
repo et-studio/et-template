@@ -1,4 +1,6 @@
-<div>
-  [#import ./models/user, it.userContext]
-  1234567890
-</div>
+
+[#import util from './util']
+[#import util1 from ./util1]
+[#import util2 from "./util2"]
+
+<a>{{util.add(it.a, it.b)}}</a>

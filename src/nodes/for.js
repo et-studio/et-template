@@ -32,7 +32,7 @@ class ForNode extends Basic {
     }
   }
   checkIsImportTemplate () {
-    return this.children.length === 1 && this.children[0].nodeName === '#import'
+    return this.children.length === 1 && this.children[0].nodeName === '#child'
   }
   assembleWorkerData () {
     var it = this._workerData

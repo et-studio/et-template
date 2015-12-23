@@ -21,7 +21,7 @@ class MiddlewareCompiler extends Basic {
   }
   pickData (root, options) {
     var dependencies = root.getDependencies()
-    dependencies.unshift({
+    dependencies.push({
       name: options.dependencyName,
       path: options.dependencyPath
     })
