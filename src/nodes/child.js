@@ -3,11 +3,11 @@
 import Basic from './basic'
 import conditionParser from '../parsers/condition'
 
-var NAME_SPACE = 'import'
+var NAME_SPACE = 'child'
 var NODE_NAME = `#${NAME_SPACE}`
 var PARAMETER_SPLIT = ','
 
-class ImportNode extends Basic {
+class ChildNode extends Basic {
   constructor (origin, options) {
     super(origin, options)
 
@@ -24,11 +24,11 @@ class ImportNode extends Basic {
     if (isSingleQuotation || isDoubleQuotation) {
       path = path.slice(1, path.length - 1)
     }
-    this.importPath = path
+    this.childPath = path
     this.context = (list[1] || '').trim()
   }
   getPath () {
-    return this.importPath
+    return this.childPath
   }
   getArguments () {
     return []
@@ -60,4 +60,4 @@ class ImportNode extends Basic {
     }]
   }
 }
-export default ImportNode
+export default ChildNode

@@ -1,5 +1,5 @@
 <ul>
   [#for item, index in it.members]
-    [#import ./memberView, it.membersContext[index]]
+    [#child ./memberView, it.membersContext[index]]
   [/#for]
 </ul>

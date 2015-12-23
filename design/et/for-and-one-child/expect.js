@@ -1,7 +1,8 @@
 'use strict'
 
-var _dep = require('et-dependency')
 var Template_6 = require('./memberView')
+
+var _dep = require('et-dependency')
 var _dep_createTemplate = _dep.dep_createTemplate
 var _tp_createElement = _dep.tp_createElement
 var _tp_createLine = _dep.tp_createLine
