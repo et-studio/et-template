@@ -26,7 +26,6 @@ class ForParser extends Parser {
   parse (source, options) {
     this.set('#for', source, options)
 
-    var _this = this
     var nodeName = ''
     var itemName = ''
     var indexName = ''
@@ -54,7 +53,7 @@ class ForParser extends Parser {
           expression += token
           break
         default:
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
     if (lastToken !== ']') {

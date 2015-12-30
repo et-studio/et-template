@@ -8,15 +8,14 @@ import elementParser from '../parsers/element'
 var handler = {
   parse (expressions) {
     var results = []
-    var _this = this
     _.each(expressions, (expression) => {
       var cNode = conditionParser.parse(expression.source)
 
       if (expression.children.length === 1) {
-        var items1 = _this.parseSingle(cNode.condition, expression.children[0])
+        var items1 = this.parseSingle(cNode.condition, expression.children[0])
         if (items1.length) results.push(items1)
       } else if (expression.children.length > 1) {
-        var items2 = _this.parseMultiple(cNode.condition, expression.children)
+        var items2 = this.parseMultiple(cNode.condition, expression.children)
         if (items2.length) results.push(items2)
       }
     })

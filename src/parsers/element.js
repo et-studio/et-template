@@ -32,9 +32,7 @@ class ElementParser extends Parser {
   parse (source, options) {
     this.set('element', source, options)
 
-    var _this = this
     var lastState
-
     var attrs = []
     var attrKey = ''
     var attrValue = ''
@@ -59,7 +57,7 @@ class ElementParser extends Parser {
           if (str || attrValue) {
             var attr = attrs.pop()
             if (!attr || !attr.key || attr.value) {
-              _this.throwError()
+              this.throwError()
             }
             attr.value = attrValue + str
             attrs.push(attr)
@@ -110,7 +108,7 @@ class ElementParser extends Parser {
           str += token
           break
         default:
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
     if (lastState !== 'end') {

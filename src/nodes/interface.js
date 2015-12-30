@@ -81,9 +81,8 @@ class Interface {
     this.next = null
 
     var newChidren = []
-    var _this = this
     _.each(this.parent.children, (child) => {
-      if (child.getId() !== _this.getId()) {
+      if (child.getId() !== this.getId()) {
         newChidren.push(child)
       }
     })
@@ -128,10 +127,9 @@ class Interface {
     this.next = node
 
     var newChidren = []
-    var _this = this
     _.each(this.parent.children, (child) => {
       newChidren.push(child)
-      if (child.getId() === _this.getId()) {
+      if (child.getId() === this.getId()) {
         newChidren.push(node)
       }
     })

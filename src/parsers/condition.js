@@ -26,7 +26,6 @@ class ConditionParser extends Parser {
       this.throwError('Wrong condition source specification.')
     }
 
-    var _this = this
     var tag = ''
     var nodeName = ''
     var condition = ''
@@ -39,7 +38,7 @@ class ConditionParser extends Parser {
           condition += token
           break
         default:
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
     if (expectNodeName && nodeName.toLowerCase() !== expectNodeName) {

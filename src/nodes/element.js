@@ -69,13 +69,12 @@ class Element extends Basic {
   // 将条件表达式转换成为work对象使用的数据
   translateExpressions () {
     var results = []
-    var _this = this
     _.each(this.expressions, (items) => {
       var newItems = []
-      var valueId = _this.getRootValueId()
+      var valueId = this.getRootValueId()
       _.each(items, (item) => {
         var obj = _.pick(item, 'tag', 'exclusions', 'condition')
-        var attrs = _this.translateAttributesToCode(item.attributes)
+        var attrs = this.translateAttributesToCode(item.attributes)
 
         obj.valueId = valueId
         obj.residentAttributes = attrs.filter((attr) => { return !attr.isErratic })

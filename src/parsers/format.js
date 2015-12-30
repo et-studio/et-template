@@ -36,7 +36,6 @@ class FormatParser extends Parser {
     var body = ''
 
     var method = ''
-    var _this = this
     formatMachine.each(str, (state, token) => {
       switch (state) {
         case 'header':
@@ -63,7 +62,7 @@ class FormatParser extends Parser {
           break
         default:
           console.log(state)
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
     return {
