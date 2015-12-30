@@ -34,9 +34,23 @@ var valueIfTableOptions = {
     {'0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '-1': ''}
   ]
 }
+// @tableStart: pipe
+var pipeTableOptions = {
+  states: ['expression', 'pipe', 'pipeEx', '_str1', '_str2', '_str3'],
+  symbols: [' | ', ',', '\'', '`', '"', '\\\'', '\\\`', '\\\"'],
+  table: [
+    {'0': 'pipe', '1': 'expression', '2': '_str1', '3': '_str2', '4': '_str3', '5': 'expression', '6': 'expression', '7': 'expression', '-1': 'expression'},
+    {'0': 'pipe', '1': '', '2': '_str1', '3': '_str2', '4': '_str3', '5': 'pipeEx', '6': 'pipeEx', '7': 'pipeEx', '-1': 'pipeEx'},
+    {'0': 'pipe', '1': 'split:pipeEx', '2': '_str1', '3': '_str2', '4': '_str3', '5': 'pipeEx', '6': 'pipeEx', '7': 'pipeEx', '-1': 'pipeEx'},
+    {'0': '', '1': '', '2': '_last', '3': '', '4': '', '5': '', '6': '', '7': '', '-1': ''},
+    {'0': '', '1': '', '2': '', '3': '_last', '4': '', '5': '', '6': '', '7': '', '-1': ''},
+    {'0': '', '1': '', '2': '', '3': '', '4': '_last', '5': '', '6': '', '7': '', '-1': ''}
+  ]
+}
 // @tableEnd
 var valueMachine = new Machine(valueTableOptions)
 var valueIfMatchine = new Machine(valueIfTableOptions)
+var pipeMatchine = new Machine(pipeTableOptions)
 
 class ValueParser extends Parser {
   parse (source, options) {
@@ -53,22 +67,21 @@ class ValueParser extends Parser {
     var expression = ''
     var ifCondition = ''
 
-    var _this = this
     var lastState = 'text'
     valueMachine.each(str, (state, token) => {
       lastState = state
       switch (state) {
         case 'text':
-          _this.pushExpression(re, expression)
-          _this.pushIf(re, ifCondition)
+          this.pushExpression(re, expression)
+          this.pushIf(re, ifCondition)
           expression = ''
           ifCondition = ''
           break
         case 'exStart':
         case 'ifStart':
-          _this.pushText(re, text)
-          _this.pushExpression(re, expression)
-          _this.pushIf(re, ifCondition)
+          this.pushText(re, text)
+          this.pushExpression(re, expression)
+          this.pushIf(re, ifCondition)
           text = ''
           expression = ''
           ifCondition = ''
@@ -89,7 +102,7 @@ class ValueParser extends Parser {
           ifCondition += token
           break
         default:
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
     if (['text', 'exEnd', 'ifEnd'].indexOf(lastState) < 0) {
@@ -111,8 +124,77 @@ class ValueParser extends Parser {
   pushExpression (obj, str) {
     if (!str) return
 
-    obj.list.push(`(${str})`)
+    var valueExprssion = ''
+    var pipes = []
+    var tmp = ''
+    pipeMatchine.each(str, (state, token) => {
+      switch (state) {
+        case '_str1':
+        case '_str2':
+        case '_str3':
+          tmp += token
+          break
+        case 'expression':
+          valueExprssion += tmp
+          valueExprssion += token
+          tmp = ''
+          break
+        case 'pipe':
+          if (!pipes.length) {
+            valueExprssion += tmp
+            tmp = ''
+          } else {
+            this.addStringToMatrix(pipes, tmp)
+            tmp = ''
+          }
+          pipes.push([''])
+          break
+        case 'pipeEx':
+          this.addStringToMatrix(pipes, tmp, token)
+          tmp = ''
+          break
+        case 'split':
+          this.addStringToMatrix(pipes, tmp)
+          tmp = ''
+          pipes[pipes.length - 1].push('')
+          break
+        default:
+          this.throwError(state)
+      }
+    })
+    if (tmp) {
+      if (pipes.length) {
+        var saved = pipes[pipes.length - 1].pop()
+        saved += tmp
+        pipes[pipes.length - 1].push(saved)
+      } else {
+        valueExprssion += tmp
+      }
+    }
+
+    pipes.map((list) => {
+      var method = list[0] || ''
+      var args = list.slice(1).map(item => item.trim())
+      args = _.clearArraySpace(args)
+
+      if (!method.length) {
+        // do nothing
+      } else if (args.length) {
+        valueExprssion = `${method}(${valueExprssion}, ${args.join(', ')})`
+      } else {
+        valueExprssion = `${method}(${valueExprssion})`
+      }
+    })
+
+    obj.list.push(`(${valueExprssion})`)
     obj.isErractic = true
+  }
+  addStringToMatrix (matrix, ...strings) {
+    var list = matrix.pop() || []
+    var last = list.pop() || ''
+    last += strings.join('')
+    list.push(last)
+    matrix.push(list)
   }
   pushIf (obj, str) {
     if (!str) return false
@@ -123,7 +205,6 @@ class ValueParser extends Parser {
       condition: '',
       content: ''
     }
-    var _this = this
     valueIfMatchine.each(str, (state, token) => {
       switch (state) {
         case 'start':
@@ -158,7 +239,7 @@ class ValueParser extends Parser {
         case 'end':
           break
         default:
-          _this.throwError(state)
+          this.throwError(state)
       }
     })
 

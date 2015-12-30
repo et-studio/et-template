@@ -71,7 +71,7 @@ var tableHandler = {
     var len = 0
     contentsList.forEach(function (line, i) {
       if (i !== 1) {
-        var lineList = line.split('|')
+        var lineList = line.split('|').map(item => item.replace('&replace', '|'))
         if (i === 0) {
           len = lineList.length
         } else {
@@ -92,6 +92,8 @@ var tableHandler = {
     return matrix
   },
   translate (name, contents) {
+    contents = contents.replace('&|', '&replace')
+
     var matrix = this.translateTableMatrix(contents)
     var states = this.translateStates(matrix)
     var symbols = this.translateSymbols(matrix)
