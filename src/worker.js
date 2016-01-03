@@ -405,24 +405,19 @@ var _len = _last[${it.valueId}] = _list.length
 for (; _index < _len; _index++) {
   var ${it.indexName} = _index
   var ${it.itemName} = _list[_index]
-  var _itemId = '${it.id}_' + _index
-
 `
-    if (it.context) {
+
+    if (!it.trackBy) {
       re = re + `
-    var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, ${it.context})
+    ${this.for_without_track_by(it)}
 `
     } else {
       re = re + `
-    var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName})
+    ${this.for_with_track_by(it)}
 `
     }
-    re = re + `
 
-  if (_index >= _lastLength) {
-    var _prevId = _index?('${it.id}_' + (_index - 1)) : ${it.lineId}
-    _tp_after(_this, _prevId, _itemId)
-  }
+    re = re + `
   _template.update(${it.args.join(', ')})
 }
 for (; _index < _lastLength; _index++) {
@@ -435,6 +430,67 @@ for (; _index < _lastLength; _index++) {
   _tp_setRoot(this, ${it.id}, _len)
 `
     }
+
+    return re
+  },
+  for_with_track_by(it) {
+    var re = ''
+
+    re = re + `
+var _itemId = '${it.id}_' + ${it.trackBy}
+`
+
+    if (it.context) {
+      re = re + `
+  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, ${it.context})
+`
+    } else {
+      re = re + `
+  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName})
+`
+    }
+
+    re = re + `
+var _isTemplateChanged = false
+var _lastItemId = _last['for_item_id_' + '2_' + _index]
+_last['for_item_id_' + '2_' + _index] = itemId
+if (_lastItemId && _lastItemId !== itemId) {
+  // if come to here the lastTemplate should be created
+  var _lastTemplate = _tp_getTemplate(_this, _itemId)
+  if (_lastTemplate) _lastTemplate.remove()
+  _isTemplateChanged = true
+}
+
+if (_index >= _lastLength || _isTemplateChanged) {
+  var _prevId = _index?('${it.id}_' + (_index - 1)) : ${it.lineId}
+  _tp_after(_this, _prevId, _itemId)
+}
+`
+
+    return re
+  },
+  for_without_track_by(it) {
+    var re = ''
+
+    re = re + `
+var _itemId = '${it.id}_' + _index
+`
+
+    if (it.context) {
+      re = re + `
+  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName}, ${it.context})
+`
+    } else {
+      re = re + `
+  var _template = _tp_getConditionTemplate(_this, _itemId, ${it.templateName})
+`
+    }
+    re = re + `
+if (_index >= _lastLength) {
+  var _prevId = _index?('${it.id}_' + (_index - 1)) : ${it.lineId}
+  _tp_after(_this, _prevId, _itemId)
+}
+`
 
     return re
   },

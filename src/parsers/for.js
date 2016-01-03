@@ -5,18 +5,15 @@ import Machine from './machine'
 
 // @tableStart: for
 var forTableOptions = {
-  states: ['start', 'header', 'headerEnd', 'itemName', 'itemEnd', 'indexName', 'indexEnd', 'exStart', 'expression'],
-  symbols: ['[', ' in ', ' ', '\r', '\n', ',', ';'],
+  states: ['start', 'header', 'item', 'index', 'expression', 'trackBy'],
+  symbols: ['[', /\s/, /[,;]/, ' in ', ' track by '],
   table: [
-    {'0': 'start', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '-1': 'header'},
-    {'0': '', '1': '', '2': 'headerEnd', '3': 'headerEnd', '4': 'headerEnd', '5': '', '6': '', '-1': 'header'},
-    {'0': '', '1': '', '2': 'headerEnd', '3': 'headerEnd', '4': 'headerEnd', '5': '', '6': '', '-1': 'itemName'},
-    {'0': 'text', '1': 'exStart', '2': 'itemEnd', '3': 'itemEnd', '4': 'itemEnd', '5': 'itemEnd', '6': 'itemEnd', '-1': 'itemName'},
-    {'0': '', '1': 'exStart', '2': 'itemEnd', '3': 'itemEnd', '4': 'itemEnd', '5': '', '6': '', '-1': 'indexName'},
-    {'0': '', '1': 'exStart', '2': 'indexEnd', '3': 'indexEnd', '4': 'indexEnd', '5': 'indexEnd', '6': 'indexEnd', '-1': 'indexName'},
-    {'0': '', '1': 'exStart', '2': 'indexEnd', '3': 'indexEnd', '4': 'indexEnd', '5': '', '6': '', '-1': ''},
-    {'0': '', '1': '', '2': 'exStart', '3': 'exStart', '4': 'exStart', '5': '', '6': '', '-1': 'expression'},
-    {'0': 'expression', '1': 'expression', '2': 'expression', '3': 'expression', '4': 'expression', '5': 'expression', '6': 'expression', '-1': 'expression'}
+    {'0': 'start', '1': '', '2': '', '3': '', '4': '', '-1': 'header'},
+    {'0': '', '1': 'item', '2': '', '3': '', '4': '', '-1': 'header'},
+    {'0': '', '1': 'item', '2': 'ignore:index', '3': 'ignore:expression', '4': '', '-1': 'item'},
+    {'0': '', '1': 'index', '2': '', '3': 'ignore:expression', '4': '', '-1': 'index'},
+    {'0': 'expression', '1': 'expression', '2': 'expression', '3': 'expression', '4': 'ignore:trackBy', '-1': 'expression'},
+    {'0': 'trackBy', '1': 'trackBy', '2': 'trackBy', '3': 'trackBy', '4': 'trackBy', '-1': 'trackBy'}
   ]
 }
 // @tableEnd
@@ -31,26 +28,27 @@ class ForParser extends Parser {
     var indexName = ''
     var expression = ''
     var lastToken = ''
+    var trackBy = ''
     forMachine.each(source, (state, token) => {
       lastToken = token
       switch (state) {
         case 'start':
-        case 'headerEnd':
-        case 'itemEnd':
-        case 'indexEnd':
-        case 'exStart':
+        case 'ignore':
           break
         case 'header':
           nodeName += token
           break
-        case 'itemName':
+        case 'item':
           itemName += token
           break
-        case 'indexName':
+        case 'index':
           indexName += token
           break
         case 'expression':
           expression += token
+          break
+        case 'trackBy':
+          trackBy += token
           break
         default:
           this.throwError(state)
@@ -62,7 +60,8 @@ class ForParser extends Parser {
     nodeName = nodeName.trim().toLowerCase()
     itemName = itemName.trim()
     indexName = indexName.trim()
-    expression = expression.substr(0, expression.length - 1).trim()
+    expression = expression.trim().replace(/\]$/, '')
+    trackBy = trackBy.trim().replace(/\]$/, '')
 
     if (nodeName !== '#for') {
       this.throwError()
@@ -78,7 +77,8 @@ class ForParser extends Parser {
       nodeName: nodeName,
       itemName: itemName,
       indexName: indexName,
-      expression: expression
+      expression: expression,
+      trackBy: trackBy
     }
   }
 }
