@@ -11,7 +11,7 @@
         </span>
       </td>
       [#for query in db.topFiveQueries]
-        <!-- [#import './dbmonster-query.html', it, query] -->
+        <!-- [#child './dbmonster-query.html', query] -->
         <td class="Query {{ query.className }}">
           {{ query.elapsed }}
           <div class="popover left">

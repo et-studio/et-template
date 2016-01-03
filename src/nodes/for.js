@@ -25,6 +25,7 @@ class ForNode extends Basic {
     this.itemName = tmp.itemName
     this.indexName = tmp.indexName
     this.expression = tmp.expression
+    this.trackBy = tmp.trackBy
     if (tmp.indexName) {
       this.saveArgument(tmp.itemName, tmp.indexName)
     } else {
@@ -45,6 +46,7 @@ class ForNode extends Basic {
       valueId: this.getRootValueId(),
       isRoot: this.checkRoot(),
       expression: this.expression || this.condition,
+      trackBy: this.trackBy,
       indexName: this.indexName || defaults.indexName,
       itemName: this.itemName || defaults.itemName,
       templateName: this.getTemplateName(),

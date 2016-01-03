@@ -1,11 +1,9 @@
 
-       | start  | header    | headerEnd | itemName | itemEnd   | indexName | indexEnd | exStart    | expression
------- | -----  | ----      | --------- | -------- | -------   | --------- | -------- | -------    | ----------
-'['    | start  |           |           | text     |           |           |          |            | expression
-' in ' |        |           |           | exStart  | exStart   | exStart   | exStart  |            | expression
-' '    |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
-'\r'   |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
-'\n'   |        | headerEnd | headerEnd | itemEnd  | itemEnd   | indexEnd  | indexEnd | exStart    | expression
-','    |        |           |           | itemEnd  |           | indexEnd  |          |            | expression
-';'    |        |           |           | itemEnd  |           | indexEnd  |          |            | expression
-       | header | header    | itemName  | itemName | indexName | indexName |          | expression | expression
+       | start  | header | item               | index             | expression     | trackBy
+------ | -----  | ----   | --------           | ---------         | ----------     | -------
+'['    | start  |        |                    |                   | expression     | trackBy
+/\s/   |        | item   | item               | index             | expression     | trackBy
+/[,;]/ |        |        | ignore:index       |                   | expression     | trackBy
+' in ' |        |        | ignore:expression  | ignore:expression | expression     | trackBy
+' track by '|   |        |                    |                   | ignore:trackBy | trackBy
+       | header | header | item               | index             | expression     | trackBy

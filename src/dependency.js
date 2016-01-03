@@ -267,6 +267,12 @@ var template = {
     var roots = this.roots
     var ids = Object.keys(roots)
 
+    if (this.templateStart.parentNode) {
+      this.templateStart.parentNode.removeChild(this.templateStart)
+    }
+    if (this.templateEnd.parentNode) {
+      this.templateEnd.parentNode.removeChild(this.templateEnd)
+    }
     for (var i = 0, len = ids.length; i < len; i++) {
       var id = ids[i]
       var isRoot = roots[id]
