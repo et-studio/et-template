@@ -11,6 +11,6 @@ for (var i = 0, len = dependencies.length; i < len; i++) {
 // {{
 ;define('${it.moduleId}', [${paths.join(',')}], function(${variables.join(',')}){
   ${this.compile_template(it)}
-  return ${it.templateName}
-})
+  return ${it.templateName};
+});
 // }}

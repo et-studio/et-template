@@ -1,7 +1,7 @@
 
 // {{
 // 默认认为_dep对象已经存在了
-var _dep_createTemplate = _dep.dep_createTemplate
+var _dep_createTemplate = _dep.dep_createTemplate;
 // @_tp_mark
 // }}
 
@@ -14,8 +14,8 @@ _.each(it.newDoms, (dom) => {
   // {{
   var ${templateName} = _dep_createTemplate({
     create: function () {
-      var _this = this
-      var it = _this.context
+      var _this = this;
+      var it = _this.context;
 
       ${createList.join('\n')}
     }${updateList.length?',':''}
@@ -23,15 +23,15 @@ _.each(it.newDoms, (dom) => {
     if (updateList.length) {
       // {{
       update: function (${args.join(',')}) {
-        var _this = this
-        var _last = _this.last
-        var it = _this.context
+        var _this = this;
+        var _last = _this.last;
+        var it = _this.context;
 
         ${updateList.join('\n')}
       }
       // }}
     }
     // {{
-  })
+  });
   // }}
 })

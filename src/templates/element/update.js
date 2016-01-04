@@ -13,7 +13,7 @@ if (it.erraticAttributes.length || it.expressions.length) {
       // {{
       ${item.tag} ${condition} {
         if (_last[${item.valueId}] !== ${i}) {
-          _last[${item.valueId}] = ${i}
+          _last[${item.valueId}] = ${i};
           ${this.attributes_update(it, item.residentAttributes)}
           ${this.attributes_remove(it, item.exclusions)}
         }
@@ -38,10 +38,10 @@ Object.keys(it.events).map((key, index, list) => {
   })
   if (args.length && !isJustEvent) {
     // {{
-    var _current = [${argsStrList.join(', ')}]
-    var _saved = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(key)}')
+    var _current = [${argsStrList.join(', ')}];
+    var _saved = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(key)}');
     if (!_tp_isArrayEqual(_saved, _current)) {
-      _tp_saveEventArguments(_this, ${it.id}, '${_.translateMarks(key)}', _current)
+      _tp_saveEventArguments(_this, ${it.id}, '${_.translateMarks(key)}', _current);
     }
     // }}
   }

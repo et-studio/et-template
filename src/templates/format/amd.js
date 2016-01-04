@@ -4,8 +4,8 @@ var ids = it.moduleIds.map((item) => {
 })
 // {{
 ;define('${it.moduleId}', [${ids.join(',')}], function([${it.moduleIds.join(',')}]){
-  var module = {}
+  var module = {};
   ${it.content}
-  return module.exports
+  return module.exports;
 })
 // }}

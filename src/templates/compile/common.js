@@ -3,7 +3,7 @@ var dependencies = it.dependencies || []
 var requires = []
 for (var i = 0, len = dependencies.length; i < len; i++) {
   var item = dependencies[i]
-  requires.push(`var ${item.name} = require('${item.path}')`)
+  requires.push(`var ${item.name} = require('${item.path}');`)
 }
 
 // {{
@@ -11,5 +11,5 @@ for (var i = 0, len = dependencies.length; i < len; i++) {
 
 ${requires.join('\n')}
 ${this.compile_template(it)}
-module.exports = exports['default'] = ${it.templateName}
+module.exports = exports['default'] = ${it.templateName};
 // }}

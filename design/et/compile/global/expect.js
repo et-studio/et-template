@@ -1,17 +1,17 @@
 ;(function(global) {
-  var _dep = global['et-dependency']
-  var _dep_createTemplate = _dep.dep_createTemplate
-  var _tp_createElement = _dep.tp_createElement
-  var _tp_createText = _dep.tp_createText
+  var _dep = global['et-dependency'];
+  var _dep_createTemplate = _dep.dep_createTemplate;
+  var _tp_createElement = _dep.tp_createElement;
+  var _tp_createText = _dep.tp_createText;
 
   var Template_0 = _dep_createTemplate({
     create: function() {
-      var _this = this
-      var it = _this.context
+      var _this = this;
+      var it = _this.context;
 
-      _tp_createElement(_this, null, 2, 'DIV')
-      _tp_createText(_this, 2, 4, 'test')
+      _tp_createElement(_this, null, 2, 'DIV');
+      _tp_createText(_this, 2, 4, 'test');
     }
-  })
-  global['Template'] = Template_0
-})(window)
+  });
+  global['Template'] = Template_0;
+})(window);

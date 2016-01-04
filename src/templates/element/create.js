@@ -14,23 +14,23 @@ if (!_.isEmpty(it.properties)) {
 
 if (propertiesString !== nullString) {
   // {{
-  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString})
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString}, ${propertiesString});
   // }}
 } else if (attributesString !== nullString) {
   // {{
-  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString})
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}', ${attributesString});
   // }}
 } else {
   // {{
-  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}')
+  _tp_createElement(_this, ${parentElementId}, ${it.id}, '${_.translateMarks(it.nodeName)}');
   // }}
 }
 
 if (it.output) {
   // {{
   _tp_bind(_this, ${it.id}, 'change input', function () {
-    ${_.translateMarks(it.output)} = this.value
-  })
+    ${_.translateMarks(it.output)} = this.value;
+  });
   // }}
 }
 
@@ -42,11 +42,11 @@ if (!_.isEmpty(it.outputs)) {
       var name = output.propName
       var expression = output.expression
       // {{
-      ${_.translateMarks(expression)} = this.${_.translateMarks(name)}
+      ${_.translateMarks(expression)} = this.${_.translateMarks(name)};
       // }}
     })
     // {{
-  })
+  });
   // }}
 }
 
@@ -67,22 +67,22 @@ if (!_.isEmpty(it.events)) {
     })
     if (!args.length) {
       eventsStringList.push(`'${_.translateMarks(eventName)}': function () {
-        ${expression}()
+        ${expression}();
       }`)
     } else if (isJustEvent) {
       eventsStringList.push(`'${_.translateMarks(eventName)}': function ($event) {
-        ${expression}(${argsStrList.join(', ')})
+        ${expression}(${argsStrList.join(', ')});
       }`)
     } else {
       eventsStringList.push(`'${_.translateMarks(eventName)}': function ($event) {
-        var _args = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(eventName)}')
-        ${expression}(${argsStrList.join(', ')})
+        var _args = _tp_getEventArguments(_this, ${it.id}, '${_.translateMarks(eventName)}');
+        ${expression}(${argsStrList.join(', ')});
       }`)
     }
   })
   // {{
-  _tp_bindEventsByMap(_this, ${it.id}, {
+  _tp_bindEventsByMap(_this, ${it.id}, {\n
     ${eventsStringList.join(',\n')}
-  })
+  });
   // }}
 }
