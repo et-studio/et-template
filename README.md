@@ -1,4 +1,4 @@
-# et-template [![NPM version](https://img.shields.io/npm/v/et-template.svg?style=flat-square)](https://www.npmjs.com/package/et-template)
+# et-template [![NPMversion](https://img.shields.io/npm/v/et-template.svg?style=flat-square)](https://www.npmjs.com/package/et-template) [![Travis](https://travis-ci.org/et-studio/et-template.svg?style=flat-square)](https://travis-ci.org/et-studio/et-template)
 
 **et-template** 是一个供Web使用的Dom模板，他的设计启发于[doT](https://github.com/olado/doT)。
 但是那是一个字符串模板，字符串模板在Web应用中难免会遇见很多问题，比如说Dom的生命周期在每次更新的时候都无法控制，
