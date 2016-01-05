@@ -10,7 +10,7 @@
   "main": "./es5/et.js",
   "scripts": {
     "start": "node app",
-    "test": "standard && mocha test/npm.js"
+    "test": "standard && mocha test/fuse"
   },
   "engines": {
     "node": "4.0.x"
@@ -38,6 +38,7 @@
     "gulp-util": "^3.0.6",
     "mocha": "^2.2.5",
     "require-dir": "^0.3.0",
+    "should": "^8.0.2",
     "through2": "^2.0.0"
   },
   "keywords": [
