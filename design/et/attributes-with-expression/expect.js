@@ -36,9 +36,9 @@ var Template_0 = _dep_createTemplate({
 
     var _tmp = 'It is ' + (function() {
         if (it.isTrue) {
-          return 'true'
+          return 'true';
         } else {
-          return 'false'
+          return 'false';
         }
         return ''
       })() + '!!!';

@@ -249,15 +249,15 @@ class ValueParser extends Parser {
       switch (item.type) {
         case 'if':
           return `if (${item.condition || ''}) {
-            return ${content || ''}
+            return ${content || ''};
           }`
         case 'elseif':
           return ` else if (${item.condition || ''}) {
-            return ${content || ''}
+            return ${content || ''};
           }`
         default:
           return ` else {
-            return ${content || ''}
+            return ${content || ''};
           }`
       }
     })
