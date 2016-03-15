@@ -1,49 +1,62 @@
 {
   "name": "et-template",
-  "version": "0.3.7",
+  "version": "0.4.0-beta7",
   "description": "A template for web.",
   "author": "suyu34",
   "repository": {
     "type": "git",
-    "url": "git@github.com:suyu34/et.git"
+    "url": "git@github.com:et-studio/et-template.git"
   },
   "main": "./es5/et.js",
+  "typings": "./typings/et-tempalte.d.ts",
   "scripts": {
-    "start": "node app",
-    "test": "standard && mocha test/npm.js"
+    "setup": "typings install",
+    "clean": "rm -rf es5",
+    "lint": "standard && tslint src/**/*.ts",
+    "start": "webpack-dev-server --content-base test/server/views --hot --progress",
+    "prebuild": "npm run clean && npm run lint",
+    "build": "tsc",
+    "postbuild": "npm run test",
+    "test": "mocha test/fuse",
+    "prepublish": "npm run build"
   },
   "engines": {
     "node": "4.0.x"
   },
-  "standard": {
-    "ignore": [
-      "src/templates/",
-      "src/worker.js",
-      "design/",
-      "es5/"
-    ]
+  "dependencies": {
+    "et-parser": "^0.1.8",
+    "lodash": "^4.11.1"
   },
   "devDependencies": {
-    "babel": "^5.8.21",
-    "babel-core": "^5.8.22",
-    "del": "^1.1.1",
-    "esformatter": "0.7.2",
-    "express": "^4.13.3",
-    "gulp": "^3.9.0",
-    "gulp-babel": "^5.2.1",
-    "gulp-esformatter": "^4.0.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sequence": "^0.4.1",
-    "gulp-uglify": "^1.4.2",
-    "gulp-util": "^3.0.6",
-    "mocha": "^2.2.5",
-    "require-dir": "^0.3.0",
-    "through2": "^2.0.0"
+    "glob": "^7.0.3",
+    "imports-loader": "^0.6.5",
+    "js-beautify": "^1.6.2",
+    "mocha": "^2.4.5",
+    "should": "^8.3.1",
+    "standard": "^6.0.8",
+    "ts-loader": "^0.8.2",
+    "tslint": "^3.7.4",
+    "typescript": "^1.8.10",
+    "typings": "^0.7.12",
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1"
+  },
+  "standard": {
+    "ignore": [
+      "design",
+      "src-old"
+    ]
   },
   "keywords": [
     "template",
     "et",
     "ET"
+  ],
+  "files": [
+    "es5",
+    "src",
+    "typeings/et-template.d.ts",
+    "README.md"
   ],
   "license": "MIT"
 }

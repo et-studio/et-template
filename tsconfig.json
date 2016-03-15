@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "es5"
+  },
+  "exclude": [
+    "node_modules",
+    "typings/browser",
+    "typings/browser.d.ts"
+  ]
+}

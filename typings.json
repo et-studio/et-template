@@ -1,0 +1,10 @@
+{
+  "name": "et-template",
+  "version": false,
+  "dependencies": {},
+  "ambientDevDependencies": {
+    "es6-collections": "registry:dt/es6-collections#0.5.1+20160316155526",
+    "lodash": "registry:dt/lodash#3.10.0+20160330154726",
+    "node": "registry:dt/node#4.0.0+20160412142033"
+  }
+}

@@ -1,9 +1,0 @@
-
-       | start  | header | item               | index             | expression     | trackBy
------- | -----  | ----   | --------           | ---------         | ----------     | -------
-'['    | start  |        |                    |                   | expression     | trackBy
-/\s/   |        | item   | item               | index             | expression     | trackBy
-/[,;]/ |        |        | ignore:index       |                   | expression     | trackBy
-' in ' |        |        | ignore:expression  | ignore:expression | expression     | trackBy
-' track by '|   |        |                    |                   | ignore:trackBy | trackBy
-       | header | header | item               | index             | expression     | trackBy
