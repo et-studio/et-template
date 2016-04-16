@@ -1,6 +1,6 @@
 
 import {each} from 'lodash'
-import {BasicNode} from './Basic'
+import {BasicNode} from './basic'
 import {fillTo, addMapToMap} from '../util'
 import {IfNode} from './if'
 import {wrap, parseAttributes, parseValue} from '../parsers'

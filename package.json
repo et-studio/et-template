@@ -17,8 +17,8 @@
     "prebuild": "npm run clean && npm run lint",
     "build": "tsc",
     "postbuild": "npm run test",
-    "test": "mocha test/fuse",
-    "prepublish": "npm run build"
+    "test": "mocha test/**/*_spec.js",
+    "deploy": "npm run build && npm publish"
   },
   "engines": {
     "node": "4.0.x"
@@ -28,7 +28,6 @@
     "lodash": "^4.11.1"
   },
   "devDependencies": {
-    "glob": "^7.0.3",
     "imports-loader": "^0.6.5",
     "js-beautify": "^1.6.2",
     "mocha": "^2.4.5",
