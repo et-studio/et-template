@@ -113,65 +113,8 @@ html 使用时会将内容字符或者变量作为innerHTML赋值给对应的父
 * html 子内容会被当作字符串处理，只能做字符串判断，而不能进行复杂的逻辑处理。
 
 
-### 编译模板代码
-
-模板源代码
-```js
-var et = require('et-template')
-var options = {}
-var html = '<div>hello, {{it.name}}!</div>'
-var result = et.compile(html, options)
-```
-
-编译之后的部分代码
-```js
-var Template_0 = _createTemplate({
-  create: function() {
-    var _this = this
-    var it = _this.context
-
-    _createElement(_this, null, 2, 'DIV')
-    _createText(_this, 2, 4, '')
-  },
-  update: function(it) {
-    var _this = this
-    var _last = _this.last
-    var it = _this.context
-
-    var _tmp = 'Hello, ' + it.name + '!'
-    if (_last[0] !== _tmp) {
-      _last[0] = _tmp
-      _text(_this, 4, _tmp)
-    }
-  }
-})
-```
-如果你仔细看编译之后的代码，你会发现其实这是相当于进行手动进行了模板的优化。
-因为模板函数内部使用的变量全都是 “\_” 开头所以在使用模板时候不应该去定义和使用这样的变量。
-在实际项目构建的过程中，应该使用构建工具去将模板文件转换称为运行文件，比如[gulp](https://github.com/gulpjs/gulp)。
-
-这样去使用模板对象
-```js
-var it = {name: 'Bob'}
-var template = new Template_0(it)
-template.update()
-
-var $body = document.querySelector('body')
-$body.appendChild(template.get())
-```
-这样的一段代码运行之后，就能看见网页中出现了 “Hello, Bob!” 这样的内容。
-
-
-## 模板接口
-当模板被实例化之后，就具备了以下的方法函数:
-* get 从当前模板获取节点对象
-* update 使用新的数据更新模板
-* remove 把模板的节点从页面上移除掉
-* destory 整个对象属性销毁，释放内存
-
-
-## et.compile(options)
-### modules
+## et.compile(source: string, options: Object)
+### options.modules
 
 编译结果的运行格式
 
@@ -180,14 +123,14 @@ $body.appendChild(template.get())
 默认值: 'common'
 
 
-### depPath
+### options.depPath
 
 编译结果的依赖对象的引用地址
 
 默认值: 'et-dependency'
 
 
-### moduleId
+### options.moduleId
 
 在 amd, global, angular 的模式下需要显示指定每个结果函数的地址命名
 
