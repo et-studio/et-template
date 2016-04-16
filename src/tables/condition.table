@@ -1,5 +1,0 @@
-
-     | name      | condition
----- | ------    | ---------
-/\s/ | condition | condition
-     | name      | condition

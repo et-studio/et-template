@@ -9,14 +9,13 @@
 *~
 .idea
 *.iml
+.vscode
 .DS_Store
+.tmp
 
+dist
 logs
-tmp
-
 node_modules
-bower_components
-design/**/source.js
-test/design/**/source.js
-design/**/*.min.js
 es5
+typings/browser*
+typings/main*

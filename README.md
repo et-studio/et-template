@@ -62,7 +62,7 @@ if条件判读和for遍历都使用了比较特殊的节点方式，[#]这样的
 
 函数执行表达式是通过‘()’来判断的，所以这里不建议使用动态函数，而是使用上下文中的函数。
 
-### 反向绑定
+### 反向输出
 ```html
 <input type="text" [value]="it.name">
 <input type="file" [file]="it.file">
@@ -112,39 +112,15 @@ html 使用时会将内容字符或者变量作为innerHTML赋值给对应的父
 * 没有兄弟节点，意味着父节点只有这一个子节点。
 * html 子内容会被当作字符串处理，只能做字符串判断，而不能进行复杂的逻辑处理。
 
-### doT模板语法
-```html
-<div id="insert-example">
-  Hello, {{=it.name}}!
-<div>
-<div id="if-example">
-  {{?it.isTrue}}
-    It is true.
-  {{??}}
-    It is else.
-  {{?}}
-</div>
-<div id="for-example">
-  {{~it.list:item:index}}
-    It is for loop {{index}}.
-  {{~}}
-</div>
-```
-doT的语法现在支持了基本的几个语法:
-* 插值
-* if判断
-* for遍历
 
 ### 编译模板代码
 
 模板源代码
 ```js
-var ET = require('et-template')
-var initOptions = {}
-var compileOptions = {}
-var et = new ET(initOptions)
+var et = require('et-template')
+var options = {}
 var html = '<div>hello, {{it.name}}!</div>'
-var result = et.compile(html, compileOptions)
+var result = et.compile(html, options)
 ```
 
 编译之后的部分代码
@@ -185,18 +161,6 @@ $body.appendChild(template.get())
 ```
 这样的一段代码运行之后，就能看见网页中出现了 “Hello, Bob!” 这样的内容。
 
-## et-template 接口
-从依赖库中获取到的是一个类函数，需要实例化之后才能使用编译函数。
-在实例化的过程中应该传入一个初始化配置参数，为模板编译的过程中提供一些必要的参数。
-如果想要做不同的编译工作，通常需要不同的实例对象。
-
-在编译的时候，仍然需要传递编译时参数，但是编译参数应该是实时使用，而不是初始化参数。
-所以编译参数和初始化参数是相互冲突的，同一个参数只会出现在同一个地方。
-
-实例之后的对象具备以下的方法:
-* compile(htmlString, Options)
-
-如果初始化参数带有 compiledTemplate = 'dot' 这样的参数，那么就认为被编译的html代码是doT格式的。
 
 ## 模板接口
 当模板被实例化之后，就具备了以下的方法函数:
@@ -206,19 +170,30 @@ $body.appendChild(template.get())
 * destory 整个对象属性销毁，释放内存
 
 
-## Options
-### 初始化参数
-| 名称 | 默认值 | 可选值 | 解释 |
-|---|---|---|---|
-| compiledTemplate| null | ['dot', null] | 被编译模板使用的兼容语法 |
-| modules | 'common' | ['common', 'cmd', 'amd', 'global', 'angular'] | 编译结果使用的模块化规范 |
-| dependencyPath | 'et-dependency' | String | 运行时依赖对象的路劲 |
+## et.compile(options)
+### modules
 
-### 编译时参数
-| 名称 | 默认值 | 可选值 | 解释 |
-|---|---|---|---|
-| moduleId| 'Template' | String | 编辑之后模板对象的模块化id |
-| angularModuleName | 'moduleName' | String | angular会使用 |
+编译结果的运行格式
+
+可选参数: 'common', 'cmd', 'amd', 'global', 'angular'
+
+默认值: 'common'
+
+
+### depPath
+
+编译结果的依赖对象的引用地址
+
+默认值: 'et-dependency'
+
+
+### moduleId
+
+在 amd, global, angular 的模式下需要显示指定每个结果函数的地址命名
+
+默认值: 'Tempalte'
+
+
 
 ## License
 MIT
