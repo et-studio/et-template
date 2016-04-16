@@ -54,7 +54,7 @@
   "files": [
     "es5",
     "src",
-    "typeings/et-template.d.ts",
+    "typings/et-template.d.ts",
     "README.md"
   ],
   "license": "MIT"
